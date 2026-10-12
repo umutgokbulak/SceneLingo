@@ -28,6 +28,7 @@
   let autoPausedFor = -1;
   let lastIdx = -1; // cue shown on the previous frame; -1 after a seek
   let ownSeek = false;
+  let playToken = 0; // changes whenever playback is started or paused on purpose
   let hoverPaused = false;
   let popupToken = 0;
   let popupWord = null;
@@ -374,7 +375,7 @@
     const practise = due >= 0 && settings.dictation && spokenWords(cues[due].text).length > 0;
     if (due >= 0 && (settings.autoPause || practise) && !video.paused && autoPausedFor !== due) {
       autoPausedFor = due;
-      video.pause();
+      pauseVideo();
       if (due !== idx) {
         // A late frame skipped the pause window: step back to just before the end of that line.
         t = cues[due].end - 0.05;
@@ -498,7 +499,28 @@
     autoPausedFor = -1;
     lastIdx = -1;
     hoverPaused = false;
-    if (video.paused) video.play().catch(() => {});
+    playAfterSeek();
+  }
+
+  function pauseVideo() {
+    playToken++;
+    video.pause();
+  }
+
+  // Seeking while paused does not reliably leave the site's player playing: it can put the video
+  // back on pause when the seek completes. So playback is asked for again once the seek is done.
+  function playAfterSeek() {
+    const v = video;
+    const token = ++playToken;
+    const play = () => {
+      if (token === playToken && v === video && v.paused) v.play().catch(() => {});
+    };
+    play();
+    v.addEventListener('seeked', () => {
+      play();
+      setTimeout(play, 200);
+      setTimeout(play, 600);
+    }, { once: true });
   }
 
   function nav(dir) {
@@ -539,7 +561,7 @@
     const cue = primary && primary.cues[shown.idx];
     const lang = primary ? primary.track.languageCode : '';
     if (video && !video.paused && (pin || settings.hoverPause)) {
-      video.pause();
+      pauseVideo();
       hoverPaused = true;
     }
     const token = ++popupToken;
@@ -795,7 +817,7 @@
     const text = cueSentence();
     if (!text) return;
     if (video && !video.paused) {
-      video.pause();
+      pauseVideo();
       hoverPaused = true;
     }
     speak(text, slow);
@@ -835,7 +857,7 @@
     if (!dict || dict.idx !== idx) {
       dict = { idx, checked: false };
       ui.root.classList.remove('sl-reveal');
-      ui.dictInput.value = '';
+      ui.dictInput.textContent = '';
       ui.dictResult.textContent = '';
       ui.dictResult.hidden = true;
       ui.dictGo.textContent = 'Kontrol et (Enter)';
@@ -846,7 +868,7 @@
 
   function checkDictation() {
     const expected = spokenWords(primary.cues[dict.idx].text);
-    const hit = matchWords(expected, spokenWords(ui.dictInput.value));
+    const hit = matchWords(expected, spokenWords(ui.dictInput.textContent));
     const ok = hit.filter(Boolean).length;
     dictStats.ok += ok;
     dictStats.total += expected.length;
@@ -981,10 +1003,13 @@
     dictEl.hidden = true;
     const dictResult = el('div', 'sl-dict-result');
     dictResult.hidden = true;
-    const dictInput = el('input', 'sl-dict-input');
-    dictInput.type = 'text';
-    dictInput.placeholder = 'Duyduğunu yaz…';
-    dictInput.autocomplete = 'off';
+    // An editable box rather than an <input>: the browser offers saved cards and addresses in
+    // form fields, and while that list is open it takes Tab and Enter for itself.
+    const dictInput = el('div', 'sl-dict-input');
+    dictInput.contentEditable = 'plaintext-only';
+    dictInput.setAttribute('role', 'textbox');
+    dictInput.setAttribute('aria-label', 'Duyduğunu yaz');
+    dictInput.dataset.placeholder = 'Duyduğunu yaz…';
     dictInput.spellcheck = false;
     const dictBtns = el('div', 'sl-dict-btns');
     const dictAgain = el('button', null, '↺ Tekrar dinle (Tab)');
@@ -1171,7 +1196,7 @@
     popup.addEventListener('mouseleave', scheduleClose);
     box.addEventListener('mouseenter', () => {
       if (settings.hoverPause && video && !video.paused) {
-        video.pause();
+        pauseVideo();
         hoverPaused = true;
       }
     });

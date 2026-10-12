@@ -29,6 +29,14 @@ window.loadTitle = (viaXhr) => {
   if (!viaXhr) return fetch('/test/api/GetPlaybackResources.json').then(r => r.json());
   const x = new XMLHttpRequest(); x.open('GET', '/test/api/GetPlaybackResources.json'); x.send();
 };
+// A player that keeps its own idea of playing/paused and re-applies it when a seek completes,
+// as streaming players tend to. Enabled with ?strict.
+if (new URLSearchParams(location.search).has('strict')) {
+  let sitePlaying = false;
+  v.addEventListener('play', () => { if (!v.seeking) sitePlaying = true; });
+  v.addEventListener('pause', () => { if (!v.seeking) sitePlaying = false; });
+  v.addEventListener('seeked', () => { if (!sitePlaying) v.pause(); });
+}
 // Pretend the player's own captions run `shift` seconds behind the video clock.
 window.simulateNative = (shift) => fetch('/test/subs/en.ttml2?native').then(r => r.text()).then(t => {
   const cues = [...new DOMParser().parseFromString(t, 'application/xml').getElementsByTagNameNS('*', 'p')].map(p => {

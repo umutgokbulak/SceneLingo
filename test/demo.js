@@ -45,7 +45,7 @@
     video.play().catch(() => {});
     await until(() => !q('.sl-dict').hidden);
     const input = q('.sl-dict-input');
-    input.value = 'dont forget you umbrella';
+    input.textContent = 'dont forget you umbrella';
     key('Enter', input);
     q('.sl-toast').hidden = true;
   }

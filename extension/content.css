@@ -137,6 +137,18 @@ html.sl-hide-native .atvwebplayersdk-captions-text {
   user-select: text;
   -webkit-user-select: text;
 }
+#scenelingo-root .sl-dict-input {
+  min-height: calc(1.5em + 18px);
+  line-height: 1.5;
+  text-align: left;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  cursor: text;
+}
+#scenelingo-root .sl-dict-input:empty::before {
+  content: attr(data-placeholder);
+  color: #6f8294;
+}
 #scenelingo-root .sl-dict-input:focus {
   border-color: #1a98ff;
 }

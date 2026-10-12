@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "SceneLingo",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "Film ve dizi izlerken dil öğren: çift altyazı, kelime çevirisi ve telaffuzu, kelime tekrarı, dinleme alıştırması.",
   "icons": { "16": "icons/16.png", "48": "icons/48.png", "128": "icons/128.png" },
   "minimum_chrome_version": "111",
