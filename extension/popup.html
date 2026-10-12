@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<title>SceneLingo</title>
+<style>
+  body { width: 340px; margin: 0; padding: 14px; background: #141b23; color: #fff; font: 14px/1.4 "Segoe UI", Arial, sans-serif; }
+  h1 { margin: 0 0 10px; font-size: 17px; }
+  h2 { margin: 16px 0 6px; font-size: 14px; display: flex; justify-content: space-between; align-items: center; }
+  .row { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 32px; }
+  select, button { font: inherit; color: #fff; background: #2c3947; border: 1px solid #46566a; border-radius: 6px; padding: 4px 8px; }
+  button { cursor: pointer; }
+  button:hover { background: #3a4a5c; }
+  input[type=range] { width: 130px; margin: 0; accent-color: #1a98ff; vertical-align: middle; }
+  #volumeValue { display: inline-block; min-width: 44px; text-align: right; font-variant-numeric: tabular-nums; }
+  input[type=checkbox] { width: 16px; height: 16px; accent-color: #1a98ff; }
+  #words { max-height: 260px; overflow-y: auto; border: 1px solid #2c3947; border-radius: 8px; }
+  .word { display: flex; gap: 8px; align-items: flex-start; padding: 6px 8px; border-bottom: 1px solid #222c37; }
+  .word:last-child { border-bottom: 0; }
+  .word-main { flex: 1; min-width: 0; }
+  .word b { font-size: 15px; }
+  .tr { color: #ffe08a; }
+  .ctx { font-size: 12px; color: #8fa3b5; }
+  .del { padding: 0 7px; }
+  .empty { padding: 12px; color: #8fa3b5; text-align: center; }
+  #review { width: 100%; margin: 4px 0 8px; padding: 7px; background: #1a6fd6; border-color: #1a98ff; }
+  #review:hover { background: #1f7fee; }
+  .kind { margin-left: 6px; font-size: 11px; color: #8fa3b5; }
+  .note { margin-top: 12px; font-size: 12px; color: #8fa3b5; }
+</style>
+</head>
+<body>
+  <h1>SceneLingo</h1>
+  <label class="row"><span>Çift altyazı</span><input type="checkbox" id="enabled"></label>
+  <div class="row"><span>Öğrendiğim dil</span><select id="learnLang"></select></div>
+  <div class="row"><span>Ana dilim</span><select id="nativeLang"></select></div>
+  <div class="row"><span>Okuma sesi</span><span><input type="range" id="volume" min="0" max="300" step="10"><span id="volumeValue"></span></span></div>
+  <label class="row"><span>Varsa Prime'ın kendi çevirisini kullan</span><input type="checkbox" id="preferHuman"></label>
+
+  <h2><span>Kaydedilen kelimeler (<span id="count">0</span>)</span><button id="export">CSV indir</button></h2>
+  <button id="review">Tekrar et</button>
+  <div id="words"></div>
+
+  <div class="note">Kelimenin üzerine gelince çevirisi açılır ve okunur; tıklarsan pencere sabit kalır. Birkaç kelimeyi fareyle seçersen kalıp olarak çevrilir. Diğer ayarlar (aksan ve okuma sesi dahil) oynatıcının sol kenarındaki <b>SL</b> düğmesinde. Kısayollar: A önceki · S tekrar · D sonraki · Q her cümlede duraklat · W dinleme alıştırması · L liste.</div>
+  <script src="shared.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

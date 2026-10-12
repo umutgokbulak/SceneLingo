@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kelime tekrarı — SceneLingo</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; min-height: 100vh; background: #10161d; color: #fff; font: 16px/1.45 "Segoe UI", Arial, sans-serif; }
+  main { max-width: 680px; margin: 0 auto; padding: 28px 16px 48px; }
+  header { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
+  h1 { margin: 0; font-size: 22px; }
+  #progress { color: #8fa3b5; font-size: 14px; font-variant-numeric: tabular-nums; }
+  [hidden] { display: none !important; }
+  .panel { padding: 26px 24px; border-radius: 14px; background: #1b232d; border: 1px solid #2f3b49; text-align: center; }
+  #kind { color: #8fa3b5; font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; }
+  #term { margin-top: 6px; font-size: 34px; font-weight: 700; overflow-wrap: anywhere; }
+  #term.long { font-size: 22px; font-weight: 600; }
+  #ipa { min-height: 22px; color: #8fa3b5; }
+  .audio { display: flex; justify-content: center; gap: 8px; margin: 12px 0 4px; }
+  #context { margin-top: 14px; font-size: 18px; color: #dbe4ec; }
+  #context b { color: #fff; background: rgba(26, 152, 255, 0.3); border-radius: 4px; padding: 0 3px; }
+  #source { margin-top: 4px; font-size: 12px; color: #6f8294; }
+  #answer { margin-top: 18px; padding-top: 16px; border-top: 1px solid #2f3b49; }
+  #translation { font-size: 24px; color: #ffe08a; }
+  #definition { margin-top: 8px; color: #dbe4ec; }
+  #synonyms { margin-top: 6px; font-size: 14px; color: #8fa3b5; }
+  #actions { margin-top: 22px; }
+  button { font: inherit; color: #fff; background: #2c3947; border: 1px solid #46566a; border-radius: 8px; padding: 8px 14px; cursor: pointer; }
+  button:hover { background: #3a4a5c; }
+  button.main { background: #1a6fd6; border-color: #1a98ff; padding: 10px 22px; }
+  button.main:hover { background: #1f7fee; }
+  #grades { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  #grades button { min-width: 150px; padding: 10px 12px; }
+  #grades small { display: block; color: #c7d1db; font-size: 12px; }
+  #again { border-color: #a04848; }
+  #good { border-color: #3d8a55; }
+  #easy { border-color: #1a98ff; }
+  #remove { margin-top: 18px; padding: 4px 10px; font-size: 12px; color: #8fa3b5; background: none; border-color: transparent; }
+  #remove:hover { color: #ff9c9c; background: none; }
+  #empty p { margin: 0 0 14px; color: #dbe4ec; }
+  .keys { margin-top: 14px; font-size: 12px; color: #6f8294; text-align: center; }
+</style>
+</head>
+<body>
+<main>
+  <header><h1>Kelime tekrarı</h1><div id="progress"></div></header>
+
+  <section id="card" class="panel" hidden>
+    <div id="kind"></div>
+    <div id="term"></div>
+    <div id="ipa"></div>
+    <div class="audio">
+      <button id="say" title="R">🔊 Dinle</button>
+      <button id="saySlow">🐢 Yavaş</button>
+    </div>
+    <div id="context"></div>
+    <div id="source"></div>
+    <div id="answer" hidden>
+      <div id="translation"></div>
+      <div id="definition"></div>
+      <div id="synonyms"></div>
+    </div>
+    <div id="actions">
+      <button id="show" class="main">Cevabı göster</button>
+      <div id="grades" hidden>
+        <button id="again">Bilemedim<small></small></button>
+        <button id="good">Bildim<small></small></button>
+        <button id="easy">Kolay<small></small></button>
+      </div>
+    </div>
+    <button id="remove">Kartı sil</button>
+  </section>
+
+  <section id="empty" class="panel" hidden>
+    <p id="emptyText"></p>
+    <button id="studyAll" class="main" hidden>Yine de hepsini çalış</button>
+  </section>
+
+  <div class="keys">Boşluk: cevabı göster · 1 bilemedim · 2 bildim · 3 kolay · R dinle</div>
+</main>
+<script src="shared.js"></script>
+<script src="review.js"></script>
+</body>
+</html>
