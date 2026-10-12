@@ -74,8 +74,34 @@
 
   const langName = (code) => (SL_LANGS.find((l) => l[0] === code) || [code, code.toUpperCase()])[1];
 
+  // When the extension is reloaded or updated, the copy of this script already running in an open
+  // tab loses its connection to it: the overlay stays, but nothing can be translated, spoken or
+  // saved until the page itself is reloaded.
+  const STALE = 'Eklenti güncellendi. Çeviri, ses ve kaydetme için bu sayfayı yenile (F5).';
+  let staleWarned = false;
+
+  const connected = () => {
+    try {
+      return !!(chrome.runtime && chrome.runtime.id);
+    } catch (e) {
+      return false;
+    }
+  };
+
+  function warnStale() {
+    setStatus(STALE);
+    if (staleWarned) return;
+    staleWarned = true;
+    toast(STALE, 7000);
+  }
+
   const send = (msg) =>
     new Promise((resolve) => {
+      if (!connected()) {
+        warnStale();
+        resolve({ ok: false, error: STALE });
+        return;
+      }
       try {
         chrome.runtime.sendMessage(msg, (res) => {
           const err = chrome.runtime.lastError;
@@ -302,7 +328,7 @@
     const texts = slice.map((x) => (isShouting(x.text) ? calm(x.text, true, english) : x.text));
     send({ type: 'translate', texts, sl: p.track.languageCode, tl: settings.nativeLang }).then((res) => {
       if (!res.ok) {
-        if (primary === p) setStatus('Çeviri alınamadı: ' + res.error);
+        if (primary === p) setStatus(res.error === STALE ? STALE : 'Çeviri alınamadı: ' + res.error);
         setTimeout(() => p.requested.delete(c), 10000);
         return;
       }
@@ -448,14 +474,14 @@
     document.documentElement.classList.toggle('sl-hide-native', !!(settings.enabled && settings.hideNative && primary));
   }
 
-  function toast(text) {
+  function toast(text, ms = 1600) {
     if (!ui) return;
     ui.toast.textContent = text;
     ui.toast.hidden = false;
     clearTimeout(toastTimer);
     toastTimer = setTimeout(() => {
       ui.toast.hidden = true;
-    }, 1600);
+    }, ms);
   }
 
   function setStatus(text) {
@@ -648,7 +674,7 @@
     if (token !== popupToken) return;
     body.textContent = '';
     if (!res.ok) {
-      body.textContent = 'Çeviri alınamadı: ' + res.error;
+      body.textContent = res.error === STALE ? STALE : 'Çeviri alınamadı: ' + res.error;
     } else {
       info = res.result;
       translation = info.translation;
@@ -809,6 +835,10 @@
   }
 
   function toggleSaved(entry) {
+    if (!connected()) {
+      warnStale();
+      return Promise.resolve();
+    }
     return new Promise((resolve) => {
       chrome.storage.local.get({ words: [] }, (data) => {
         const key = entry.word.toLowerCase();
@@ -1263,7 +1293,7 @@
     dictSkip.addEventListener('click', () => closeDictation(true));
     reviewBtn.addEventListener('click', () => send({ type: 'open-review' }));
     traceBtn.addEventListener('click', () => {
-      const report = ['SceneLingo ' + chrome.runtime.getManifest().version + ' — ' + location.hostname, 'fullscreen: ' + !!document.fullscreenElement + ', focus: ' + describe(document.activeElement)].concat(traceLog).join('\n');
+      const report = ['SceneLingo ' + (connected() ? chrome.runtime.getManifest().version : '(stale copy: the page needs a reload)') + ' — ' + location.hostname, 'fullscreen: ' + !!document.fullscreenElement + ', focus: ' + describe(document.activeElement)].concat(traceLog).join('\n');
       navigator.clipboard.writeText(report).then(() => toast('Tanılama kaydı kopyalandı'), () => toast('Kopyalanamadı'));
     });
     // Fallback for the case where something keeps key events from reaching the window listener.

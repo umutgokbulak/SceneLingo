@@ -46,6 +46,7 @@
   window.__tabs = [];
   window.chrome = {
     runtime: {
+      id: 'mock',
       lastError: null,
       getURL: (path) => '/extension/' + path + '?mock',
       getManifest: () => ({ version: 'test' }),
