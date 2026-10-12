@@ -42,6 +42,8 @@
   let speakToken = 0;
   let dict = null; // listening practice for one cue: { idx, checked }
   const dictStats = { ok: 0, total: 0 };
+  let focusPulls = []; // times the answer box took the focus back, to avoid fighting the page in a loop
+  const traceLog = []; // recent events of listening practice, for the "copy diagnostics" button
   const audioCache = new Map();
   const lookupCache = new Map();
   let status = WAITING;
@@ -389,10 +391,14 @@
 
     let sec = '';
     if (secondary.kind === 'track') {
-      const j = findCue(secondary.cues, t);
-      if (j >= 0) sec = secondary.cues[j].text;
-      // The two tracks are timed separately; keep a translation up for as long as the original line shows.
-      else if (idx >= 0) sec = cues[idx].tr || '';
+      // The two tracks are cut and timed separately, so the translation on screen at a given
+      // instant can belong to the neighbouring line. A line shows the translation that overlaps it;
+      // only between lines is the translated track followed by its own clock.
+      if (idx >= 0) sec = cues[idx].tr || '';
+      else {
+        const j = findCue(secondary.cues, t);
+        if (j >= 0) sec = secondary.cues[j].text;
+      }
     } else if (secondary.kind === 'mt') {
       ensureMT(idx >= 0 ? idx : lastStarted(cues, t));
       if (idx >= 0) sec = cues[idx].tr || '';
@@ -853,6 +859,51 @@
 
   // ---------- listening practice ----------
 
+  const describe = (node) => {
+    if (!node || node.nodeType !== 1) return String(node && node.nodeName);
+    const cls = typeof node.className === 'string' && node.className ? '.' + node.className.trim().split(/\s+/)[0] : '';
+    return node.tagName.toLowerCase() + (node.id ? '#' + node.id : '') + cls + (ui && ui.root.contains(node) ? ' (ours)' : '');
+  };
+
+  function trace(what, detail) {
+    traceLog.push(Math.round(performance.now()) + ' ' + what + (detail ? ' ' + detail : ''));
+    if (traceLog.length > 200) traceLog.shift();
+  }
+
+  function caretToEnd() {
+    const range = document.createRange();
+    range.selectNodeContents(ui.dictInput);
+    range.collapse(false);
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+  }
+
+  function focusBox() {
+    if (document.activeElement === ui.dictInput) return;
+    ui.dictInput.focus({ preventScroll: true });
+    caretToEnd();
+  }
+
+  // The site's player moves the keyboard focus to its own controls when playback starts or stops.
+  // While the answer box is open, the focus is taken back.
+  function keepFocus(thief) {
+    const now = performance.now();
+    focusPulls = focusPulls.filter((t) => now - t < 1000);
+    trace('focus-left', describe(thief) + (focusPulls.length >= 6 ? ' (gave up)' : ''));
+    if (focusPulls.length >= 6) return;
+    focusPulls.push(now);
+    focusBox();
+  }
+
+  // A key pressed while the focus was elsewhere still belongs to the answer.
+  function typeIntoBox(e) {
+    const box = ui.dictInput;
+    if (e.key.length === 1) box.textContent += e.key;
+    else if (e.code === 'Backspace') box.textContent = box.textContent.slice(0, -1);
+    caretToEnd();
+  }
+
   function openDictation(idx) {
     if (!dict || dict.idx !== idx) {
       dict = { idx, checked: false };
@@ -862,8 +913,14 @@
       ui.dictResult.hidden = true;
       ui.dictGo.textContent = 'Kontrol et (Enter)';
       ui.dict.hidden = false;
+      trace('open', 'line ' + idx);
     }
-    ui.dictInput.focus();
+    focusBox();
+    // The player reacts to the pause a moment later and may take the focus then; no focus event
+    // is fired for that if the window itself is not focused, so check once more.
+    setTimeout(() => {
+      if (dict && !ui.root.contains(document.activeElement)) focusBox();
+    }, 250);
   }
 
   function checkDictation() {
@@ -880,12 +937,14 @@
     ui.dictResult.hidden = false;
     ui.dictGo.textContent = 'Devam (Enter)';
     dict.checked = true;
+    trace('check', ok + '/' + expected.length);
     ui.root.classList.add('sl-reveal'); // show the real subtitle and its translation
   }
 
   function closeDictation(play) {
     if (!dict) return;
     dict = null;
+    trace('close', play ? 'and play' : '');
     ui.dict.hidden = true;
     ui.root.classList.remove('sl-reveal');
     ui.dictInput.blur();
@@ -900,8 +959,9 @@
 
   function dictationReplay() {
     if (!dict) return;
+    trace('replay', 'line ' + dict.idx);
     seekTo(dict.idx);
-    ui.dictInput.focus();
+    focusBox();
   }
 
   // ---------- subtitle list panel ----------
@@ -1112,6 +1172,8 @@
     });
     const listBtn = el('button', 'sl-wide-btn', 'Altyazı listesini aç / kapat (L)');
     const reviewBtn = el('button', 'sl-wide-btn', 'Kelime tekrarını aç');
+    const traceBtn = el('button', 'sl-wide-btn sl-quiet-btn', 'Tanılama kaydını kopyala');
+    traceBtn.title = 'Dinleme alıştırmasında bir şey ters giderse, son olayların kaydını panoya kopyalar';
     const statusEl = el('div', 'sl-status');
     statusEl.hidden = true;
     menu.append(
@@ -1133,6 +1195,7 @@
       row('Gecikme', sync.wrap),
       listBtn,
       reviewBtn,
+      traceBtn,
       el('div', 'sl-hint', 'A önceki · S tekrar · D sonraki · Q duraklatma · W dinleme alıştırması · L liste')
     );
 
@@ -1157,10 +1220,16 @@
     dictAgain.addEventListener('click', dictationReplay);
     dictGo.addEventListener('click', () => {
       dictationEnter();
-      if (dict) dictInput.focus();
+      if (dict) focusBox();
     });
     dictSkip.addEventListener('click', () => closeDictation(true));
     reviewBtn.addEventListener('click', () => send({ type: 'open-review' }));
+    traceBtn.addEventListener('click', () => {
+      const report = ['SceneLingo ' + chrome.runtime.getManifest().version + ' — ' + location.hostname, 'fullscreen: ' + !!document.fullscreenElement + ', focus: ' + describe(document.activeElement)].concat(traceLog).join('\n');
+      navigator.clipboard.writeText(report).then(() => toast('Tanılama kaydı kopyalandı'), () => toast('Kopyalanamadı'));
+    });
+    // Fallback for the case where something keeps key events from reaching the window listener.
+    dictInput.addEventListener('keydown', onKey);
     fab.addEventListener('click', () => {
       menu.hidden = !menu.hidden;
       if (!menu.hidden) refreshMenu();
@@ -1245,16 +1314,31 @@
   // ---------- events ----------
 
   function onKey(e) {
-    if (ui && e.target === ui.dictInput) {
-      // Typing an answer must not trigger the player's own shortcuts (space, arrows, letters).
-      e.stopImmediatePropagation();
-      if (e.type !== 'keydown') return;
-      if (e.code === 'Enter' || e.code === 'NumpadEnter') dictationEnter();
-      else if (e.code === 'Tab') dictationReplay();
-      else if (e.code === 'Escape') closeDictation(true);
-      else return;
-      e.preventDefault();
-      return;
+    if (dict && ui) {
+      const target = e.target && e.target.nodeType === 1 ? e.target : null;
+      const inBox = target === ui.dictInput;
+      const otherField = !inBox && target && (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName));
+      if (!otherField) {
+        // While the answer box is open the keyboard belongs to it, wherever the page has put the
+        // focus, and none of it may reach the player's own shortcuts (space, arrows, letters).
+        e.stopImmediatePropagation();
+        const command = { Enter: dictationEnter, NumpadEnter: dictationEnter, Tab: dictationReplay, Escape: () => closeDictation(true) }[e.code];
+        if (command || !inBox) e.preventDefault();
+        if (e.type !== 'keydown') return;
+        const combo = e.ctrlKey || e.metaKey || e.altKey;
+        trace('key', (command ? e.code : 'char') + ' on ' + describe(target));
+        if (command && !combo) {
+          try {
+            command();
+          } catch (err) {
+            trace('error', String(err && err.stack ? err.stack : err));
+          }
+        } else if (!inBox && !combo) {
+          focusBox();
+          typeIntoBox(e);
+        }
+        return;
+      }
     }
     if (e.type !== 'keydown' || e.ctrlKey || e.metaKey || e.altKey) return;
     const target = e.target;
@@ -1304,6 +1388,21 @@
   }, true);
   document.addEventListener('play', (e) => {
     if (e.target === video) hoverPaused = false;
+  }, true);
+  for (const type of ['play', 'pause', 'seeking', 'seeked']) {
+    document.addEventListener(type, (e) => {
+      if (e.target === video && settings.dictation) trace('video', type + ' at ' + video.currentTime.toFixed(2));
+    }, true);
+  }
+  document.addEventListener('focusin', (e) => {
+    if (dict && ui && !ui.root.contains(e.target)) keepFocus(e.target);
+  }, true);
+  document.addEventListener('focusout', (e) => {
+    if (!dict || !ui || e.target !== ui.dictInput || e.relatedTarget) return;
+    // Focus went nowhere in particular (a click on the picture, or the page blurring the box).
+    setTimeout(() => {
+      if (dict && document.hasFocus() && !ui.root.contains(document.activeElement)) keepFocus(document.activeElement);
+    }, 0);
   }, true);
   document.addEventListener('mousedown', (e) => {
     if (!ui) return;

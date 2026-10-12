@@ -48,6 +48,7 @@
     runtime: {
       lastError: null,
       getURL: (path) => '/extension/' + path + '?mock',
+      getManifest: () => ({ version: 'test' }),
       sendMessage(msg, cb) {
         window.__sent.push(msg);
         if (msg.type === 'translate') {

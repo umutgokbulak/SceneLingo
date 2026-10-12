@@ -412,6 +412,13 @@ html.sl-hide-native .atvwebplayersdk-captions-text {
   padding: 7px;
   font-size: 14px;
 }
+#scenelingo-root .sl-quiet-btn {
+  padding: 4px;
+  font-size: 12px;
+  color: #8fa3b5;
+  background: none;
+  border-color: transparent;
+}
 #scenelingo-root .sl-hint {
   margin-top: 8px;
   font-size: 12px;

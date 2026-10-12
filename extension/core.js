@@ -54,6 +54,24 @@ const SubtitleCore = (() => {
       }
       if (best >= 0) pri[best].tr = pri[best].tr ? pri[best].tr + ' ' + s.text.replace(/\n/g, ' ') : s.text.replace(/\n/g, ' ');
     }
+    // One translation cue can cover two lines of the original. The line it was not given to
+    // borrows it, as long as the two really overlap.
+    const given = pri.map((p) => !!p.tr);
+    j = 0;
+    pri.forEach((p, i) => {
+      if (given[i]) return;
+      while (j < sec.length - 1 && sec[j].end <= p.start) j++;
+      let best = null;
+      let bestOverlap = 0;
+      for (let k = j; k < sec.length && sec[k].start < p.end; k++) {
+        const overlap = Math.min(p.end, sec[k].end) - Math.max(p.start, sec[k].start);
+        if (overlap > bestOverlap) {
+          bestOverlap = overlap;
+          best = sec[k];
+        }
+      }
+      if (best && bestOverlap >= Math.min(0.5, (p.end - p.start) * 0.3)) p.tr = best.text.replace(/\n/g, ' ');
+    });
   }
 
   // The words a listener is expected to type: no sound descriptions, speaker labels or punctuation.

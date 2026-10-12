@@ -36,6 +36,16 @@ if (new URLSearchParams(location.search).has('strict')) {
   v.addEventListener('play', () => { if (!v.seeking) sitePlaying = true; });
   v.addEventListener('pause', () => { if (!v.seeking) sitePlaying = false; });
   v.addEventListener('seeked', () => { if (!sitePlaying) v.pause(); });
+  // It also moves the keyboard focus to one of its own controls whenever playback starts or stops,
+  // and counts the key presses that reach it.
+  const control = document.createElement('button');
+  control.id = 'site-control';
+  control.textContent = 'site control';
+  control.style.cssText = 'position:fixed;top:12px;right:12px;z-index:5';
+  document.getElementById('player').appendChild(control);
+  for (const type of ['play', 'pause']) v.addEventListener(type, () => setTimeout(() => control.focus(), 0));
+  window.siteKeys = [];
+  document.addEventListener('keydown', (e) => window.siteKeys.push(e.code));
 }
 // Pretend the player's own captions run `shift` seconds behind the video clock.
 window.simulateNative = (shift) => fetch('/test/subs/en.ttml2?native').then(r => r.text()).then(t => {

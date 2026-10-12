@@ -37,6 +37,22 @@ test('alignTranslation gives each line the translation cues that overlap it most
   assert.equal(pri[1].tr, 'B1 B2 more');
 });
 
+test('alignTranslation: a translation that starts early still belongs to its own line', () => {
+  // The translated track is cut a little ahead of the original, as on real titles: just before
+  // line 1 ends, the cue on screen is already the translation of line 2.
+  const pri = [{ start: 10, end: 12, text: 'one' }, { start: 12.1, end: 14, text: 'two' }];
+  const sec = [{ start: 9.8, end: 11.8, text: 'bir' }, { start: 11.85, end: 13.9, text: 'iki' }];
+  alignTranslation(pri, sec);
+  assert.deepEqual(pri.map((p) => p.tr), ['bir', 'iki']);
+});
+
+test('alignTranslation: a translation spanning two lines is shown for both', () => {
+  const pri = [{ start: 0, end: 2, text: 'one' }, { start: 2, end: 3.5, text: 'two' }, { start: 20, end: 21, text: 'far away' }];
+  const sec = [{ start: 0, end: 3.5, text: 'bir iki' }];
+  alignTranslation(pri, sec);
+  assert.deepEqual(pri.map((p) => p.tr), ['bir iki', 'bir iki', undefined]);
+});
+
 test('spokenWords keeps only what a listener would type', () => {
   assert.deepEqual(spokenWords('[music] JOHN: Don’t stop,\n(laughs) Mary!'), ["don't", 'stop', 'mary']);
   assert.deepEqual(spokenWords('♪ ♪'), []);
