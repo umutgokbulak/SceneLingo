@@ -25,9 +25,11 @@ video{width:100%;height:100%;background:#123}
 <script>
 const v = document.querySelector('video');
 // The player asking for its playback resources, by fetch or by XHR.
+// ?caps picks the title whose captions are in capitals and whose translation is cut differently.
+const resources = '/test/api/GetPlaybackResources' + (new URLSearchParams(location.search).has('caps') ? '-caps' : '') + '.json';
 window.loadTitle = (viaXhr) => {
-  if (!viaXhr) return fetch('/test/api/GetPlaybackResources.json').then(r => r.json());
-  const x = new XMLHttpRequest(); x.open('GET', '/test/api/GetPlaybackResources.json'); x.send();
+  if (!viaXhr) return fetch(resources).then(r => r.json());
+  const x = new XMLHttpRequest(); x.open('GET', resources); x.send();
 };
 // A player that keeps its own idea of playing/paused and re-applies it when a seek completes,
 // as streaming players tend to. Enabled with ?strict.
@@ -44,6 +46,10 @@ if (new URLSearchParams(location.search).has('strict')) {
   control.style.cssText = 'position:fixed;top:12px;right:12px;z-index:5';
   document.getElementById('player').appendChild(control);
   for (const type of ['play', 'pause']) v.addEventListener(type, () => setTimeout(() => control.focus(), 0));
+  // It cancels mouse presses and text selection anywhere on the page, as players do to keep the
+  // picture from being selected or dragged.
+  document.addEventListener('mousedown', (e) => e.preventDefault(), true);
+  document.addEventListener('selectstart', (e) => e.preventDefault(), true);
   window.siteKeys = [];
   document.addEventListener('keydown', (e) => window.siteKeys.push(e.code));
 }

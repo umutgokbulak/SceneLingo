@@ -1,6 +1,6 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { parseTime, lastStarted, findCue, alignTranslation, spokenWords, matchWords, stretch } = require('../../extension/core.js');
+const { parseTime, lastStarted, findCue, alignTranslation, spokenWords, matchWords, stretch, isShouting, calm, expandContraction } = require('../../extension/core.js');
 
 test('parseTime reads the time formats TTML allows', () => {
   assert.equal(parseTime('00:01:02.500', 1e7, 30), 62.5);
@@ -51,6 +51,44 @@ test('alignTranslation: a translation spanning two lines is shown for both', () 
   const sec = [{ start: 0, end: 3.5, text: 'bir iki' }];
   alignTranslation(pri, sec);
   assert.deepEqual(pri.map((p) => p.tr), ['bir iki', 'bir iki', undefined]);
+  // Both lines are marked: the translation says more than either of them does alone.
+  assert.deepEqual(pri.map((p) => !!p.shared), [true, true, false]);
+});
+
+test('alignTranslation: lines with a translation of their own are not marked as sharing one', () => {
+  const pri = [{ start: 10, end: 12, text: 'one' }, { start: 12.1, end: 14, text: 'two' }];
+  alignTranslation(pri, [{ start: 9.8, end: 12.2, text: 'bir' }, { start: 12.25, end: 13.9, text: 'iki' }]);
+  assert.deepEqual(pri.map((p) => !!p.shared), [false, false]); // 0.1 s of spill-over is not sharing
+});
+
+test('isShouting recognises text written in capitals throughout', () => {
+  assert.ok(isShouting("I'LL TAKE IT."));
+  assert.ok(isShouting('- UNFORTUNATELY,'));
+  assert.ok(!isShouting("I'll take it."));
+  assert.ok(!isShouting('OK.')); // too short to tell
+  assert.ok(!isShouting('1999 ...'));
+});
+
+test('calm lower-cases such text and restores what English capitalises', () => {
+  assert.equal(calm("I'LL", false, true), "I'll");
+  assert.equal(calm('SIGNING', false, true), 'signing');
+  assert.equal(calm('IT', false, true), 'it');
+  assert.equal(calm("- I'LL TAKE IT. WHAT DO I SAY? FINE!", true, true), "- I'll take it. What do I say? Fine!");
+  assert.equal(calm('ICH BIN HIER', true, false), 'Ich bin hier');
+});
+
+test('expandContraction spells out contractions and spoken forms', () => {
+  assert.equal(expandContraction("I'll"), 'I will');
+  assert.equal(expandContraction("I’M"), 'I am');
+  assert.equal(expandContraction("they're"), 'they are');
+  assert.equal(expandContraction("we've"), 'we have');
+  assert.equal(expandContraction("don't"), 'do not');
+  assert.equal(expandContraction("won't"), 'will not');
+  assert.equal(expandContraction("it's"), 'it is');
+  assert.equal(expandContraction("let's"), 'let us');
+  assert.equal(expandContraction('gonna'), 'going to');
+  assert.equal(expandContraction("other's"), null); // could be a possessive
+  assert.equal(expandContraction('umbrella'), null);
 });
 
 test('spokenWords keeps only what a listener would type', () => {

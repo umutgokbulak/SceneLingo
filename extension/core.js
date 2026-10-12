@@ -45,13 +45,18 @@ const SubtitleCore = (() => {
       while (j < pri.length - 1 && pri[j].end <= s.start) j++;
       let best = -1;
       let bestOverlap = 0;
+      const covered = [];
       for (let k = j; k < pri.length && pri[k].start < s.end; k++) {
         const overlap = Math.min(pri[k].end, s.end) - Math.max(pri[k].start, s.start);
+        if (overlap >= Math.min(0.5, (pri[k].end - pri[k].start) * 0.3)) covered.push(pri[k]);
         if (overlap > bestOverlap) {
           bestOverlap = overlap;
           best = k;
         }
       }
+      // A translated cue that covers several lines says more than any one of them; those lines
+      // are marked so the caller can give each a translation of its own.
+      if (covered.length > 1) for (const p of covered) p.shared = true;
       if (best >= 0) pri[best].tr = pri[best].tr ? pri[best].tr + ' ' + s.text.replace(/\n/g, ' ') : s.text.replace(/\n/g, ' ');
     }
     // One translation cue can cover two lines of the original. The line it was not given to
@@ -70,7 +75,10 @@ const SubtitleCore = (() => {
           best = sec[k];
         }
       }
-      if (best && bestOverlap >= Math.min(0.5, (p.end - p.start) * 0.3)) p.tr = best.text.replace(/\n/g, ' ');
+      if (best && bestOverlap >= Math.min(0.5, (p.end - p.start) * 0.3)) {
+        p.tr = best.text.replace(/\n/g, ' ');
+        p.shared = true;
+      }
     });
   }
 
@@ -152,7 +160,42 @@ const SubtitleCore = (() => {
     return out;
   }
 
-  return { parseTime, lastStarted, findCue, alignTranslation, spokenWords, matchWords, stretch };
+  // Subtitles written in capitals throughout ("I'LL TAKE IT.") translate and read aloud badly:
+  // services take "IT" for an abbreviation and spell it out.
+  function isShouting(text) {
+    return (text.match(/\p{Lu}/gu) || []).length > 3 && !/\p{Ll}/u.test(text);
+  }
+
+  // Lower-cases such text again. `sentence` restores the capital at the start of each sentence,
+  // `english` the pronoun "I".
+  function calm(text, sentence, english) {
+    let out = text.toLowerCase();
+    if (english) out = out.replace(/(^|[^\p{L}'\u2019])i(?=$|[^\p{L}])/gu, '$1I');
+    if (sentence) out = out.replace(/(^[\s\-\u2013]*|[.!?\u2026]["']?\s+[\-\u2013]?\s*)(\p{Ll})/gu, (m, lead, letter) => lead + letter.toUpperCase());
+    return out;
+  }
+
+  const SPOKEN_FORMS = {
+    gonna: 'going to', wanna: 'want to', gotta: 'got to', gimme: 'give me', lemme: 'let me', kinda: 'kind of',
+    sorta: 'sort of', dunno: 'do not know', outta: 'out of', "y'all": 'you all', "c'mon": 'come on', "'em": 'them',
+    "'cause": 'because', "ain't": 'is not', "won't": 'will not', "can't": 'cannot', "shan't": 'shall not', "let's": 'let us',
+  };
+  const TAKES_IS = new Set(['it', 'that', 'this', 'there', 'here', 'what', 'who', 'where', 'when', 'how', 'he', 'she', 'everything', 'nothing', 'something']);
+
+  // "I'll" -> "I will", "gonna" -> "going to"; null when the word is not a contraction this knows.
+  // "'s" is only expanded after words where it can hardly be a possessive.
+  function expandContraction(word) {
+    const w = word.toLowerCase().replace(/[\u2019\u0060]/g, "'");
+    const self = (s) => (s === 'i' ? 'I' : s);
+    if (SPOKEN_FORMS[w]) return SPOKEN_FORMS[w];
+    let m;
+    if ((m = /^(\p{L}+)n't$/u.exec(w))) return m[1] + ' not';
+    if ((m = /^(\p{L}+)'(ll|re|ve|m|d)$/u.exec(w))) return self(m[1]) + ' ' + { ll: 'will', re: 'are', ve: 'have', m: 'am', d: 'would' }[m[2]];
+    if ((m = /^(\p{L}+)'s$/u.exec(w)) && TAKES_IS.has(m[1])) return m[1] + ' is';
+    return null;
+  }
+
+  return { parseTime, lastStarted, findCue, alignTranslation, spokenWords, matchWords, stretch, isShouting, calm, expandContraction };
 })();
 
 if (typeof module !== 'undefined') module.exports = SubtitleCore;

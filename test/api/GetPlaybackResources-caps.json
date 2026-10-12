@@ -1,0 +1,1 @@
+{"timedTextUrls": {"result": {"subtitleUrls": [{"url": "http://localhost:8765/test/subs/en-caps.ttml2", "languageCode": "en-us", "displayName": "English [CC]", "type": "sdh", "subtype": "dialog"}, {"url": "http://localhost:8765/test/subs/tr-caps.ttml2", "languageCode": "tr-tr", "displayName": "Türkçe", "type": "subtitle", "subtype": "dialog"}]}}}

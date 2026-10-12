@@ -69,8 +69,16 @@ async function lookup(text, sl, tl) {
     const set = (group[1] || []).find((s) => !s[2]);
     for (const s of (set && set[0]) || []) if (synonyms.length < 6 && !synonyms.includes(s)) synonyms.push(s);
   }
+  // For a single word the service's one-line answer is sometimes a different word altogether
+  // ("it" -> "BT", as in information technology) while its dictionary entries are right. When
+  // the answer is not among the dictionary's own terms, the first of those is the better headline.
+  let translation = joined(data).trim();
+  const terms = (data[1] || []).flatMap((d) => d[1] || []);
+  if (terms.length && text.length > 1 && !/\s/.test(text) && !terms.some((t) => t.toLowerCase() === translation.toLowerCase())) {
+    translation = terms[0];
+  }
   return {
-    translation: joined(data).trim(),
+    translation,
     dict: (data[1] || []).slice(0, 4).map((d) => ({ pos: d[0] || '', terms: (d[1] || []).slice(0, 5) })),
     ipa: phonetic ? phonetic[3] : '',
     defs,

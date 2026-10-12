@@ -3,7 +3,7 @@
   if (window.top !== window || window.__scenelingoContent) return;
   window.__scenelingoContent = true;
 
-  const { parseTime, lastStarted, findCue, alignTranslation, spokenWords, matchWords, stretch } = SubtitleCore;
+  const { parseTime, lastStarted, findCue, alignTranslation, spokenWords, matchWords, stretch, isShouting, calm, expandContraction } = SubtitleCore;
   const PAGE = 'scenelingo:page';
   const EXT = 'scenelingo:ext';
   const CHUNK = 20; // cues per machine-translation request
@@ -42,6 +42,8 @@
   let speakToken = 0;
   let dict = null; // listening practice for one cue: { idx, checked }
   const dictStats = { ok: 0, total: 0 };
+  let pointerHeld = false;
+  let warnedTwin = false;
   let focusPulls = []; // times the answer box took the focus back, to avoid fighting the page in a loop
   const traceLog = []; // recent events of listening practice, for the "copy diagnostics" button
   const audioCache = new Map();
@@ -270,8 +272,18 @@
 
   // ---------- machine translation ----------
 
+  // What is shown under a line. The two tracks are cut and timed separately, so the translated
+  // cue on screen at a given instant can belong to the neighbouring line: a line shows the cue
+  // that overlaps it most. Where one translated cue covers several lines, each line gets a
+  // machine translation of its own instead, so that it says what that line says and no more.
+  function lineTranslation(cue) {
+    if (secondary.kind === 'mt') return cue.mt || '';
+    if (secondary.kind === 'track') return (cue.shared && cue.mt) || cue.tr || '';
+    return '';
+  }
+
   function ensureMT(idx) {
-    if (!primary || secondary.kind !== 'mt') return;
+    if (!primary || secondary.kind === 'off') return;
     const c = Math.floor(Math.max(0, idx) / CHUNK);
     requestChunk(c);
     requestChunk(c + 1);
@@ -280,21 +292,26 @@
   function requestChunk(c) {
     const p = primary;
     if (p.requested.has(c)) return;
-    const slice = p.cues.slice(c * CHUNK, c * CHUNK + CHUNK);
-    if (!slice.length) return;
+    const all = p.cues.slice(c * CHUNK, c * CHUNK + CHUNK);
+    if (!all.length) return;
     p.requested.add(c);
-    send({ type: 'translate', texts: slice.map((x) => x.text), sl: p.track.languageCode, tl: settings.nativeLang }).then((res) => {
+    const slice = secondary.kind === 'mt' ? all : all.filter((cue) => cue.shared);
+    if (!slice.length) return;
+    // Text in capitals comes back in capitals, and reads worse; translate it in ordinary case.
+    const english = speaksEnglish();
+    const texts = slice.map((x) => (isShouting(x.text) ? calm(x.text, true, english) : x.text));
+    send({ type: 'translate', texts, sl: p.track.languageCode, tl: settings.nativeLang }).then((res) => {
       if (!res.ok) {
         if (primary === p) setStatus('Çeviri alınamadı: ' + res.error);
         setTimeout(() => p.requested.delete(c), 10000);
         return;
       }
       slice.forEach((cue, k) => {
-        cue.tr = res.result[k] || '';
+        cue.mt = res.result[k] || '';
       });
       if (primary !== p) return;
       if (status.startsWith('Çeviri alınamadı')) setStatus('');
-      if (panelRows) slice.forEach((cue, k) => setRowTranslation(c * CHUNK + k));
+      if (panelRows) slice.forEach((cue) => setRowTranslation(c * CHUNK + all.indexOf(cue)));
     });
   }
 
@@ -390,18 +407,12 @@
     lastIdx = idx;
 
     let sec = '';
-    if (secondary.kind === 'track') {
-      // The two tracks are cut and timed separately, so the translation on screen at a given
-      // instant can belong to the neighbouring line. A line shows the translation that overlaps it;
-      // only between lines is the translated track followed by its own clock.
-      if (idx >= 0) sec = cues[idx].tr || '';
-      else {
-        const j = findCue(secondary.cues, t);
-        if (j >= 0) sec = secondary.cues[j].text;
-      }
-    } else if (secondary.kind === 'mt') {
-      ensureMT(idx >= 0 ? idx : lastStarted(cues, t));
-      if (idx >= 0) sec = cues[idx].tr || '';
+    if (secondary.kind !== 'off') ensureMT(idx >= 0 ? idx : lastStarted(cues, t));
+    if (idx >= 0) sec = lineTranslation(cues[idx]);
+    else if (secondary.kind === 'track') {
+      // Between lines the translated track is followed by its own clock (signs, on-screen text).
+      const j = findCue(secondary.cues, t);
+      if (j >= 0) sec = secondary.cues[j].text;
     }
     showCue(idx, sec);
     if (now - lastSync > 120) {
@@ -557,15 +568,28 @@
     }
     video = best;
     if (video && !ui && document.body) buildUI();
+    // An older copy of the extension loaded from another folder draws its own overlay on top of
+    // this one and takes the same keys.
+    if (ui && !warnedTwin && [...document.querySelectorAll('#scenelingo-root, #primelingo-root')].some((n) => n !== ui.root)) {
+      warnedTwin = true;
+      setStatus('Eklentinin iki kopyası birlikte çalışıyor. chrome://extensions sayfasında eski kopyayı (PrimeLingo ya da ikinci SceneLingo) kaldır ve sayfayı yenile.');
+      ui.menu.hidden = false;
+    }
   }
 
   // ---------- word popup ----------
 
   // `anchor` is the word element, or the selected range when `text` is a phrase.
   async function openPopup(anchor, pin, text) {
-    const word = text || anchor.textContent;
     const cue = primary && primary.cues[shown.idx];
     const lang = primary ? primary.track.languageCode : '';
+    const english = speaksEnglish();
+    const shouting = !!cue && isShouting(cue.text);
+    const word = shouting ? calm(text || anchor.textContent, false, english) : text || anchor.textContent;
+    // "I'll" is looked up as "I will": on its own the service reads it as "ill". Spoken forms
+    // such as "gonna" it knows, so they are looked up as they are and only explained.
+    const expansion = english ? expandContraction(word) : null;
+    const query = expansion && /['\u2019]/.test(word) ? expansion : word;
     if (video && !video.paused && (pin || settings.hoverPause)) {
       pauseVideo();
       hoverPaused = true;
@@ -596,6 +620,7 @@
     btns.append(listen, slow, save);
     const title = el('span', 'sl-pop-title');
     title.append(el('span', 'sl-pop-word', word), ipa);
+    if (expansion) title.append(el('span', 'sl-pop-expand', '= ' + expansion));
     head.append(title, btns);
     ui.popup.textContent = '';
     ui.popup.append(head, body);
@@ -612,14 +637,14 @@
         ipa: info.ipa || '',
         definition: info.defs && info.defs[0] ? info.defs[0].text : '',
         synonyms: info.synonyms || [],
-        context: cue ? cue.text.replace(/\n/g, ' ') : '',
+        context: cue ? cueSentence() : '',
         lang: langOf(lang),
         title: document.title,
         added: Date.now(),
       }).then(paintSave);
     });
 
-    const res = await lookup(word, lang);
+    const res = await lookup(query, lang);
     if (token !== popupToken) return;
     body.textContent = '';
     if (!res.ok) {
@@ -674,6 +699,7 @@
     clearTimeout(closeTimer);
     ui.popup.hidden = true;
     if (mayResume && hoverPaused && !ui.box.matches(':hover')) resume();
+    if (dict && !pointerHeld) focusBox();
     return true;
   }
 
@@ -807,9 +833,12 @@
 
   // ---------- whole-sentence tools ----------
 
+  // The current line as one sentence, in ordinary capitalisation.
   function cueSentence() {
     const cue = primary && primary.cues[shown.idx];
-    return cue ? cue.text.replace(/\s*\n\s*/g, ' ') : '';
+    if (!cue) return '';
+    const text = cue.text.replace(/\s*\n\s*/g, ' ');
+    return isShouting(text) ? calm(text, true, speaksEnglish()) : text;
   }
 
   function paintSentenceStar() {
@@ -887,6 +916,10 @@
 
   // The site's player moves the keyboard focus to its own controls when playback starts or stops.
   // While the answer box is open, the focus is taken back.
+  // The box takes the focus back only when the page moved it, not when the user is selecting
+  // subtitle text or reading a word card.
+  const boxWantsFocus = () => !!dict && !pointerHeld && ui.popup.hidden;
+
   function keepFocus(thief) {
     const now = performance.now();
     focusPulls = focusPulls.filter((t) => now - t < 1000);
@@ -902,6 +935,7 @@
     if (e.key.length === 1) box.textContent += e.key;
     else if (e.code === 'Backspace') box.textContent = box.textContent.slice(0, -1);
     caretToEnd();
+    if (dict.checked) showDictationResult();
   }
 
   function openDictation(idx) {
@@ -919,16 +953,21 @@
     // The player reacts to the pause a moment later and may take the focus then; no focus event
     // is fired for that if the window itself is not focused, so check once more.
     setTimeout(() => {
-      if (dict && !ui.root.contains(document.activeElement)) focusBox();
+      if (boxWantsFocus() && !ui.root.contains(document.activeElement)) focusBox();
     }, 250);
   }
 
-  function checkDictation() {
+  // Compares the answer with the line. Only the first check of a line counts towards the session
+  // score; after it the marks simply follow the answer as it is corrected.
+  function showDictationResult() {
     const expected = spokenWords(primary.cues[dict.idx].text);
     const hit = matchWords(expected, spokenWords(ui.dictInput.textContent));
     const ok = hit.filter(Boolean).length;
-    dictStats.ok += ok;
-    dictStats.total += expected.length;
+    if (!dict.checked) {
+      dictStats.ok += ok;
+      dictStats.total += expected.length;
+      trace('check', ok + '/' + expected.length);
+    }
     const line = el('div', 'sl-dict-words');
     expected.forEach((w, i) => line.append(el('span', hit[i] ? 'sl-ok' : 'sl-miss', w), ' '));
     const session = Math.round((100 * dictStats.ok) / dictStats.total);
@@ -937,7 +976,6 @@
     ui.dictResult.hidden = false;
     ui.dictGo.textContent = 'Devam (Enter)';
     dict.checked = true;
-    trace('check', ok + '/' + expected.length);
     ui.root.classList.add('sl-reveal'); // show the real subtitle and its translation
   }
 
@@ -954,7 +992,7 @@
   function dictationEnter() {
     if (!dict) return;
     if (dict.checked) closeDictation(true);
-    else checkDictation();
+    else showDictationResult();
   }
 
   function dictationReplay() {
@@ -975,8 +1013,8 @@
       const row = el('div', 'sl-row');
       row.dataset.i = i;
       const texts = el('div', 'sl-row-texts');
-      const tr = el('div', 'sl-row-tr', c.tr || '');
-      tr.hidden = !c.tr;
+      const tr = el('div', 'sl-row-tr', lineTranslation(c));
+      tr.hidden = !lineTranslation(c);
       texts.append(el('div', 'sl-row-text', c.text.replace(/\n/g, ' ')), tr);
       row.append(el('span', 'sl-row-time', fmtTime(c.start)), texts);
       frag.appendChild(row);
@@ -989,8 +1027,8 @@
   function setRowTranslation(i) {
     const r = panelRows && panelRows[i];
     if (!r || !primary) return;
-    r.tr.textContent = primary.cues[i].tr || '';
-    r.tr.hidden = !primary.cues[i].tr;
+    r.tr.textContent = lineTranslation(primary.cues[i]);
+    r.tr.hidden = !lineTranslation(primary.cues[i]);
   }
 
   function highlightRow(idx) {
@@ -1203,7 +1241,7 @@
     ui = { root, subs, box, pri, sec, starBtn, dict: dictEl, dictInput, dictResult, dictGo, popup, toast: toastEl, fab, menu, panel, list, checks, priSel, secSel, accentSel, accentRow, volRange, volVal, size, pos, sync, status: statusEl };
 
     // Keep clicks on our controls from reaching the player underneath.
-    for (const type of ['click', 'dblclick', 'mousedown', 'mouseup', 'pointerdown', 'pointerup', 'wheel', 'contextmenu']) {
+    for (const type of ['click', 'dblclick', 'mousedown', 'mouseup', 'pointerdown', 'pointerup', 'wheel', 'contextmenu', 'selectstart', 'dragstart']) {
       root.addEventListener(type, (e) => e.stopPropagation());
     }
     // Give keyboard focus back to the page so the shortcuts keep working after a click on our controls.
@@ -1230,6 +1268,9 @@
     });
     // Fallback for the case where something keeps key events from reaching the window listener.
     dictInput.addEventListener('keydown', onKey);
+    dictInput.addEventListener('input', () => {
+      if (dict && dict.checked) showDictationResult();
+    });
     fab.addEventListener('click', () => {
       menu.hidden = !menu.hidden;
       if (!menu.hidden) refreshMenu();
@@ -1339,6 +1380,11 @@
         } else if (!inBox && !combo) {
           focusBox();
           typeIntoBox(e);
+        } else if (!combo) {
+          // The box can have the focus while the selection is on subtitle words; what is typed
+          // goes where the selection is, so bring it back first.
+          const sel = window.getSelection();
+          if (!sel.anchorNode || !ui.dictInput.contains(sel.anchorNode)) caretToEnd();
         }
         return;
       }
@@ -1398,20 +1444,37 @@
     }, true);
   }
   document.addEventListener('focusin', (e) => {
-    if (dict && ui && !ui.root.contains(e.target)) keepFocus(e.target);
+    if (ui && boxWantsFocus() && !ui.root.contains(e.target)) keepFocus(e.target);
   }, true);
   document.addEventListener('focusout', (e) => {
     if (!dict || !ui || e.target !== ui.dictInput || e.relatedTarget) return;
     // Focus went nowhere in particular (a click on the picture, or the page blurring the box).
     setTimeout(() => {
-      if (dict && document.hasFocus() && !ui.root.contains(document.activeElement)) keepFocus(document.activeElement);
+      if (boxWantsFocus() && document.hasFocus() && !ui.root.contains(document.activeElement)) keepFocus(document.activeElement);
     }, 0);
   }, true);
-  document.addEventListener('mousedown', (e) => {
+  window.addEventListener('mousedown', (e) => {
+    pointerHeld = true;
     if (!ui) return;
-    if (!ui.popup.hidden && !ui.popup.contains(e.target) && !e.target.closest('.sl-word')) closePopup(true);
-    if (!ui.menu.hidden && !ui.menu.contains(e.target) && e.target !== ui.fab) ui.menu.hidden = true;
+    const target = e.target.nodeType === 1 ? e.target : e.target.parentElement;
+    if (!ui.popup.hidden && !ui.popup.contains(target) && !(target && target.closest('.sl-word'))) closePopup(true);
+    if (!ui.menu.hidden && !ui.menu.contains(target) && target !== ui.fab) ui.menu.hidden = true;
+    // A press on our own controls is ours alone. A player that cancels mouse presses to keep its
+    // picture from being selected would otherwise also stop subtitle words from being selected.
+    if (ui.root.contains(target)) e.stopImmediatePropagation();
   }, true);
+  for (const type of ['pointerdown', 'selectstart']) {
+    window.addEventListener(type, (e) => {
+      if (ui && ui.root.contains(e.target)) e.stopImmediatePropagation();
+    }, true);
+  }
+  for (const type of ['mouseup', 'blur']) {
+    window.addEventListener(type, (e) => {
+      // Only the window losing focus counts: an element's blur passes through here as well.
+      if (type === 'blur' && e.target !== window) return;
+      setTimeout(() => (pointerHeld = false), 0);
+    }, true);
+  }
   document.addEventListener('mousemove', () => {
     if (!ui) return;
     ui.root.classList.add('sl-awake');

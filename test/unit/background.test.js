@@ -85,6 +85,19 @@ test('lookup returns translation, phonetic spelling, definitions and first-sense
   assert.deepEqual(result.synonyms, ['parasol', 'sunshade']); // not the informal set, not the figurative sense
 });
 
+test('lookup prefers the dictionary when the one-line answer is some other word', async () => {
+  const data = [];
+  data[0] = [['BT', 'it', null, null, 1]];
+  data[1] = [['pronoun', ['onu', 'o', 'ona'], [], 'it', 1]];
+  reset(() => ({ json: data }));
+  assert.equal((await ask({ type: 'lookup', text: 'it', sl: 'en', tl: 'tr' })).result.translation, 'onu');
+
+  // ...but keeps the answer when the dictionary agrees with it, whatever the order or case.
+  data[0] = [['Adam', 'man', null, null, 1]];
+  data[1] = [['noun', ['erkek', 'adam', 'insan'], [], 'man', 1]];
+  assert.equal((await ask({ type: 'lookup', text: 'man', sl: 'en', tl: 'tr' })).result.translation, 'Adam');
+});
+
 test('lookup of a phrase copes with a response that has only the translation', async () => {
   reset(() => ({ json: [[['kararını ver', 'make up your mind']]] }));
   const { result } = await ask({ type: 'lookup', text: 'make up your mind', sl: 'en', tl: 'tr' });

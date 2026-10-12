@@ -80,6 +80,11 @@ html.sl-hide-native .atvwebplayersdk-captions-text {
   text-underline-offset: 0.2em;
 }
 
+#scenelingo-root .sl-primary,
+#scenelingo-root .sl-primary * {
+  user-select: text !important;
+  -webkit-user-select: text !important;
+}
 #scenelingo-root .sl-primary ::selection,
 #scenelingo-root .sl-primary::selection {
   background: rgba(26, 152, 255, 0.65);
@@ -236,6 +241,10 @@ html.sl-hide-native .atvwebplayersdk-captions-text {
 #scenelingo-root .sl-pop-ipa {
   font-size: 14px;
   color: #8fa3b5;
+}
+#scenelingo-root .sl-pop-expand {
+  font-size: 14px;
+  color: #c7d1db;
 }
 #scenelingo-root .sl-pop-def {
   margin-top: 6px;

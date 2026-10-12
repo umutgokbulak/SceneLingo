@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The translation is cut differently: its second cue covers two lines of the original. -->
+<tt xmlns="http://www.w3.org/ns/ttml" xml:lang="tr"><body><div>
+<p begin="00:00:02.100" end="00:00:03.900">Kabul ediyorum.</p>
+<p begin="00:00:05.000" end="00:00:09.000">Maalesef sadece buradan mezun olanları alıyoruz.</p>
+<p begin="00:00:09.900" end="00:00:12.400">Bugün yağmur yağmayacak.</p>
+</div></body></tt>
