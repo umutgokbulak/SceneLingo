@@ -1,0 +1,13 @@
+{
+  "name": "scenelingo",
+  "version": "0.5.0",
+  "private": true,
+  "description": "Browser extension for learning a language from films and series: dual subtitles, word lookup with audio, spaced-repetition review and listening practice.",
+  "license": "MIT",
+  "scripts": {
+    "test": "node --test \"test/unit/*.test.js\"",
+    "harness": "node test/server.js",
+    "check:live": "node test/live-check.js"
+  },
+  "engines": { "node": ">=22" }
+}
