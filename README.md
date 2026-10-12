@@ -110,7 +110,7 @@ The interface is currently in Turkish. The learning language and your own langua
 | `Q` | Pause after every line |
 | `W` | Listening practice on or off |
 | `L` | Transcript panel |
-| `Enter`, `Tab`, `Esc` | In listening practice: check or continue, replay, skip |
+| `Enter`, `↑`, `↓` | In listening practice: check or continue, replay the line, skip it |
 | `Space`, `1` `2` `3`, `R` | On the review page: show the answer, grade it, replay the audio |
 
 ## Development

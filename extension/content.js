@@ -1072,9 +1072,9 @@
     dictInput.dataset.placeholder = 'Duyduğunu yaz…';
     dictInput.spellcheck = false;
     const dictBtns = el('div', 'sl-dict-btns');
-    const dictAgain = el('button', null, '↺ Tekrar dinle (Tab)');
+    const dictAgain = el('button', null, '↺ Tekrar dinle (↑)');
     const dictGo = el('button', 'sl-main-btn', 'Kontrol et (Enter)');
-    const dictSkip = el('button', null, 'Geç (Esc)');
+    const dictSkip = el('button', null, 'Geç (↓)');
     dictBtns.append(dictAgain, dictGo, dictSkip);
     dictEl.append(dictResult, dictInput, dictBtns);
     subs.append(dictEl, box);
@@ -1322,7 +1322,10 @@
         // While the answer box is open the keyboard belongs to it, wherever the page has put the
         // focus, and none of it may reach the player's own shortcuts (space, arrows, letters).
         e.stopImmediatePropagation();
-        const command = { Enter: dictationEnter, NumpadEnter: dictationEnter, Tab: dictationReplay, Escape: () => closeDictation(true) }[e.code];
+        // Escape is left alone: in fullscreen the browser takes it to leave fullscreen. Tab replays
+        // too, so that it cannot carry the focus out of the box.
+        const skip = () => closeDictation(true);
+        const command = { Enter: dictationEnter, NumpadEnter: dictationEnter, ArrowUp: dictationReplay, Tab: dictationReplay, ArrowDown: skip }[e.code];
         if (command || !inBox) e.preventDefault();
         if (e.type !== 'keydown') return;
         const combo = e.ctrlKey || e.metaKey || e.altKey;
