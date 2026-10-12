@@ -1,0 +1,44 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Harness Movie</title>
+<style>
+html,body{margin:0;height:100%;background:#000}
+#player{position:fixed;inset:0}
+video{width:100%;height:100%;background:#123}
+.atvwebplayersdk-captions-overlay{position:absolute;bottom:4%;left:0;right:0;text-align:center;color:#f0f;font-size:20px}
+/* A drawn backdrop for screenshots, so no real film frame is needed. */
+.demo #player{background:
+  linear-gradient(#000 0 0) top/100% 7% no-repeat, linear-gradient(#000 0 0) bottom/100% 7% no-repeat,
+  radial-gradient(ellipse 70% 22% at 50% 100%, rgba(6,8,18,.96) 0, transparent 100%),
+  radial-gradient(circle at 72% 38%, #ffd9a0 0, #f2a65a 5%, #c5644f 16%, #6b3a5e 36%, #2a2346 60%, #0d0f1f 100%)}
+.demo video{background:transparent}
+</style>
+<script src="/test/mock-chrome.js"></script>
+<script src="/extension/inject.js"></script>
+<link rel="stylesheet" href="/extension/content.css">
+<script src="/extension/shared.js"></script>
+<script src="/extension/core.js"></script>
+<script src="/extension/content.js"></script>
+</head><body>
+<!-- Mimics the parts of the Prime Video player the extension relies on. -->
+<div id="player"><video src="/test/silence.wav" muted></video>
+<div class="atvwebplayersdk-captions-overlay"><span class="atvwebplayersdk-captions-text"></span></div></div>
+<script>
+const v = document.querySelector('video');
+// The player asking for its playback resources, by fetch or by XHR.
+window.loadTitle = (viaXhr) => {
+  if (!viaXhr) return fetch('/test/api/GetPlaybackResources.json').then(r => r.json());
+  const x = new XMLHttpRequest(); x.open('GET', '/test/api/GetPlaybackResources.json'); x.send();
+};
+// Pretend the player's own captions run `shift` seconds behind the video clock.
+window.simulateNative = (shift) => fetch('/test/subs/en.ttml2?native').then(r => r.text()).then(t => {
+  const cues = [...new DOMParser().parseFromString(t, 'application/xml').getElementsByTagNameNS('*', 'p')].map(p => {
+    const sec = s => s.split(':').reduce((a, b) => a * 60 + parseFloat(b), 0);
+    return { s: sec(p.getAttribute('begin')), e: sec(p.getAttribute('end')), t: p.textContent };
+  });
+  clearInterval(window.__nat);
+  window.__nat = setInterval(() => { const ct = v.currentTime - shift; const c = cues.find(c => c.s <= ct && c.e > ct);
+    document.querySelector('.atvwebplayersdk-captions-text').textContent = c ? c.t : ''; }, 30);
+});
+</script>
+<script src="/test/demo.js"></script>
+</body></html>

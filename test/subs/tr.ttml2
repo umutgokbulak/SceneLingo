@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<tt xmlns="http://www.w3.org/ns/ttml" xmlns:ttp="http://www.w3.org/ns/ttml#parameter" ttp:tickRate="10000000" xml:lang="tr"><body><div>
+<p begin="22000000t" end="50000000t">Merhaba, nasılsın?</p>
+<p begin="62000000t" end="90000000t">İyiyim, teşekkür ederim.</p>
+<p begin="102000000t" end="130000000t">Bu gece nereye gidiyoruz?</p>
+<p begin="142000000t" end="170000000t">Eski tiyatroya gidiyoruz.</p>
+<p begin="182000000t" end="210000000t">Kulağa harika geliyor.</p>
+<p begin="222000000t" end="250000000t">Şemsiyeni unutma.</p>
+<p begin="262000000t" end="290000000t">Sonra yağmur yağabilir.</p>
+<p begin="302000000t" end="330000000t">Ben hiçbir şeyi unutmam.</p>
+<p begin="342000000t" end="370000000t">Evet.</p>
+<p begin="382000000t" end="410000000t">Hadi gidelim o zaman.</p>
+<p begin="422000000t" end="450000000t">Beni bekle!</p>
+<p begin="462000000t" end="490000000t">Evet.</p>
+</div></body></tt>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<tt xmlns="http://www.w3.org/ns/ttml" xmlns:ttp="http://www.w3.org/ns/ttml#parameter" xmlns:tts="http://www.w3.org/ns/ttml#styling" xml:lang="en"><body><div>
+<p begin="00:00:02.000" end="00:00:05.200" region="r1"><span tts:fontStyle="italic">Hello there,</span><br/>how are you?</p>
+<p begin="00:00:06.000" end="00:00:09.200" region="r1"><span tts:fontStyle="italic">I'm fine,</span><br/>thank you.</p>
+<p begin="00:00:10.000" end="00:00:13.200" region="r1"><span tts:fontStyle="italic">Where are we going tonight?</span></p>
+<p begin="00:00:14.000" end="00:00:17.200" region="r1"><span tts:fontStyle="italic">We're going to the old theatre.</span></p>
+<p begin="00:00:18.000" end="00:00:21.200" region="r1"><span tts:fontStyle="italic">That sounds wonderful.</span></p>
+<p begin="00:00:22.000" end="00:00:25.200" region="r1"><span tts:fontStyle="italic">Don't forget your umbrella.</span></p>
+<p begin="00:00:26.000" end="00:00:29.200" region="r1"><span tts:fontStyle="italic">It might rain later.</span></p>
+<p begin="00:00:30.000" end="00:00:33.200" region="r1"><span tts:fontStyle="italic">I never forget anything.</span></p>
+<p begin="00:00:34.000" end="00:00:37.200" region="r1"><span tts:fontStyle="italic">Yes.</span></p>
+<p begin="00:00:38.000" end="00:00:41.200" region="r1"><span tts:fontStyle="italic">Let's go then.</span></p>
+<p begin="00:00:42.000" end="00:00:45.200" region="r1"><span tts:fontStyle="italic">Wait for me!</span></p>
+<p begin="00:00:46.000" end="00:00:49.200" region="r1"><span tts:fontStyle="italic">Yes.</span></p>
+</div></body></tt>

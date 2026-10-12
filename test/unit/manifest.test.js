@@ -1,0 +1,40 @@
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const fs = require('fs');
+const path = require('path');
+
+const dir = path.join(__dirname, '..', '..', 'extension');
+const manifest = JSON.parse(fs.readFileSync(path.join(dir, 'manifest.json'), 'utf8'));
+const exists = (file) => fs.existsSync(path.join(dir, file));
+
+test('every file the manifest names exists', () => {
+  const files = [
+    manifest.background.service_worker,
+    manifest.action.default_popup,
+    ...Object.values(manifest.icons),
+    ...manifest.content_scripts.flatMap((c) => [...(c.js || []), ...(c.css || [])]),
+  ];
+  for (const file of files) assert.ok(exists(file), file + ' is missing');
+});
+
+test('pages load the scripts they depend on, in order', () => {
+  for (const page of ['popup.html', 'review.html']) {
+    const scripts = [...fs.readFileSync(path.join(dir, page), 'utf8').matchAll(/<script src="([^"]+)"/g)].map((m) => m[1]);
+    assert.equal(scripts[0], 'shared.js', page);
+    for (const s of scripts) assert.ok(exists(s), s + ' is missing');
+  }
+  const isolated = manifest.content_scripts.find((c) => c.world !== 'MAIN').js;
+  assert.deepEqual(isolated, ['shared.js', 'core.js', 'content.js']);
+});
+
+test('the page-world hook and the content script run on the same pages', () => {
+  const [a, b] = manifest.content_scripts;
+  assert.deepEqual(a.matches, b.matches);
+  assert.equal(a.run_at, 'document_start');
+});
+
+test('it asks for no more than storage and the translation host', () => {
+  assert.deepEqual(manifest.permissions, ['storage']);
+  assert.deepEqual(manifest.host_permissions, ['https://translate.googleapis.com/*']);
+  assert.match(manifest.version, /^\d+\.\d+\.\d+$/);
+});
