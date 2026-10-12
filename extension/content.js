@@ -3,11 +3,12 @@
   if (window.top !== window || window.__scenelingoContent) return;
   window.__scenelingoContent = true;
 
-  const { parseTime, lastStarted, findCue, alignTranslation, spokenWords, matchWords, stretch, isShouting, calm, expandContraction } = SubtitleCore;
+  const { parseTime, lastStarted, findCue, alignTranslation, spokenWords, matchWords, stretch, isShouting, calm, expandContraction, spokenTokens } = SubtitleCore;
   const PAGE = 'scenelingo:page';
   const EXT = 'scenelingo:ext';
   const CHUNK = 20; // cues per machine-translation request
-  const SLOW_RATE = 0.7; // playback speed of the turtle buttons, on top of the service's slow voice
+  const SLOW_RATE = 0.7; // speed of the slow synthetic voice, on top of the service's own slow reading
+  const SLOW_PLAY = 0.75; // speed of the film itself when a line is replayed slowly
   const NATIVE_SEL = '.atvwebplayersdk-captions-text';
   const WAITING = 'Altyazı bekleniyor… Videoyu başlat; gelmezse Prime oynatıcısında altyazıyı bir kez aç.';
 
@@ -40,8 +41,17 @@
   let audioGain = null;
   let audioSource = null;
   let speakToken = 0;
-  let dict = null; // listening practice for one cue: { idx, checked }
-  const dictStats = { ok: 0, total: 0 };
+  let practice = null; // the line being practised: { idx, mode: 'write' | 'speak', checked, state, heard, voice, ... }
+  const practiceStats = { write: { ok: 0, total: 0 }, speak: { ok: 0, total: 0 } };
+  let slowFor = -1; // line being replayed at reduced speed
+  let normalRate = 1;
+  let recog = null; // the speech recogniser of the attempt in progress
+  let listenTimer = 0;
+  let quietTimer = 0;
+  let micStream = null;
+  let recorder = null;
+  let micIdle = 0;
+  let settingsLoaded = false;
   let pointerHeld = false;
   let warnedTwin = false;
   let focusPulls = []; // times the answer box took the focus back, to avoid fighting the page in a loop
@@ -383,7 +393,7 @@
     if (idx === shown.idx && sec === shown.sec) return;
     if (idx !== shown.idx) {
       closePopup(false);
-      if (dict && idx !== dict.idx) closeDictation(false);
+      if (practice && idx !== practice.idx) closePractice(false);
       if (idx >= 0) fillWords(ui.pri, primary.cues[idx].text, langOf(primary.track.languageCode));
       else ui.pri.textContent = '';
       ui.pri.hidden = idx < 0;
@@ -417,7 +427,8 @@
     let due = -1;
     if (idx >= 0 && cues[idx].end - t < 0.1) due = idx;
     else if (lastIdx >= 0 && lastIdx !== idx && !video.seeking && t >= cues[lastIdx].end && t - cues[lastIdx].end < 1) due = lastIdx;
-    const practise = due >= 0 && settings.dictation && spokenWords(cues[due].text).length > 0;
+    if (slowFor >= 0 && idx !== slowFor && !video.seeking) restoreRate();
+    const practise = due >= 0 && settings.mode !== 'watch' && spokenWords(cues[due].text).length > 0;
     if (due >= 0 && (settings.autoPause || practise) && !video.paused && autoPausedFor !== due) {
       autoPausedFor = due;
       pauseVideo();
@@ -428,7 +439,7 @@
         ownSeek = true;
         video.currentTime = t + offset;
       }
-      if (practise) openDictation(due);
+      if (practise) openPractice(due);
     }
     lastIdx = idx;
 
@@ -463,7 +474,8 @@
     if (root.parentNode !== host) host.appendChild(root);
     root.hidden = false;
     ui.subs.hidden = !settings.enabled;
-    root.classList.toggle('sl-dictation', !!settings.dictation);
+    root.classList.toggle('sl-mode-write', settings.mode === 'write');
+    root.classList.toggle('sl-paused', video.paused);
     const css =
       `left:${Math.round(r.left)}px;top:${Math.round(r.top)}px;width:${Math.round(r.width)}px;height:${Math.round(r.height)}px;` +
       `--sl-fs:${Math.max(14, (r.height * 0.042 * settings.fontSize) / 100).toFixed(1)}px;--sl-bottom:${settings.bottomOffset}%;`;
@@ -489,6 +501,7 @@
     if (ui) {
       ui.status.textContent = text;
       ui.status.hidden = !text;
+      ui.gearBtn.classList.toggle('sl-attn', !!text);
     }
   }
 
@@ -538,6 +551,7 @@
   function seekTo(i) {
     if (!primary || !video || !primary.cues.length) return;
     i = Math.max(0, Math.min(primary.cues.length - 1, i));
+    restoreRate();
     video.currentTime = primary.cues[i].start + offset + 0.01;
     autoPausedFor = -1;
     lastIdx = -1;
@@ -599,7 +613,7 @@
     if (ui && !warnedTwin && [...document.querySelectorAll('#scenelingo-root, #primelingo-root')].some((n) => n !== ui.root)) {
       warnedTwin = true;
       setStatus('Eklentinin iki kopyası birlikte çalışıyor. chrome://extensions sayfasında eski kopyayı (PrimeLingo ya da ikinci SceneLingo) kaldır ve sayfayı yenile.');
-      ui.menu.hidden = false;
+      openMenu();
     }
   }
 
@@ -628,18 +642,14 @@
     if (settings.autoSpeak || pin) speak(word);
     const head = el('div', 'sl-pop-head');
     const btns = el('span', 'sl-pop-btns');
-    const listen = el('button', 'sl-pop-listen', '🔊');
-    listen.title = 'Dinle';
-    listen.addEventListener('click', () => speak(word));
-    const slow = el('button', 'sl-pop-listen', '🐢');
-    slow.title = 'Yavaş dinle';
-    slow.addEventListener('click', () => speak(word, true));
+    const listen = button('sl-pop-btn', 'volume', null, 'Dinle', () => speak(word));
+    const slow = button('sl-pop-btn', null, 'yavaş', 'Yavaş dinle', () => speak(word, true));
     const ipa = el('span', 'sl-pop-ipa');
-    const save = el('button', 'sl-pop-save');
+    const save = button('sl-pop-btn sl-pop-save', 'star', 'Kaydet', null, null);
     const body = el('div', 'sl-pop-body', '…');
     const paintSave = () => {
       const on = savedWords.has(word.toLowerCase());
-      save.textContent = on ? '★ Kaydedildi' : '☆ Kaydet';
+      save.lastChild.textContent = on ? 'Kaydedildi' : 'Kaydet';
       save.classList.toggle('sl-on', on);
     };
     paintSave();
@@ -685,12 +695,20 @@
         line.append(el('span', 'sl-pop-pos', label), document.createTextNode(' ' + text));
         body.append(line);
       };
-      for (const d of info.dict || []) labelled('sl-pop-dict', d.pos, d.terms.join(', '));
-      (info.defs || []).slice(0, 2).forEach((d, i) => {
-        labelled('sl-pop-def', d.pos, d.text);
-        if (d.example && i === 0) body.append(el('div', 'sl-pop-ex', '“' + d.example + '”'));
-      });
-      if (info.synonyms && info.synonyms.length) labelled('sl-pop-syn', 'eş anlamlı', info.synonyms.join(', '));
+      // Pointing at a word gives the short card; clicking it pins the card and opens the rest.
+      const entries = info.dict || [];
+      const defs = info.defs || [];
+      const synonyms = info.synonyms || [];
+      for (const d of entries.slice(0, pin ? 4 : 1)) labelled('sl-pop-dict', d.pos, d.terms.join(', '));
+      if (pin) {
+        defs.slice(0, 2).forEach((d, i) => {
+          labelled('sl-pop-def', d.pos, d.text);
+          if (d.example && i === 0) body.append(el('div', 'sl-pop-ex', '“' + d.example + '”'));
+        });
+        if (synonyms.length) labelled('sl-pop-syn', 'eş anlamlı', synonyms.join(', '));
+      } else if (defs.length || synonyms.length || entries.length > 1) {
+        body.append(el('div', 'sl-pop-more', 'Tanım ve eş anlamlılar için kelimeye tıkla'));
+      }
     }
     if (ui.pri.contains(anchor.commonAncestorContainer || anchor)) placePopup(anchor);
   }
@@ -713,8 +731,8 @@
     const half = ui.popup.offsetWidth / 2;
     const x = Math.max(half + 8, Math.min(rr.width - half - 8, wr.left + wr.width / 2 - rr.left));
     ui.popup.style.left = x + 'px';
-    // Sit above the whole subtitle box so the other lines stay readable.
-    ui.popup.style.bottom = rr.bottom - ui.box.getBoundingClientRect().top + 8 + 'px';
+    // Sit above the whole stack, so the line, the practice strip and the bar stay in view.
+    ui.popup.style.bottom = rr.bottom - ui.barWrap.getBoundingClientRect().top + 'px';
   }
 
   function closePopup(mayResume) {
@@ -724,8 +742,8 @@
     popupPinned = false;
     clearTimeout(closeTimer);
     ui.popup.hidden = true;
-    if (mayResume && hoverPaused && !ui.box.matches(':hover')) resume();
-    if (dict && !pointerHeld) focusBox();
+    if (mayResume && hoverPaused && !ui.subs.matches(':hover')) resume();
+    if (practice && practice.mode === 'write' && !pointerHeld) focusBox();
     return true;
   }
 
@@ -811,22 +829,25 @@
     synth.speak(utterance);
   }
 
+  function ensureAudio() {
+    if (audioCtx) return;
+    audioCtx = new AudioContext();
+    audioGain = audioCtx.createGain();
+    const limiter = audioCtx.createDynamicsCompressor();
+    limiter.threshold.value = -6;
+    limiter.knee.value = 0;
+    limiter.ratio.value = 20;
+    limiter.attack.value = 0.002;
+    audioGain.connect(limiter).connect(audioCtx.destination);
+  }
+
   async function speak(text, slow) {
     if (!text) return;
     const token = ++speakToken;
     const lang = speechLang();
     stopSpeech();
     try {
-      if (!audioCtx) {
-        audioCtx = new AudioContext();
-        audioGain = audioCtx.createGain();
-        const limiter = audioCtx.createDynamicsCompressor();
-        limiter.threshold.value = -6;
-        limiter.knee.value = 0;
-        limiter.ratio.value = 20;
-        limiter.attack.value = 0.002;
-        audioGain.connect(limiter).connect(audioCtx.destination);
-      }
+      ensureAudio();
       const buffer = await recordedSpeech(text, lang, !!slow);
       if (token === speakToken) playBuffer(buffer);
     } catch (e) {
@@ -873,19 +894,18 @@
 
   function paintSentenceStar() {
     if (!ui) return;
-    const on = savedWords.has(cueSentence().toLowerCase());
-    ui.starBtn.textContent = on ? '★' : '☆';
-    ui.starBtn.classList.toggle('sl-on', on);
+    const text = cueSentence();
+    ui.starBtn.classList.toggle('sl-on', !!text && savedWords.has(text.toLowerCase()));
   }
 
-  function speakSentence(slow) {
+  function speakSentence() {
     const text = cueSentence();
     if (!text) return;
     if (video && !video.paused) {
       pauseVideo();
       hoverPaused = true;
     }
-    speak(text, slow);
+    speak(text);
   }
 
   async function saveSentence() {
@@ -916,7 +936,27 @@
     return { text: text.replace(/\s+/g, ' ').trim(), range: span };
   }
 
-  // ---------- listening practice ----------
+  // Plays the current line again at reduced speed: the film's own sound, not the synthetic voice.
+  function replaySlow() {
+    if (!primary || !video) return;
+    const t = video.currentTime - offset;
+    const active = findCue(primary.cues, t);
+    const i = active >= 0 ? active : lastStarted(primary.cues, t);
+    if (i < 0) return;
+    const rate = slowFor >= 0 ? normalRate : video.playbackRate;
+    seekTo(i);
+    normalRate = rate;
+    slowFor = i;
+    video.playbackRate = SLOW_PLAY;
+  }
+
+  function restoreRate() {
+    if (slowFor < 0) return;
+    slowFor = -1;
+    if (video) video.playbackRate = normalRate;
+  }
+
+  // ---------- practice: write what was heard, or say the line aloud ----------
 
   const describe = (node) => {
     if (!node || node.nodeType !== 1) return String(node && node.nodeName);
@@ -931,7 +971,7 @@
 
   function caretToEnd() {
     const range = document.createRange();
-    range.selectNodeContents(ui.dictInput);
+    range.selectNodeContents(ui.answer);
     range.collapse(false);
     const sel = window.getSelection();
     sel.removeAllRanges();
@@ -939,17 +979,16 @@
   }
 
   function focusBox() {
-    if (document.activeElement === ui.dictInput) return;
-    ui.dictInput.focus({ preventScroll: true });
+    if (document.activeElement === ui.answer) return;
+    ui.answer.focus({ preventScroll: true });
     caretToEnd();
   }
 
-  // The site's player moves the keyboard focus to its own controls when playback starts or stops.
-  // While the answer box is open, the focus is taken back.
-  // The box takes the focus back only when the page moved it, not when the user is selecting
-  // subtitle text or reading a word card.
-  const boxWantsFocus = () => !!dict && !pointerHeld && ui.popup.hidden;
+  // The answer box takes the focus back only when the page moved it, not when the user is
+  // selecting subtitle text or reading a word card.
+  const boxWantsFocus = () => !!practice && practice.mode === 'write' && !pointerHeld && ui.popup.hidden;
 
+  // The site's player moves the keyboard focus to its own controls when playback starts or stops.
   function keepFocus(thief) {
     const now = performance.now();
     focusPulls = focusPulls.filter((t) => now - t < 1000);
@@ -961,24 +1000,29 @@
 
   // A key pressed while the focus was elsewhere still belongs to the answer.
   function typeIntoBox(e) {
-    const box = ui.dictInput;
+    const box = ui.answer;
     if (e.key.length === 1) box.textContent += e.key;
     else if (e.code === 'Backspace') box.textContent = box.textContent.slice(0, -1);
     caretToEnd();
-    if (dict.checked) showDictationResult();
+    if (practice.checked) scorePractice(box.textContent);
   }
 
-  function openDictation(idx) {
-    if (!dict || dict.idx !== idx) {
-      dict = { idx, checked: false };
+  function openPractice(idx) {
+    const mode = settings.mode;
+    if (!practice || practice.idx !== idx || practice.mode !== mode) {
+      if (practice) closePractice(false);
+      practice = { idx, mode, checked: false, state: 'idle', heard: '', interim: '', note: '', segments: [], voice: null, attempt: 0, score: null };
       ui.root.classList.remove('sl-reveal');
-      ui.dictInput.textContent = '';
-      ui.dictResult.textContent = '';
-      ui.dictResult.hidden = true;
-      ui.dictGo.textContent = 'Kontrol et (Enter)';
-      ui.dict.hidden = false;
-      trace('open', 'line ' + idx);
+      ui.answer.textContent = '';
+      clearMarks();
+      ui.stripWrap.hidden = false;
+      trace('open', mode + ' line ' + idx);
     }
+    if (mode === 'speak') {
+      startListening();
+      return;
+    }
+    paintPractice();
     focusBox();
     // The player reacts to the pause a moment later and may take the focus then; no focus event
     // is fired for that if the window itself is not focused, so check once more.
@@ -987,49 +1031,296 @@
     }, 250);
   }
 
-  // Compares the answer with the line. Only the first check of a line counts towards the session
-  // score; after it the marks simply follow the answer as it is corrected.
-  function showDictationResult() {
-    const expected = spokenWords(primary.cues[dict.idx].text);
-    const hit = matchWords(expected, spokenWords(ui.dictInput.textContent));
-    const ok = hit.filter(Boolean).length;
-    if (!dict.checked) {
-      dictStats.ok += ok;
-      dictStats.total += expected.length;
-      trace('check', ok + '/' + expected.length);
+  // Colours the words of the line on screen: got or missed. Each word element is matched to the
+  // spoken tokens that start inside it, by their position in the line's text.
+  function markWords(hit) {
+    const tokens = spokenTokens(primary.cues[practice.idx].text);
+    let pos = 0;
+    for (const node of ui.pri.childNodes) {
+      const length = node.nodeName === 'BR' ? 1 : node.textContent.length;
+      if (node.nodeType === 1 && node.classList.contains('sl-word')) {
+        const mine = [];
+        tokens.forEach((token, i) => {
+          if (token.start >= pos && token.start < pos + length) mine.push(i);
+        });
+        node.classList.toggle('sl-ok', mine.length > 0 && mine.every((i) => hit[i]));
+        node.classList.toggle('sl-miss', mine.length > 0 && !mine.every((i) => hit[i]));
+      }
+      pos += length;
     }
-    const line = el('div', 'sl-dict-words');
-    expected.forEach((w, i) => line.append(el('span', hit[i] ? 'sl-ok' : 'sl-miss', w), ' '));
-    const session = Math.round((100 * dictStats.ok) / dictStats.total);
-    ui.dictResult.textContent = '';
-    ui.dictResult.append(line, el('div', 'sl-dict-score', ok + '/' + expected.length + ' kelime doğru · bu oturum %' + session));
-    ui.dictResult.hidden = false;
-    ui.dictGo.textContent = 'Devam (Enter)';
-    dict.checked = true;
-    ui.root.classList.add('sl-reveal'); // show the real subtitle and its translation
   }
 
-  function closeDictation(play) {
-    if (!dict) return;
-    dict = null;
+  function clearMarks() {
+    for (const w of ui.pri.querySelectorAll('.sl-ok, .sl-miss')) w.classList.remove('sl-ok', 'sl-miss');
+  }
+
+  // Compares an answer (typed, or heard by the recogniser) with the line. Only the first check of
+  // a line counts towards the session score; after it the marks simply follow the answer.
+  function scorePractice(answer) {
+    const expected = spokenWords(primary.cues[practice.idx].text);
+    const hit = matchWords(expected, spokenWords(answer));
+    const ok = hit.filter(Boolean).length;
+    if (!practice.checked) {
+      const stats = practiceStats[practice.mode];
+      stats.ok += ok;
+      stats.total += expected.length;
+      trace('check', practice.mode + ' ' + ok + '/' + expected.length);
+    }
+    practice.checked = true;
+    practice.score = [ok, expected.length];
+    ui.root.classList.add('sl-reveal'); // in writing practice the line is hidden until now
+    markWords(hit);
+    paintPractice();
+  }
+
+  function paintPractice() {
+    if (!practice) return;
+    const speaking = practice.mode === 'speak';
+    const listening = practice.state === 'listening';
+    ui.answer.hidden = speaking;
+    ui.heard.hidden = !speaking;
+    if (speaking) {
+      ui.heard.classList.toggle('sl-listening', listening);
+      ui.heard.classList.toggle('sl-problem', practice.state === 'error');
+      ui.heardText.textContent = listening
+        ? practice.interim || segmentsText(practice) || 'Dinliyorum… cümleyi sesli söyle'
+        : practice.state === 'error'
+          ? practice.note
+          : 'Duyulan: ' + practice.heard;
+    }
+    ui.checkBtn.hidden = speaking;
+    ui.checkBtn.textContent = practice.checked ? 'Devam (Enter)' : 'Kontrol et (Enter)';
+    ui.sayBtn.hidden = !speaking || listening;
+    ui.doneBtn.hidden = !speaking || !listening;
+    ui.voiceBtn.hidden = !speaking || listening || !practice.voice;
+    ui.goBtn.hidden = !speaking || listening;
+    // The score sits beside what was heard when speaking, and beside the buttons when writing.
+    const scoreHome = speaking ? ui.heard : ui.actions;
+    if (ui.score.parentNode !== scoreHome) scoreHome.appendChild(ui.score);
+    const stats = practiceStats[practice.mode];
+    ui.score.textContent = practice.score
+      ? practice.score[0] + '/' + practice.score[1] + (speaking ? ' kelime anlaşıldı' : ' kelime doğru') + ' · bu oturum %' + Math.round((100 * stats.ok) / stats.total)
+      : '';
+  }
+
+  function closePractice(play) {
+    if (!practice) return;
+    practice = null;
+    stopListening(false);
     trace('close', play ? 'and play' : '');
-    ui.dict.hidden = true;
+    ui.stripWrap.hidden = true;
     ui.root.classList.remove('sl-reveal');
-    ui.dictInput.blur();
+    clearMarks();
+    ui.answer.blur();
     if (play && video) video.play().catch(() => {});
   }
 
-  function dictationEnter() {
-    if (!dict) return;
-    if (dict.checked) closeDictation(true);
-    else showDictationResult();
+  function practiceEnter() {
+    if (!practice) return;
+    if (practice.mode === 'speak') {
+      if (practice.state === 'listening') stopListening(true);
+      else closePractice(true);
+    } else if (practice.checked) closePractice(true);
+    else scorePractice(ui.answer.textContent);
   }
 
-  function dictationReplay() {
-    if (!dict) return;
-    trace('replay', 'line ' + dict.idx);
-    seekTo(dict.idx);
-    focusBox();
+  function practiceReplay() {
+    if (!practice) return;
+    trace('replay', 'line ' + practice.idx);
+    stopListening(false);
+    seekTo(practice.idx);
+    if (practice.mode === 'write') focusBox();
+  }
+
+  // ---------- speaking practice: speech recognition and the learner's own recording ----------
+
+  const SPEECH_PROBLEMS = {
+    'not-allowed': 'Mikrofona izin verilmedi. Adres çubuğundaki mikrofon simgesinden izin ver, sonra Boşluk ile tekrar dene.',
+    'service-not-allowed': 'Mikrofona izin verilmedi. Adres çubuğundaki mikrofon simgesinden izin ver, sonra Boşluk ile tekrar dene.',
+    'no-speech': 'Ses duyulmadı. Boşluk ile tekrar dene.',
+    'audio-capture': 'Mikrofon bulunamadı.',
+    network: 'Konuşma tanıma servisine ulaşılamadı; internet bağlantısı gerekiyor.',
+    unsupported: 'Bu tarayıcıda konuşma tanıma kullanılamıyor.',
+  };
+
+  const segmentsText = (p) => p.segments.map((alternatives) => alternatives[0]).join(' ');
+
+  function startListening() {
+    const p = practice;
+    if (!p || p.mode !== 'speak') return;
+    stopListening(false);
+    stopSpeech();
+    clearMarks();
+    const attempt = ++p.attempt;
+    Object.assign(p, { state: 'listening', heard: '', interim: '', note: '', segments: [], problem: '' });
+    paintPractice();
+    const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const cue = primary.cues[p.idx];
+    const wanted = spokenWords(cue.text).length;
+    let r;
+    try {
+      r = new Recognition();
+      r.lang = speechLang();
+      r.interimResults = true;
+      r.continuous = true;
+      r.maxAlternatives = 3;
+    } catch (e) {
+      failListening(p, 'unsupported');
+      return;
+    }
+    r.onresult = (e) => {
+      if (recog !== r) return;
+      const finals = [];
+      let interim = '';
+      for (let i = 0; i < e.results.length; i++) {
+        const result = e.results[i];
+        if (!result.isFinal) interim += result[0].transcript;
+        else finals.push(Array.from({ length: result.length }, (_, k) => result[k].transcript));
+      }
+      p.segments = finals;
+      p.interim = interim;
+      paintPractice();
+      // Stop soon after the whole line has been heard; otherwise wait out a pause in the speech.
+      clearTimeout(quietTimer);
+      quietTimer = setTimeout(() => stopListening(true), spokenWords(segmentsText(p)).length >= wanted ? 350 : 2200);
+    };
+    r.onerror = (e) => {
+      if (recog !== r) return;
+      p.problem = e.error;
+      trace('speech-error', e.error);
+    };
+    r.onend = () => {
+      if (recog !== r) return;
+      recog = null;
+      finishListening(p);
+    };
+    recog = r;
+    try {
+      r.start();
+    } catch (e) {
+      recog = null;
+      failListening(p, 'unsupported');
+      return;
+    }
+    trace('listen', r.lang);
+    record(p, attempt);
+    listenTimer = setTimeout(() => stopListening(true), Math.max(8000, (cue.end - cue.start) * 2500 + 5000));
+  }
+
+  // `evaluate`: let the recogniser finish and score what it heard. Otherwise the attempt is dropped.
+  function stopListening(evaluate) {
+    clearTimeout(listenTimer);
+    clearTimeout(quietTimer);
+    const r = recog;
+    if (!r) return;
+    if (evaluate) {
+      try {
+        r.stop();
+      } catch (e) { /* already stopping */ }
+      return;
+    }
+    recog = null;
+    try {
+      r.abort();
+    } catch (e) { /* already stopped */ }
+    stopRecording();
+  }
+
+  function finishListening(p) {
+    clearTimeout(listenTimer);
+    clearTimeout(quietTimer);
+    stopRecording();
+    if (practice !== p) return;
+    const heard = bestTranscript(p);
+    if (!heard) {
+      failListening(p, p.problem || 'no-speech');
+      return;
+    }
+    p.heard = heard;
+    p.state = 'result';
+    trace('heard', spokenWords(heard).length + ' words');
+    scorePractice(heard);
+  }
+
+  function failListening(p, code) {
+    stopRecording();
+    if (practice !== p) return;
+    p.state = 'error';
+    p.note = SPEECH_PROBLEMS[code] || 'Konuşma tanıma çalışmadı (' + code + '). Boşluk ile tekrar dene.';
+    trace('speech-failed', code);
+    paintPractice();
+  }
+
+  // The recogniser offers a few readings of each stretch of speech. The learner was understood if
+  // any of them is the line, so for each stretch the reading that matches the line best is kept.
+  function bestTranscript(p) {
+    const expected = spokenWords(primary.cues[p.idx].text);
+    const matches = (parts) => matchWords(expected, spokenWords(parts.join(' '))).filter(Boolean).length;
+    const chosen = p.segments.map((alternatives) => alternatives[0]);
+    p.segments.forEach((alternatives, s) => {
+      for (const alternative of alternatives.slice(1)) {
+        const trial = chosen.slice();
+        trial[s] = alternative;
+        if (matches(trial) > matches(chosen)) chosen[s] = alternative;
+      }
+    });
+    return (chosen.join(' ') || p.interim).replace(/\s+/g, ' ').trim();
+  }
+
+  // Records the attempt so the learner can hear themselves next to the original.
+  async function record(p, attempt) {
+    if (!navigator.mediaDevices || !window.MediaRecorder) return;
+    try {
+      if (!micStream || !micStream.active) micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    } catch (e) {
+      trace('mic', String((e && e.name) || e));
+      return;
+    }
+    if (practice !== p || p.attempt !== attempt || p.state !== 'listening') return;
+    const rec = new MediaRecorder(micStream);
+    const chunks = [];
+    rec.ondataavailable = (e) => {
+      if (e.data.size) chunks.push(e.data);
+    };
+    rec.onstop = async () => {
+      try {
+        ensureAudio();
+        const voice = await audioCtx.decodeAudioData(await new Blob(chunks, { type: rec.mimeType }).arrayBuffer());
+        if (practice !== p || p.attempt !== attempt) return;
+        p.voice = voice;
+        paintPractice();
+      } catch (e) {
+        trace('voice', 'could not be decoded');
+      }
+    };
+    recorder = rec;
+    rec.start();
+  }
+
+  function stopRecording() {
+    if (recorder && recorder.state !== 'inactive') {
+      try {
+        recorder.stop();
+      } catch (e) { /* already stopped */ }
+    }
+    recorder = null;
+    // The microphone stays open between attempts so the first word is not clipped, and is
+    // released once practice has been idle for a while.
+    clearTimeout(micIdle);
+    micIdle = setTimeout(releaseMic, 90000);
+  }
+
+  function releaseMic() {
+    clearTimeout(micIdle);
+    if (!micStream) return;
+    for (const track of micStream.getTracks()) track.stop();
+    micStream = null;
+  }
+
+  function playVoice() {
+    if (!practice || !practice.voice) return;
+    stopSpeech();
+    playBuffer(practice.voice);
   }
 
   // ---------- subtitle list panel ----------
@@ -1077,6 +1368,7 @@
     const open = ui.panel.hidden;
     ui.panel.hidden = !open;
     ui.root.classList.toggle('sl-panel-open', open);
+    ui.listBtn.classList.toggle('sl-on', open);
     if (open) buildPanel();
     else {
       ui.list.textContent = '';
@@ -1094,8 +1386,21 @@
     } catch (e) { /* extension was reloaded */ }
   }
 
+  const MODE_NOTES = {
+    watch: 'İzleme: altyazılarla izle',
+    write: 'Yazma: altyazı gizli, cümle bitince duyduğunu yaz',
+    speak: 'Söyleme: cümle bitince sesli tekrar et',
+  };
+
+  // Choosing the mode that is already on goes back to plain watching.
+  function setMode(mode) {
+    setSetting('mode', settings.mode === mode ? 'watch' : mode);
+    toast(MODE_NOTES[settings.mode], 2200);
+  }
+
   function applySettings(keys) {
-    if (!settings.dictation || !settings.enabled) closeDictation(false);
+    if (practice && (practice.mode !== settings.mode || !settings.enabled)) closePractice(false);
+    if (settings.mode !== 'speak') releaseMic();
     applyNativeHiding();
     refreshMenu();
     if (ui) layout();
@@ -1103,68 +1408,167 @@
       choice = { primary: 'auto', secondary: 'auto' };
       reload();
     }
+    showIntro();
+  }
+
+  // Shown once: the controls are out of sight until the mouse moves, so say where they are.
+  function showIntro() {
+    if (!ui || !settingsLoaded || settings.introSeen) return;
+    setSetting('introSeen', true);
+    wake(9000);
+    toast('Çalışma çubuğu altyazının üstünde; fareyi oynatınca görünür. W: duyduğunu yaz · E: sesli söyle · Z: yavaş tekrar', 9000);
+  }
+
+  function wake(ms = 2500) {
+    if (!ui) return;
+    ui.root.classList.add('sl-awake');
+    clearTimeout(awakeTimer);
+    awakeTimer = setTimeout(() => ui.root.classList.remove('sl-awake'), ms);
   }
 
   // ---------- UI ----------
+
+  // Outline icons, one path each (shapes adapted from Feather, MIT).
+  const ICONS = {
+    prev: 'M19 20L9 12l10-8v16z M5 19V5',
+    next: 'M5 4l10 8-10 8V4z M19 5v14',
+    repeat: 'M17 1l4 4-4 4 M3 11V9a4 4 0 0 1 4-4h14 M7 23l-4-4 4-4 M21 13v2a4 4 0 0 1-4 4H3',
+    eye: 'M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z M12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6z',
+    pen: 'M12 20h9 M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z',
+    mic: 'M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z M19 10v2a7 7 0 0 1-14 0v-2 M12 19v4 M8 23h8',
+    pause: 'M6 4h4v16H6z M14 4h4v16h-4z',
+    volume: 'M11 5L6 9H2v6h4l5 4V5z M19.07 4.93a10 10 0 0 1 0 14.14 M15.54 8.46a5 5 0 0 1 0 7.07',
+    star: 'M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z',
+    list: 'M8 6h13 M8 12h13 M8 18h13 M3 6h.01 M3 12h.01 M3 18h.01',
+    sliders: 'M4 21v-7 M4 10V3 M12 21v-9 M12 8V3 M20 21v-5 M20 12V3 M1 14h6 M9 8h6 M17 16h6',
+    play: 'M5 3l14 9-14 9V3z',
+    close: 'M18 6L6 18 M6 6l12 12',
+  };
+
+  function icon(name) {
+    const NS = 'http://www.w3.org/2000/svg';
+    const svg = document.createElementNS(NS, 'svg');
+    svg.setAttribute('viewBox', '0 0 24 24');
+    svg.setAttribute('class', 'sl-icon');
+    svg.setAttribute('aria-hidden', 'true');
+    const path = document.createElementNS(NS, 'path');
+    path.setAttribute('d', ICONS[name]);
+    svg.appendChild(path);
+    return svg;
+  }
+
+  // A button showing an icon, a label, or both. `title` is the tooltip and the accessible name.
+  function button(cls, iconName, label, title, onClick) {
+    const b = el('button', cls);
+    if (iconName) b.appendChild(icon(iconName));
+    if (label) b.appendChild(el('span', null, label));
+    if (title) {
+      b.title = title;
+      b.setAttribute('aria-label', title);
+    }
+    if (onClick) b.addEventListener('click', onClick);
+    return b;
+  }
 
   function buildUI() {
     const root = el('div');
     root.id = 'scenelingo-root';
     root.hidden = true;
 
+    // The stack over the picture, bottom up: the subtitle, the practice strip, the study bar.
     const subs = el('div', 'sl-subs');
     const box = el('div', 'sl-box');
     const pri = el('div', 'sl-primary');
     const sec = el('div', 'sl-secondary');
     box.hidden = true;
-    const tools = el('div', 'sl-tools');
-    const sayBtn = el('button', null, '🔊');
-    sayBtn.title = 'Cümleyi oku';
-    const slowBtn = el('button', null, '🐢');
-    slowBtn.title = 'Cümleyi yavaş oku';
-    const starBtn = el('button', null, '☆');
-    starBtn.title = 'Cümleyi kaydet';
-    tools.append(sayBtn, slowBtn, starBtn);
-    box.append(pri, sec, tools);
+    box.append(pri, sec);
 
-    const dictEl = el('div', 'sl-dict');
-    dictEl.hidden = true;
-    const dictResult = el('div', 'sl-dict-result');
-    dictResult.hidden = true;
+    // study bar
+    const bar = el('div', 'sl-bar');
+    const modeBtns = {
+      watch: button('sl-seg-btn', 'eye', 'İzle', 'İzle: altyazılarla izle', () => setSetting('mode', 'watch')),
+      write: button('sl-seg-btn', 'pen', 'Yaz', 'Yaz: cümle bitince duyduğunu yaz (W)', () => setMode('write')),
+      speak: button('sl-seg-btn', 'mic', 'Söyle', 'Söyle: cümle bitince sesli tekrar et (E)', () => setMode('speak')),
+    };
+    const seg = el('div', 'sl-seg');
+    seg.append(modeBtns.watch, modeBtns.write, modeBtns.speak);
+    const pauseBtn = button('sl-ibtn', 'pause', null, 'Her cümlede duraklat (Q)', () => setSetting('autoPause', !settings.autoPause));
+    const starBtn = button('sl-ibtn', 'star', null, 'Cümleyi kaydet', saveSentence);
+    const listBtn = button('sl-ibtn', 'list', null, 'Altyazı listesi (L)', togglePanel);
+    const gearBtn = button('sl-ibtn', 'sliders', null, 'Ayarlar', () => (ui.menu.hidden ? openMenu() : (ui.menu.hidden = true)));
+    bar.append(
+      button('sl-ibtn', 'prev', null, 'Önceki cümle (A)', () => primary && nav(-1)),
+      button('sl-ibtn', 'repeat', null, 'Cümleyi tekrar oynat (S)', () => primary && nav(0)),
+      button('sl-ibtn sl-text-btn', null, '0.75×', 'Cümleyi yavaş tekrar oynat (Z)', replaySlow),
+      button('sl-ibtn', 'next', null, 'Sonraki cümle (D)', () => primary && nav(1)),
+      el('span', 'sl-sep'),
+      seg,
+      el('span', 'sl-sep'),
+      pauseBtn,
+      button('sl-ibtn', 'volume', null, 'Cümleyi sesli oku', speakSentence),
+      starBtn,
+      listBtn,
+      gearBtn
+    );
+    const barWrap = el('div', 'sl-bar-wrap');
+    barWrap.appendChild(bar);
+
+    // practice strip
+    const strip = el('div', 'sl-strip');
     // An editable box rather than an <input>: the browser offers saved cards and addresses in
     // form fields, and while that list is open it takes Tab and Enter for itself.
-    const dictInput = el('div', 'sl-dict-input');
-    dictInput.contentEditable = 'plaintext-only';
-    dictInput.setAttribute('role', 'textbox');
-    dictInput.setAttribute('aria-label', 'Duyduğunu yaz');
-    dictInput.dataset.placeholder = 'Duyduğunu yaz…';
-    dictInput.spellcheck = false;
-    const dictBtns = el('div', 'sl-dict-btns');
-    const dictAgain = el('button', null, '↺ Tekrar dinle (↑)');
-    const dictGo = el('button', 'sl-main-btn', 'Kontrol et (Enter)');
-    const dictSkip = el('button', null, 'Geç (↓)');
-    dictBtns.append(dictAgain, dictGo, dictSkip);
-    dictEl.append(dictResult, dictInput, dictBtns);
-    subs.append(dictEl, box);
+    const answer = el('div', 'sl-answer');
+    answer.contentEditable = 'plaintext-only';
+    answer.setAttribute('role', 'textbox');
+    answer.setAttribute('aria-label', 'Duyduğunu yaz');
+    answer.dataset.placeholder = 'Duyduğunu yaz…';
+    answer.spellcheck = false;
+    const heard = el('div', 'sl-heard');
+    const heardText = el('span', 'sl-heard-text');
+    heard.append(el('span', 'sl-mic-dot'), heardText);
+    const actions = el('div', 'sl-strip-row');
+    const btns = el('div', 'sl-strip-btns');
+    const checkBtn = button('sl-main-btn', null, 'Kontrol et (Enter)', null, () => {
+      practiceEnter();
+      if (practice) focusBox();
+    });
+    const doneBtn = button('sl-main-btn', null, 'Bitir (Enter)', null, practiceEnter);
+    const sayBtn = button(null, 'mic', 'Tekrar söyle (Boşluk)', null, startListening);
+    const voiceBtn = button(null, 'play', 'Kendi sesim (→)', null, playVoice);
+    const goBtn = button('sl-main-btn', null, 'Devam (Enter)', null, practiceEnter);
+    btns.append(
+      button(null, 'repeat', 'Tekrar dinle (↑)', null, practiceReplay),
+      checkBtn,
+      doneBtn,
+      sayBtn,
+      voiceBtn,
+      goBtn,
+      button(null, null, 'Geç (↓)', null, () => closePractice(true))
+    );
+    const score = el('span', 'sl-score');
+    actions.append(btns, score);
+    strip.append(answer, heard, actions);
+    const stripWrap = el('div', 'sl-strip-wrap');
+    stripWrap.hidden = true;
+    stripWrap.appendChild(strip);
+
+    subs.append(barWrap, stripWrap, box);
 
     const popup = el('div', 'sl-popup');
     popup.hidden = true;
     const toastEl = el('div', 'sl-toast');
     toastEl.hidden = true;
-    const fab = el('button', 'sl-fab', 'SL');
-    fab.title = 'SceneLingo ayarları';
     const menu = el('div', 'sl-menu');
     menu.hidden = true;
 
     const panel = el('div', 'sl-panel');
     panel.hidden = true;
     const panelHead = el('div', 'sl-panel-head');
-    const panelClose = el('button', 'sl-icon-btn', '✕');
-    panelHead.append(el('span', null, 'Altyazılar'), panelClose);
+    panelHead.append(el('span', null, 'Altyazılar'), button('sl-ibtn', 'close', null, 'Kapat', togglePanel));
     const list = el('div', 'sl-list');
     panel.append(panelHead, list);
 
-    // menu
+    // settings menu
     const checks = {};
     const row = (label, control, tag = 'div') => {
       const r = el(tag, 'sl-mrow');
@@ -1238,37 +1642,41 @@
       volRange.blur();
       speakSample();
     });
-    const listBtn = el('button', 'sl-wide-btn', 'Altyazı listesini aç / kapat (L)');
     const reviewBtn = el('button', 'sl-wide-btn', 'Kelime tekrarını aç');
     const traceBtn = el('button', 'sl-wide-btn sl-quiet-btn', 'Tanılama kaydını kopyala');
-    traceBtn.title = 'Dinleme alıştırmasında bir şey ters giderse, son olayların kaydını panoya kopyalar';
+    traceBtn.title = 'Alıştırmalarda bir şey ters giderse, son olayların kaydını panoya kopyalar';
     const statusEl = el('div', 'sl-status');
     statusEl.hidden = true;
+    const advanced = el('details', 'sl-more');
+    advanced.append(el('summary', null, 'Gelişmiş'), row('Altyazı gecikmesi', sync.wrap), traceBtn);
     menu.append(
-      el('div', 'sl-menu-title', 'SceneLingo'),
       statusEl,
+      el('div', 'sl-mhead', 'Altyazı'),
       row('Çift altyazı', check('enabled'), 'label'),
-      row('Üst altyazı', priSel),
-      row('Alt altyazı', secSel),
-      row('Her cümlede duraklat (Q)', check('autoPause'), 'label'),
-      row('Dinleme alıştırması (W)', check('dictation'), 'label'),
+      row('Üst satır', priSel),
+      row('Alt satır', secSel),
+      row('Prime altyazısını gizle', check('hideNative'), 'label'),
+      el('div', 'sl-mhead', 'Kelime kartı ve ses'),
       row('Üzerine gelince duraklat', check('hoverPause'), 'label'),
       row('Kelimenin üzerine gelince çevir', check('hoverLookup'), 'label'),
       row('Kelimeyi sesli oku', check('autoSpeak'), 'label'),
       accentRow,
       row('Okuma sesi', vol),
-      row('Prime altyazısını gizle', check('hideNative'), 'label'),
+      el('div', 'sl-mhead', 'Görünüm'),
       row('Yazı boyutu', size.wrap),
       row('Konum', pos.wrap),
-      row('Gecikme', sync.wrap),
-      listBtn,
       reviewBtn,
-      traceBtn,
-      el('div', 'sl-hint', 'A önceki · S tekrar · D sonraki · Q duraklatma · W dinleme alıştırması · L liste')
+      advanced,
+      el('div', 'sl-hint', 'A önceki · S tekrar · Z yavaş tekrar · D sonraki · Q her cümlede dur · W yaz · E söyle · L liste')
     );
 
-    root.append(subs, popup, toastEl, fab, menu, panel);
-    ui = { root, subs, box, pri, sec, starBtn, dict: dictEl, dictInput, dictResult, dictGo, popup, toast: toastEl, fab, menu, panel, list, checks, priSel, secSel, accentSel, accentRow, volRange, volVal, size, pos, sync, status: statusEl };
+    root.append(subs, popup, toastEl, menu, panel);
+    ui = {
+      root, subs, box, pri, sec, bar, barWrap, strip, stripWrap, answer, heard, heardText, score, actions,
+      checkBtn, doneBtn, sayBtn, voiceBtn, goBtn, modeBtns, pauseBtn, starBtn, listBtn, gearBtn,
+      popup, toast: toastEl, menu, panel, list, checks, priSel, secSel, accentSel, accentRow,
+      volRange, volVal, size, pos, sync, status: statusEl,
+    };
 
     // Keep clicks on our controls from reaching the player underneath.
     for (const type of ['click', 'dblclick', 'mousedown', 'mouseup', 'pointerdown', 'pointerup', 'wheel', 'contextmenu', 'selectstart', 'dragstart']) {
@@ -1282,31 +1690,19 @@
     root.addEventListener('change', (e) => {
       if (e.target.tagName === 'SELECT') e.target.blur();
     });
-    sayBtn.addEventListener('click', () => speakSentence(false));
-    slowBtn.addEventListener('click', () => speakSentence(true));
-    starBtn.addEventListener('click', saveSentence);
-    dictAgain.addEventListener('click', dictationReplay);
-    dictGo.addEventListener('click', () => {
-      dictationEnter();
-      if (dict) focusBox();
-    });
-    dictSkip.addEventListener('click', () => closeDictation(true));
     reviewBtn.addEventListener('click', () => send({ type: 'open-review' }));
     traceBtn.addEventListener('click', () => {
-      const report = ['SceneLingo ' + (connected() ? chrome.runtime.getManifest().version : '(stale copy: the page needs a reload)') + ' — ' + location.hostname, 'fullscreen: ' + !!document.fullscreenElement + ', focus: ' + describe(document.activeElement)].concat(traceLog).join('\n');
+      const report = [
+        'SceneLingo ' + (connected() ? chrome.runtime.getManifest().version : '(stale copy: the page needs a reload)') + ' — ' + location.hostname,
+        'mode: ' + settings.mode + ', fullscreen: ' + !!document.fullscreenElement + ', focus: ' + describe(document.activeElement),
+      ].concat(traceLog).join('\n');
       navigator.clipboard.writeText(report).then(() => toast('Tanılama kaydı kopyalandı'), () => toast('Kopyalanamadı'));
     });
     // Fallback for the case where something keeps key events from reaching the window listener.
-    dictInput.addEventListener('keydown', onKey);
-    dictInput.addEventListener('input', () => {
-      if (dict && dict.checked) showDictationResult();
+    answer.addEventListener('keydown', onKey);
+    answer.addEventListener('input', () => {
+      if (practice && practice.checked) scorePractice(answer.textContent);
     });
-    fab.addEventListener('click', () => {
-      menu.hidden = !menu.hidden;
-      if (!menu.hidden) refreshMenu();
-    });
-    listBtn.addEventListener('click', togglePanel);
-    panelClose.addEventListener('click', togglePanel);
     list.addEventListener('click', (e) => {
       const r = e.target.closest('.sl-row');
       if (r) seekTo(+r.dataset.i);
@@ -1334,6 +1730,8 @@
     });
     popup.addEventListener('mouseenter', () => clearTimeout(closeTimer));
     popup.addEventListener('mouseleave', scheduleClose);
+    // Pointing at the subtitle pauses the film. It stays paused while the mouse is on the strip or
+    // the bar above it, and goes on when the mouse leaves the whole stack.
     box.addEventListener('mouseenter', () => {
       if (settings.hoverPause && video && !video.paused) {
         pauseVideo();
@@ -1343,17 +1741,31 @@
     box.addEventListener('mouseleave', () => {
       clearTimeout(hoverTimer);
       if (!popup.hidden) scheduleClose();
-      else if (hoverPaused) resume();
+    });
+    subs.addEventListener('mouseleave', () => {
+      if (hoverPaused && popup.hidden) resume();
     });
 
     setStatus(status);
     refreshMenu();
     layout();
+    showIntro();
+  }
+
+  function openMenu() {
+    refreshMenu();
+    ui.menu.hidden = false;
+    const rr = ui.root.getBoundingClientRect();
+    const top = ui.barWrap.getBoundingClientRect().top;
+    ui.menu.style.bottom = Math.max(8, rr.bottom - top + 4) + 'px';
+    ui.menu.style.maxHeight = Math.max(160, top - rr.top - 16) + 'px';
   }
 
   function refreshMenu() {
     if (!ui) return;
     for (const key of Object.keys(ui.checks)) ui.checks[key].checked = !!settings[key];
+    for (const mode of Object.keys(ui.modeBtns)) ui.modeBtns[mode].classList.toggle('sl-on', settings.mode === mode);
+    ui.pauseBtn.classList.toggle('sl-on', !!settings.autoPause);
     const fill = (sel, options, value) => {
       sel.textContent = '';
       for (const [v, label] of options) {
@@ -1385,21 +1797,21 @@
   // ---------- events ----------
 
   function onKey(e) {
-    if (dict && ui) {
-      const target = e.target && e.target.nodeType === 1 ? e.target : null;
-      const inBox = target === ui.dictInput;
+    const target = e.target && e.target.nodeType === 1 ? e.target : null;
+    const combo = e.ctrlKey || e.metaKey || e.altKey;
+    if (practice && ui) {
+      const inBox = target === ui.answer;
       const otherField = !inBox && target && (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName));
-      if (!otherField) {
+      const skip = () => closePractice(true);
+      if (practice.mode === 'write' && !otherField) {
         // While the answer box is open the keyboard belongs to it, wherever the page has put the
         // focus, and none of it may reach the player's own shortcuts (space, arrows, letters).
         e.stopImmediatePropagation();
         // Escape is left alone: in fullscreen the browser takes it to leave fullscreen. Tab replays
         // too, so that it cannot carry the focus out of the box.
-        const skip = () => closeDictation(true);
-        const command = { Enter: dictationEnter, NumpadEnter: dictationEnter, ArrowUp: dictationReplay, Tab: dictationReplay, ArrowDown: skip }[e.code];
+        const command = { Enter: practiceEnter, NumpadEnter: practiceEnter, ArrowUp: practiceReplay, Tab: practiceReplay, ArrowDown: skip }[e.code];
         if (command || !inBox) e.preventDefault();
         if (e.type !== 'keydown') return;
-        const combo = e.ctrlKey || e.metaKey || e.altKey;
         trace('key', (command ? e.code : 'char') + ' on ' + describe(target));
         if (command && !combo) {
           try {
@@ -1414,13 +1826,28 @@
           // The box can have the focus while the selection is on subtitle words; what is typed
           // goes where the selection is, so bring it back first.
           const sel = window.getSelection();
-          if (!sel.anchorNode || !ui.dictInput.contains(sel.anchorNode)) caretToEnd();
+          if (!sel.anchorNode || !ui.answer.contains(sel.anchorNode)) caretToEnd();
         }
         return;
       }
+      if (practice.mode === 'speak' && !otherField && !combo) {
+        // Nothing is typed here, so only the practice keys are taken; the rest work as usual.
+        const command = { Enter: practiceEnter, NumpadEnter: practiceEnter, Space: startListening, ArrowUp: practiceReplay, ArrowDown: skip, ArrowRight: playVoice }[e.code];
+        if (command) {
+          e.stopImmediatePropagation();
+          e.preventDefault();
+          if (e.type !== 'keydown') return;
+          trace('key', e.code);
+          try {
+            command();
+          } catch (err) {
+            trace('error', String(err && err.stack ? err.stack : err));
+          }
+          return;
+        }
+      }
     }
-    if (e.type !== 'keydown' || e.ctrlKey || e.metaKey || e.altKey) return;
-    const target = e.target;
+    if (e.type !== 'keydown' || combo) return;
     if (target && (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName))) return;
     let handled = true;
     if (e.code === 'Escape') {
@@ -1431,13 +1858,13 @@
     } else if (e.code === 'KeyA') nav(-1);
     else if (e.code === 'KeyS') nav(0);
     else if (e.code === 'KeyD') nav(1);
+    else if (e.code === 'KeyZ') replaySlow();
     else if (e.code === 'KeyQ') {
       setSetting('autoPause', !settings.autoPause);
       toast('Her cümlede duraklat: ' + (settings.autoPause ? 'açık' : 'kapalı'));
-    } else if (e.code === 'KeyW') {
-      setSetting('dictation', !settings.dictation);
-      toast('Dinleme alıştırması: ' + (settings.dictation ? 'açık — altyazı gizli, cümle bitince yaz' : 'kapalı'));
-    } else if (e.code === 'KeyL') togglePanel();
+    } else if (e.code === 'KeyW') setMode('write');
+    else if (e.code === 'KeyE') setMode('speak');
+    else if (e.code === 'KeyL') togglePanel();
     else handled = false;
     if (handled) {
       e.preventDefault();
@@ -1470,14 +1897,14 @@
   }, true);
   for (const type of ['play', 'pause', 'seeking', 'seeked']) {
     document.addEventListener(type, (e) => {
-      if (e.target === video && settings.dictation) trace('video', type + ' at ' + video.currentTime.toFixed(2));
+      if (e.target === video && settings.mode !== 'watch') trace('video', type + ' at ' + video.currentTime.toFixed(2));
     }, true);
   }
   document.addEventListener('focusin', (e) => {
     if (ui && boxWantsFocus() && !ui.root.contains(e.target)) keepFocus(e.target);
   }, true);
   document.addEventListener('focusout', (e) => {
-    if (!dict || !ui || e.target !== ui.dictInput || e.relatedTarget) return;
+    if (!practice || !ui || e.target !== ui.answer || e.relatedTarget) return;
     // Focus went nowhere in particular (a click on the picture, or the page blurring the box).
     setTimeout(() => {
       if (boxWantsFocus() && document.hasFocus() && !ui.root.contains(document.activeElement)) keepFocus(document.activeElement);
@@ -1488,7 +1915,7 @@
     if (!ui) return;
     const target = e.target.nodeType === 1 ? e.target : e.target.parentElement;
     if (!ui.popup.hidden && !ui.popup.contains(target) && !(target && target.closest('.sl-word'))) closePopup(true);
-    if (!ui.menu.hidden && !ui.menu.contains(target) && target !== ui.fab) ui.menu.hidden = true;
+    if (!ui.menu.hidden && !ui.menu.contains(target) && !ui.gearBtn.contains(target)) ui.menu.hidden = true;
     // A press on our own controls is ours alone. A player that cancels mouse presses to keep its
     // picture from being selected would otherwise also stop subtitle words from being selected.
     if (ui.root.contains(target)) e.stopImmediatePropagation();
@@ -1505,15 +1932,12 @@
       setTimeout(() => (pointerHeld = false), 0);
     }, true);
   }
-  document.addEventListener('mousemove', () => {
-    if (!ui) return;
-    ui.root.classList.add('sl-awake');
-    clearTimeout(awakeTimer);
-    awakeTimer = setTimeout(() => ui.root.classList.remove('sl-awake'), 2500);
-  }, true);
+  document.addEventListener('mousemove', () => wake(), true);
+  window.addEventListener('pagehide', releaseMic);
 
   chrome.storage.sync.get(SL_DEFAULTS, (stored) => {
     settings = { ...SL_DEFAULTS, ...stored };
+    settingsLoaded = true;
     applySettings([]);
   });
   chrome.storage.local.get({ words: [] }, (data) => setSavedWords(data.words));

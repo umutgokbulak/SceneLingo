@@ -11,7 +11,8 @@ const SL_DEFAULTS = {
   accent: 'en-GB', // which English the word is read in
   speechVolume: 200, // percent; above 100 the audio is amplified
   autoPause: false,
-  dictation: false, // listening practice: hide the subtitle, pause after each sentence, type what was heard
+  mode: 'watch', // 'watch', 'write' (type what was heard) or 'speak' (say the line aloud)
+  introSeen: false,
   fontSize: 100, // percent
   bottomOffset: 14, // percent of the video height
 };

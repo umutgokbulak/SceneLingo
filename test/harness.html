@@ -53,6 +53,37 @@ if (new URLSearchParams(location.search).has('strict')) {
   window.siteKeys = [];
   document.addEventListener('keydown', (e) => window.siteKeys.push(e.code));
 }
+// Stand-ins for the microphone, so speaking practice can run without one. `mockSpeech` says what
+// the recogniser hears next; the "microphone" is a tone, which gives a real recording to play back.
+window.mockSpeech = { say: '', alternatives: [], error: '', delay: 500 };
+window.SpeechRecognition = window.webkitSpeechRecognition = class {
+  start() {
+    this.t = setTimeout(() => this.deliver(), window.mockSpeech.delay);
+    setTimeout(() => this.onstart && this.onstart(), 0);
+  }
+  deliver() {
+    if (this.done) return;
+    this.done = true;
+    clearTimeout(this.t);
+    const m = window.mockSpeech;
+    if (m.error) this.onerror && this.onerror({ error: m.error });
+    else if (m.say) {
+      const result = Object.assign([m.say].concat(m.alternatives).map(transcript => ({ transcript, confidence: 0.9 })), { isFinal: true });
+      this.onresult && this.onresult({ results: [result], resultIndex: 0 });
+    }
+    if (m.error || !m.say) setTimeout(() => this.onend && this.onend(), 0);
+  }
+  stop() { this.deliver(); setTimeout(() => this.onend && this.onend(), 0); }
+  abort() { this.done = true; clearTimeout(this.t); }
+};
+navigator.mediaDevices.getUserMedia = async () => {
+  const ctx = new AudioContext();
+  const tone = ctx.createOscillator();
+  const out = ctx.createMediaStreamDestination();
+  tone.connect(out);
+  tone.start();
+  return out.stream;
+};
 // Pretend the player's own captions run `shift` seconds behind the video clock.
 window.simulateNative = (shift) => fetch('/test/subs/en.ttml2?native').then(r => r.text()).then(t => {
   const cues = [...new DOMParser().parseFromString(t, 'application/xml').getElementsByTagNameNS('*', 'p')].map(p => {

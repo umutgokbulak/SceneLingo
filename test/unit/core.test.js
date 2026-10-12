@@ -1,6 +1,6 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { parseTime, lastStarted, findCue, alignTranslation, spokenWords, matchWords, stretch, isShouting, calm, expandContraction } = require('../../extension/core.js');
+const { parseTime, lastStarted, findCue, alignTranslation, spokenWords, matchWords, stretch, isShouting, calm, expandContraction, spokenTokens } = require('../../extension/core.js');
 
 test('parseTime reads the time formats TTML allows', () => {
   assert.equal(parseTime('00:01:02.500', 1e7, 30), 62.5);
@@ -95,6 +95,15 @@ test('spokenWords keeps only what a listener would type', () => {
   assert.deepEqual(spokenWords('[music] JOHN: Don’t stop,\n(laughs) Mary!'), ["don't", 'stop', 'mary']);
   assert.deepEqual(spokenWords('♪ ♪'), []);
   assert.deepEqual(spokenWords('- Çok güzel. - Évidemment 2024'), ['çok', 'güzel', 'évidemment', '2024']);
+});
+
+test('spokenTokens says where each word begins, so it can be found again on screen', () => {
+  const text = '[music] JOHN: Don’t stop,\n(laughs) Mary!';
+  const tokens = spokenTokens(text);
+  assert.deepEqual(tokens.map((t) => t.word), ["don't", 'stop', 'mary']);
+  // The positions are those of the original text, with what was left out still counted.
+  assert.deepEqual(tokens.map((t) => text.slice(t.start, t.start + t.word.length)), ['Don’t', 'stop', 'Mary']);
+  assert.deepEqual(spokenTokens(''), []);
 });
 
 test('matchWords marks expected words found in order in the answer', () => {

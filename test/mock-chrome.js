@@ -65,6 +65,6 @@
       },
     },
     tabs: { create: (opts) => window.__tabs.push(opts.url) },
-    storage: { sync: area('sync', {}), local: area('local', { words: seed }), onChanged: { addListener: (f) => listeners.push(f) } },
+    storage: { sync: area('sync', new URLSearchParams(location.search).has('intro') ? {} : { introSeen: true }), local: area('local', { words: seed }), onChanged: { addListener: (f) => listeners.push(f) } },
   };
 })();

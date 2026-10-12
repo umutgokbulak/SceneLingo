@@ -84,14 +84,20 @@ const SubtitleCore = (() => {
 
   // The words a listener is expected to type: no sound descriptions, speaker labels or punctuation.
   function spokenWords(text) {
-    return (
-      String(text)
-        .replace(/\[[^\]]*\]|\([^)]*\)|[♪♫]/g, ' ')
-        .replace(/^\s*-?\s*[A-Z][A-Z .'-]{1,20}:\s*/gm, ' ')
-        .toLowerCase()
-        .replace(/[\u2019\u0060]/g, "'")
-        .match(/[\p{L}\p{N}']+/gu) || []
-    );
+    return spokenTokens(text).map((token) => token.word);
+  }
+
+  // The same words with where each begins in the text, so they can be matched to what is on
+  // screen. What is left out is blanked rather than removed, which keeps the positions true.
+  function spokenTokens(text) {
+    const blank = (m) => ' '.repeat(m.length);
+    const kept = String(text)
+      .replace(/\[[^\]]*\]|\([^)]*\)|[♪♫]/g, blank)
+      .replace(/^\s*-?\s*[A-Z][A-Z .'-]{1,20}:\s*/gm, blank);
+    return Array.from(kept.matchAll(/[\p{L}\p{N}'\u2019\u0060]+/gu), (m) => ({
+      word: m[0].toLowerCase().replace(/[\u2019\u0060]/g, "'"),
+      start: m.index,
+    }));
   }
 
   // Which expected words appear, in order, in what was typed (longest common subsequence).
@@ -195,7 +201,7 @@ const SubtitleCore = (() => {
     return null;
   }
 
-  return { parseTime, lastStarted, findCue, alignTranslation, spokenWords, matchWords, stretch, isShouting, calm, expandContraction };
+  return { parseTime, lastStarted, findCue, alignTranslation, spokenWords, matchWords, stretch, isShouting, calm, expandContraction, spokenTokens };
 })();
 
 if (typeof module !== 'undefined') module.exports = SubtitleCore;
