@@ -6,6 +6,9 @@
   "keywords": ["language-learning", "subtitles", "browser-extension", "manifest-v3", "prime-video", "youtube", "hls", "spaced-repetition"],
   "author": "Umut",
   "license": "MIT",
+  "repository": { "type": "git", "url": "git+https://github.com/umutgokbulak/SceneLingo.git" },
+  "homepage": "https://github.com/umutgokbulak/SceneLingo#readme",
+  "bugs": "https://github.com/umutgokbulak/SceneLingo/issues",
   "scripts": {
     "test": "node --test \"test/unit/*.test.js\"",
     "harness": "node test/server.js",

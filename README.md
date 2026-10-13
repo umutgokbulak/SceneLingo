@@ -17,6 +17,7 @@
 </p>
 
 <p align="center">
+  <a href="https://github.com/umutgokbulak/SceneLingo/actions/workflows/ci.yml"><img alt="Tests" src="https://github.com/umutgokbulak/SceneLingo/actions/workflows/ci.yml/badge.svg"></a>
   <img alt="Manifest V3" src="https://img.shields.io/badge/Chrome%20%2F%20Edge-Manifest%20V3-1a98ff">
   <img alt="Plain JavaScript" src="https://img.shields.io/badge/JavaScript-no%20framework%2C%20no%20build-f0db4f">
   <img alt="No dependencies" src="https://img.shields.io/badge/dependencies-none-3d8a55">
