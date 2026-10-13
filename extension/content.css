@@ -7,7 +7,15 @@ html.sl-hide-native .vjs-text-track-display,
 html.sl-hide-native .jw-captions,
 html.sl-hide-native .plyr__captions,
 html.sl-hide-native .shaka-text-container,
-html.sl-hide-native .bmpui-ui-subtitle-overlay {
+html.sl-hide-native .bmpui-ui-subtitle-overlay,
+html.sl-hide-native .jw-text-track-container,
+html.sl-hide-native .vp-captions,
+html.sl-hide-native .theoplayer-texttracks,
+html.sl-hide-native .fp-captions,
+html.sl-hide-native .mejs__captions-layer,
+html.sl-hide-native .dplayer-subtitle,
+html.sl-hide-native .art-subtitle,
+html.sl-hide-native .playkit-subtitles {
   visibility: hidden !important;
 }
 html.sl-hide-native video::-webkit-media-text-track-container {
@@ -17,6 +25,12 @@ html.sl-hide-native video::-webkit-media-text-track-container {
 #scenelingo-root {
   position: fixed;
   z-index: 2147483647;
+  /* It is shown as a popover over a video that is itself fullscreen; a popover's own looks are undone. */
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  overflow: visible;
   pointer-events: none;
   font-family: "Amazon Ember", "Segoe UI", Arial, sans-serif;
   font-size: 14px;
@@ -197,6 +211,12 @@ html.sl-hide-native video::-webkit-media-text-track-container {
 #scenelingo-root.sl-paused .sl-bar-wrap,
 #scenelingo-root .sl-subs:hover .sl-bar-wrap {
   pointer-events: auto;
+}
+/* Raised over a video that is itself fullscreen, the bar could be seen but not pressed. */
+#scenelingo-root.sl-raised .sl-bar-wrap,
+#scenelingo-root.sl-raised .sl-pop-btns,
+#scenelingo-root.sl-raised .sl-pop-more {
+  display: none;
 }
 #scenelingo-root.sl-awake .sl-bar,
 #scenelingo-root.sl-paused .sl-bar,

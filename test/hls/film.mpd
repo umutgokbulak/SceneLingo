@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011" type="static" mediaPresentationDuration="PT2M0S">
+  <BaseURL>../subs/</BaseURL>
+  <Period id="0">
+    <AdaptationSet id="1" contentType="video" mimeType="video/mp4">
+      <Representation id="v1" bandwidth="800000"><BaseURL>video.mp4</BaseURL></Representation>
+    </AdaptationSet>
+    <AdaptationSet id="2" contentType="text" lang="en" mimeType="text/vtt">
+      <Label>English</Label>
+      <Role schemeIdUri="urn:mpeg:dash:role:2011" value="subtitle"/>
+      <Representation id="t-en" bandwidth="256"><BaseURL>en.vtt</BaseURL></Representation>
+    </AdaptationSet>
+    <AdaptationSet id="3" contentType="text" lang="tr">
+      <Role schemeIdUri="urn:mpeg:dash:role:2011" value="subtitle"/>
+      <Representation id="t-tr" bandwidth="256" mimeType="text/vtt"><BaseURL>tr.vtt</BaseURL></Representation>
+    </AdaptationSet>
+    <AdaptationSet id="4" contentType="text" lang="de">
+      <Representation id="t-de" bandwidth="256" codecs="wvtt" mimeType="application/mp4"><BaseURL>text_de.mp4</BaseURL></Representation>
+    </AdaptationSet>
+  </Period>
+</MPD>

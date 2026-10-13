@@ -8,7 +8,7 @@ const fs = require('fs');
 const path = require('path');
 
 const root = path.resolve(__dirname, '..');
-const types = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.png': 'image/png', '.ttml2': 'application/ttml+xml', '.vtt': 'text/vtt; charset=utf-8' };
+const types = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.png': 'image/png', '.ttml2': 'application/ttml+xml', '.vtt': 'text/vtt; charset=utf-8', '.m3u8': 'application/vnd.apple.mpegurl', '.mpd': 'application/dash+xml' };
 
 // Two minutes of silence, so the mock player has a clock it can play and seek.
 const silence = (() => {

@@ -24,6 +24,7 @@ document.documentElement.dataset.scenelingoSite = new URLSearchParams(location.s
 <link rel="stylesheet" href="/extension/content.css">
 <script src="/extension/shared.js"></script>
 <script src="/extension/core.js"></script>
+<script src="/extension/subtitles.js"></script>
 <script src="/extension/content.js"></script>
 </head><body>
 <!-- Mimics the parts of the Prime Video player the extension relies on. -->
@@ -39,6 +40,19 @@ if (params.has('tracks')) {
     Object.assign(t, { kind: 'subtitles', srclang: lang, label, src: '/test/subs/' + lang + '.vtt' });
     v.appendChild(t);
   }
+}
+// ?site=other&hls: a player that streams. It fetches the stream's master playlist, as players
+// do, and draws nothing of its own; the subtitle tracks are named in that playlist only.
+if (params.has('hls')) fetch('/test/hls/master.m3u8').then((r) => r.text());
+// ?site=other&dash: the same for a stream described the other common way.
+if (params.has('dash')) fetch('/test/hls/film.mpd').then((r) => r.text());
+// &shadow: a player built as a custom element, with the video inside its shadow tree.
+if (params.has('shadow')) {
+  const shell = document.createElement('demo-player');
+  shell.style.cssText = 'position:absolute;inset:0;display:block';
+  v.before(shell);
+  shell.attachShadow({ mode: 'open' }).appendChild(v);
+  v.style.cssText = 'width:100%;height:100%;background:#123';
 }
 // Stands in for the file dialog: the next subtitle file "chosen" is window.nextFile = [name, text].
 const fileClick = HTMLInputElement.prototype.click;

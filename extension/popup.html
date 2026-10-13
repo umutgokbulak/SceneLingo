@@ -28,6 +28,8 @@
   .kind { margin-left: 6px; font-size: 11px; color: #8fa3b5; }
   .note { margin-top: 12px; font-size: 12px; color: #8fa3b5; }
   .sites { font-size: 12px; color: #8fa3b5; }
+  #siteRow[hidden] { display: none; }
+  #siteHost { font-weight: 600; overflow-wrap: anywhere; }
   #activate { width: 100%; margin: 4px 0; }
   #siteNote:empty { display: none; }
   #diagnose { width: 100%; margin-top: 10px; font-size: 12px; color: #8fa3b5; background: none; border-color: transparent; }
@@ -45,6 +47,7 @@
   <h2><span>Siteler</span></h2>
   <div class="sites">Prime Video ve YouTube'da kendiliğinden çalışır.</div>
   <label class="row"><span>Diğer sitelerde de çalış</span><input type="checkbox" id="everywhere"></label>
+  <label class="row" id="siteRow" hidden><span>Bu sitede çalış: <b id="siteHost"></b></span><input type="checkbox" id="siteOn"></label>
   <button id="activate" title="Altyazısı olmayan bir videoda çubuğu açar; oradan kendi altyazı dosyanı (.srt, .vtt) seçebilirsin">Bu sekmedeki videoda aç</button>
   <div class="sites" id="siteNote"></div>
 

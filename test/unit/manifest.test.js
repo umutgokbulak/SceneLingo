@@ -24,7 +24,7 @@ test('pages load the scripts they depend on, in order', () => {
     for (const s of scripts) assert.ok(exists(s), s + ' is missing');
   }
   const isolated = manifest.content_scripts.find((c) => c.world !== 'MAIN').js;
-  assert.deepEqual(isolated, ['shared.js', 'core.js', 'content.js']);
+  assert.deepEqual(isolated, ['shared.js', 'core.js', 'subtitles.js', 'content.js']);
 });
 
 test('the page-world hooks and the content script run on the same pages', () => {

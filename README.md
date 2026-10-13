@@ -27,7 +27,10 @@ So I built my own, kept adding the things I wanted while studying, and then took
 | --- | --- |
 | Amazon Prime Video | the subtitle tracks the player is offered |
 | YouTube | the video's caption tracks, written or automatic; the translation is YouTube's own |
-| Any other site (after you allow it) | the video's text tracks, subtitle files the page loads, or a `.srt` / `.vtt` file of your own |
+| Any other site (after you allow it) | the list of subtitle tracks in the video's stream (HLS or DASH), the files its `<track>` elements point at, subtitle files the page loads, the video's own text tracks, or a `.srt` / `.vtt` / `.ass` file of your own |
+
+"Any other site" was checked with the extension loaded in a real browser on TED (49 languages, Turkish among
+them), plyr.io, Vimeo's player, Wikimedia Commons and a YouTube player embedded in another page.
 
 ## What it does
 
@@ -96,8 +99,9 @@ flowchart LR
 
 The steps above are Prime Video's. What differs from site to site is small and kept in one place: where the
 subtitles come from, which video counts as the one being watched, and where the overlay is attached. On YouTube a
-second page-world script reads the caption track list from the player; on any other site the content script reads
-the video's own text tracks, and parses WebVTT, SubRip, TTML and YouTube's JSON captions alike.
+second page-world script reads the caption track list from the player. On any other site nothing is put into the
+page at all: [`subtitles.js`](extension/subtitles.js) finds the subtitles from outside, and reads WebVTT, SubRip,
+TTML, SubStation and YouTube's JSON captions alike.
 
 ## Engineering notes
 
@@ -110,6 +114,23 @@ the video's own text tracks, and parses WebVTT, SubRip, TTML and YouTube's JSON 
   the player computes; the address in the page's data returns an empty file. So the page-world script notes the
   address of a request the player itself makes and asks for the other languages at that address, switching the
   captions on (a few times, if the player was still starting) when no request has been seen yet.
+- **Finding subtitles on a site it has never seen.** A player has to fetch its subtitles, and the browser keeps
+  the addresses of everything a page fetches. A `PerformanceObserver` on that list finds the stream's manifest
+  and the subtitle files without patching the page's network functions. From the manifest come all the subtitle
+  tracks with their names, not just the one the player has loaded; an HLS track is put together from its pieces,
+  each brought to the first one's clock, with a line that was cut at a join made whole again. Picture lists for
+  the seek bar, which are WebVTT files too, are told apart and left out.
+- **Whose clock?** TED's subtitle files start 3.6 seconds before its videos do. When the page's own text track
+  is showing a line that is also in the copy put together from the stream, the two start times give the
+  difference, and the copy is shifted.
+- **Which video?** An advertisement plays in a video of its own, laid over the film and just as large. The video
+  with subtitle tracks is preferred, and nothing is drawn while another video plays on top of it. A stream whose
+  length does not match the video's is not that video's.
+- **A video that goes fullscreen by itself** leaves nothing of the page on screen. The overlay is then shown as
+  a popover, which is drawn in the browser's top layer above the video. The browser does not let the mouse
+  through to it there, so the study bar is put away, the shortcuts keep working, and a word is found from where
+  the pointer is. Players that keep their video in a shadow tree are entered with `chrome.dom`, and the
+  video's events, which do not leave that tree, are listened for inside it.
 - **Two subtitle tracks that were never meant to line up.** The original and the translation are cut and timed
   separately. Each line shows the translated cue that overlaps it most, and when one translated cue covers
   several lines, those lines get a translation of their own, so a line never shows more than it says.
@@ -134,8 +155,10 @@ the video's own text tracks, and parses WebVTT, SubRip, TTML and YouTube's JSON 
   extension relies on and runs the real extension files against mocked extension APIs, with stand-ins for the
   microphone and the speech recogniser. The README screenshots are produced from it by headless Chrome.
 - **And with it, where that is possible.** [`test/real-browser.js`](test/real-browser.js) loads the unpacked
-  extension into a browser with a throwaway profile and drives a YouTube video over the DevTools protocol, with
-  no test framework: first line, next line, writing practice, the tracks on offer.
+  extension into a browser with a throwaway profile and drives it over the DevTools protocol, with no test
+  framework: a YouTube video (first line, next line, writing practice, the tracks on offer), and a round of
+  other sites, for which the browser is given a copy of the extension that already holds the permission a
+  person would be asked for.
 
 ## Install
 
@@ -144,8 +167,9 @@ the video's own text tracks, and parses WebVTT, SubRip, TTML and YouTube's JSON 
 3. Choose **Load unpacked** and select the `extension` folder.
 4. Play something on Prime Video or YouTube and move the mouse: the study bar appears above the subtitles.
 5. For other sites, open the toolbar popup and turn on **Diğer sitelerde de çalış** ("work on other sites too").
-   If a video there has no subtitles, **Bu sekmedeki videoda aç** brings up the bar, and the settings menu on it
-   opens a subtitle file from your disk.
+   The bar then appears on any video that comes with subtitles. If a video has none, **Bu sekmedeki videoda aç**
+   brings up the bar, and the settings menu on it opens a subtitle file from your disk. **Bu sitede çalış**
+   switches the extension off for the site in the current tab.
 
 The interface is currently in Turkish. The learning language and your own language are set in the toolbar popup.
 
@@ -168,13 +192,15 @@ The interface is currently in Turkish. The learning language and your own langua
 npm test                # unit tests (Node's built-in runner, Node 22+)
 npm run harness         # mock player at http://localhost:8765
 npm run check:youtube   # the real extension on YouTube, in Microsoft Edge (needs the network)
+npm run check:sites     # the same on TED, plyr.io, Vimeo's player and Wikimedia Commons
 ```
 
 | Path | What is there |
 | --- | --- |
 | `extension/inject.js`, `youtube.js` | Page-world scripts that find the subtitle tracks on Prime Video and on YouTube |
+| `extension/subtitles.js` | Reading subtitle files; finding the subtitles of a video on a site that is not known |
 | `extension/content.js` | Overlay, playback control, word card, study bar, practice modes, what differs per site |
-| `extension/core.js` | Pure logic: subtitle formats, cue search and alignment, word matching, time-stretch |
+| `extension/core.js` | Pure logic: subtitle and playlist formats, cue search and alignment, word matching, time-stretch |
 | `extension/background.js` | Service worker: translation, lookup and speech requests; access to other sites |
 | `extension/review.*`, `popup.*` | Flashcard page and toolbar popup |
 | `extension/shared.js` | Default settings and the review schedule |
@@ -184,16 +210,21 @@ npm run check:youtube   # the real extension on YouTube, in Microsoft Edge (need
 Useful harness pages: `/` (player), `/?strict` (a player that steals focus and cancels mouse presses),
 `/?caps` (captions in capitals with a differently cut translation), `/?page` (the video set into a page that
 scrolls, where nothing should be drawn), `/?site=other&tracks` (a plain video with `<track>` subtitles),
-`/?site=other` (a plain video with none), `/extension/review.html?mock&seed`,
+`/?site=other&hls` and `&dash` (a stream that lists its subtitles in its manifest), `&shadow` (the video in a
+shadow tree), `/?site=other` (a plain video with none), `/extension/review.html?mock&seed`,
 `/extension/popup.html?mock&seed`. Adding `shot=popup`, `write`, `speak`, `transcript` or `review` puts a page
-into the state used for the screenshots.
+into the state used for the screenshots. `/test/plain.html` and `/test/embed.html` are ordinary pages with a
+video and with a YouTube player in a frame, for trying the real extension on.
 
 ## Limitations and roadmap
 
-- Prime Video and YouTube are supported by name. Other sites work as far as their player is a plain HTML5
-  video: text tracks, subtitle files the page loads, or a file of your own. A site that keeps its subtitles to
-  itself, as Netflix does, needs an adapter like the two that exist. Only YouTube was checked with the extension
-  loaded in a real browser by the script above; Prime Video needs an account and is checked by hand.
+- Prime Video and YouTube are supported by name; other sites as far as their subtitles can be found from
+  outside the page. They cannot when a service keeps them to itself (Netflix does), when a stream packs them
+  inside MP4 fragments, or when the address of a file does not look like a subtitle file's; a file of your own
+  still works there, and a service of the first kind needs an adapter like the two that exist. Subtitles of a
+  live broadcast are followed only through the video's own text tracks.
+- Prime Video needs an account and is checked by hand; the other sites named above are checked by the script.
+- Over a video that is fullscreen by itself, the mouse only reaches the subtitle words; the bar is not there.
 - On YouTube the first line can take some seconds after a cold start, until the player has made a caption
   request of its own. Automatic captions come without punctuation, in short pieces.
 - Translation, definitions and speech come from Google Translate's unofficial web endpoints. They are free and

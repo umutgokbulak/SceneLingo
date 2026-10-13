@@ -3,7 +3,7 @@
   if (window.__scenelingoContent) return;
   window.__scenelingoContent = true;
 
-  const { parseTime, lastStarted, findCue, alignTranslation, spokenWords, matchWords, stretch, isShouting, calm, expandContraction, spokenTokens, fillsWindow, cueText, parseVtt, parseJson3, guessLang } = SubtitleCore;
+  const { lastStarted, findCue, alignTranslation, spokenWords, matchWords, stretch, isShouting, calm, expandContraction, spokenTokens, fillsWindow, cueText, guessLang } = SubtitleCore;
   // What differs from site to site is where the player is, what counts as watching, and where
   // the subtitles come from. Anything that is not a site named here is a plain HTML5 video.
   // (The test harness names the site it stands in for.)
@@ -15,14 +15,22 @@
   const CHUNK = 20; // cues per machine-translation request
   const SLOW_RATE = 0.7; // speed of the slow synthetic voice, on top of the service's own slow reading
   const SLOW_PLAY = 0.75; // speed of the film itself when a line is replayed slowly
+  // The site the page belongs to. A player in a frame belongs to the page the frame is on.
+  const HOME = (() => {
+    try {
+      const above = location.ancestorOrigins;
+      return above && above.length ? new URL(above[above.length - 1]).hostname : location.hostname;
+    } catch (e) {
+      return location.hostname;
+    }
+  })();
   const NATIVE_SEL = SITE === 'prime' ? '.atvwebplayersdk-captions-text' : '';
   const WAITING = {
     prime: 'Altyazı bekleniyor… Videoyu başlat; gelmezse Prime oynatıcısında altyazıyı bir kez aç.',
     youtube: 'Altyazı bekleniyor… Gelmezse YouTube oynatıcısında altyazıyı (CC) bir kez aç.',
-    other: 'Bu videoda altyazı bulunamadı. Aşağıdan bir altyazı dosyası (.srt, .vtt) açabilirsin.',
+    other: 'Bu videoda altyazı bulunamadı. Sitenin oynatıcısında altyazıyı bir kez aç; yoksa aşağıdan kendi altyazı dosyanı (.srt, .vtt) seç.',
   }[SITE];
   const NO_CAPTIONS = 'Bu videonun altyazısı yok. Aşağıdan bir altyazı dosyası (.srt, .vtt) açabilirsin.';
-  const SUB_FILE = /\.(vtt|srt|ttml2?|dfxp)(\?|#|$)/i;
 
   let settings = { ...SL_DEFAULTS };
   let savedWords = new Set();
@@ -82,7 +90,6 @@
   let lastSync = 0;
   let awakeTimer = 0;
   let toastTimer = 0;
-  const cueCache = new Map();
   const segmenters = new Map();
 
   // ---------- helpers ----------
@@ -149,86 +156,7 @@
 
   const normText = (s) => String(s || '').replace(/\s+/g, '').toLowerCase();
 
-  // ---------- TTML ----------
-
-  function nodeText(node) {
-    let out = '';
-    for (const n of node.childNodes) {
-      if (n.nodeType === 3) out += n.nodeValue;
-      else if (n.nodeType === 1) out += n.localName === 'br' ? '\n' : nodeText(n);
-    }
-    return out;
-  }
-
-  function parseTTML(text) {
-    const doc = new DOMParser().parseFromString(text, 'application/xml');
-    if (doc.getElementsByTagName('parsererror').length) throw new Error('Altyazı dosyası okunamadı');
-    const root = doc.documentElement;
-    const tickRate = parseFloat(root.getAttribute('ttp:tickRate')) || 10000000;
-    const frameRate = parseFloat(root.getAttribute('ttp:frameRate')) || 30;
-    const raw = [];
-    for (const p of doc.getElementsByTagNameNS('*', 'p')) {
-      const start = parseTime(p.getAttribute('begin'), tickRate, frameRate);
-      let end = parseTime(p.getAttribute('end'), tickRate, frameRate);
-      if (isNaN(end)) end = start + parseTime(p.getAttribute('dur'), tickRate, frameRate);
-      const body = nodeText(p)
-        .split('\n')
-        .map((l) => l.replace(/\s+/g, ' ').trim())
-        .filter(Boolean)
-        .join('\n');
-      if (!isNaN(start) && !isNaN(end) && end > start && body) raw.push({ start, end, text: body });
-    }
-    raw.sort((a, b) => a.start - b.start);
-    // Lines positioned separately on screen share the same timing; show them as one cue.
-    const cues = [];
-    for (const c of raw) {
-      const prev = cues[cues.length - 1];
-      if (prev && Math.abs(prev.start - c.start) < 0.01 && Math.abs(prev.end - c.end) < 0.01) prev.text += '\n' + c.text;
-      else cues.push(c);
-    }
-    return cues;
-  }
-
-  // A subtitle file in any of the formats met so far, told apart by how it begins.
-  function parseAny(text) {
-    const head = text.slice(0, 200).replace(/^\uFEFF/, '').trimStart()[0];
-    if (head === '{') return parseJson3(JSON.parse(text));
-    if (head === '<') return parseTTML(text);
-    return parseVtt(text);
-  }
-
-  // The lines of a text track the page gave its video. They are only loaded for a track that is
-  // switched on, so a track that is off is switched to "hidden": loaded, but not drawn.
-  function readTextTrack(tt) {
-    if (tt.mode === 'disabled') tt.mode = 'hidden';
-    const cues = [];
-    for (const c of tt.cues || []) {
-      const text = cueText(c.text);
-      if (text && c.endTime > c.startTime) cues.push({ start: c.startTime, end: c.endTime, text });
-    }
-    return cues.sort((a, b) => a.start - b.start);
-  }
-
-  function loadCues(track) {
-    if (track.cues) return Promise.resolve(track.cues);
-    if (track.textTrack && !track.file) return Promise.resolve(readTextTrack(track.textTrack));
-    if (!cueCache.has(track.url)) {
-      const job = fetch(track.url)
-        .then((r) => {
-          if (!r.ok) throw new Error('HTTP ' + r.status);
-          return r.text();
-        })
-        .then(parseAny);
-      job.catch(() => cueCache.delete(track.url));
-      cueCache.set(track.url, job);
-    }
-    if (!track.textTrack) return cueCache.get(track.url);
-    // The file behind a <track> may not be ours to fetch; what the video has loaded of it is.
-    return cueCache.get(track.url).catch(() => {
-      track.file = false;
-      return readTextTrack(track.textTrack);
-    });
-  }
+  // ---------- subtitle tracks ----------
 
   // A text track fills up while the video loads, so it is read again when it has grown.
   function refreshLive() {
@@ -236,14 +164,14 @@
     if (!p || !p.live || !p.live.cues || p.live.cues.length === p.liveCount) return;
     const old = new Map(p.cues.map((c) => [c.start + '|' + c.text, c]));
     p.liveCount = p.live.cues.length;
-    p.cues = readTextTrack(p.live).map((c) => old.get(c.start + '|' + c.text) || c);
+    p.cues = Subtitles.readTextTrack(p.live).map((c) => old.get(c.start + '|' + c.text) || c);
     p.requested = new Set();
     if (secondary.kind === 'track' && secondary.track.textTrack) {
       for (const c of p.cues) {
         delete c.tr;
         delete c.shared;
       }
-      secondary.cues = readTextTrack(secondary.track.textTrack);
+      secondary.cues = Subtitles.readTextTrack(secondary.track.textTrack);
       alignTranslation(p.cues, secondary.cues);
     }
     shown = { idx: -2, sec: null };
@@ -262,6 +190,7 @@
 
   function trackLabel(t) {
     let label = t.displayName || t.languageCode || 'Altyazı';
+    if (label === t.languageCode) label = langName(langOf(label)); // a track that only gives its language's code
     if (t.auto) label += ' (otomatik)';
     if (t.forced) label += ' (zorunlu)';
     else if (/sdh|cc/i.test(t.type) && !/\[|\(/.test(label)) label += ' [CC]';
@@ -321,23 +250,32 @@
     if (!pt.languageCode) pt = { ...pt, languageCode: settings.learnLang };
     setStatus('Altyazı yükleniyor…');
     try {
-      const cues = (await loadCues(pt)).map((c) => ({ ...c }));
+      const progress = (done) => gen === loadGen && setStatus('Altyazı yükleniyor… %' + Math.round(done * 100));
+      const cues = (await Subtitles.load(pt, progress)).map((c) => ({ ...c }));
+      if (gen !== loadGen) return;
+      // The stream these came from may not be the one in this video (an advertisement, or the
+      // video before); the next look at the page then offers what else there is.
+      if (pt.stream && !Subtitles.fits(video)) throw new Error('bu videonun değil');
+      // The lines are shown as soon as they are here. What goes under them is fetched after,
+      // and for a long film in many pieces that can take as long again.
+      const live = pt.textTrack && !pt.file && !pt.cues ? pt.textTrack : null;
+      primary = { track: pt, cues, requested: new Set(), live, liveCount: live && live.cues ? live.cues.length : 0 };
+      setStatus(cues.length ? '' : live ? 'Altyazı yükleniyor…' : 'Bu altyazı dosyası boş.');
+      afterLoad();
       const sec = resolveSecondary(pt);
       if (sec.kind === 'track') {
         try {
-          sec.cues = await loadCues(sec.track);
+          sec.cues = await Subtitles.load(sec.track);
           // An empty translation is no translation, unless it is a text track that is still filling up.
           if (!sec.cues.length && !(sec.track.textTrack && !sec.track.file)) throw new Error('empty');
-          alignTranslation(cues, sec.cues);
+          if (gen === loadGen) alignTranslation(primary.cues, sec.cues);
         } catch (e) {
           sec.kind = 'mt';
         }
       }
       if (gen !== loadGen) return;
-      const live = pt.textTrack && !pt.file && !pt.cues ? pt.textTrack : null;
-      primary = { track: pt, cues, requested: new Set(), live, liveCount: live && live.cues ? live.cues.length : 0 };
       secondary = sec;
-      setStatus(cues.length ? '' : live ? 'Altyazı yükleniyor…' : 'Bu altyazı dosyası boş.');
+      shown = { idx: -2, sec: null };
     } catch (e) {
       if (gen !== loadGen) return;
       setStatus('Altyazı yüklenemedi: ' + ((e && e.message) || e));
@@ -375,6 +313,8 @@
         subtype: String(t.subtype || ''),
         forced: !!t.forced,
         auto: !!t.auto,
+        stream: !!t.stream,
+        whole: !!t.whole,
         textTrack: t.textTrack || null,
         file: !!t.file,
       });
@@ -387,7 +327,7 @@
     choice = { primary: 'auto', secondary: 'auto' };
     offset = 0;
     manualOffset = false;
-    cueCache.clear();
+    Subtitles.forget();
     reload();
   }
 
@@ -545,13 +485,10 @@
 
   function layout() {
     const root = ui.root;
-    if (!video || !video.isConnected) {
+    const r = video && video.isConnected ? video.getBoundingClientRect() : null;
+    if (!r || r.width < 300 || r.height < 150 || !inPlayer(video)) {
       root.hidden = true;
-      return;
-    }
-    const r = video.getBoundingClientRect();
-    if (r.width < 300 || r.height < 150 || !inPlayer(video)) {
-      root.hidden = true;
+      topLayer(false);
       applyNativeHiding();
       return;
     }
@@ -562,6 +499,7 @@
     const host = own || (fs && fs !== video && fs.contains(video) ? fs : document.body);
     if (root.parentNode !== host) host.appendChild(root);
     root.hidden = false;
+    topLayer(fs === video);
     ui.subs.hidden = !settings.enabled;
     root.classList.toggle('sl-mode-write', settings.mode === 'write');
     root.classList.toggle('sl-paused', video.paused);
@@ -574,6 +512,51 @@
     applyNativeHiding();
   }
 
+  // A player that puts the video element itself in fullscreen leaves no room in the page for
+  // anything else: only the browser's top layer is drawn over it. A popover is in that layer
+  // too, and one shown after the video went fullscreen is above it. It is drawn there, but the
+  // mouse is not let through to it: everything outside the fullscreen element is out of reach.
+  // So the study bar is put away, the shortcuts stay, and words are found by where the pointer is.
+  let raisedOver = null; // the fullscreen video the overlay has been raised over
+  let raisedNote = false;
+  function topLayer(wanted) {
+    const root = ui.root;
+    const target = wanted ? video : null;
+    if (!root.showPopover || target === raisedOver) return;
+    raisedOver = target;
+    pointed = { box: false, word: null };
+    root.classList.toggle('sl-raised', !!target);
+    try {
+      if (root.matches(':popover-open')) root.hidePopover();
+      if (target) {
+        root.popover = 'manual';
+        root.showPopover();
+        if (!raisedNote) toast('Bu tam ekranda fare çubuğa ulaşamaz; kısayollar çalışır: A önceki · S tekrar · D sonraki · W yaz · E söyle', 6000);
+        raisedNote = true;
+      } else root.removeAttribute('popover');
+    } catch (e) { /* the overlay stays in the page, behind the video */ }
+  }
+
+  // While the overlay is raised over a fullscreen video, the mouse's events go to the video. Where
+  // the pointer is over the subtitle is worked out from the boxes, and the line and its words
+  // are told as if the mouse had come to them or left.
+  let pointed = { box: false, word: null };
+  function pointerOver(e) {
+    if (!raisedOver || !ui || ui.root.hidden) return;
+    const inside = (n) => {
+      const r = n.getBoundingClientRect();
+      return r.width > 0 && e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
+    };
+    const box = !ui.box.hidden && inside(ui.box);
+    const word = box ? [...ui.pri.querySelectorAll('.sl-word')].find(inside) || null : null;
+    if (box !== pointed.box) {
+      if (box) ui.box.dispatchEvent(new MouseEvent('mouseenter'));
+      else for (const n of [ui.box, ui.subs]) n.dispatchEvent(new MouseEvent('mouseleave'));
+    }
+    if (word !== pointed.word) (word || ui.pri).dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
+    pointed = { box, word };
+  }
+
   // Whether the video is the thing being watched. Nothing is drawn over a video that is not, and
   // it is not paused or practised on.
   function inPlayer(v) {
@@ -583,7 +566,7 @@
       const player = v.closest('.html5-video-player');
       return !!player && !player.classList.contains('ad-showing') && !v.closest('ytd-miniplayer, ytd-video-preview, #shorts-player, #inline-preview-player');
     }
-    if (SITE === 'other') return true;
+    if (SITE === 'other') return !coveredByAnother(v);
     // On Prime the film plays in a player that takes the whole window, or the whole screen. A
     // video that does not is something else, such as the trailer on a title's page.
     const fs = document.fullscreenElement;
@@ -595,6 +578,19 @@
       if (fillsWindow(n.getBoundingClientRect(), width, height)) return true;
     }
     return false;
+  }
+
+  // An advertisement usually plays in a video of its own, laid over the film while the film waits.
+  function coveredByAnother(v) {
+    if (!v.paused) return false;
+    const r = v.getBoundingClientRect();
+    return Subtitles.videos().some((other) => {
+      if (other === v || other.paused || other.ended) return false;
+      const o = other.getBoundingClientRect();
+      const width = Math.min(r.right, o.right) - Math.max(r.left, o.left);
+      const height = Math.min(r.bottom, o.bottom) - Math.max(r.top, o.top);
+      return width > 0 && height > 0 && width * height > r.width * r.height * 0.5;
+    });
   }
 
   function applyNativeHiding() {
@@ -626,6 +622,7 @@
   // Prime's video clock can run ahead of the subtitle timeline (e.g. after ads). When the
   // player's own captions are on, their appearance tells us the real offset.
   function calibrate() {
+    if (SITE === 'other') return calibrateFromTracks();
     if (!NATIVE_SEL || manualOffset || !primary || !video || video.paused) return;
     const nodes = document.querySelectorAll(NATIVE_SEL);
     let text = '';
@@ -646,6 +643,31 @@
     if (Math.abs(measured - offset) > 0.4) {
       offset = measured;
       refreshMenu();
+    }
+  }
+
+  // On a plain video the subtitles of a stream are put together from its files, on the clock
+  // those files keep. A line the video's own text track is showing says where that clock
+  // stands against the video's.
+  function calibrateFromTracks() {
+    if (manualOffset || !primary || !primary.track.stream || !video) return;
+    for (const tt of video.textTracks || []) {
+      if (tt.mode === 'disabled' || !tt.activeCues || (tt.kind !== 'subtitles' && tt.kind !== 'captions')) continue;
+      for (const cue of tt.activeCues) {
+        const norm = normText(cueText(cue.text));
+        if (norm === lastNative) return;
+        const hit = uniqueMatch(primary.cues, norm, cue.startTime - offset) || (secondary.kind === 'track' && secondary.cues && uniqueMatch(secondary.cues, norm, cue.startTime - offset));
+        if (!hit) continue;
+        lastNative = norm;
+        syncSamples.push(cue.startTime - hit.start);
+        if (syncSamples.length > 2) syncSamples.shift();
+        // Two lines in a row that agree, and differ from what is in use.
+        if (syncSamples.length === 2 && Math.abs(syncSamples[0] - syncSamples[1]) < 0.15 && Math.abs(syncSamples[1] - offset) > 0.25) {
+          offset = Math.round(syncSamples[1] * 100) / 100;
+          refreshMenu();
+        }
+        return;
+      }
     }
   }
 
@@ -710,26 +732,34 @@
     if (video && video.paused) video.play().catch(() => {});
   }
 
+  // Switched off for this site, from the toolbar popup.
+  const siteOff = () => (settings.offSites || []).includes(HOME);
+
   function pickVideo() {
+    if (siteOff()) {
+      video = null;
+      if (ui) layout();
+      return;
+    }
     let best = null;
-    let bestArea = 0;
     if (SITE === 'youtube') best = document.querySelector('#movie_player video') || document.querySelector('.html5-video-player video');
     else {
-      for (const v of document.querySelectorAll('video')) {
+      // The largest video; on a page that is not known, one that has subtitles before one that
+      // has none (an advertisement is as large as the film it plays over).
+      let bestScore = 0;
+      for (const v of SITE === 'other' ? Subtitles.videos() : document.querySelectorAll('video')) {
         if (!v.readyState && !v.currentSrc) continue;
         const r = v.getBoundingClientRect();
-        const area = r.width * r.height;
-        if (area > bestArea) {
+        const score = r.width * r.height * (SITE === 'other' && Subtitles.hasCaptions(v) ? 4 : 1);
+        if (score > bestScore) {
           best = v;
-          bestArea = area;
+          bestScore = score;
         }
       }
     }
     video = best;
-    if (SITE === 'other' && video) {
-      setTracks(pageTracks(video), true);
-      refreshLive();
-    }
+    if (video) followVideo(video);
+    if (SITE === 'other') scanPage();
     // On a site that is not known, a video is left alone unless it comes with subtitles or the
     // user has asked for the overlay.
     if (video && !ui && document.body && (SITE !== 'other' || tracks.length || forced)) buildUI();
@@ -742,29 +772,18 @@
     }
   }
 
-  // The subtitles of a plain HTML5 video: the text tracks the page gave it, or else subtitle
-  // files the page has fetched (a player that draws its own subtitles still has to load them).
-  function pageTracks(v) {
-    const list = [];
-    const elements = [...v.querySelectorAll('track')];
-    [...(v.textTracks || [])].forEach((tt, i) => {
-      if (tt.kind !== 'subtitles' && tt.kind !== 'captions') return;
-      const element = elements.find((t) => t.track === tt);
-      const src = element && element.src;
-      list.push({
-        url: src || 'texttrack:' + i,
-        id: 'texttrack:' + i + ':' + tt.language + ':' + tt.label,
-        languageCode: tt.language || guessLang(tt.label),
-        displayName: tt.label || tt.language,
-        textTrack: tt,
-        file: !!src,
-      });
-    });
-    if (list.length) return list;
-    const urls = [...new Set(performance.getEntriesByType('resource').map((e) => e.name).filter((u) => SUB_FILE.test(u)))];
-    // A long list is one subtitle track cut into pieces for streaming, not a choice of files.
-    if (urls.length > 8) return [];
-    return urls.map((url) => ({ url, languageCode: guessLang(url), displayName: url.split(/[?#]/)[0].split('/').pop() }));
+  // A plain video: what subtitles the page has for it now. A stream's playlist is read in the
+  // background, and the tracks are looked at again when it has been.
+  let lastSource = '';
+  function scanPage() {
+    Subtitles.look().then((changed) => changed && video && setTracks(Subtitles.pageTracks(video), true));
+    if (!video) return;
+    if (video.currentSrc !== lastSource) {
+      lastSource = video.currentSrc;
+      Subtitles.renew();
+    }
+    setTracks(Subtitles.pageTracks(video), true);
+    refreshLive();
   }
 
   // A subtitle file from the user's own disk, for a video that has none or not the right one.
@@ -778,7 +797,7 @@
         // Older subtitle files are in the encoding of their language's version of Windows.
         text = new TextDecoder(settings.nativeLang === 'tr' || settings.learnLang === 'tr' ? 'windows-1254' : 'windows-1252').decode(bytes);
       }
-      const cues = parseAny(text);
+      const cues = Subtitles.parse(text);
       if (!cues.length) throw new Error('içinde altyazı satırı bulunamadı');
       const t = { url: 'file:' + file.name + ':' + file.size, id: '', languageCode: guessLang(file.name), displayName: file.name, type: '', subtype: '', forced: false, auto: false, textTrack: null, file: false, cues };
       // A file in the user's own language goes under the line; so does a second file.
@@ -1147,15 +1166,18 @@
     const lines = [
       'SceneLingo ' + (connected() ? chrome.runtime.getManifest().version : '(stale copy: the page needs a reload)') + ' — ' + location.hostname,
       'mode: ' + settings.mode + ', fullscreen: ' + !!document.fullscreenElement + ', focus: ' + describe(document.activeElement),
-      'site: ' + SITE + (window.top === window ? '' : ' (in a frame)') + ', forced: ' + forced,
+      'site: ' + SITE + (window.top === window ? '' : ' (in a frame of ' + HOME + ')') + ', forced: ' + forced + (siteOff() ? ', switched off for this site' : ''),
       'window: ' + document.documentElement.clientWidth + 'x' + document.documentElement.clientHeight +
         ', overlay: ' + (!ui ? 'not built' : ui.root.hidden ? 'hidden' : 'shown') + ', tracks: ' + tracks.length + ', lines: ' + (primary ? primary.cues.length : 0),
     ];
-    for (const v of document.querySelectorAll('video')) {
+    if (primary) lines.push('subtitles: ' + trackLabel(primary.track) + (primary.track.stream ? ' (stream)' : primary.live ? ' (text track)' : '') + ', under them: ' + secondary.kind + ', delay: ' + offset);
+    lines.push('status: ' + (status || '-') + ', frames on the page: ' + document.querySelectorAll('iframe').length);
+    for (const v of Subtitles.videos()) {
       lines.push(
         'video' + (v === video ? ' (picked) ' : ' ') + box(v.getBoundingClientRect()) + ' ready ' + v.readyState + (v.paused ? ' paused' : ' playing') +
           ' at ' + Math.round(v.currentTime) + '/' + Math.round(v.duration) + ', in player: ' + inPlayer(v)
       );
+      if (SITE === 'other') lines.push(...Subtitles.describe(v));
       for (let n = v.parentElement, i = 0; n && n !== document.body && i < 14; n = n.parentElement, i++) {
         const cs = getComputedStyle(n);
         lines.push('  ' + name(n) + ' ' + box(n.getBoundingClientRect()) + ' ' + cs.position + (cs.opacity !== '1' ? ' opacity ' + cs.opacity : '') + (cs.visibility !== 'visible' ? ' ' + cs.visibility : ''));
@@ -2094,12 +2116,14 @@
   function hello() {
     if (SITE === 'other') return;
     try {
-      window.postMessage({ source: EXT, type: 'hello', captions: !!settings.enabled }, location.origin);
+      window.postMessage({ source: EXT, type: 'hello', captions: !!settings.enabled && !siteOff() }, location.origin);
     } catch (e) { /* a page without an origin of its own */ }
   }
 
   function onPageMessage(e) {
     if (e.source !== window || !e.data || e.data.source !== PAGE) return;
+    // Each kind of message is taken only on the site whose page script sends it.
+    if (SITE === 'other' || (SITE === 'youtube') !== String(e.data.type).startsWith('yt-')) return;
     if (e.data.type === 'tracks') setTracks(e.data.tracks);
     else if (e.data.type === 'yt-notes') siteNotes = Array.isArray(e.data.notes) ? e.data.notes.map(String) : [];
     else if (e.data.type === 'yt-tracks') {
@@ -2115,7 +2139,21 @@
 
   window.addEventListener('message', onPageMessage);
   for (const type of ['keydown', 'keyup', 'keypress']) window.addEventListener(type, onKey, true);
-  document.addEventListener('seeking', (e) => {
+  // A video's own events (play, seeking…) do not leave the shadow tree a player may keep it in,
+  // so they are listened for on that tree as well as on the page.
+  const mediaListeners = [];
+  const mediaTrees = new WeakSet();
+  const onMedia = (type, fn) => {
+    mediaListeners.push([type, fn]);
+    document.addEventListener(type, fn, true);
+  };
+  function followVideo(v) {
+    const tree = v.getRootNode();
+    if (tree === document || mediaTrees.has(tree)) return;
+    mediaTrees.add(tree);
+    for (const [type, fn] of mediaListeners) tree.addEventListener(type, fn, true);
+  }
+  onMedia('seeking', (e) => {
     if (e.target !== video) return;
     if (ownSeek) {
       ownSeek = false;
@@ -2123,14 +2161,14 @@
     }
     autoPausedFor = -1;
     lastIdx = -1;
-  }, true);
-  document.addEventListener('play', (e) => {
+  });
+  onMedia('play', (e) => {
     if (e.target === video) hoverPaused = false;
-  }, true);
+  });
   for (const type of ['play', 'pause', 'seeking', 'seeked']) {
-    document.addEventListener(type, (e) => {
+    onMedia(type, (e) => {
       if (e.target === video && settings.mode !== 'watch') trace('video', type + ' at ' + video.currentTime.toFixed(2));
-    }, true);
+    });
   }
   document.addEventListener('focusin', (e) => {
     if (ui && boxWantsFocus() && !ui.root.contains(e.target)) keepFocus(e.target);
@@ -2164,7 +2202,10 @@
       setTimeout(() => (pointerHeld = false), 0);
     }, true);
   }
-  document.addEventListener('mousemove', () => wake(), true);
+  document.addEventListener('mousemove', (e) => {
+    wake();
+    pointerOver(e);
+  }, true);
   window.addEventListener('pagehide', releaseMic);
 
   chrome.storage.sync.get(SL_DEFAULTS, (stored) => {
@@ -2182,6 +2223,8 @@
       forced = true;
       pickVideo();
       if (window.top === window) reply({ ok: true });
+    } else if (msg.type === 'where') {
+      if (window.top === window) reply({ host: HOME, off: siteOff() });
     } else if (msg.type === 'diagnose') {
       if (video) reply(diagnostics());
       else if (window.top === window) {
@@ -2197,11 +2240,14 @@
     if (!keys.length) return;
     for (const k of keys) settings[k] = changes[k].newValue === undefined ? SL_DEFAULTS[k] : changes[k].newValue;
     applySettings(keys);
-    if (keys.includes('enabled')) hello();
+    if (keys.includes('enabled') || keys.includes('offSites')) hello();
+    if (keys.includes('offSites')) pickVideo();
   });
 
+  document.addEventListener('fullscreenchange', () => ui && layout());
   // The overlay is pinned to the window, so it has to follow the picture when the page scrolls.
   window.addEventListener('scroll', () => ui && !ui.root.hidden && layout(), { capture: true, passive: true });
+  if (SITE === 'other') Subtitles.watch();
   hello();
   setInterval(pickVideo, 1000);
 })();

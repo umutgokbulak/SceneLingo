@@ -48,7 +48,8 @@ test('the content script is registered for other sites only while the user allow
   assert.deepEqual(site.calls, ['register']); // once, however often it is asked
   const [script] = site.registered;
   assert.deepEqual(script.matches, ['*://*/*']);
-  assert.deepEqual(script.js, ['shared.js', 'core.js', 'content.js']);
+  assert.deepEqual(script.js, ['shared.js', 'core.js', 'subtitles.js', 'content.js']);
+  assert.equal(script.runAt, 'document_start');
   assert.equal(script.allFrames, true);
   // The sites the manifest covers are left to the manifest, so nothing runs twice there.
   assert.ok(script.excludeMatches.includes('https://www.youtube.com/*'));

@@ -257,23 +257,172 @@ const SubtitleCore = (() => {
   }
 
   // The language a subtitle file or track is in, as far as its name says: a language name or a
-  // three-letter code anywhere, or a two-letter code as the last part ("film.en.srt").
+  // three-letter code anywhere, a two-letter code as the last part ("film.en.srt"), or a folder
+  // named after the language (".../subtitles/en/full.vtt").
+  const LANG_CODES = /^(en|tr|de|fr|es|it|pt|ru|ja|ko|ar|nl|zh|pl|sv|da|no|nb|fi|el|he|iw|hi|id|uk|cs|ro|hu|vi|th|fa|bg|hr|sr|sk|sl|ca|ms|bn|ta|te|ur|et|lv|lt|az|ka|hy|kk|uz|mn|sq|mk|bs|is|gl|eu|af|sw|tl|my|km|ne|si|ml|mr|gu|kn|pa)$/;
   const LANG_NAMES = {
     en: ['eng', 'english', 'ingilizce'], tr: ['tur', 'turkish', 'turkce', 'türkçe'], de: ['ger', 'deu', 'german', 'deutsch'],
     fr: ['fre', 'fra', 'french', 'francais', 'français'], es: ['spa', 'spanish', 'espanol', 'español'], it: ['ita', 'italian', 'italiano'],
     pt: ['por', 'portuguese'], ru: ['rus', 'russian'], ja: ['jpn', 'japanese'], ko: ['kor', 'korean'], ar: ['ara', 'arabic'], nl: ['dut', 'nld', 'dutch'],
   };
   function guessLang(name) {
-    let file = String(name || '').split(/[?#]/)[0].split('/').pop().toLowerCase();
+    const parts = String(name || '').split(/[?#]/)[0].toLowerCase().split('/');
+    let file = parts.pop();
     try {
       file = decodeURIComponent(file);
     } catch (e) { /* keep it as it is */ }
-    const words = file.replace(/\.(vtt|srt|ttml2?|dfxp|xml|txt)$/, '').split(/[^a-zçğıöşüäéèñ]+/).filter(Boolean);
+    const words = file.replace(/\.(vtt|webvtt|srt|ttml2?|dfxp|ass|ssa|xml|txt|m3u8)$/, '').split(/[^a-zçğıöşüäéèñ]+/).filter(Boolean);
     for (const [code, names] of Object.entries(LANG_NAMES)) {
       if (words.some((w) => names.includes(w))) return code;
     }
     const last = words[words.length - 1] || '';
-    return last.length === 2 && (last in LANG_NAMES || /^(zh|pl|sv|da|no|fi|el|he|hi|id|uk|cs|ro|hu)$/.test(last)) ? last : '';
+    if (LANG_CODES.test(last)) return last;
+    for (const folder of parts.slice(-2).reverse()) {
+      const m = /^([a-z]{2})(?:[-_][a-z]{2,4})?$/.exec(folder);
+      if (m && LANG_CODES.test(m[1])) return m[1];
+    }
+    return '';
+  }
+
+  // Advanced SubStation files (.ass, .ssa): one "Dialogue:" line for each cue, its text last.
+  function parseAss(text) {
+    const time = (s) => {
+      const m = /^(\d+):(\d{1,2}):(\d{1,2})[.:](\d{1,3})$/.exec(String(s).trim());
+      return m ? +m[1] * 3600 + +m[2] * 60 + +m[3] + +m[4].padEnd(3, '0') / 1000 : NaN;
+    };
+    let fields = ['layer', 'start', 'end', 'style', 'name', 'marginl', 'marginr', 'marginv', 'effect', 'text'];
+    let events = false;
+    const raw = [];
+    for (const line of String(text).replace(/^\uFEFF/, '').split(/\r?\n/)) {
+      if (/^\s*\[/.test(line)) events = /^\s*\[events\]/i.test(line);
+      else if (events && /^Format:/i.test(line)) fields = line.slice(7).split(',').map((f) => f.trim().toLowerCase());
+      const m = /^Dialogue:\s*(.*)$/i.exec(line);
+      if (!m) continue;
+      const parts = m[1].split(',');
+      const body = parts.slice(fields.length - 1).join(',');
+      if (/\{[^}]*\\p[1-9]/.test(body)) continue; // a drawing, not words
+      const start = time(parts[fields.indexOf('start')]);
+      const end = time(parts[fields.indexOf('end')]);
+      const words = cueText(body.replace(/\{[^}]*\}/g, '').replace(/\\N/gi, '\n').replace(/\\h/g, ' '));
+      if (!isNaN(start) && end > start && words) raw.push({ start, end, text: words });
+    }
+    raw.sort((a, b) => a.start - b.start);
+    const cues = [];
+    for (const c of raw) {
+      const prev = cues[cues.length - 1];
+      if (prev && Math.abs(prev.start - c.start) < 0.01 && Math.abs(prev.end - c.end) < 0.01) prev.text += '\n' + c.text;
+      else cues.push(c);
+    }
+    return cues;
+  }
+
+  // ---- streams (HLS) ----
+
+  // The attributes of a playlist tag: KEY=value,KEY="value, with commas".
+  function hlsAttributes(s) {
+    const out = {};
+    for (const m of String(s).matchAll(/([A-Z0-9-]+)=("([^"]*)"|[^,]*)/g)) out[m[1]] = m[3] !== undefined ? m[3] : m[2];
+    return out;
+  }
+
+  const resolveUrl = (uri, base) => {
+    try {
+      return new URL(uri, base).href;
+    } catch (e) {
+      return '';
+    }
+  };
+
+  // What a stream's master playlist says about subtitles: one entry for each subtitle track, with
+  // the address of that track's own playlist. `children` are all the playlists it points at, and
+  // `master` is false for a playlist that is not a master at all.
+  function parseHlsMaster(text, base) {
+    const tracks = [];
+    const children = [];
+    let master = false;
+    for (const raw of String(text).split(/\r?\n/)) {
+      const line = raw.trim();
+      if (line.startsWith('#EXT-X-STREAM-INF')) master = true;
+      if (line.startsWith('#EXT-X-MEDIA:') || line.startsWith('#EXT-X-I-FRAME-STREAM-INF:')) {
+        const a = hlsAttributes(line.slice(line.indexOf(':') + 1));
+        const url = a.URI ? resolveUrl(a.URI, base) : '';
+        if (url) children.push(url);
+        if (a.TYPE !== 'SUBTITLES' || !url) continue;
+        master = true;
+        // The same track is often listed once for every quality of the picture.
+        if (tracks.some((t) => t.url === url || (t.languageCode === (a.LANGUAGE || '') && t.displayName === (a.NAME || a.LANGUAGE || '') && t.forced === (a.FORCED === 'YES')))) continue;
+        tracks.push({
+          url,
+          languageCode: a.LANGUAGE || '',
+          displayName: a.NAME || a.LANGUAGE || '',
+          forced: a.FORCED === 'YES',
+          type: /transcribes-spoken-dialog|describes-music-and-sound/.test(a.CHARACTERISTICS || '') ? 'sdh' : '',
+        });
+      } else if (line && !line.startsWith('#')) {
+        const url = resolveUrl(line, base);
+        if (url) children.push(url);
+      }
+    }
+    return { master, tracks, children };
+  }
+
+  // A track's own playlist: the addresses of its pieces, how long they run in all, whether the
+  // list is complete (a live stream's is not) and whether the pieces are something other than text.
+  function parseHlsMedia(text, base) {
+    const segments = [];
+    let total = 0;
+    let ended = false;
+    let binary = false;
+    for (const raw of String(text).split(/\r?\n/)) {
+      const line = raw.trim();
+      if (line.startsWith('#EXTINF:')) total += parseFloat(line.slice(8)) || 0;
+      else if (line.startsWith('#EXT-X-ENDLIST') || /^#EXT-X-PLAYLIST-TYPE:\s*VOD/.test(line)) ended = true;
+      else if (line.startsWith('#EXT-X-MAP')) binary = true;
+      else if (line && !line.startsWith('#')) {
+        const url = resolveUrl(line, base);
+        if (url) segments.push(url);
+      }
+    }
+    if (segments.some((u) => /\.(mp4|m4s|m4v|cmf[tv]?|ts|aac)$/i.test(u.split(/[?#]/)[0]))) binary = true;
+    return { segments, total, ended, binary };
+  }
+
+  // The X-TIMESTAMP-MAP header of a WebVTT piece of a stream says how far its clock stands from
+  // the stream's, in seconds; null when the piece does not say.
+  function vttOffset(text) {
+    const m = /X-TIMESTAMP-MAP=([^\r\n]+)/.exec(String(text).slice(0, 600));
+    const mpegts = m && /MPEGTS:(\d+)/.exec(m[1]);
+    const local = m && /LOCAL:([\d:.]+)/.exec(m[1]);
+    if (!mpegts || !local) return null;
+    return +mpegts[1] / 90000 - local[1].split(':').reduce((sum, part) => sum * 60 + parseFloat(part), 0);
+  }
+
+  // Of the subtitle-like files a page has fetched, the ones that are whole subtitle tracks: not
+  // the numbered pieces of a stream's track, and not the picture lists players keep for the
+  // seek bar. The newest address is kept for a file fetched more than once.
+  function standaloneFiles(urls) {
+    const byPath = new Map();
+    for (const url of urls) byPath.set(String(url).split(/[?#]/)[0], url);
+    const groups = new Map();
+    for (const [path, url] of byPath) {
+      if (/(thumb|sprite|storyboard|preview|chapter|scrub)/i.test(path.split('/').slice(-2).join('/'))) continue;
+      const shape = path.replace(/\d+/g, '#');
+      if (!groups.has(shape)) groups.set(shape, []);
+      groups.get(shape).push({ url, number: +((/(\d+)(?!.*\d)/.exec(path) || [])[1] || 0) });
+    }
+    const out = [];
+    for (const group of groups.values()) {
+      if (group.length > 3) {
+        // Many addresses that differ only in a number: pieces if the numbers run on, files of
+        // their own (one for each language, say) if they do not.
+        const numbers = group.map((g) => g.number).sort((a, b) => a - b);
+        const steps = numbers.slice(1).map((n, i) => n - numbers[i]);
+        const regular = steps.filter((d) => d === steps[0]).length;
+        if (group.length > 12 || regular >= steps.length * 0.6) continue;
+      }
+      out.push(...group.map((g) => g.url));
+    }
+    return out;
   }
 
   // Whether a box (left, top, width, height) takes up a window of the given size: it reaches all
@@ -288,7 +437,7 @@ const SubtitleCore = (() => {
     );
   }
 
-  return { parseTime, lastStarted, findCue, alignTranslation, spokenWords, matchWords, stretch, isShouting, calm, expandContraction, spokenTokens, fillsWindow, cueText, parseVtt, parseJson3, guessLang };
+  return { parseTime, lastStarted, findCue, alignTranslation, spokenWords, matchWords, stretch, isShouting, calm, expandContraction, spokenTokens, fillsWindow, cueText, parseVtt, parseJson3, guessLang, parseAss, parseHlsMaster, parseHlsMedia, vttOffset, standaloneFiles };
 })();
 
 if (typeof module !== 'undefined') module.exports = SubtitleCore;

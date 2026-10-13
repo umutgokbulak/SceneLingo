@@ -106,16 +106,25 @@ async function tts(text, lang, slow) {
 const EVERYWHERE = { origins: ['*://*/*'] };
 const EVERYWHERE_ID = 'scenelingo-everywhere';
 
-async function syncSites() {
+// `fresh` registers anew even if it is registered, for a version of the extension that lists
+// other files than the one that registered it.
+async function syncSites(fresh) {
   const allowed = await chrome.permissions.contains(EVERYWHERE);
-  const registered = (await chrome.scripting.getRegisteredContentScripts({ ids: [EVERYWHERE_ID] })).length > 0;
+  let registered = (await chrome.scripting.getRegisteredContentScripts({ ids: [EVERYWHERE_ID] })).length > 0;
+  if (registered && (!allowed || fresh)) {
+    await chrome.scripting.unregisterContentScripts({ ids: [EVERYWHERE_ID] });
+    registered = false;
+  }
   if (allowed && !registered) {
     const own = chrome.runtime.getManifest().content_scripts.find((c) => c.world !== 'MAIN');
-    await chrome.scripting.registerContentScripts([
-      { id: EVERYWHERE_ID, matches: EVERYWHERE.origins, excludeMatches: own.matches, js: own.js, css: own.css, allFrames: true, runAt: 'document_idle' },
-    ]);
-  } else if (!allowed && registered) {
-    await chrome.scripting.unregisterContentScripts({ ids: [EVERYWHERE_ID] });
+    // From the start of the page, so that the addresses of what a player fetches are all seen.
+    const script = { id: EVERYWHERE_ID, matches: EVERYWHERE.origins, excludeMatches: own.matches, js: own.js, css: own.css, allFrames: true, runAt: 'document_start' };
+    try {
+      // Players are sometimes put in a frame without an address of its own.
+      await chrome.scripting.registerContentScripts([{ ...script, matchOriginAsFallback: true }]);
+    } catch (e) {
+      await chrome.scripting.registerContentScripts([script]); // a browser that does not know that option
+    }
   }
   return allowed;
 }
@@ -128,16 +137,17 @@ async function startInTab(tabId) {
   return true;
 }
 
-for (const event of [chrome.permissions.onAdded, chrome.permissions.onRemoved, chrome.runtime.onInstalled, chrome.runtime.onStartup]) {
+for (const event of [chrome.permissions.onAdded, chrome.permissions.onRemoved, chrome.runtime.onStartup]) {
   event.addListener(() => syncSites().catch(() => {}));
 }
+chrome.runtime.onInstalled.addListener(() => syncSites(true).catch(() => {}));
 
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   let job;
   if (msg && msg.type === 'translate') job = translateMany(msg.texts || [], msg.sl, msg.tl);
   else if (msg && msg.type === 'lookup') job = lookup(String(msg.text || ''), msg.sl, msg.tl);
   else if (msg && msg.type === 'tts') job = tts(String(msg.text || ''), String(msg.lang || 'en'), !!msg.slow);
-  else if (msg && msg.type === 'sync-sites') job = syncSites();
+  else if (msg && msg.type === 'sync-sites') job = syncSites(false);
   else if (msg && msg.type === 'start-in-tab') job = startInTab(msg.tabId);
   else if (msg && msg.type === 'open-review') job = chrome.tabs.create({ url: chrome.runtime.getURL('review.html') }).then(() => true);
   else return false;

@@ -1,6 +1,84 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { parseTime, lastStarted, findCue, alignTranslation, spokenWords, matchWords, stretch, isShouting, calm, expandContraction, spokenTokens, fillsWindow, cueText, parseVtt, parseJson3, guessLang } = require('../../extension/core.js');
+const { parseTime, lastStarted, findCue, alignTranslation, spokenWords, matchWords, stretch, isShouting, calm, expandContraction, spokenTokens, fillsWindow, cueText, parseVtt, parseJson3, guessLang, parseAss, parseHlsMaster, parseHlsMedia, vttOffset, standaloneFiles } = require('../../extension/core.js');
+
+test('parseAss reads SubStation dialogue lines', () => {
+  const ass = [
+    '[Script Info]', 'Title: test', '', '[V4+ Styles]', 'Format: Name, Fontname, Fontsize', 'Style: Default,Arial,20', '',
+    '[Events]', 'Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text',
+    'Dialogue: 0,0:00:01.50,0:00:03.00,Default,,0,0,0,,{\\an8}Hello, world\\Nsecond line',
+    'Dialogue: 0,0:00:04.00,0:00:05.00,Default,,0,0,0,,{\\p1}m 0 0 l 10 10{\\p0}',
+    'Comment: 0,0:00:06.00,0:00:07.00,Default,,0,0,0,,not shown',
+    'Dialogue: 0,1:00:00.00,1:00:01.25,Default,,0,0,0,,Late',
+  ].join('\r\n');
+  assert.deepEqual(parseAss(ass), [
+    { start: 1.5, end: 3, text: 'Hello, world\nsecond line' },
+    { start: 3600, end: 3601.25, text: 'Late' },
+  ]);
+});
+
+test('parseHlsMaster lists the subtitle tracks of a stream', () => {
+  const master = [
+    '#EXTM3U',
+    '#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="aud",NAME="English",LANGUAGE="en",URI="audio/en.m3u8"',
+    '#EXT-X-MEDIA:TYPE=SUBTITLES,GROUP-ID="subs",NAME="English",LANGUAGE="en",DEFAULT=YES,URI="subtitles/en/index.m3u8"',
+    '#EXT-X-MEDIA:TYPE=SUBTITLES,GROUP-ID="subs",NAME="Türkçe",LANGUAGE="tr",URI="https://cdn.example/t/tr.m3u8?x=1"',
+    '#EXT-X-MEDIA:TYPE=SUBTITLES,GROUP-ID="subs",NAME="English (SDH), signs",LANGUAGE="en",CHARACTERISTICS="public.accessibility.transcribes-spoken-dialog",URI="subtitles/en-sdh/index.m3u8"',
+    '#EXT-X-MEDIA:TYPE=SUBTITLES,GROUP-ID="subs2",NAME="English",LANGUAGE="en",URI="subtitles/en/index.m3u8"',
+    '#EXT-X-MEDIA:TYPE=SUBTITLES,GROUP-ID="subs",NAME="English",LANGUAGE="en",FORCED=YES,URI="subtitles/en-forced/index.m3u8"',
+    '#EXT-X-STREAM-INF:BANDWIDTH=800000,SUBTITLES="subs"',
+    'video/800.m3u8',
+  ].join('\n');
+  const { master: isMaster, tracks, children } = parseHlsMaster(master, 'https://host.example/a/b/master.m3u8?t=9');
+  assert.equal(isMaster, true);
+  assert.deepEqual(tracks, [
+    { url: 'https://host.example/a/b/subtitles/en/index.m3u8', languageCode: 'en', displayName: 'English', forced: false, type: '' },
+    { url: 'https://cdn.example/t/tr.m3u8?x=1', languageCode: 'tr', displayName: 'Türkçe', forced: false, type: '' },
+    { url: 'https://host.example/a/b/subtitles/en-sdh/index.m3u8', languageCode: 'en', displayName: 'English (SDH), signs', forced: false, type: 'sdh' },
+    { url: 'https://host.example/a/b/subtitles/en-forced/index.m3u8', languageCode: 'en', displayName: 'English', forced: true, type: '' },
+  ]);
+  assert.ok(children.includes('https://host.example/a/b/video/800.m3u8'));
+  assert.ok(children.includes('https://host.example/a/b/audio/en.m3u8'));
+  // A playlist of pieces is not a master.
+  assert.equal(parseHlsMaster('#EXTM3U\n#EXTINF:4,\nseg1.ts\n', 'https://host.example/v.m3u8').master, false);
+});
+
+test('parseHlsMedia lists the pieces of a subtitle track', () => {
+  const list = '#EXTM3U\n#EXT-X-TARGETDURATION:30\n#EXTINF:30.000,\nseg-1.vtt\n#EXTINF:30.000,\nseg-2.vtt?k=1\n#EXTINF:12.5,\n/abs/seg-3.vtt\n#EXT-X-ENDLIST\n';
+  assert.deepEqual(parseHlsMedia(list, 'https://host.example/subs/en/index.m3u8'), {
+    segments: ['https://host.example/subs/en/seg-1.vtt', 'https://host.example/subs/en/seg-2.vtt?k=1', 'https://host.example/abs/seg-3.vtt'],
+    total: 72.5,
+    ended: true,
+    binary: false,
+  });
+  assert.equal(parseHlsMedia('#EXTM3U\n#EXTINF:6,\nlive-9.vtt\n', 'https://h.example/l.m3u8').ended, false);
+  assert.equal(parseHlsMedia('#EXTM3U\n#EXT-X-MAP:URI="init.mp4"\n#EXTINF:6,\ns1.m4s\n#EXT-X-ENDLIST', 'https://h.example/l.m3u8').binary, true);
+});
+
+test('vttOffset reads the clock of a WebVTT piece of a stream', () => {
+  assert.equal(vttOffset('WEBVTT\nX-TIMESTAMP-MAP=MPEGTS:900000,LOCAL:00:00:00.000\n\n'), 10);
+  assert.equal(vttOffset('WEBVTT\nX-TIMESTAMP-MAP=LOCAL:00:01:00.000,MPEGTS:6300000\n\n'), 10);
+  assert.equal(vttOffset('WEBVTT\n\n00:01.000 --> 00:02.000\nHi\n'), null);
+});
+
+test('standaloneFiles keeps whole subtitle files and drops pieces and picture lists', () => {
+  const ted = ['id', 'mn', 'el', 'en', 'tr', 'vi'].map((l) => 'https://hls.ted.example/p/2597/subtitles/' + l + '/full.vtt');
+  assert.deepEqual(standaloneFiles(ted), ted);
+  const pieces = Array.from({ length: 6 }, (_, i) => 'https://cdn.example/s/en/seg_' + (i + 1) + '.vtt?token=a');
+  assert.deepEqual(standaloneFiles(pieces), []);
+  // Numbered, but not running on: one file for each language.
+  const numbered = ['170', '171', '140662', '4678937'].map((n) => 'https://captions.example/captions/' + n + '.vtt?sig=x');
+  assert.deepEqual(standaloneFiles(numbered), numbered);
+  assert.deepEqual(standaloneFiles(['https://image.example/abc/storyboard.vtt', 'https://x.example/thumbnails/en.vtt', 'https://x.example/subs/film.en.srt']), ['https://x.example/subs/film.en.srt']);
+  // Fetched twice with a new token: once, at the newer address.
+  assert.deepEqual(standaloneFiles(['https://x.example/a.vtt?t=1', 'https://x.example/a.vtt?t=2']), ['https://x.example/a.vtt?t=2']);
+});
+
+test('guessLang reads a folder named after the language', () => {
+  assert.equal(guessLang('https://hls.ted.example/p/2597/subtitles/tr/full.vtt'), 'tr');
+  assert.equal(guessLang('https://hls.ted.example/p/2597/subtitles/pt-br/full.vtt'), 'pt');
+  assert.equal(guessLang('https://cdn.example/v2/hd/captions.vtt'), '');
+});
 
 test('parseVtt reads WebVTT and SubRip files', () => {
   const vtt = 'WEBVTT\n\nNOTE made for a test\n\n1\n00:00:01.000 --> 00:00:02.500 align:start position:10%\n<v Anna>Hello <i>there</i>.\nHow are you?\n\n00:03.000 --> 00:04.000\n&amp; you &lt;3\n';

@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>A page with a plain video</title>
+<style>
+body{margin:0;padding:24px;background:#16181d;color:#dde;font:16px/1.5 system-ui,sans-serif}
+video{display:block;width:960px;max-width:100%;aspect-ratio:16/9;background:#234;margin:16px 0}
+</style>
+</head><body>
+<!-- For checking by hand, with the real extension: a video on a site the extension does not
+     know. Without ?tracks it has no subtitles at all, so the overlay has to be asked for from
+     the toolbar popup and given a subtitle file; with ?tracks it brings two <track> files. -->
+<h1>A plain video</h1>
+<video src="/test/silence.wav" controls muted></video>
+<p>Text after the video.</p>
+<script>
+// ?shadow: the video sits in the closed shadow tree of a custom element, as in some players.
+if (new URLSearchParams(location.search).has('shadow')) {
+  const video = document.querySelector('video');
+  const shell = document.createElement('demo-player');
+  shell.style.cssText = 'display:block;width:960px;max-width:100%';
+  video.before(shell);
+  shell.attachShadow({ mode: 'closed' }).appendChild(video);
+  video.style.cssText = 'display:block;width:100%;aspect-ratio:16/9;background:#234';
+  window.shadowVideo = video; // for the checks; a page would keep it to itself
+}
+if (new URLSearchParams(location.search).has('tracks')) {
+  for (const [lang, label] of [['en', 'English'], ['tr', 'Türkçe']]) {
+    const t = document.createElement('track');
+    Object.assign(t, { kind: 'subtitles', srclang: lang, label, src: '/test/subs/' + lang + '.vtt' });
+    (window.shadowVideo || document.querySelector('video')).appendChild(t);
+  }
+}
+</script>
+</body></html>

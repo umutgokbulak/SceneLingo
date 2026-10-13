@@ -101,6 +101,21 @@ $('everywhere').addEventListener('change', () => {
   else chrome.permissions.remove(EVERYWHERE, () => done(false));
 });
 
+// A site can be switched off on its own: the page in this tab says which site it is.
+activeTab().then(async (tab) => {
+  const here = tab && (await toTab(tab, { type: 'where' }));
+  if (!here || !here.host) return;
+  $('siteRow').hidden = false;
+  $('siteHost').textContent = here.host;
+  $('siteOn').checked = !here.off;
+  $('siteOn').addEventListener('change', () => {
+    chrome.storage.sync.get({ offSites: [] }, ({ offSites }) => {
+      const rest = offSites.filter((h) => h !== here.host);
+      chrome.storage.sync.set({ offSites: $('siteOn').checked ? rest : rest.concat(here.host) });
+    });
+  });
+});
+
 // Brings the overlay up on the video in this tab even if it has no subtitles of its own.
 $('activate').addEventListener('click', async () => {
   const tab = await activeTab();

@@ -13,6 +13,7 @@ const SL_DEFAULTS = {
   autoPause: false,
   mode: 'watch', // 'watch', 'write' (type what was heard) or 'speak' (say the line aloud)
   introSeen: false,
+  offSites: [], // host names of sites where the extension has been switched off
   fontSize: 100, // percent
   bottomOffset: 14, // percent of the video height
 };
