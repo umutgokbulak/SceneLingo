@@ -1,20 +1,35 @@
 (() => {
   'use strict';
-  if (window.top !== window || window.__scenelingoContent) return;
+  if (window.__scenelingoContent) return;
   window.__scenelingoContent = true;
 
-  const { parseTime, lastStarted, findCue, alignTranslation, spokenWords, matchWords, stretch, isShouting, calm, expandContraction, spokenTokens, fillsWindow } = SubtitleCore;
+  const { parseTime, lastStarted, findCue, alignTranslation, spokenWords, matchWords, stretch, isShouting, calm, expandContraction, spokenTokens, fillsWindow, cueText, parseVtt, parseJson3, guessLang } = SubtitleCore;
+  // What differs from site to site is where the player is, what counts as watching, and where
+  // the subtitles come from. Anything that is not a site named here is a plain HTML5 video.
+  // (The test harness names the site it stands in for.)
+  const SITE =
+    document.documentElement.dataset.scenelingoSite ||
+    (/(^|\.)youtube(-nocookie)?\.com$/.test(location.hostname) ? 'youtube' : /(^|\.)(primevideo|amazon)\./.test(location.hostname) ? 'prime' : 'other');
   const PAGE = 'scenelingo:page';
   const EXT = 'scenelingo:ext';
   const CHUNK = 20; // cues per machine-translation request
   const SLOW_RATE = 0.7; // speed of the slow synthetic voice, on top of the service's own slow reading
   const SLOW_PLAY = 0.75; // speed of the film itself when a line is replayed slowly
-  const NATIVE_SEL = '.atvwebplayersdk-captions-text';
-  const WAITING = 'Altyazı bekleniyor… Videoyu başlat; gelmezse Prime oynatıcısında altyazıyı bir kez aç.';
+  const NATIVE_SEL = SITE === 'prime' ? '.atvwebplayersdk-captions-text' : '';
+  const WAITING = {
+    prime: 'Altyazı bekleniyor… Videoyu başlat; gelmezse Prime oynatıcısında altyazıyı bir kez aç.',
+    youtube: 'Altyazı bekleniyor… Gelmezse YouTube oynatıcısında altyazıyı (CC) bir kez aç.',
+    other: 'Bu videoda altyazı bulunamadı. Aşağıdan bir altyazı dosyası (.srt, .vtt) açabilirsin.',
+  }[SITE];
+  const NO_CAPTIONS = 'Bu videonun altyazısı yok. Aşağıdan bir altyazı dosyası (.srt, .vtt) açabilirsin.';
+  const SUB_FILE = /\.(vtt|srt|ttml2?|dfxp)(\?|#|$)/i;
 
   let settings = { ...SL_DEFAULTS };
   let savedWords = new Set();
   let tracks = [];
+  let fileTracks = []; // subtitle files the user opened; they stay when the page's own tracks change
+  let emptyNote = ''; // why there are no tracks, when the site has said so
+  let forced = false; // the user asked for the overlay on a video that came with no subtitles
   let seenUrl = null; // subtitle file the player itself loaded, used when no track list was seen
   let choice = { primary: 'auto', secondary: 'auto' };
   let primary = null; // { track, cues, requested }
@@ -55,6 +70,7 @@
   let pointerHeld = false;
   let warnedTwin = false;
   let focusPulls = []; // times the answer box took the focus back, to avoid fighting the page in a loop
+  const ownKeys = new Set(); // shortcut keys that are down and were taken by us
   const traceLog = []; // recent events of listening practice, for the "copy diagnostics" button
   const audioCache = new Map();
   const lookupCache = new Map();
@@ -172,30 +188,80 @@
     return cues;
   }
 
-  function loadCues(url) {
-    if (!cueCache.has(url)) {
-      const job = fetch(url)
+  // A subtitle file in any of the formats met so far, told apart by how it begins.
+  function parseAny(text) {
+    const head = text.slice(0, 200).replace(/^\uFEFF/, '').trimStart()[0];
+    if (head === '{') return parseJson3(JSON.parse(text));
+    if (head === '<') return parseTTML(text);
+    return parseVtt(text);
+  }
+
+  // The lines of a text track the page gave its video. They are only loaded for a track that is
+  // switched on, so a track that is off is switched to "hidden": loaded, but not drawn.
+  function readTextTrack(tt) {
+    if (tt.mode === 'disabled') tt.mode = 'hidden';
+    const cues = [];
+    for (const c of tt.cues || []) {
+      const text = cueText(c.text);
+      if (text && c.endTime > c.startTime) cues.push({ start: c.startTime, end: c.endTime, text });
+    }
+    return cues.sort((a, b) => a.start - b.start);
+  }
+
+  function loadCues(track) {
+    if (track.cues) return Promise.resolve(track.cues);
+    if (track.textTrack && !track.file) return Promise.resolve(readTextTrack(track.textTrack));
+    if (!cueCache.has(track.url)) {
+      const job = fetch(track.url)
         .then((r) => {
           if (!r.ok) throw new Error('HTTP ' + r.status);
           return r.text();
         })
-        .then(parseTTML);
-      job.catch(() => cueCache.delete(url));
-      cueCache.set(url, job);
+        .then(parseAny);
+      job.catch(() => cueCache.delete(track.url));
+      cueCache.set(track.url, job);
     }
-    return cueCache.get(url);
+    if (!track.textTrack) return cueCache.get(track.url);
+    // The file behind a <track> may not be ours to fetch; what the video has loaded of it is.
+    return cueCache.get(track.url).catch(() => {
+      track.file = false;
+      return readTextTrack(track.textTrack);
+    });
+  }
+
+  // A text track fills up while the video loads, so it is read again when it has grown.
+  function refreshLive() {
+    const p = primary;
+    if (!p || !p.live || !p.live.cues || p.live.cues.length === p.liveCount) return;
+    const old = new Map(p.cues.map((c) => [c.start + '|' + c.text, c]));
+    p.liveCount = p.live.cues.length;
+    p.cues = readTextTrack(p.live).map((c) => old.get(c.start + '|' + c.text) || c);
+    p.requested = new Set();
+    if (secondary.kind === 'track' && secondary.track.textTrack) {
+      for (const c of p.cues) {
+        delete c.tr;
+        delete c.shared;
+      }
+      secondary.cues = readTextTrack(secondary.track.textTrack);
+      alignTranslation(p.cues, secondary.cues);
+    }
+    shown = { idx: -2, sec: null };
+    lastIdx = -1;
+    setStatus(p.cues.length ? '' : 'Altyazı yükleniyor…');
+    if (ui && !ui.panel.hidden) buildPanel();
   }
 
   // ---------- track selection ----------
 
   const trackScore = (t) =>
-    (t.forced ? 4 : 0) + (/commentary|descri/i.test(t.subtype) ? 2 : 0) + (/sdh|cc/i.test(t.type) ? 1 : 0);
+    (t.forced ? 4 : 0) + (/commentary|descri/i.test(t.subtype) ? 2 : 0) + (/sdh|cc/i.test(t.type) || t.auto ? 1 : 0);
 
   const pickTrack = (lang) =>
     tracks.filter((t) => langOf(t.languageCode) === lang).sort((a, b) => trackScore(a) - trackScore(b))[0] || null;
 
   function trackLabel(t) {
     let label = t.displayName || t.languageCode || 'Altyazı';
+    if (t.auto) label += ' (otomatik)';
     if (t.forced) label += ' (zorunlu)';
     else if (/sdh|cc/i.test(t.type) && !/\[|\(/.test(label)) label += ' [CC]';
     return label;
@@ -228,6 +294,12 @@
       const t = pickTrack(settings.nativeLang);
       if (t && t.url !== pri.url) return { kind: 'track', track: t };
     }
+    // YouTube translates a caption track itself, as one file cut at the same places.
+    if (SITE === 'youtube' && /^https:/.test(pri.url)) {
+      const u = new URL(pri.url);
+      u.searchParams.set('tlang', settings.nativeLang);
+      return { kind: 'track', track: { url: u.href, languageCode: settings.nativeLang, displayName: langName(settings.nativeLang) + ' (YouTube çevirisi)' } };
+    }
     return { kind: 'mt' };
   }
 
@@ -238,28 +310,33 @@
     shown = { idx: -2, sec: null };
     syncSamples = [];
     autoPausedFor = -1;
-    const pt = resolvePrimary();
+    let pt = resolvePrimary();
     if (!pt) {
-      setStatus(WAITING);
+      setStatus(emptyNote || WAITING);
       afterLoad();
       return;
     }
+    // A file or track that does not say its language is taken to be in the one being learned.
+    if (!pt.languageCode) pt = { ...pt, languageCode: settings.learnLang };
     setStatus('Altyazı yükleniyor…');
     try {
-      const cues = (await loadCues(pt.url)).map((c) => ({ ...c }));
+      const cues = (await loadCues(pt)).map((c) => ({ ...c }));
       const sec = resolveSecondary(pt);
       if (sec.kind === 'track') {
         try {
-          sec.cues = await loadCues(sec.track.url);
+          sec.cues = await loadCues(sec.track);
+          // An empty translation is no translation, unless it is a text track that is still filling up.
+          if (!sec.cues.length && !(sec.track.textTrack && !sec.track.file)) throw new Error('empty');
           alignTranslation(cues, sec.cues);
         } catch (e) {
           sec.kind = 'mt';
         }
       }
       if (gen !== loadGen) return;
-      primary = { track: pt, cues, requested: new Set() };
+      const live = pt.textTrack && !pt.file && !pt.cues ? pt.textTrack : null;
+      primary = { track: pt, cues, requested: new Set(), live, liveCount: live && live.cues ? live.cues.length : 0 };
       secondary = sec;
-      setStatus(cues.length ? '' : 'Bu altyazı dosyası boş.');
+      setStatus(cues.length ? '' : live ? 'Altyazı yükleniyor…' : 'Bu altyazı dosyası boş.');
     } catch (e) {
       if (gen !== loadGen) return;
       setStatus('Altyazı yüklenemedi: ' + ((e && e.message) || e));
@@ -273,31 +350,38 @@
     if (ui && !ui.panel.hidden) buildPanel();
   }
 
-  function setTracks(list) {
+  // `empty` says an empty list is news too: the video has changed and the new one has no tracks.
+  function setTracks(list, empty) {
     if (!Array.isArray(list)) return;
     const clean = [];
     for (const t of list) {
-      if (!t || typeof t.url !== 'string') continue;
-      let proto;
-      try {
-        proto = new URL(t.url, location.href).protocol;
-      } catch (e) {
-        continue;
+      if (!t || typeof t.url !== 'string' || !t.url) continue;
+      if (!t.textTrack) {
+        let proto;
+        try {
+          proto = new URL(t.url, location.href).protocol;
+        } catch (e) {
+          continue;
+        }
+        if (proto !== 'https:' && proto !== 'blob:' && proto !== location.protocol) continue;
       }
-      if (proto !== 'https:' && proto !== location.protocol) continue;
       clean.push({
         url: t.url,
+        id: String(t.id || ''),
         languageCode: String(t.languageCode || ''),
         displayName: String(t.displayName || ''),
         type: String(t.type || ''),
         subtype: String(t.subtype || ''),
         forced: !!t.forced,
+        auto: !!t.auto,
+        textTrack: t.textTrack || null,
+        file: !!t.file,
       });
     }
-    if (!clean.length) return;
-    const key = (l) => l.map((t) => t.url.split('?')[0]).sort().join('|');
-    if (tracks.length && key(clean) === key(tracks)) return;
-    tracks = clean;
+    if (!clean.length && !empty) return;
+    const key = (l) => l.filter((t) => !t.cues).map((t) => t.id || t.url.split('?')[0]).sort().join('|');
+    if (key(clean) === key(tracks)) return;
+    tracks = clean.concat(fileTracks);
     seenUrl = null;
     choice = { primary: 'auto', secondary: 'auto' };
     offset = 0;
@@ -331,7 +415,7 @@
     const all = p.cues.slice(c * CHUNK, c * CHUNK + CHUNK);
     if (!all.length) return;
     p.requested.add(c);
-    const slice = secondary.kind === 'mt' ? all : all.filter((cue) => cue.shared);
+    const slice = (secondary.kind === 'mt' ? all : all.filter((cue) => cue.shared)).filter((cue) => cue.mt === undefined);
     if (!slice.length) return;
     // Text in capitals comes back in capitals, and reads worse; translate it in ordinary case.
     const english = speaksEnglish();
@@ -471,24 +555,36 @@
       return;
     }
     const fs = document.fullscreenElement;
-    const host = fs && fs !== video && fs.contains(video) ? fs : document.body;
+    // YouTube's player is a box in a page that scrolls: the overlay goes inside it and moves with
+    // it. Elsewhere it is pinned to the window, over the picture.
+    const own = SITE === 'youtube' ? video.closest('.html5-video-player') : null;
+    const host = own || (fs && fs !== video && fs.contains(video) ? fs : document.body);
     if (root.parentNode !== host) host.appendChild(root);
     root.hidden = false;
     ui.subs.hidden = !settings.enabled;
     root.classList.toggle('sl-mode-write', settings.mode === 'write');
     root.classList.toggle('sl-paused', video.paused);
+    const hr = own ? own.getBoundingClientRect() : { left: 0, top: 0 };
     const css =
-      `left:${Math.round(r.left)}px;top:${Math.round(r.top)}px;width:${Math.round(r.width)}px;height:${Math.round(r.height)}px;` +
+      (own ? 'position:absolute;' : '') +
+      `left:${Math.round(r.left - hr.left)}px;top:${Math.round(r.top - hr.top)}px;width:${Math.round(r.width)}px;height:${Math.round(r.height)}px;` +
       `--sl-fs:${Math.max(14, (r.height * 0.042 * settings.fontSize) / 100).toFixed(1)}px;--sl-bottom:${settings.bottomOffset}%;`;
     if (root.style.cssText !== css) root.style.cssText = css;
     applyNativeHiding();
   }
 
-  // The film plays in a player that takes the whole window, or the whole screen. A video that
-  // does not is something else on the site, such as the trailer on a title's page: nothing is
-  // drawn over it and it is not paused or practised on.
+  // Whether the video is the thing being watched. Nothing is drawn over a video that is not, and
+  // it is not paused or practised on.
   function inPlayer(v) {
     if (v.checkVisibility && !v.checkVisibility({ opacityProperty: true, visibilityProperty: true, checkOpacity: true, checkVisibilityCSS: true })) return false;
+    if (SITE === 'youtube') {
+      // Not an advertisement, the corner player, a short or the preview of a video on a list.
+      const player = v.closest('.html5-video-player');
+      return !!player && !player.classList.contains('ad-showing') && !v.closest('ytd-miniplayer, ytd-video-preview, #shorts-player, #inline-preview-player');
+    }
+    if (SITE === 'other') return true;
+    // On Prime the film plays in a player that takes the whole window, or the whole screen. A
+    // video that does not is something else, such as the trailer on a title's page.
     const fs = document.fullscreenElement;
     if (fs) return fs === v || fs.contains(v);
     const width = document.documentElement.clientWidth;
@@ -529,7 +625,7 @@
   // Prime's video clock can run ahead of the subtitle timeline (e.g. after ads). When the
   // player's own captions are on, their appearance tells us the real offset.
   function calibrate() {
-    if (manualOffset || !primary || !video || video.paused) return;
+    if (!NATIVE_SEL || manualOffset || !primary || !video || video.paused) return;
     const nodes = document.querySelectorAll(NATIVE_SEL);
     let text = '';
     for (const n of nodes) text += n.textContent;
@@ -616,23 +712,83 @@
   function pickVideo() {
     let best = null;
     let bestArea = 0;
-    for (const v of document.querySelectorAll('video')) {
-      if (!v.readyState && !v.currentSrc) continue;
-      const r = v.getBoundingClientRect();
-      const area = r.width * r.height;
-      if (area > bestArea) {
-        best = v;
-        bestArea = area;
+    if (SITE === 'youtube') best = document.querySelector('#movie_player video') || document.querySelector('.html5-video-player video');
+    else {
+      for (const v of document.querySelectorAll('video')) {
+        if (!v.readyState && !v.currentSrc) continue;
+        const r = v.getBoundingClientRect();
+        const area = r.width * r.height;
+        if (area > bestArea) {
+          best = v;
+          bestArea = area;
+        }
       }
     }
     video = best;
-    if (video && !ui && document.body) buildUI();
+    if (SITE === 'other' && video) {
+      setTracks(pageTracks(video), true);
+      refreshLive();
+    }
+    // On a site that is not known, a video is left alone unless it comes with subtitles or the
+    // user has asked for the overlay.
+    if (video && !ui && document.body && (SITE !== 'other' || tracks.length || forced)) buildUI();
     // An older copy of the extension loaded from another folder draws its own overlay on top of
     // this one and takes the same keys.
     if (ui && !warnedTwin && [...document.querySelectorAll('#scenelingo-root, #primelingo-root')].some((n) => n !== ui.root)) {
       warnedTwin = true;
       setStatus('Eklentinin iki kopyası birlikte çalışıyor. chrome://extensions sayfasında eski kopyayı (PrimeLingo ya da ikinci SceneLingo) kaldır ve sayfayı yenile.');
       openMenu();
+    }
+  }
+
+  // The subtitles of a plain HTML5 video: the text tracks the page gave it, or else subtitle
+  // files the page has fetched (a player that draws its own subtitles still has to load them).
+  function pageTracks(v) {
+    const list = [];
+    const elements = [...v.querySelectorAll('track')];
+    [...(v.textTracks || [])].forEach((tt, i) => {
+      if (tt.kind !== 'subtitles' && tt.kind !== 'captions') return;
+      const element = elements.find((t) => t.track === tt);
+      const src = element && element.src;
+      list.push({
+        url: src || 'texttrack:' + i,
+        id: 'texttrack:' + i + ':' + tt.language + ':' + tt.label,
+        languageCode: tt.language || guessLang(tt.label),
+        displayName: tt.label || tt.language,
+        textTrack: tt,
+        file: !!src,
+      });
+    });
+    if (list.length) return list;
+    const urls = [...new Set(performance.getEntriesByType('resource').map((e) => e.name).filter((u) => SUB_FILE.test(u)))];
+    // A long list is one subtitle track cut into pieces for streaming, not a choice of files.
+    if (urls.length > 8) return [];
+    return urls.map((url) => ({ url, languageCode: guessLang(url), displayName: url.split(/[?#]/)[0].split('/').pop() }));
+  }
+
+  // A subtitle file from the user's own disk, for a video that has none or not the right one.
+  async function openSubtitleFile(file) {
+    try {
+      const bytes = await file.arrayBuffer();
+      let text;
+      try {
+        text = new TextDecoder('utf-8', { fatal: true }).decode(bytes);
+      } catch (e) {
+        // Older subtitle files are in the encoding of their language's version of Windows.
+        text = new TextDecoder(settings.nativeLang === 'tr' || settings.learnLang === 'tr' ? 'windows-1254' : 'windows-1252').decode(bytes);
+      }
+      const cues = parseAny(text);
+      if (!cues.length) throw new Error('içinde altyazı satırı bulunamadı');
+      const t = { url: 'file:' + file.name + ':' + file.size, id: '', languageCode: guessLang(file.name), displayName: file.name, type: '', subtype: '', forced: false, auto: false, textTrack: null, file: false, cues };
+      // A file in the user's own language goes under the line; so does a second file.
+      const under = langOf(t.languageCode) === settings.nativeLang || (!t.languageCode && primary && primary.track.cues && primary.track.url !== t.url);
+      fileTracks = fileTracks.filter((x) => x.url !== t.url).concat(t);
+      tracks = tracks.filter((x) => !x.cues).concat(fileTracks);
+      choice[under ? 'secondary' : 'primary'] = t.url;
+      toast((under ? 'Alt satır: ' : 'Üst satır: ') + file.name, 2500);
+      reload();
+    } catch (e) {
+      toast('Altyazı dosyası açılamadı: ' + ((e && e.message) || e), 4000);
     }
   }
 
@@ -990,6 +1146,7 @@
     const lines = [
       'SceneLingo ' + (connected() ? chrome.runtime.getManifest().version : '(stale copy: the page needs a reload)') + ' — ' + location.hostname,
       'mode: ' + settings.mode + ', fullscreen: ' + !!document.fullscreenElement + ', focus: ' + describe(document.activeElement),
+      'site: ' + SITE + (window.top === window ? '' : ' (in a frame)') + ', forced: ' + forced,
       'window: ' + document.documentElement.clientWidth + 'x' + document.documentElement.clientHeight +
         ', overlay: ' + (!ui ? 'not built' : ui.root.hidden ? 'hidden' : 'shown') + ', tracks: ' + tracks.length + ', lines: ' + (primary ? primary.cues.length : 0),
     ];
@@ -1685,6 +1842,15 @@
       speakSample();
     });
     const reviewBtn = el('button', 'sl-wide-btn', 'Kelime tekrarını aç');
+    const fileBtn = el('button', 'sl-wide-btn sl-file-btn', 'Altyazı dosyası aç (.srt, .vtt)…');
+    fileBtn.title = 'Bilgisayarındaki bir altyazı dosyasını bu videoda kullan. İkinci dosya alt satıra gelir.';
+    fileBtn.addEventListener('click', () => {
+      const input = el('input');
+      input.type = 'file';
+      input.accept = '.srt,.vtt,.ttml,.dfxp,.xml,.txt';
+      input.addEventListener('change', () => input.files[0] && openSubtitleFile(input.files[0]));
+      input.click();
+    });
     const traceBtn = el('button', 'sl-wide-btn sl-quiet-btn', 'Tanılama kaydını kopyala');
     traceBtn.title = 'Alıştırmalarda bir şey ters giderse, son olayların kaydını panoya kopyalar';
     const statusEl = el('div', 'sl-status');
@@ -1697,7 +1863,8 @@
       row('Çift altyazı', check('enabled'), 'label'),
       row('Üst satır', priSel),
       row('Alt satır', secSel),
-      row('Prime altyazısını gizle', check('hideNative'), 'label'),
+      row('Sitenin kendi altyazısını gizle', check('hideNative'), 'label'),
+      fileBtn,
       el('div', 'sl-mhead', 'Kelime kartı ve ses'),
       row('Üzerine gelince duraklat', check('hoverPause'), 'label'),
       row('Kelimenin üzerine gelince çevir', check('hoverLookup'), 'label'),
@@ -1788,6 +1955,7 @@
     refreshMenu();
     layout();
     showIntro();
+    requestAnimationFrame(frame);
   }
 
   function openMenu() {
@@ -1885,7 +2053,17 @@
         }
       }
     }
-    if (e.type !== 'keydown' || combo) return;
+    if (e.type !== 'keydown') {
+      // A shortcut of ours is ours from press to release: a player that acts on the release (or on
+      // the key press event) would otherwise answer the same key with a shortcut of its own.
+      if (ownKeys.has(e.code)) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        if (e.type === 'keyup') ownKeys.delete(e.code);
+      }
+      return;
+    }
+    if (combo) return;
     if (target && (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName))) return;
     let handled = true;
     if (e.code === 'Escape') {
@@ -1902,18 +2080,32 @@
       toast('Her cümlede duraklat: ' + (settings.autoPause ? 'açık' : 'kapalı'));
     } else if (e.code === 'KeyW') setMode('write');
     else if (e.code === 'KeyE') setMode('speak');
-    else if (e.code === 'KeyL') togglePanel();
+    else if (e.code === 'KeyL' && SITE !== 'youtube') togglePanel(); // on YouTube, L skips ahead
     else handled = false;
     if (handled) {
+      ownKeys.add(e.code);
       e.preventDefault();
       e.stopImmediatePropagation();
     }
   }
 
+  // Tells the script in the page's world that this one is up, and whether subtitles are wanted.
+  function hello() {
+    if (SITE === 'other') return;
+    try {
+      window.postMessage({ source: EXT, type: 'hello', captions: !!settings.enabled }, location.origin);
+    } catch (e) { /* a page without an origin of its own */ }
+  }
+
   function onPageMessage(e) {
     if (e.source !== window || !e.data || e.data.source !== PAGE) return;
     if (e.data.type === 'tracks') setTracks(e.data.tracks);
-    else if (e.data.type === 'sub-seen' && !tracks.length && typeof e.data.url === 'string' && e.data.url !== seenUrl) {
+    else if (e.data.type === 'yt-tracks') {
+      // Until the player has fetched a caption file itself there is no address to fetch one from.
+      emptyNote = e.data.ready ? NO_CAPTIONS : '';
+      setTracks(e.data.ready ? e.data.tracks : [], true);
+      if (!primary && !tracks.length) setStatus(emptyNote || WAITING);
+    } else if (e.data.type === 'sub-seen' && !tracks.length && typeof e.data.url === 'string' && e.data.url !== seenUrl) {
       seenUrl = e.data.url;
       reload();
     }
@@ -1977,11 +2169,24 @@
     settings = { ...SL_DEFAULTS, ...stored };
     settingsLoaded = true;
     applySettings([]);
+    hello();
   });
   chrome.storage.local.get({ words: [] }, (data) => setSavedWords(data.words));
   // The toolbar popup can ask for the diagnostics, for when the overlay is not there to ask.
+  // Every frame of the tab hears these; the one that holds the video is the one to act.
   chrome.runtime.onMessage.addListener((msg, sender, reply) => {
-    if (msg && msg.type === 'diagnose') reply(diagnostics());
+    if (!msg) return;
+    if (msg.type === 'activate') {
+      forced = true;
+      pickVideo();
+      if (window.top === window) reply({ ok: true });
+    } else if (msg.type === 'diagnose') {
+      if (video) reply(diagnostics());
+      else if (window.top === window) {
+        setTimeout(() => reply(diagnostics()), 300);
+        return true;
+      }
+    }
   });
   chrome.storage.onChanged.addListener((changes, area) => {
     if (area === 'local' && changes.words) setSavedWords(changes.words.newValue || []);
@@ -1990,9 +2195,11 @@
     if (!keys.length) return;
     for (const k of keys) settings[k] = changes[k].newValue === undefined ? SL_DEFAULTS[k] : changes[k].newValue;
     applySettings(keys);
+    if (keys.includes('enabled')) hello();
   });
 
-  window.postMessage({ source: EXT, type: 'hello' }, location.origin);
+  // The overlay is pinned to the window, so it has to follow the picture when the page scrolls.
+  window.addEventListener('scroll', () => ui && !ui.root.hidden && layout(), { capture: true, passive: true });
+  hello();
   setInterval(pickVideo, 1000);
-  requestAnimationFrame(frame);
 })();

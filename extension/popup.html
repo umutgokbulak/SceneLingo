@@ -27,6 +27,9 @@
   #review:hover { background: #1f7fee; }
   .kind { margin-left: 6px; font-size: 11px; color: #8fa3b5; }
   .note { margin-top: 12px; font-size: 12px; color: #8fa3b5; }
+  .sites { font-size: 12px; color: #8fa3b5; }
+  #activate { width: 100%; margin: 4px 0; }
+  #siteNote:empty { display: none; }
   #diagnose { width: 100%; margin-top: 10px; font-size: 12px; color: #8fa3b5; background: none; border-color: transparent; }
   #diagnose:hover { background: #222c37; }
 </style>
@@ -37,13 +40,19 @@
   <div class="row"><span>Öğrendiğim dil</span><select id="learnLang"></select></div>
   <div class="row"><span>Ana dilim</span><select id="nativeLang"></select></div>
   <div class="row"><span>Okuma sesi</span><span><input type="range" id="volume" min="0" max="300" step="10"><span id="volumeValue"></span></span></div>
-  <label class="row"><span>Varsa Prime'ın kendi çevirisini kullan</span><input type="checkbox" id="preferHuman"></label>
+  <label class="row"><span>Varsa sitenin kendi çevirisini kullan</span><input type="checkbox" id="preferHuman"></label>
+
+  <h2><span>Siteler</span></h2>
+  <div class="sites">Prime Video ve YouTube'da kendiliğinden çalışır.</div>
+  <label class="row"><span>Diğer sitelerde de çalış</span><input type="checkbox" id="everywhere"></label>
+  <button id="activate" title="Altyazısı olmayan bir videoda çubuğu açar; oradan kendi altyazı dosyanı (.srt, .vtt) seçebilirsin">Bu sekmedeki videoda aç</button>
+  <div class="sites" id="siteNote"></div>
 
   <h2><span>Kaydedilen kelimeler (<span id="count">0</span>)</span><button id="export">CSV indir</button></h2>
   <button id="review">Tekrar et</button>
   <div id="words"></div>
 
-  <div class="note">Kelimenin üzerine gelince çevirisi açılır ve okunur; tıklarsan kart sabit kalır. Birkaç kelimeyi fareyle seçersen kalıp olarak çevrilir. Diğer ayarlar oynatıcıda, altyazının üstündeki çalışma çubuğunda. Kısayollar: A önceki · S tekrar · Z yavaş tekrar · D sonraki · Q her cümlede dur · W yaz · E söyle · L liste.</div>
+  <div class="note">Kelimenin üzerine gelince çevirisi açılır ve okunur; tıklarsan kart sabit kalır. Birkaç kelimeyi fareyle seçersen kalıp olarak çevrilir. Diğer ayarlar videoda, altyazının üstündeki çalışma çubuğunda. Kısayollar: A önceki · S tekrar · Z yavaş tekrar · D sonraki · Q her cümlede dur · W yaz · E söyle · L liste.</div>
   <button id="diagnose" title="Bir şey ters giderse: eklentinin bu sekmede gördüklerini panoya kopyalar">Tanılama kaydını kopyala</button>
   <script src="shared.js"></script>
   <script src="popup.js"></script>

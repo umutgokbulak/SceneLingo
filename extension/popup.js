@@ -82,6 +82,40 @@ chrome.storage.local.get({ words: [] }, (d) => {
 
 $('review').addEventListener('click', () => chrome.tabs.create({ url: chrome.runtime.getURL('review.html') }));
 
+// Other sites: access is asked for when the switch is turned on, and given back when it is turned
+// off. The background registers the content script to match.
+const EVERYWHERE = { origins: ['*://*/*'] };
+const siteNote = (text) => ($('siteNote').textContent = text);
+const activeTab = () => new Promise((resolve) => chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => resolve(tabs[0])));
+const toTab = (tab, msg) =>
+  new Promise((resolve) => chrome.tabs.sendMessage(tab.id, msg, (res) => resolve(chrome.runtime.lastError ? null : res)));
+
+chrome.permissions.contains(EVERYWHERE, (has) => ($('everywhere').checked = has));
+$('everywhere').addEventListener('change', () => {
+  const done = (has) => {
+    $('everywhere').checked = has;
+    chrome.runtime.sendMessage({ type: 'sync-sites' });
+    siteNote(has ? 'Açık. Zaten açık olan sekmelerde sayfayı yenile ya da aşağıdaki düğmeye bas.' : '');
+  };
+  if ($('everywhere').checked) chrome.permissions.request(EVERYWHERE, done);
+  else chrome.permissions.remove(EVERYWHERE, () => done(false));
+});
+
+// Brings the overlay up on the video in this tab even if it has no subtitles of its own.
+$('activate').addEventListener('click', async () => {
+  const tab = await activeTab();
+  if (!tab) return;
+  if (!(await toTab(tab, { type: 'activate' }))) {
+    // The page was open before the extension could run on it: start there now, if allowed.
+    const started = await new Promise((resolve) => chrome.runtime.sendMessage({ type: 'start-in-tab', tabId: tab.id }, (res) => resolve(!chrome.runtime.lastError && res && res.ok)));
+    if (!started || !(await toTab(tab, { type: 'activate' }))) {
+      siteNote($('everywhere').checked ? 'Bu sayfada çalışamıyor (tarayıcının kendi sayfası olabilir).' : 'Bu site için önce "Diğer sitelerde de çalış"ı aç.');
+      return;
+    }
+  }
+  siteNote('Açıldı. Videoda çubuk görünmüyorsa videoyu başlat; altyazı dosyası için çubuktaki ayar düğmesine bas.');
+});
+
 // For reporting a problem: what the extension sees on the tab in front, whether or not its overlay is showing.
 $('diagnose').addEventListener('click', () => {
   const label = $('diagnose').textContent;
@@ -91,7 +125,7 @@ $('diagnose').addEventListener('click', () => {
   };
   chrome.tabs.query({ active: true, currentWindow: true }, ([tab]) => {
     chrome.tabs.sendMessage(tab.id, { type: 'diagnose' }, (report) => {
-      if (chrome.runtime.lastError || !report) return say('Bu sekmede çalışmıyor; Prime Video sekmesini yenile');
+      if (chrome.runtime.lastError || !report) return say('Bu sekmede çalışmıyor; sayfayı yenileyip tekrar dene');
       navigator.clipboard.writeText(report).then(() => say('Kopyalandı'), () => say('Kopyalanamadı'));
     });
   });

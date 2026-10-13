@@ -1,6 +1,7 @@
 // Runs the real background message handler against the live translation service.
 let handler;
-globalThis.chrome = { runtime: { onMessage: { addListener(fn) { handler = fn; } } } };
+const noEvent = { addListener() {} };
+globalThis.chrome = { runtime: { onMessage: { addListener(fn) { handler = fn; } }, onInstalled: noEvent, onStartup: noEvent }, permissions: { onAdded: noEvent, onRemoved: noEvent } };
 require('../extension/background.js');
 const ask = (msg) => new Promise((r) => handler(msg, {}, r));
 (async () => {

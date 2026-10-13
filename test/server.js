@@ -8,7 +8,7 @@ const fs = require('fs');
 const path = require('path');
 
 const root = path.resolve(__dirname, '..');
-const types = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.png': 'image/png', '.ttml2': 'application/ttml+xml' };
+const types = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.png': 'image/png', '.ttml2': 'application/ttml+xml', '.vtt': 'text/vtt; charset=utf-8' };
 
 // Two minutes of silence, so the mock player has a clock it can play and seek.
 const silence = (() => {
@@ -30,7 +30,12 @@ const silence = (() => {
 })();
 
 let handler;
-globalThis.chrome = { runtime: { onMessage: { addListener(fn) { handler = fn; } }, getURL: (p) => '/extension/' + p }, tabs: { create: async () => ({}) } };
+const noEvent = { addListener() {} };
+globalThis.chrome = {
+  runtime: { onMessage: { addListener(fn) { handler = fn; } }, getURL: (p) => '/extension/' + p, onInstalled: noEvent, onStartup: noEvent },
+  tabs: { create: async () => ({}) },
+  permissions: { onAdded: noEvent, onRemoved: noEvent },
+};
 require('../extension/background.js');
 
 function sendBytes(req, res, head, size, read) {

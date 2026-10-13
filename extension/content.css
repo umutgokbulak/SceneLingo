@@ -1,6 +1,17 @@
+/* The site's own subtitles, hidden while ours are shown: Prime Video, YouTube, the players most
+   other sites are built on, and the browser's own drawing of a video's text tracks. */
 html.sl-hide-native .atvwebplayersdk-captions-overlay,
-html.sl-hide-native .atvwebplayersdk-captions-text {
+html.sl-hide-native .atvwebplayersdk-captions-text,
+html.sl-hide-native .ytp-caption-window-container,
+html.sl-hide-native .vjs-text-track-display,
+html.sl-hide-native .jw-captions,
+html.sl-hide-native .plyr__captions,
+html.sl-hide-native .shaka-text-container,
+html.sl-hide-native .bmpui-ui-subtitle-overlay {
   visibility: hidden !important;
+}
+html.sl-hide-native video::-webkit-media-text-track-container {
+  display: none !important;
 }
 
 #scenelingo-root {

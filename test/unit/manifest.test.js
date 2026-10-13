@@ -27,14 +27,16 @@ test('pages load the scripts they depend on, in order', () => {
   assert.deepEqual(isolated, ['shared.js', 'core.js', 'content.js']);
 });
 
-test('the page-world hook and the content script run on the same pages', () => {
-  const [a, b] = manifest.content_scripts;
-  assert.deepEqual(a.matches, b.matches);
-  assert.equal(a.run_at, 'document_start');
+test('the page-world hooks and the content script run on the same pages', () => {
+  const hooks = manifest.content_scripts.filter((c) => c.world === 'MAIN');
+  const [content] = manifest.content_scripts.filter((c) => c.world !== 'MAIN');
+  assert.deepEqual(hooks.flatMap((c) => c.matches), content.matches);
+  for (const hook of hooks) assert.equal(hook.run_at, 'document_start');
 });
 
-test('it asks for no more than storage and the translation host', () => {
-  assert.deepEqual(manifest.permissions, ['storage']);
+test('it asks for little, and for other sites only when the user says so', () => {
+  assert.deepEqual(manifest.permissions, ['storage', 'scripting']);
   assert.deepEqual(manifest.host_permissions, ['https://translate.googleapis.com/*']);
+  assert.deepEqual(manifest.optional_host_permissions, ['*://*/*']);
   assert.match(manifest.version, /^\d+\.\d+\.\d+$/);
 });

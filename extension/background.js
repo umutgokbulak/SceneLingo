@@ -100,11 +100,45 @@ async function tts(text, lang, slow) {
   return btoa(bin);
 }
 
+// Other sites. The extension comes with access to the sites it knows; the user can let it run
+// everywhere, and takes that back the same way. The content script is then registered for all
+// pages, except the ones the manifest already puts it on.
+const EVERYWHERE = { origins: ['*://*/*'] };
+const EVERYWHERE_ID = 'scenelingo-everywhere';
+
+async function syncSites() {
+  const allowed = await chrome.permissions.contains(EVERYWHERE);
+  const registered = (await chrome.scripting.getRegisteredContentScripts({ ids: [EVERYWHERE_ID] })).length > 0;
+  if (allowed && !registered) {
+    const own = chrome.runtime.getManifest().content_scripts.find((c) => c.world !== 'MAIN');
+    await chrome.scripting.registerContentScripts([
+      { id: EVERYWHERE_ID, matches: EVERYWHERE.origins, excludeMatches: own.matches, js: own.js, css: own.css, allFrames: true, runAt: 'document_idle' },
+    ]);
+  } else if (!allowed && registered) {
+    await chrome.scripting.unregisterContentScripts({ ids: [EVERYWHERE_ID] });
+  }
+  return allowed;
+}
+
+// Puts the content script into a tab that was already open when access was given.
+async function startInTab(tabId) {
+  const own = chrome.runtime.getManifest().content_scripts.find((c) => c.world !== 'MAIN');
+  await chrome.scripting.insertCSS({ target: { tabId, allFrames: true }, files: own.css });
+  await chrome.scripting.executeScript({ target: { tabId, allFrames: true }, files: own.js });
+  return true;
+}
+
+for (const event of [chrome.permissions.onAdded, chrome.permissions.onRemoved, chrome.runtime.onInstalled, chrome.runtime.onStartup]) {
+  event.addListener(() => syncSites().catch(() => {}));
+}
+
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   let job;
   if (msg && msg.type === 'translate') job = translateMany(msg.texts || [], msg.sl, msg.tl);
   else if (msg && msg.type === 'lookup') job = lookup(String(msg.text || ''), msg.sl, msg.tl);
   else if (msg && msg.type === 'tts') job = tts(String(msg.text || ''), String(msg.lang || 'en'), !!msg.slow);
+  else if (msg && msg.type === 'sync-sites') job = syncSites();
+  else if (msg && msg.type === 'start-in-tab') job = startInTab(msg.tabId);
   else if (msg && msg.type === 'open-review') job = chrome.tabs.create({ url: chrome.runtime.getURL('review.html') }).then(() => true);
   else return false;
   job.then(

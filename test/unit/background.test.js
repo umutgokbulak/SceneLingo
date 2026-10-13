@@ -3,9 +3,29 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 
 let handler;
+const noEvent = { addListener() {} };
+const site = { allowed: false, registered: [], calls: [] };
 globalThis.chrome = {
-  runtime: { onMessage: { addListener: (fn) => (handler = fn) }, getURL: (p) => 'ext://' + p },
+  runtime: {
+    onMessage: { addListener: (fn) => (handler = fn) },
+    getURL: (p) => 'ext://' + p,
+    getManifest: () => require('../../extension/manifest.json'),
+    onInstalled: noEvent,
+    onStartup: noEvent,
+  },
   tabs: { create: async (opts) => opts },
+  permissions: { contains: async () => site.allowed, onAdded: noEvent, onRemoved: noEvent },
+  scripting: {
+    getRegisteredContentScripts: async () => site.registered,
+    registerContentScripts: async (list) => {
+      site.calls.push('register');
+      site.registered = list;
+    },
+    unregisterContentScripts: async () => {
+      site.calls.push('unregister');
+      site.registered = [];
+    },
+  },
 };
 let respond; // set by each test: (URL) => { status?, json?, bytes? }
 const calls = [];
@@ -18,6 +38,25 @@ globalThis.fetch = async (input) => {
 require('../../extension/background.js');
 
 const ask = (msg) => new Promise((resolve) => handler(msg, {}, resolve));
+
+test('the content script is registered for other sites only while the user allows it', async () => {
+  assert.deepEqual(await ask({ type: 'sync-sites' }), { ok: true, result: false });
+  assert.deepEqual(site.calls, []);
+  site.allowed = true;
+  assert.deepEqual(await ask({ type: 'sync-sites' }), { ok: true, result: true });
+  await ask({ type: 'sync-sites' });
+  assert.deepEqual(site.calls, ['register']); // once, however often it is asked
+  const [script] = site.registered;
+  assert.deepEqual(script.matches, ['*://*/*']);
+  assert.deepEqual(script.js, ['shared.js', 'core.js', 'content.js']);
+  assert.equal(script.allFrames, true);
+  // The sites the manifest covers are left to the manifest, so nothing runs twice there.
+  assert.ok(script.excludeMatches.includes('https://www.youtube.com/*'));
+  assert.ok(script.excludeMatches.includes('https://*.primevideo.com/*'));
+  site.allowed = false;
+  await ask({ type: 'sync-sites' });
+  assert.deepEqual(site.calls, ['register', 'unregister']);
+});
 const translated = (q, mark = (line) => 'T(' + line + ')') => ({ json: [[[q.split('\n').map(mark).join('\n'), q]]] });
 const reset = (fn) => {
   calls.length = 0;

@@ -15,6 +15,10 @@ video{width:100%;height:100%;background:#123}
 .page body{height:300vh}
 .page #player{position:absolute;inset:0 0 auto;height:84vh}
 </style>
+<script>
+// The site the page stands in for: ?site=youtube or ?site=other; Prime Video unless told otherwise.
+document.documentElement.dataset.scenelingoSite = new URLSearchParams(location.search).get('site') || 'prime';
+</script>
 <script src="/test/mock-chrome.js"></script>
 <script src="/extension/inject.js"></script>
 <link rel="stylesheet" href="/extension/content.css">
@@ -27,6 +31,24 @@ video{width:100%;height:100%;background:#123}
 <div class="atvwebplayersdk-captions-overlay"><span class="atvwebplayersdk-captions-text"></span></div></div>
 <script>
 const v = document.querySelector('video');
+const params = new URLSearchParams(location.search);
+// ?site=other&tracks: a plain video that brings its own subtitles as <track> elements.
+if (params.has('tracks')) {
+  for (const [lang, label] of [['en', 'English'], ['tr', 'Türkçe']]) {
+    const t = document.createElement('track');
+    Object.assign(t, { kind: 'subtitles', srclang: lang, label, src: '/test/subs/' + lang + '.vtt' });
+    v.appendChild(t);
+  }
+}
+// Stands in for the file dialog: the next subtitle file "chosen" is window.nextFile = [name, text].
+const fileClick = HTMLInputElement.prototype.click;
+HTMLInputElement.prototype.click = function () {
+  if (this.type !== 'file' || !window.nextFile) return fileClick.call(this);
+  const chosen = new DataTransfer();
+  chosen.items.add(new File([window.nextFile[1]], window.nextFile[0]));
+  this.files = chosen.files;
+  this.dispatchEvent(new Event('change'));
+};
 // window.showPlayer(true) opens the "player" over the page, showPlayer(false) goes back to the page.
 window.showPlayer = (on) => document.documentElement.classList.toggle('page', !on);
 if (new URLSearchParams(location.search).has('page')) window.showPlayer(false);
@@ -58,6 +80,9 @@ if (new URLSearchParams(location.search).has('strict')) {
   document.addEventListener('selectstart', (e) => e.preventDefault(), true);
   window.siteKeys = [];
   document.addEventListener('keydown', (e) => window.siteKeys.push(e.code));
+  // Some of its shortcuts act when the key is released or on the key press event.
+  window.siteReleases = [];
+  for (const type of ['keyup', 'keypress']) document.addEventListener(type, (e) => window.siteReleases.push(type + ' ' + e.code));
 }
 // Stand-ins for the microphone, so speaking practice can run without one. `mockSpeech` says what
 // the recogniser hears next; the "microphone" is a tone, which gives a real recording to play back.

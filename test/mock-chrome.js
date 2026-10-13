@@ -55,6 +55,8 @@
         window.__sent.push(msg);
         if (msg.type === 'translate') {
           setTimeout(() => cb({ ok: true, result: msg.texts.map((t) => '[' + msg.tl + '] ' + t.replace(/\n/g, ' ')) }), 30);
+        } else if (msg.type === 'sync-sites' || msg.type === 'start-in-tab') {
+          if (cb) cb({ ok: true, result: true });
         } else if (msg.type === 'open-review') {
           window.__tabs.push('review');
           if (cb) cb({ ok: true, result: true });
@@ -65,10 +67,11 @@
         }
       },
     },
+    permissions: { contains: (p, cb) => cb(false), request: (p, cb) => cb(true), remove: (p, cb) => cb(true) },
     tabs: {
       create: (opts) => window.__tabs.push(opts.url),
       query: (q, cb) => cb([{ id: 1 }]),
-      sendMessage: (id, msg, cb) => cb('SceneLingo test — diagnostics stand-in'),
+      sendMessage: (id, msg, cb) => cb(msg.type === 'diagnose' ? 'SceneLingo test — diagnostics stand-in' : { ok: true }),
     },
     storage: { sync: area('sync', new URLSearchParams(location.search).has('intro') ? {} : { introSeen: true }), local: area('local', { words: seed }), onChanged: { addListener: (f) => listeners.push(f) } },
   };

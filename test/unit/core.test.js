@@ -1,6 +1,59 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { parseTime, lastStarted, findCue, alignTranslation, spokenWords, matchWords, stretch, isShouting, calm, expandContraction, spokenTokens, fillsWindow } = require('../../extension/core.js');
+const { parseTime, lastStarted, findCue, alignTranslation, spokenWords, matchWords, stretch, isShouting, calm, expandContraction, spokenTokens, fillsWindow, cueText, parseVtt, parseJson3, guessLang } = require('../../extension/core.js');
+
+test('parseVtt reads WebVTT and SubRip files', () => {
+  const vtt = 'WEBVTT\n\nNOTE made for a test\n\n1\n00:00:01.000 --> 00:00:02.500 align:start position:10%\n<v Anna>Hello <i>there</i>.\nHow are you?\n\n00:03.000 --> 00:04.000\n&amp; you &lt;3\n';
+  assert.deepEqual(parseVtt(vtt), [
+    { start: 1, end: 2.5, text: 'Hello there.\nHow are you?' },
+    { start: 3, end: 4, text: '& you <3' },
+  ]);
+  const srt = '\uFEFF1\r\n00:00:01,000 --> 00:00:02,000\r\n{\\an8}Merhaba.\r\n\r\n2\r\n01:00:00,5 --> 01:00:01,250\r\n- Evet.\r\n- Hayır.\r\n';
+  assert.deepEqual(parseVtt(srt), [
+    { start: 1, end: 2, text: 'Merhaba.' },
+    { start: 3600.5, end: 3601.25, text: '- Evet.\n- Hayır.' },
+  ]);
+  assert.deepEqual(parseVtt(''), []);
+  assert.deepEqual(parseVtt('not a subtitle file'), []);
+});
+
+test('parseVtt joins cues that are on screen together', () => {
+  const vtt = 'WEBVTT\n\n00:01.000 --> 00:02.000 line:10%\nTop\n\n00:01.000 --> 00:02.000\nBottom\n';
+  assert.deepEqual(parseVtt(vtt), [{ start: 1, end: 2, text: 'Top\nBottom' }]);
+});
+
+test('parseJson3 reads written and automatic YouTube captions', () => {
+  const written = { events: [
+    { tStartMs: 15349, dDurationMs: 1564, segs: [{ utf8: 'I was a government major,' }] },
+    { tStartMs: 16937, dDurationMs: 2462, segs: [{ utf8: 'which means I had to write\na lot of papers.' }] },
+  ] };
+  assert.deepEqual(parseJson3(written), [
+    { start: 15.349, end: 16.913, text: 'I was a government major,' },
+    { start: 16.937, end: 19.399, text: 'which means I had to write\na lot of papers.' },
+  ]);
+  // Automatic captions: a window definition, words with offsets, and line-break events in between.
+  const automatic = { events: [
+    { tStartMs: 0, dDurationMs: 143840, id: 1 },
+    { tStartMs: 240, dDurationMs: 5119, segs: [{ utf8: "Let's" }, { utf8: ' now', tOffsetMs: 240 }, { utf8: ' listen', tOffsetMs: 479 }] },
+    { tStartMs: 2310, dDurationMs: 3049, aAppend: 1, segs: [{ utf8: '\n' }] },
+    { tStartMs: 2320, dDurationMs: 6280, segs: [{ utf8: 'to' }, { utf8: ' the sound', tOffsetMs: 800 }] },
+  ] };
+  assert.deepEqual(parseJson3(automatic), [
+    { start: 0.24, end: 2.32, text: "Let's now listen" },
+    { start: 2.32, end: 8.6, text: 'to the sound' },
+  ]);
+  assert.deepEqual(parseJson3({}), []);
+});
+
+test('guessLang reads the language from a file name', () => {
+  assert.equal(guessLang('The.Film.2024.en.srt'), 'en');
+  assert.equal(guessLang('https://cdn.example/subs/film_tr.vtt?token=1'), 'tr');
+  assert.equal(guessLang('Film (Turkish).srt'), 'tr');
+  assert.equal(guessLang('movie.eng.vtt'), 'en');
+  assert.equal(guessLang('subtitles.vtt'), '');
+  assert.equal(guessLang('make-it-work.srt'), ''); // "it" is only a language as the last part
+  assert.equal(cueText('<c.yellow>Hi</c>  there'), 'Hi there');
+});
 
 test('fillsWindow tells a player from a video set into a page', () => {
   const box = (left, top, width, height) => ({ left, top, width, height });

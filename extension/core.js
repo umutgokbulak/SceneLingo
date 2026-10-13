@@ -201,6 +201,81 @@ const SubtitleCore = (() => {
     return null;
   }
 
+  // The text of a WebVTT or SubRip cue without its markup: <i>, <c.name>, <00:01.000>, {\an8}.
+  function cueText(s) {
+    return String(s || '')
+      .replace(/<[^>]*>/g, '')
+      .replace(/\{\\[^}]*\}/g, '')
+      .replace(/&(amp|lt|gt|nbsp|lrm|rlm);/g, (m, name) => ({ amp: '&', lt: '<', gt: '>', nbsp: ' ', lrm: '', rlm: '' })[name])
+      .split('\n')
+      .map((l) => l.replace(/\s+/g, ' ').trim())
+      .filter(Boolean)
+      .join('\n');
+  }
+
+  // WebVTT and SubRip files: blocks separated by blank lines, each with a "start --> end" line.
+  function parseVtt(text) {
+    const time = (s) => {
+      const m = /^(?:(\d+):)?(\d{1,2}):(\d{2})[.,](\d{1,3})$/.exec(s.trim());
+      return m ? (+m[1] || 0) * 3600 + +m[2] * 60 + +m[3] + +m[4].padEnd(3, '0') / 1000 : NaN;
+    };
+    const raw = [];
+    for (const block of String(text).replace(/^\uFEFF/, '').replace(/\r\n?/g, '\n').split(/\n{2,}/)) {
+      const lines = block.split('\n');
+      const at = lines.findIndex((l) => l.includes('-->'));
+      if (at < 0) continue;
+      const [from, to] = lines[at].split('-->');
+      const start = time(from);
+      const end = time(to.trim().split(/\s+/)[0]);
+      const body = cueText(lines.slice(at + 1).join('\n'));
+      if (!isNaN(start) && end > start && body) raw.push({ start, end, text: body });
+    }
+    raw.sort((a, b) => a.start - b.start);
+    const cues = [];
+    for (const c of raw) {
+      const prev = cues[cues.length - 1];
+      if (prev && Math.abs(prev.start - c.start) < 0.01 && Math.abs(prev.end - c.end) < 0.01) prev.text += '\n' + c.text;
+      else cues.push(c);
+    }
+    return cues;
+  }
+
+  // YouTube's caption format. Automatic captions come as a rolling window: every event lasts
+  // into the next one, and the events in between only carry a line break.
+  function parseJson3(data) {
+    const cues = [];
+    for (const e of (data && data.events) || []) {
+      if (!e || !e.segs) continue;
+      const text = cueText(e.segs.map((s) => s.utf8 || '').join(''));
+      if (text) cues.push({ start: e.tStartMs / 1000, end: (e.tStartMs + (e.dDurationMs || 0)) / 1000, text });
+    }
+    cues.sort((a, b) => a.start - b.start);
+    for (let i = 0; i < cues.length - 1; i++) {
+      if (cues[i].end > cues[i + 1].start) cues[i].end = cues[i + 1].start;
+    }
+    return cues.filter((c) => c.end > c.start);
+  }
+
+  // The language a subtitle file or track is in, as far as its name says: a language name or a
+  // three-letter code anywhere, or a two-letter code as the last part ("film.en.srt").
+  const LANG_NAMES = {
+    en: ['eng', 'english', 'ingilizce'], tr: ['tur', 'turkish', 'turkce', 'türkçe'], de: ['ger', 'deu', 'german', 'deutsch'],
+    fr: ['fre', 'fra', 'french', 'francais', 'français'], es: ['spa', 'spanish', 'espanol', 'español'], it: ['ita', 'italian', 'italiano'],
+    pt: ['por', 'portuguese'], ru: ['rus', 'russian'], ja: ['jpn', 'japanese'], ko: ['kor', 'korean'], ar: ['ara', 'arabic'], nl: ['dut', 'nld', 'dutch'],
+  };
+  function guessLang(name) {
+    let file = String(name || '').split(/[?#]/)[0].split('/').pop().toLowerCase();
+    try {
+      file = decodeURIComponent(file);
+    } catch (e) { /* keep it as it is */ }
+    const words = file.replace(/\.(vtt|srt|ttml2?|dfxp|xml|txt)$/, '').split(/[^a-zçğıöşüäéèñ]+/).filter(Boolean);
+    for (const [code, names] of Object.entries(LANG_NAMES)) {
+      if (words.some((w) => names.includes(w))) return code;
+    }
+    const last = words[words.length - 1] || '';
+    return last.length === 2 && (last in LANG_NAMES || /^(zh|pl|sv|da|no|fi|el|he|hi|id|uk|cs|ro|hu)$/.test(last)) ? last : '';
+  }
+
   // Whether a box (left, top, width, height) takes up a window of the given size: it reaches all
   // four edges, give or take a little, without being much larger. A page that scrolls is larger;
   // a picture set into a page is smaller.
@@ -213,7 +288,7 @@ const SubtitleCore = (() => {
     );
   }
 
-  return { parseTime, lastStarted, findCue, alignTranslation, spokenWords, matchWords, stretch, isShouting, calm, expandContraction, spokenTokens, fillsWindow };
+  return { parseTime, lastStarted, findCue, alignTranslation, spokenWords, matchWords, stretch, isShouting, calm, expandContraction, spokenTokens, fillsWindow, cueText, parseVtt, parseJson3, guessLang };
 })();
 
 if (typeof module !== 'undefined') module.exports = SubtitleCore;
