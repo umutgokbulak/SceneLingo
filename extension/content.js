@@ -29,6 +29,7 @@
   let tracks = [];
   let fileTracks = []; // subtitle files the user opened; they stay when the page's own tracks change
   let emptyNote = ''; // why there are no tracks, when the site has said so
+  let siteNotes = []; // what the script in the page's world has seen, for the diagnostics
   let forced = false; // the user asked for the overlay on a video that came with no subtitles
   let seenUrl = null; // subtitle file the player itself loaded, used when no track list was seen
   let choice = { primary: 'auto', secondary: 'auto' };
@@ -1160,7 +1161,7 @@
         lines.push('  ' + name(n) + ' ' + box(n.getBoundingClientRect()) + ' ' + cs.position + (cs.opacity !== '1' ? ' opacity ' + cs.opacity : '') + (cs.visibility !== 'visible' ? ' ' + cs.visibility : ''));
       }
     }
-    return lines.concat(traceLog).join('\n');
+    return lines.concat(siteNotes.map((n) => 'page: ' + n), traceLog).join('\n');
   }
 
   function trace(what, detail) {
@@ -2100,6 +2101,7 @@
   function onPageMessage(e) {
     if (e.source !== window || !e.data || e.data.source !== PAGE) return;
     if (e.data.type === 'tracks') setTracks(e.data.tracks);
+    else if (e.data.type === 'yt-notes') siteNotes = Array.isArray(e.data.notes) ? e.data.notes.map(String) : [];
     else if (e.data.type === 'yt-tracks') {
       // Until the player has fetched a caption file itself there is no address to fetch one from.
       emptyNote = e.data.ready ? NO_CAPTIONS : '';
