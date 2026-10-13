@@ -1,19 +1,48 @@
-<p align="center"><img src="extension/icons/128.png" width="96" alt=""></p>
+<p align="center"><img src="extension/icons/128.png" width="88" alt=""></p>
 
 <h1 align="center">SceneLingo</h1>
 
 <p align="center">
-  Learn a language from the films, series and videos you already watch.<br>
-  Dual subtitles, instant word lookup with audio, listening and speaking practice, and spaced-repetition review — as a browser extension for Prime Video, YouTube and plain HTML5 video.
+  <b>Learn a language from the films, series and videos you already watch.</b><br>
+  A browser extension that puts two subtitle lines on the video, explains any word you point at,<br>
+  and turns each sentence into listening and speaking practice.
+</p>
+
+<p align="center">
+  <a href="README.tr.md">Türkçe</a> ·
+  <a href="#install">Install</a> ·
+  <a href="#where-it-works">Where it works</a> ·
+  <a href="#how-it-works">How it works</a> ·
+  <a href="#engineering-notes">Engineering notes</a>
 </p>
 
 <p align="center">
   <img alt="Manifest V3" src="https://img.shields.io/badge/Chrome%20%2F%20Edge-Manifest%20V3-1a98ff">
+  <img alt="Plain JavaScript" src="https://img.shields.io/badge/JavaScript-no%20framework%2C%20no%20build-f0db4f">
   <img alt="No dependencies" src="https://img.shields.io/badge/dependencies-none-3d8a55">
   <img alt="MIT license" src="https://img.shields.io/badge/license-MIT-8fa3b5">
 </p>
 
-![A subtitle line with its translation and the study bar above it; the word "umbrella" is open with its phonetic spelling, translation, definition and synonyms](docs/screenshots/popup.png)
+<p align="center">
+  <img src="docs/demo.webp" width="800" alt="Pointing at a word of the subtitle stops the film and opens a card with its translation. Then, in writing practice, the line stays hidden until it has been typed, and the word that was missed is marked.">
+</p>
+
+<p align="center"><sub>
+  The film in the pictures is <a href="https://commons.wikimedia.org/wiki/File:Elephants_Dream_(2006).webm"><i>Elephants Dream</i></a>
+  (© Blender Foundation | Netherlands Media Art Institute, <a href="https://creativecommons.org/licenses/by/2.5/">CC BY 2.5</a>),
+  with its own English and Turkish subtitles.
+</sub></p>
+
+## At a glance
+
+- **For the learner:** the line in the language you are learning with your own language under it; a word's
+  meaning, sound and definition when you point at it; every sentence as a dictation or a speaking exercise;
+  flashcards that come back on a schedule.
+- **Where:** Amazon Prime Video, YouTube, and any site whose subtitles can be found from outside the page
+  (TED, Vimeo's player and Wikimedia Commons were checked) — or any video at all, with a subtitle file of your own.
+- **How it is built:** Manifest V3, plain JavaScript, no dependencies and no build step; 46 unit tests, a
+  stand-in player for everything that can be tested without a site, and a script that loads the real extension
+  into a real browser for what cannot.
 
 ## Why
 
@@ -53,15 +82,18 @@ them), plyr.io, Vimeo's player, Wikimedia Commons and a YouTube player embedded 
 - **Sentence navigation.** Jump to the previous or next line, repeat the current one, pause automatically after
   every line, or pick a line from the transcript.
 
+| A word, explained | Every line, beside the film |
+| --- | --- |
+| ![The line "You have to learn to listen." with its Turkish translation and the study bar; the card of the word "listen" is open with its phonetic spelling, translation, definitions and synonyms](docs/screenshots/popup.jpg) | ![The list of all lines with their translations beside the film, the current one highlighted](docs/screenshots/transcript.jpg) |
+
 | Write what you heard | Say the line |
 | --- | --- |
-| ![The typed answer under the study bar; in the line below, the missed word is marked in red](docs/screenshots/write.png) | ![What the recogniser heard, and the line with the word it did not understand marked](docs/screenshots/speak.png) |
+| ![The typed answer under the study bar; in the line below it, the misspelt word is marked in red and the others in green](docs/screenshots/write.jpg) | ![What the recogniser heard, and the line with the word it did not understand marked](docs/screenshots/speak.jpg) |
 
-| Review | Transcript |
-| --- | --- |
-| ![A flashcard for "umbrella" with its sentence, translation and the three grading buttons](docs/screenshots/review.png) | ![The list of all lines beside the video, the current one highlighted](docs/screenshots/transcript.png) |
+<p align="center"><img src="docs/screenshots/review.png" width="520" alt="A flashcard for the word umbrella with its sentence, translation and the three grading buttons"></p>
 
-The screenshots are taken from the test harness, which draws its own backdrop, so they contain no film footage.
+The pictures are the extension itself in a real browser, taken by [`test/pictures.js`](test/pictures.js). The
+speaking one uses a stand-in for the microphone and the speech recogniser; the flashcard shows sample words.
 
 ## How it works
 
@@ -153,7 +185,7 @@ TTML, SubStation and YouTube's JSON captions alike.
 - **Review scheduling** is a compact SM-2 variant.
 - **Tested without the real site.** [`test/harness.html`](test/harness.html) mimics the parts of the player the
   extension relies on and runs the real extension files against mocked extension APIs, with stand-ins for the
-  microphone and the speech recogniser. The README screenshots are produced from it by headless Chrome.
+  microphone and the speech recogniser.
 - **And with it, where that is possible.** [`test/real-browser.js`](test/real-browser.js) loads the unpacked
   extension into a browser with a throwaway profile and drives it over the DevTools protocol, with no test
   framework: a YouTube video (first line, next line, writing practice, the tracks on offer), and a round of
@@ -193,6 +225,7 @@ npm test                # unit tests (Node's built-in runner, Node 22+)
 npm run harness         # mock player at http://localhost:8765
 npm run check:youtube   # the real extension on YouTube, in Microsoft Edge (needs the network)
 npm run check:sites     # the same on TED, plyr.io, Vimeo's player and Wikimedia Commons
+npm run pictures        # the stills of this README; `npm run film` and test/animate.py make the short film
 ```
 
 | Path | What is there |
@@ -213,8 +246,9 @@ scrolls, where nothing should be drawn), `/?site=other&tracks` (a plain video wi
 `/?site=other&hls` and `&dash` (a stream that lists its subtitles in its manifest), `&shadow` (the video in a
 shadow tree), `/?site=other` (a plain video with none), `/extension/review.html?mock&seed`,
 `/extension/popup.html?mock&seed`. Adding `shot=popup`, `write`, `speak`, `transcript` or `review` puts a page
-into the state used for the screenshots. `/test/plain.html` and `/test/embed.html` are ordinary pages with a
-video and with a YouTube player in a frame, for trying the real extension on.
+into a fixed state for a picture. `/test/plain.html` and `/test/embed.html` are ordinary pages with a video and
+with a YouTube player in a frame, for trying the real extension on; `/test/film.html` is the page the pictures
+above were taken on.
 
 ## Limitations and roadmap
 

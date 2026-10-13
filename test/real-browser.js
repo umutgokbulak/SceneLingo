@@ -56,7 +56,7 @@ async function launch({ everywhere = false, window = false } = {}) {
   });
   let lastId = 0;
   const pending = new Map();
-  const frames = new Map(); // session -> the page-world contexts of its frames
+  const frames = new Map(); // session -> the contexts of its frames: true for the page's own world, false for the extension's
   const send = (method, params = {}, sessionId) =>
     new Promise((resolve, reject) => {
       pending.set(++lastId, { resolve, reject });
@@ -77,13 +77,16 @@ async function launch({ everywhere = false, window = false } = {}) {
     }
     const own = frames.get(msg.sessionId);
     if (msg.method === 'Target.attachedToTarget') follow(msg.params.sessionId);
-    else if (msg.method === 'Runtime.executionContextCreated' && own && (msg.params.context.auxData || {}).isDefault) own.set(msg.params.context.id, true);
+    else if (msg.method === 'Runtime.executionContextCreated' && own) {
+      const kind = msg.params.context.auxData || {};
+      if (kind.isDefault || kind.type === 'isolated') own.set(msg.params.context.id, !!kind.isDefault);
+    }
     else if (msg.method === 'Runtime.executionContextDestroyed' && own) own.delete(msg.params.executionContextId);
     else if (msg.method === 'Runtime.executionContextsCleared' && own) own.clear();
   };
   await wait(1500);
-  const targets = (await send('Target.getTargets')).targetInfos;
-  if (!targets.some((t) => t.url.startsWith('chrome-extension://') && t.url.endsWith('background.js'))) throw new Error('the browser did not load the extension');
+  const isWorker = (t) => t.url.startsWith('chrome-extension://') && t.url.endsWith('background.js');
+  if (!(await send('Target.getTargets')).targetInfos.some(isWorker)) throw new Error('the browser did not load the extension');
   const { targetId } = await send('Target.createTarget', { url: 'about:blank' });
   const { sessionId } = await send('Target.attachToTarget', { targetId, flatten: true });
   follow(sessionId);
@@ -100,11 +103,41 @@ async function launch({ everywhere = false, window = false } = {}) {
     everyFrame: async (expression) => {
       const out = [];
       for (const [session, contexts] of frames) {
-        for (const contextId of contexts.keys()) {
-          out.push(await send('Runtime.evaluate', { expression, contextId, returnByValue: true, userGesture: true }, session).then(value, () => null));
+        for (const [contextId, pageWorld] of contexts) {
+          if (pageWorld) out.push(await send('Runtime.evaluate', { expression, contextId, returnByValue: true, userGesture: true }, session).then(value, () => null));
         }
       }
       return out;
+    },
+    // In the extension's own world of every frame: the content script's side of the page.
+    extensionWorld: async (expression) => {
+      for (const [session, contexts] of frames) {
+        for (const [contextId, pageWorld] of contexts) {
+          if (!pageWorld) await send('Runtime.evaluate', { expression, contextId }, session).catch(() => {});
+        }
+      }
+    },
+    // In the extension's service worker.
+    worker: async (expression) => {
+      const target = (await send('Target.getTargets')).targetInfos.find(isWorker);
+      const session = (await send('Target.attachToTarget', { targetId: target.targetId, flatten: true })).sessionId;
+      return value(await send('Runtime.evaluate', { expression, awaitPromise: true, returnByValue: true }, session));
+    },
+    // A window of a given size, for pictures.
+    size: (width, height) => send('Emulation.setDeviceMetricsOverride', { width, height, deviceScaleFactor: 1, mobile: false, screenWidth: width, screenHeight: height }, sessionId),
+    picture: async (quality = 90) => Buffer.from((await send('Page.captureScreenshot', { format: 'jpeg', quality }, sessionId)).data, 'base64'),
+    move: (x, y) => send('Input.dispatchMouseEvent', { type: 'mouseMoved', x, y }, sessionId),
+    // Text as a keyboard gives it: each key press also produces its character.
+    type: async (text) => {
+      for (const ch of text) {
+        const code = ch === ' ' ? 'Space' : 'Key' + ch.toUpperCase();
+        const vk = ch.toUpperCase().charCodeAt(0);
+        await send('Input.dispatchKeyEvent', { type: 'keyDown', code, key: ch, text: ch, unmodifiedText: ch, windowsVirtualKeyCode: vk }, sessionId);
+        await send('Input.dispatchKeyEvent', { type: 'keyUp', code, key: ch, windowsVirtualKeyCode: vk }, sessionId);
+      }
+    },
+    named: async (key, vk) => {
+      for (const type of ['keyDown', 'keyUp']) await send('Input.dispatchKeyEvent', { type, code: key, key, windowsVirtualKeyCode: vk }, sessionId);
     },
     press: async (code, key) => {
       for (const type of ['keyDown', 'keyUp']) await send('Input.dispatchKeyEvent', { type, code, key, windowsVirtualKeyCode: key.toUpperCase().charCodeAt(0) }, sessionId);
@@ -197,9 +230,13 @@ async function sites(list) {
   }
 }
 
-const what = process.argv[2] || 'youtube';
-const run = what === 'sites' ? sites(SITES) : /^https?:/.test(what) && !/youtube\.com/.test(what) ? sites([{ name: what, url: what, seconds: 30, click: true }]) : youtube(/^https?:/.test(what) ? what : 'https://www.youtube.com/watch?v=jNQXAC9IVRw');
-run.catch((e) => {
-  console.log('FAILED:', e.message);
-  process.exitCode = 1;
-});
+module.exports = { launch, wait };
+
+if (require.main === module) {
+  const what = process.argv[2] || 'youtube';
+  const run = what === 'sites' ? sites(SITES) : /^https?:/.test(what) && !/youtube\.com/.test(what) ? sites([{ name: what, url: what, seconds: 30, click: true }]) : youtube(/^https?:/.test(what) ? what : 'https://www.youtube.com/watch?v=jNQXAC9IVRw');
+  run.catch((e) => {
+    console.log('FAILED:', e.message);
+    process.exitCode = 1;
+  });
+}
