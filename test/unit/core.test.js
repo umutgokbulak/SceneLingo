@@ -1,6 +1,17 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { parseTime, lastStarted, findCue, alignTranslation, spokenWords, matchWords, stretch, isShouting, calm, expandContraction, spokenTokens } = require('../../extension/core.js');
+const { parseTime, lastStarted, findCue, alignTranslation, spokenWords, matchWords, stretch, isShouting, calm, expandContraction, spokenTokens, fillsWindow } = require('../../extension/core.js');
+
+test('fillsWindow tells a player from a video set into a page', () => {
+  const box = (left, top, width, height) => ({ left, top, width, height });
+  assert.equal(fillsWindow(box(0, 0, 1900, 892), 1900, 892), true); // the player
+  assert.equal(fillsWindow(box(0, -8, 1900, 1069), 1900, 1052), true); // a 16:9 picture slightly taller than the window
+  assert.equal(fillsWindow(box(0, 0, 1883, 892), 1900, 892), true); // beside a scrollbar
+  assert.equal(fillsWindow(box(0, 0, 1900, 750), 1900, 892), false); // the trailer at the top of a title's page
+  assert.equal(fillsWindow(box(0, 90, 1280, 720), 1280, 900), false); // a letterboxed picture: its container decides
+  assert.equal(fillsWindow(box(0, -400, 1900, 4200), 1900, 892), false); // the page itself
+  assert.equal(fillsWindow(box(320, 180, 640, 360), 1280, 720), false);
+});
 
 test('parseTime reads the time formats TTML allows', () => {
   assert.equal(parseTime('00:01:02.500', 1e7, 30), 62.5);

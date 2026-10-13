@@ -82,6 +82,21 @@ chrome.storage.local.get({ words: [] }, (d) => {
 
 $('review').addEventListener('click', () => chrome.tabs.create({ url: chrome.runtime.getURL('review.html') }));
 
+// For reporting a problem: what the extension sees on the tab in front, whether or not its overlay is showing.
+$('diagnose').addEventListener('click', () => {
+  const label = $('diagnose').textContent;
+  const say = (text) => {
+    $('diagnose').textContent = text;
+    setTimeout(() => ($('diagnose').textContent = label), 3000);
+  };
+  chrome.tabs.query({ active: true, currentWindow: true }, ([tab]) => {
+    chrome.tabs.sendMessage(tab.id, { type: 'diagnose' }, (report) => {
+      if (chrome.runtime.lastError || !report) return say('Bu sekmede çalışmıyor; Prime Video sekmesini yenile');
+      navigator.clipboard.writeText(report).then(() => say('Kopyalandı'), () => say('Kopyalanamadı'));
+    });
+  });
+});
+
 $('export').addEventListener('click', () => {
   const cell = (v) => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
   const lines = [['Kelime', 'Çeviri', 'Okunuş', 'Tanım', 'Cümle', 'Dil', 'Kaynak', 'Tarih'].map(cell).join(';')];

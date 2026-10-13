@@ -27,6 +27,8 @@
   #review:hover { background: #1f7fee; }
   .kind { margin-left: 6px; font-size: 11px; color: #8fa3b5; }
   .note { margin-top: 12px; font-size: 12px; color: #8fa3b5; }
+  #diagnose { width: 100%; margin-top: 10px; font-size: 12px; color: #8fa3b5; background: none; border-color: transparent; }
+  #diagnose:hover { background: #222c37; }
 </style>
 </head>
 <body>
@@ -42,6 +44,7 @@
   <div id="words"></div>
 
   <div class="note">Kelimenin üzerine gelince çevirisi açılır ve okunur; tıklarsan kart sabit kalır. Birkaç kelimeyi fareyle seçersen kalıp olarak çevrilir. Diğer ayarlar oynatıcıda, altyazının üstündeki çalışma çubuğunda. Kısayollar: A önceki · S tekrar · Z yavaş tekrar · D sonraki · Q her cümlede dur · W yaz · E söyle · L liste.</div>
+  <button id="diagnose" title="Bir şey ters giderse: eklentinin bu sekmede gördüklerini panoya kopyalar">Tanılama kaydını kopyala</button>
   <script src="shared.js"></script>
   <script src="popup.js"></script>
 </body>

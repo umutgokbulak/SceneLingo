@@ -78,7 +78,8 @@ flowchart LR
 2. **Parsing.** The content script downloads the two tracks it needs and parses the TTML itself, including the
    clock, frame and tick time formats, and merges lines that are positioned separately but timed together.
 3. **Drawing.** An overlay is laid over the video and updated every frame from the video's clock. It follows the
-   player into fullscreen.
+   player into fullscreen, and keeps away from videos that are not the player, such as the trailer on a title's
+   page.
 4. **Staying in sync.** The video clock and the subtitle timeline can drift apart (after ads, for example). When the
    player's own captions are on, the extension notices when a line appears, matches it to a cue, and corrects
    the offset from the median of three matches.
@@ -152,7 +153,8 @@ npm run harness   # mock player at http://localhost:8765
 | `test/harness.html`, `server.js`, `mock-chrome.js` | Mock player, static server, mocked extension APIs |
 
 Useful harness pages: `/` (player), `/?strict` (a player that steals focus and cancels mouse presses),
-`/?caps` (captions in capitals with a differently cut translation), `/extension/review.html?mock&seed`,
+`/?caps` (captions in capitals with a differently cut translation), `/?page` (the video set into a page that
+scrolls, where nothing should be drawn), `/extension/review.html?mock&seed`,
 `/extension/popup.html?mock&seed`. Adding `shot=popup`, `write`, `speak`, `transcript` or `review` puts a page
 into the state used for the screenshots.
 

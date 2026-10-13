@@ -201,7 +201,19 @@ const SubtitleCore = (() => {
     return null;
   }
 
-  return { parseTime, lastStarted, findCue, alignTranslation, spokenWords, matchWords, stretch, isShouting, calm, expandContraction, spokenTokens };
+  // Whether a box (left, top, width, height) takes up a window of the given size: it reaches all
+  // four edges, give or take a little, without being much larger. A page that scrolls is larger;
+  // a picture set into a page is smaller.
+  function fillsWindow(box, width, height) {
+    const dx = width * 0.03;
+    const dy = height * 0.03;
+    return (
+      box.left <= dx && box.top <= dy && box.left + box.width >= width - dx && box.top + box.height >= height - dy &&
+      box.width <= width * 1.3 && box.height <= height * 1.3
+    );
+  }
+
+  return { parseTime, lastStarted, findCue, alignTranslation, spokenWords, matchWords, stretch, isShouting, calm, expandContraction, spokenTokens, fillsWindow };
 })();
 
 if (typeof module !== 'undefined') module.exports = SubtitleCore;

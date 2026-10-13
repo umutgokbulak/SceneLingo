@@ -50,6 +50,7 @@
       lastError: null,
       getURL: (path) => '/extension/' + path + '?mock',
       getManifest: () => ({ version: 'test' }),
+      onMessage: { addListener: (f) => (window.__onMessage = f) },
       sendMessage(msg, cb) {
         window.__sent.push(msg);
         if (msg.type === 'translate') {
@@ -64,7 +65,11 @@
         }
       },
     },
-    tabs: { create: (opts) => window.__tabs.push(opts.url) },
+    tabs: {
+      create: (opts) => window.__tabs.push(opts.url),
+      query: (q, cb) => cb([{ id: 1 }]),
+      sendMessage: (id, msg, cb) => cb('SceneLingo test — diagnostics stand-in'),
+    },
     storage: { sync: area('sync', new URLSearchParams(location.search).has('intro') ? {} : { introSeen: true }), local: area('local', { words: seed }), onChanged: { addListener: (f) => listeners.push(f) } },
   };
 })();

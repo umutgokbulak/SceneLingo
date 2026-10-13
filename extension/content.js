@@ -3,7 +3,7 @@
   if (window.top !== window || window.__scenelingoContent) return;
   window.__scenelingoContent = true;
 
-  const { parseTime, lastStarted, findCue, alignTranslation, spokenWords, matchWords, stretch, isShouting, calm, expandContraction, spokenTokens } = SubtitleCore;
+  const { parseTime, lastStarted, findCue, alignTranslation, spokenWords, matchWords, stretch, isShouting, calm, expandContraction, spokenTokens, fillsWindow } = SubtitleCore;
   const PAGE = 'scenelingo:page';
   const EXT = 'scenelingo:ext';
   const CHUNK = 20; // cues per machine-translation request
@@ -415,7 +415,7 @@
       lastLayout = now;
       layout();
     }
-    if (!video || !settings.enabled || !primary) {
+    if (!video || !settings.enabled || !primary || ui.root.hidden) {
       showCue(-1, '');
       return;
     }
@@ -465,8 +465,9 @@
       return;
     }
     const r = video.getBoundingClientRect();
-    if (r.width < 300 || r.height < 150) {
+    if (r.width < 300 || r.height < 150 || !inPlayer(video)) {
       root.hidden = true;
+      applyNativeHiding();
       return;
     }
     const fs = document.fullscreenElement;
@@ -480,10 +481,28 @@
       `left:${Math.round(r.left)}px;top:${Math.round(r.top)}px;width:${Math.round(r.width)}px;height:${Math.round(r.height)}px;` +
       `--sl-fs:${Math.max(14, (r.height * 0.042 * settings.fontSize) / 100).toFixed(1)}px;--sl-bottom:${settings.bottomOffset}%;`;
     if (root.style.cssText !== css) root.style.cssText = css;
+    applyNativeHiding();
+  }
+
+  // The film plays in a player that takes the whole window, or the whole screen. A video that
+  // does not is something else on the site, such as the trailer on a title's page: nothing is
+  // drawn over it and it is not paused or practised on.
+  function inPlayer(v) {
+    if (v.checkVisibility && !v.checkVisibility({ opacityProperty: true, visibilityProperty: true, checkOpacity: true, checkVisibilityCSS: true })) return false;
+    const fs = document.fullscreenElement;
+    if (fs) return fs === v || fs.contains(v);
+    const width = document.documentElement.clientWidth;
+    const height = document.documentElement.clientHeight;
+    // The picture itself may be letterboxed inside the player, so its containers count too.
+    for (let n = v; n && n !== document.body && n !== document.documentElement; n = n.parentElement) {
+      if (fillsWindow(n.getBoundingClientRect(), width, height)) return true;
+    }
+    return false;
   }
 
   function applyNativeHiding() {
-    document.documentElement.classList.toggle('sl-hide-native', !!(settings.enabled && settings.hideNative && primary));
+    const ours = settings.enabled && settings.hideNative && primary && ui && !ui.root.hidden;
+    document.documentElement.classList.toggle('sl-hide-native', !!ours);
   }
 
   function toast(text, ms = 1600) {
@@ -963,6 +982,29 @@
     const cls = typeof node.className === 'string' && node.className ? '.' + node.className.trim().split(/\s+/)[0] : '';
     return node.tagName.toLowerCase() + (node.id ? '#' + node.id : '') + cls + (ui && ui.root.contains(node) ? ' (ours)' : '');
   };
+
+  // What the page looks like to the extension: the videos on it, with the boxes they sit in.
+  function diagnostics() {
+    const box = (r) => '[' + [r.left, r.top, r.width, r.height].map(Math.round).join(',') + ']';
+    const name = (n) => n.tagName.toLowerCase() + (n.id ? '#' + n.id : '') + (typeof n.className === 'string' ? n.className.trim().split(/\s+/).filter(Boolean).slice(0, 3).map((c) => '.' + c).join('') : '');
+    const lines = [
+      'SceneLingo ' + (connected() ? chrome.runtime.getManifest().version : '(stale copy: the page needs a reload)') + ' — ' + location.hostname,
+      'mode: ' + settings.mode + ', fullscreen: ' + !!document.fullscreenElement + ', focus: ' + describe(document.activeElement),
+      'window: ' + document.documentElement.clientWidth + 'x' + document.documentElement.clientHeight +
+        ', overlay: ' + (!ui ? 'not built' : ui.root.hidden ? 'hidden' : 'shown') + ', tracks: ' + tracks.length + ', lines: ' + (primary ? primary.cues.length : 0),
+    ];
+    for (const v of document.querySelectorAll('video')) {
+      lines.push(
+        'video' + (v === video ? ' (picked) ' : ' ') + box(v.getBoundingClientRect()) + ' ready ' + v.readyState + (v.paused ? ' paused' : ' playing') +
+          ' at ' + Math.round(v.currentTime) + '/' + Math.round(v.duration) + ', in player: ' + inPlayer(v)
+      );
+      for (let n = v.parentElement, i = 0; n && n !== document.body && i < 14; n = n.parentElement, i++) {
+        const cs = getComputedStyle(n);
+        lines.push('  ' + name(n) + ' ' + box(n.getBoundingClientRect()) + ' ' + cs.position + (cs.opacity !== '1' ? ' opacity ' + cs.opacity : '') + (cs.visibility !== 'visible' ? ' ' + cs.visibility : ''));
+      }
+    }
+    return lines.concat(traceLog).join('\n');
+  }
 
   function trace(what, detail) {
     traceLog.push(Math.round(performance.now()) + ' ' + what + (detail ? ' ' + detail : ''));
@@ -1692,11 +1734,7 @@
     });
     reviewBtn.addEventListener('click', () => send({ type: 'open-review' }));
     traceBtn.addEventListener('click', () => {
-      const report = [
-        'SceneLingo ' + (connected() ? chrome.runtime.getManifest().version : '(stale copy: the page needs a reload)') + ' — ' + location.hostname,
-        'mode: ' + settings.mode + ', fullscreen: ' + !!document.fullscreenElement + ', focus: ' + describe(document.activeElement),
-      ].concat(traceLog).join('\n');
-      navigator.clipboard.writeText(report).then(() => toast('Tanılama kaydı kopyalandı'), () => toast('Kopyalanamadı'));
+      navigator.clipboard.writeText(diagnostics()).then(() => toast('Tanılama kaydı kopyalandı'), () => toast('Kopyalanamadı'));
     });
     // Fallback for the case where something keeps key events from reaching the window listener.
     answer.addEventListener('keydown', onKey);
@@ -1941,6 +1979,10 @@
     applySettings([]);
   });
   chrome.storage.local.get({ words: [] }, (data) => setSavedWords(data.words));
+  // The toolbar popup can ask for the diagnostics, for when the overlay is not there to ask.
+  chrome.runtime.onMessage.addListener((msg, sender, reply) => {
+    if (msg && msg.type === 'diagnose') reply(diagnostics());
+  });
   chrome.storage.onChanged.addListener((changes, area) => {
     if (area === 'local' && changes.words) setSavedWords(changes.words.newValue || []);
     if (area !== 'sync') return;
