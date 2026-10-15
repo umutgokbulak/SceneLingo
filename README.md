@@ -41,7 +41,7 @@
   flashcards that come back on a schedule.
 - **Where:** Amazon Prime Video, YouTube, and any site whose subtitles can be found from outside the page
   (TED, Vimeo's player and Wikimedia Commons were checked) — or any video at all, with a subtitle file of your own.
-- **How it is built:** Manifest V3, plain JavaScript, no dependencies and no build step; 46 unit tests, a
+- **How it is built:** Manifest V3, plain JavaScript, no dependencies and no build step; 53 unit tests, a
   stand-in player for everything that can be tested without a site, and a script that loads the real extension
   into a real browser for what cannot.
 
@@ -76,6 +76,13 @@ them), plyr.io, Vimeo's player, Wikimedia Commons and a YouTube player embedded 
     line then appears with the words you got in green and the ones you missed in red.
   - **Speak** — after each sentence you say it aloud. The browser's speech recognition tells you which words it
     understood, and you can play your own recording back.
+- **Any language pair.** English is not built in: German subtitles with English under them work the same way
+  as English with Turkish. The interface itself is in English or Turkish, following the browser.
+- **Sentences translated inside the browser.** Where the browser has a translator of its own (Chrome and Edge
+  do), the lines under the subtitle are translated on the computer: no limits, no network, and the subtitles
+  do not leave it. The language pack is fetched once, from the toolbar popup.
+- **Louder films.** The toolbar popup can raise the sound of the tab up to 600%, with a limiter so that it
+  does not clip.
 - **Hear it again, slower.** Replay a line from the film at three-quarter speed, or have a word or sentence read
   by a British, American or Australian voice, at a volume you set.
 - **Spaced-repetition review.** Words, phrases and sentences you save come back as flashcards on a schedule
@@ -204,7 +211,7 @@ TTML, SubStation and YouTube's JSON captions alike.
    brings up the bar, and the settings menu on it opens a subtitle file from your disk. **Bu sitede çalış**
    switches the extension off for the site in the current tab.
 
-The interface is currently in Turkish. The learning language and your own language are set in the toolbar popup.
+The interface is in English or Turkish (it follows the browser, or the choice in the toolbar popup). The language you learn and your own are set there too.
 
 ## Shortcuts
 
@@ -224,7 +231,7 @@ The interface is currently in Turkish. The learning language and your own langua
 ```bash
 npm test                # unit tests (Node's built-in runner, Node 22+)
 npm run harness         # mock player at http://localhost:8765
-npm run check:youtube   # the real extension on YouTube, in Microsoft Edge (needs the network)
+npm run check:youtube   # the real extension on YouTube, in Google Chrome (needs the network)
 npm run check:sites     # the same on TED, plyr.io, Vimeo's player and Wikimedia Commons
 npm run pictures        # the stills of this README; `npm run film` and test/animate.py make the short film
 ```
@@ -262,10 +269,9 @@ above were taken on.
 - Over a video that is fullscreen by itself, the mouse only reaches the subtitle words; the bar is not there.
 - On YouTube the first line can take some seconds after a cold start, until the player has made a caption
   request of its own. Automatic captions come without punctuation, in short pieces.
-- Translation, definitions and speech come from Google Translate's unofficial web endpoints. They are free and
-  need no key, but they are not a supported API: they can change or rate-limit without notice. This makes the
-  project suitable for personal study, not for a published product as it stands. Chrome's built-in Translator
-  API is the planned replacement for sentence translation.
+- Sentences are translated by the browser's own translator once its language pack is there. Before that, and
+  for a word's dictionary entry and its voice, Google Translate's unofficial web endpoint is used: free and
+  without a key, but not a supported API, so it can change or rate-limit without notice.
 - Speaking practice uses the browser's speech recognition, which in Chrome sends the audio to Google. It tells
   you whether you were understood, word by word; it does not grade individual sounds, and it is forgiving of an
   accent.

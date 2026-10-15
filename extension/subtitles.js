@@ -21,7 +21,7 @@ const Subtitles = (() => {
 
   function parseTTML(text) {
     const doc = new DOMParser().parseFromString(text, 'application/xml');
-    if (doc.getElementsByTagName('parsererror').length) throw new Error('Altyazı dosyası okunamadı');
+    if (doc.getElementsByTagName('parsererror').length) throw new Error(slT('errFile'));
     const root = doc.documentElement;
     const tickRate = parseFloat(root.getAttribute('ttp:tickRate')) || 10000000;
     const frameRate = parseFloat(root.getAttribute('ttp:frameRate')) || 30;
@@ -126,8 +126,8 @@ const Subtitles = (() => {
   // runs over the join is in both pieces.
   async function loadStream(url, progress) {
     const list = parseHlsMedia(await fetchText(url), url);
-    if (!list.ended) throw new Error('canlı yayın');
-    if (list.binary || !list.segments.length || list.segments.length > MAX_PIECES) throw new Error('bu yayının altyazısı okunamıyor');
+    if (!list.ended) throw new Error(slT('errLive'));
+    if (list.binary || !list.segments.length || list.segments.length > MAX_PIECES) throw new Error(slT('errStream'));
     const texts = new Array(list.segments.length);
     let next = 0;
     let done = 0;
@@ -142,7 +142,7 @@ const Subtitles = (() => {
       }
     };
     await Promise.all(Array.from({ length: Math.min(6, texts.length) }, worker));
-    if (lost > texts.length / 5) throw new Error('altyazı parçaları gelmedi');
+    if (lost > texts.length / 5) throw new Error(slT('errPieces'));
     // Each piece may keep a clock of its own; they are all brought to the first one's.
     const clocks = texts.map(vttOffset);
     const first = clocks.find((c) => c !== null) || 0;

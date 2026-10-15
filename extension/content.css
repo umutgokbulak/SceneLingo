@@ -610,6 +610,9 @@ html.sl-hide-native video::-webkit-media-text-track-container {
   cursor: pointer;
   color: #8fa3b5;
 }
+#scenelingo-root .sl-hint.sl-engine {
+  margin: 0 0 4px;
+}
 #scenelingo-root .sl-hint {
   margin-top: 8px;
   font-size: 12px;

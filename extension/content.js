@@ -25,12 +25,9 @@
     }
   })();
   const NATIVE_SEL = SITE === 'prime' ? '.atvwebplayersdk-captions-text' : '';
-  const WAITING = {
-    prime: 'Altyazı bekleniyor… Videoyu başlat; gelmezse Prime oynatıcısında altyazıyı bir kez aç.',
-    youtube: 'Altyazı bekleniyor… Gelmezse YouTube oynatıcısında altyazıyı (CC) bir kez aç.',
-    other: 'Bu videoda altyazı bulunamadı. Sitenin oynatıcısında altyazıyı bir kez aç; yoksa aşağıdan kendi altyazı dosyanı (.srt, .vtt) seç.',
-  }[SITE];
-  const NO_CAPTIONS = 'Bu videonun altyazısı yok. Aşağıdan bir altyazı dosyası (.srt, .vtt) açabilirsin.';
+  // What is said while there are no subtitles yet (in the language of the interface, which is
+  // only known once the settings have been read).
+  const waiting = () => slT({ prime: 'waitPrime', youtube: 'waitYoutube', other: 'waitOther' }[SITE]);
 
   let settings = { ...SL_DEFAULTS };
   let savedWords = new Set();
@@ -83,7 +80,9 @@
   const traceLog = []; // recent events of listening practice, for the "copy diagnostics" button
   const audioCache = new Map();
   const lookupCache = new Map();
-  let status = WAITING;
+  let status = '';
+  let translateFailing = false; // the status says a translation did not come
+  let engine = null; // where the last lines were translated: { name: 'browser' | 'online', canGet }
   let ui = null;
   let panelRows = null;
   let lastLayout = 0;
@@ -106,12 +105,12 @@
     return { nb: 'no', nn: 'no', cmn: 'zh', yue: 'zh', iw: 'he' }[base] || base;
   };
 
-  const langName = (code) => (SL_LANGS.find((l) => l[0] === code) || [code, code.toUpperCase()])[1];
+  const langName = (code) => slLangName(code);
 
   // When the extension is reloaded or updated, the copy of this script already running in an open
   // tab loses its connection to it: the overlay stays, but nothing can be translated, spoken or
   // saved until the page itself is reloaded.
-  const STALE = 'Eklenti güncellendi. Çeviri, ses ve kaydetme için bu sayfayı yenile (F5).';
+  const STALE = 'stale'; // what `send` answers with then; the user is told in their own words
   let staleWarned = false;
 
   const connected = () => {
@@ -123,10 +122,10 @@
   };
 
   function warnStale() {
-    setStatus(STALE);
+    setStatus(slT('stale'));
     if (staleWarned) return;
     staleWarned = true;
-    toast(STALE, 7000);
+    toast(slT('stale'), 7000);
   }
 
   const send = (msg) =>
@@ -139,7 +138,7 @@
       try {
         chrome.runtime.sendMessage(msg, (res) => {
           const err = chrome.runtime.lastError;
-          resolve(err || !res ? { ok: false, error: (err && err.message) || 'yanıt yok' } : res);
+          resolve(err || !res ? { ok: false, error: (err && err.message) || slT('noAnswer') } : res);
         });
       } catch (e) {
         resolve({ ok: false, error: String((e && e.message) || e) });
@@ -176,7 +175,7 @@
     }
     shown = { idx: -2, sec: null };
     lastIdx = -1;
-    setStatus(p.cues.length ? '' : 'Altyazı yükleniyor…');
+    setStatus(p.cues.length ? '' : slT('loading'));
     if (ui && !ui.panel.hidden) buildPanel();
   }
 
@@ -189,17 +188,17 @@
     tracks.filter((t) => langOf(t.languageCode) === lang).sort((a, b) => trackScore(a) - trackScore(b))[0] || null;
 
   function trackLabel(t) {
-    let label = t.displayName || t.languageCode || 'Altyazı';
+    let label = t.displayName || t.languageCode || slT('subtitle');
     if (label === t.languageCode) label = langName(langOf(label)); // a track that only gives its language's code
-    if (t.auto) label += ' (otomatik)';
-    if (t.forced) label += ' (zorunlu)';
+    if (t.auto) label = slT('trackAuto', label);
+    if (t.forced) label = slT('trackForced', label);
     else if (/sdh|cc/i.test(t.type) && !/\[|\(/.test(label)) label += ' [CC]';
     return label;
   }
 
   function resolvePrimary() {
     if (!tracks.length) {
-      return seenUrl ? { url: seenUrl, languageCode: '', displayName: 'Oynatıcıdaki altyazı' } : null;
+      return seenUrl ? { url: seenUrl, languageCode: '', displayName: slT('fromPlayer') } : null;
     }
     if (choice.primary !== 'auto') {
       const t = tracks.find((x) => x.url === choice.primary);
@@ -228,7 +227,7 @@
     if (SITE === 'youtube' && /^https:/.test(pri.url)) {
       const u = new URL(pri.url);
       u.searchParams.set('tlang', settings.nativeLang);
-      return { kind: 'track', track: { url: u.href, languageCode: settings.nativeLang, displayName: langName(settings.nativeLang) + ' (YouTube çevirisi)' } };
+      return { kind: 'track', track: { url: u.href, languageCode: settings.nativeLang, displayName: slT('byYoutube', langName(settings.nativeLang)) } };
     }
     return { kind: 'mt' };
   }
@@ -242,25 +241,25 @@
     autoPausedFor = -1;
     let pt = resolvePrimary();
     if (!pt) {
-      setStatus(emptyNote || WAITING);
+      setStatus(emptyNote || waiting());
       afterLoad();
       return;
     }
     // A file or track that does not say its language is taken to be in the one being learned.
     if (!pt.languageCode) pt = { ...pt, languageCode: settings.learnLang };
-    setStatus('Altyazı yükleniyor…');
+    setStatus(slT('loading'));
     try {
-      const progress = (done) => gen === loadGen && setStatus('Altyazı yükleniyor… %' + Math.round(done * 100));
+      const progress = (done) => gen === loadGen && setStatus(slT('loadingPart', Math.round(done * 100)));
       const cues = (await Subtitles.load(pt, progress)).map((c) => ({ ...c }));
       if (gen !== loadGen) return;
       // The stream these came from may not be the one in this video (an advertisement, or the
       // video before); the next look at the page then offers what else there is.
-      if (pt.stream && !Subtitles.fits(video)) throw new Error('bu videonun değil');
+      if (pt.stream && !Subtitles.fits(video)) throw new Error(slT('notThisVideo'));
       // The lines are shown as soon as they are here. What goes under them is fetched after,
       // and for a long film in many pieces that can take as long again.
       const live = pt.textTrack && !pt.file && !pt.cues ? pt.textTrack : null;
       primary = { track: pt, cues, requested: new Set(), live, liveCount: live && live.cues ? live.cues.length : 0 };
-      setStatus(cues.length ? '' : live ? 'Altyazı yükleniyor…' : 'Bu altyazı dosyası boş.');
+      setStatus(cues.length ? '' : live ? slT('loading') : slT('emptyFile'));
       afterLoad();
       const sec = resolveSecondary(pt);
       if (sec.kind === 'track') {
@@ -278,7 +277,7 @@
       shown = { idx: -2, sec: null };
     } catch (e) {
       if (gen !== loadGen) return;
-      setStatus('Altyazı yüklenemedi: ' + ((e && e.message) || e));
+      setStatus(slT('loadFailed', (e && e.message) || e));
     }
     afterLoad();
   }
@@ -363,15 +362,25 @@
     const texts = slice.map((x) => (isShouting(x.text) ? calm(x.text, true, english) : x.text));
     send({ type: 'translate', texts, sl: p.track.languageCode, tl: settings.nativeLang }).then((res) => {
       if (!res.ok) {
-        if (primary === p) setStatus(res.error === STALE ? STALE : 'Çeviri alınamadı: ' + res.error);
+        if (primary === p) {
+          translateFailing = res.error !== STALE;
+          setStatus(res.error === STALE ? slT('stale') : slT('translateFailed', res.error));
+        }
         setTimeout(() => p.requested.delete(c), 10000);
         return;
       }
       slice.forEach((cue, k) => {
         cue.mt = res.result[k] || '';
       });
+      if (res.engine && (!engine || engine.name !== res.engine || engine.canGet !== !!res.canGet)) {
+        engine = { name: res.engine, canGet: !!res.canGet };
+        refreshMenu();
+      }
       if (primary !== p) return;
-      if (status.startsWith('Çeviri alınamadı')) setStatus('');
+      if (translateFailing) {
+        translateFailing = false;
+        setStatus('');
+      }
       if (panelRows) slice.forEach((cue) => setRowTranslation(c * CHUNK + all.indexOf(cue)));
     });
   }
@@ -531,7 +540,7 @@
       if (target) {
         root.popover = 'manual';
         root.showPopover();
-        if (!raisedNote) toast('Bu tam ekranda fare çubuğa ulaşamaz; kısayollar çalışır: A önceki · S tekrar · D sonraki · W yaz · E söyle', 6000);
+        if (!raisedNote) toast(slT('raised'), 6000);
         raisedNote = true;
       } else root.removeAttribute('popover');
     } catch (e) { /* the overlay stays in the page, behind the video */ }
@@ -762,12 +771,12 @@
     if (SITE === 'other') scanPage();
     // On a site that is not known, a video is left alone unless it comes with subtitles or the
     // user has asked for the overlay.
-    if (video && !ui && document.body && (SITE !== 'other' || tracks.length || forced)) buildUI();
+    if (video && !ui && document.body && settingsLoaded && (SITE !== 'other' || tracks.length || forced)) buildUI();
     // An older copy of the extension loaded from another folder draws its own overlay on top of
     // this one and takes the same keys.
     if (ui && !warnedTwin && [...document.querySelectorAll('#scenelingo-root, #primelingo-root')].some((n) => n !== ui.root)) {
       warnedTwin = true;
-      setStatus('Eklentinin iki kopyası birlikte çalışıyor. chrome://extensions sayfasında eski kopyayı (PrimeLingo ya da ikinci SceneLingo) kaldır ve sayfayı yenile.');
+      setStatus(slT('twoCopies'));
       openMenu();
     }
   }
@@ -798,17 +807,17 @@
         text = new TextDecoder(settings.nativeLang === 'tr' || settings.learnLang === 'tr' ? 'windows-1254' : 'windows-1252').decode(bytes);
       }
       const cues = Subtitles.parse(text);
-      if (!cues.length) throw new Error('içinde altyazı satırı bulunamadı');
+      if (!cues.length) throw new Error(slT('noLines'));
       const t = { url: 'file:' + file.name + ':' + file.size, id: '', languageCode: guessLang(file.name), displayName: file.name, type: '', subtype: '', forced: false, auto: false, textTrack: null, file: false, cues };
       // A file in the user's own language goes under the line; so does a second file.
       const under = langOf(t.languageCode) === settings.nativeLang || (!t.languageCode && primary && primary.track.cues && primary.track.url !== t.url);
       fileTracks = fileTracks.filter((x) => x.url !== t.url).concat(t);
       tracks = tracks.filter((x) => !x.cues).concat(fileTracks);
       choice[under ? 'secondary' : 'primary'] = t.url;
-      toast((under ? 'Alt satır: ' : 'Üst satır: ') + file.name, 2500);
+      toast(slT(under ? 'fileUnder' : 'fileOver', file.name), 2500);
       reload();
     } catch (e) {
-      toast('Altyazı dosyası açılamadı: ' + ((e && e.message) || e), 4000);
+      toast(slT('fileFailed', (e && e.message) || e), 4000);
     }
   }
 
@@ -837,14 +846,14 @@
     if (settings.autoSpeak || pin) speak(word);
     const head = el('div', 'sl-pop-head');
     const btns = el('span', 'sl-pop-btns');
-    const listen = button('sl-pop-btn', 'volume', null, 'Dinle', () => speak(word));
-    const slow = button('sl-pop-btn', null, 'yavaş', 'Yavaş dinle', () => speak(word, true));
+    const listen = button('sl-pop-btn', 'volume', null, slT('listen'), () => speak(word));
+    const slow = button('sl-pop-btn', null, slT('slow'), slT('listenSlow'), () => speak(word, true));
     const ipa = el('span', 'sl-pop-ipa');
-    const save = button('sl-pop-btn sl-pop-save', 'star', 'Kaydet', null, null);
+    const save = button('sl-pop-btn sl-pop-save', 'star', slT('save'), null, null);
     const body = el('div', 'sl-pop-body', '…');
     const paintSave = () => {
       const on = savedWords.has(word.toLowerCase());
-      save.lastChild.textContent = on ? 'Kaydedildi' : 'Kaydet';
+      save.lastChild.textContent = on ? slT('saved') : slT('save');
       save.classList.toggle('sl-on', on);
     };
     paintSave();
@@ -879,7 +888,7 @@
     if (token !== popupToken) return;
     body.textContent = '';
     if (!res.ok) {
-      body.textContent = res.error === STALE ? STALE : 'Çeviri alınamadı: ' + res.error;
+      body.textContent = res.error === STALE ? slT('stale') : slT('translateFailed', res.error);
     } else {
       info = res.result;
       translation = info.translation;
@@ -900,9 +909,9 @@
           labelled('sl-pop-def', d.pos, d.text);
           if (d.example && i === 0) body.append(el('div', 'sl-pop-ex', '“' + d.example + '”'));
         });
-        if (synonyms.length) labelled('sl-pop-syn', 'eş anlamlı', synonyms.join(', '));
+        if (synonyms.length) labelled('sl-pop-syn', slT('synonyms'), synonyms.join(', '));
       } else if (defs.length || synonyms.length || entries.length > 1) {
-        body.append(el('div', 'sl-pop-more', 'Tanım ve eş anlamlılar için kelimeye tıkla'));
+        body.append(el('div', 'sl-pop-more', slT('clickForMore')));
       }
     }
     if (ui.pri.contains(anchor.commonAncestorContainer || anchor)) placePopup(anchor);
@@ -1113,7 +1122,7 @@
       if (res.ok) translation = res.result.translation;
     }
     await toggleSaved({ word: text, kind: 'sentence', translation, context: '', lang: langOf(lang), title: document.title, added: Date.now() });
-    toast(savedWords.has(text.toLowerCase()) ? 'Cümle kaydedildi' : 'Cümle listeden çıkarıldı');
+    toast(savedWords.has(text.toLowerCase()) ? slT('sentenceSaved') : slT('sentenceRemoved'));
   }
 
   // The words of the current line between the first and last word the selection touches.
@@ -1305,13 +1314,13 @@
       ui.heard.classList.toggle('sl-listening', listening);
       ui.heard.classList.toggle('sl-problem', practice.state === 'error');
       ui.heardText.textContent = listening
-        ? practice.interim || segmentsText(practice) || 'Dinliyorum… cümleyi sesli söyle'
+        ? practice.interim || segmentsText(practice) || slT('listening')
         : practice.state === 'error'
           ? practice.note
-          : 'Duyulan: ' + practice.heard;
+          : slT('heard', practice.heard);
     }
     ui.checkBtn.hidden = speaking;
-    ui.checkBtn.textContent = practice.checked ? 'Devam (Enter)' : 'Kontrol et (Enter)';
+    ui.checkBtn.textContent = practice.checked ? slT('goOn') : slT('check');
     ui.sayBtn.hidden = !speaking || listening;
     ui.doneBtn.hidden = !speaking || !listening;
     ui.voiceBtn.hidden = !speaking || listening || !practice.voice;
@@ -1321,7 +1330,7 @@
     if (ui.score.parentNode !== scoreHome) scoreHome.appendChild(ui.score);
     const stats = practiceStats[practice.mode];
     ui.score.textContent = practice.score
-      ? practice.score[0] + '/' + practice.score[1] + (speaking ? ' kelime anlaşıldı' : ' kelime doğru') + ' · bu oturum %' + Math.round((100 * stats.ok) / stats.total)
+      ? slT(speaking ? 'scoreSpeak' : 'scoreWrite', practice.score[0], practice.score[1], Math.round((100 * stats.ok) / stats.total))
       : '';
   }
 
@@ -1356,13 +1365,14 @@
 
   // ---------- speaking practice: speech recognition and the learner's own recording ----------
 
+  // What went wrong with the speech recogniser, as the key of the text that says so.
   const SPEECH_PROBLEMS = {
-    'not-allowed': 'Mikrofona izin verilmedi. Adres çubuğundaki mikrofon simgesinden izin ver, sonra Boşluk ile tekrar dene.',
-    'service-not-allowed': 'Mikrofona izin verilmedi. Adres çubuğundaki mikrofon simgesinden izin ver, sonra Boşluk ile tekrar dene.',
-    'no-speech': 'Ses duyulmadı. Boşluk ile tekrar dene.',
-    'audio-capture': 'Mikrofon bulunamadı.',
-    network: 'Konuşma tanıma servisine ulaşılamadı; internet bağlantısı gerekiyor.',
-    unsupported: 'Bu tarayıcıda konuşma tanıma kullanılamıyor.',
+    'not-allowed': 'micDenied',
+    'service-not-allowed': 'micDenied',
+    'no-speech': 'noSpeech',
+    'audio-capture': 'noMic',
+    network: 'speechOffline',
+    unsupported: 'speechMissing',
   };
 
   const segmentsText = (p) => p.segments.map((alternatives) => alternatives[0]).join(' ');
@@ -1468,7 +1478,7 @@
     stopRecording();
     if (practice !== p) return;
     p.state = 'error';
-    p.note = SPEECH_PROBLEMS[code] || 'Konuşma tanıma çalışmadı (' + code + '). Boşluk ile tekrar dene.';
+    p.note = SPEECH_PROBLEMS[code] ? slT(SPEECH_PROBLEMS[code]) : slT('speechFailed', code);
     trace('speech-failed', code);
     paintPractice();
   }
@@ -1608,19 +1618,27 @@
     } catch (e) { /* extension was reloaded */ }
   }
 
-  const MODE_NOTES = {
-    watch: 'İzleme: altyazılarla izle',
-    write: 'Yazma: altyazı gizli, cümle bitince duyduğunu yaz',
-    speak: 'Söyleme: cümle bitince sesli tekrar et',
-  };
-
   // Choosing the mode that is already on goes back to plain watching.
   function setMode(mode) {
     setSetting('mode', settings.mode === mode ? 'watch' : mode);
-    toast(MODE_NOTES[settings.mode], 2200);
+    toast(slT(settings.mode + 'Note'), 2200);
+  }
+
+  // The interface in another language: it is built again, in that language, at the next look.
+  function rebuild() {
+    slSetUiLang(settings.uiLang);
+    if (!ui) return;
+    if (practice) closePractice(false);
+    ui.root.remove();
+    ui = null;
+    panelRows = null;
+    raisedOver = null;
+    shown = { idx: -2, sec: null };
+    pickVideo();
   }
 
   function applySettings(keys) {
+    if (keys.includes('uiLang')) rebuild();
     if (practice && (practice.mode !== settings.mode || !settings.enabled)) closePractice(false);
     if (settings.mode !== 'speak') releaseMic();
     applyNativeHiding();
@@ -1638,7 +1656,7 @@
     if (!ui || !settingsLoaded || settings.introSeen) return;
     setSetting('introSeen', true);
     wake(9000);
-    toast('Çalışma çubuğu altyazının üstünde; fareyi oynatınca görünür. W: duyduğunu yaz · E: sesli söyle · Z: yavaş tekrar', 9000);
+    toast(slT('intro'), 9000);
   }
 
   function wake(ms = 2500) {
@@ -1708,26 +1726,26 @@
     // study bar
     const bar = el('div', 'sl-bar');
     const modeBtns = {
-      watch: button('sl-seg-btn', 'eye', 'İzle', 'İzle: altyazılarla izle', () => setSetting('mode', 'watch')),
-      write: button('sl-seg-btn', 'pen', 'Yaz', 'Yaz: cümle bitince duyduğunu yaz (W)', () => setMode('write')),
-      speak: button('sl-seg-btn', 'mic', 'Söyle', 'Söyle: cümle bitince sesli tekrar et (E)', () => setMode('speak')),
+      watch: button('sl-seg-btn', 'eye', slT('watch'), slT('watchTip'), () => setSetting('mode', 'watch')),
+      write: button('sl-seg-btn', 'pen', slT('write'), slT('writeTip'), () => setMode('write')),
+      speak: button('sl-seg-btn', 'mic', slT('speak'), slT('speakTip'), () => setMode('speak')),
     };
     const seg = el('div', 'sl-seg');
     seg.append(modeBtns.watch, modeBtns.write, modeBtns.speak);
-    const pauseBtn = button('sl-ibtn', 'pause', null, 'Her cümlede duraklat (Q)', () => setSetting('autoPause', !settings.autoPause));
-    const starBtn = button('sl-ibtn', 'star', null, 'Cümleyi kaydet', saveSentence);
-    const listBtn = button('sl-ibtn', 'list', null, 'Altyazı listesi (L)', togglePanel);
-    const gearBtn = button('sl-ibtn', 'sliders', null, 'Ayarlar', () => (ui.menu.hidden ? openMenu() : (ui.menu.hidden = true)));
+    const pauseBtn = button('sl-ibtn', 'pause', null, slT('pauseEach'), () => setSetting('autoPause', !settings.autoPause));
+    const starBtn = button('sl-ibtn', 'star', null, slT('saveSentence'), saveSentence);
+    const listBtn = button('sl-ibtn', 'list', null, slT('list'), togglePanel);
+    const gearBtn = button('sl-ibtn', 'sliders', null, slT('settings'), () => (ui.menu.hidden ? openMenu() : (ui.menu.hidden = true)));
     bar.append(
-      button('sl-ibtn', 'prev', null, 'Önceki cümle (A)', () => primary && nav(-1)),
-      button('sl-ibtn', 'repeat', null, 'Cümleyi tekrar oynat (S)', () => primary && nav(0)),
-      button('sl-ibtn sl-text-btn', null, '0.75×', 'Cümleyi yavaş tekrar oynat (Z)', replaySlow),
-      button('sl-ibtn', 'next', null, 'Sonraki cümle (D)', () => primary && nav(1)),
+      button('sl-ibtn', 'prev', null, slT('prev'), () => primary && nav(-1)),
+      button('sl-ibtn', 'repeat', null, slT('repeat'), () => primary && nav(0)),
+      button('sl-ibtn sl-text-btn', null, '0.75×', slT('repeatSlow'), replaySlow),
+      button('sl-ibtn', 'next', null, slT('next'), () => primary && nav(1)),
       el('span', 'sl-sep'),
       seg,
       el('span', 'sl-sep'),
       pauseBtn,
-      button('sl-ibtn', 'volume', null, 'Cümleyi sesli oku', speakSentence),
+      button('sl-ibtn', 'volume', null, slT('readAloud'), speakSentence),
       starBtn,
       listBtn,
       gearBtn
@@ -1742,30 +1760,30 @@
     const answer = el('div', 'sl-answer');
     answer.contentEditable = 'plaintext-only';
     answer.setAttribute('role', 'textbox');
-    answer.setAttribute('aria-label', 'Duyduğunu yaz');
-    answer.dataset.placeholder = 'Duyduğunu yaz…';
+    answer.setAttribute('aria-label', slT('typeHere'));
+    answer.dataset.placeholder = slT('typeHere') + '…';
     answer.spellcheck = false;
     const heard = el('div', 'sl-heard');
     const heardText = el('span', 'sl-heard-text');
     heard.append(el('span', 'sl-mic-dot'), heardText);
     const actions = el('div', 'sl-strip-row');
     const btns = el('div', 'sl-strip-btns');
-    const checkBtn = button('sl-main-btn', null, 'Kontrol et (Enter)', null, () => {
+    const checkBtn = button('sl-main-btn', null, slT('check'), null, () => {
       practiceEnter();
       if (practice) focusBox();
     });
-    const doneBtn = button('sl-main-btn', null, 'Bitir (Enter)', null, practiceEnter);
-    const sayBtn = button(null, 'mic', 'Tekrar söyle (Boşluk)', null, startListening);
-    const voiceBtn = button(null, 'play', 'Kendi sesim (→)', null, playVoice);
-    const goBtn = button('sl-main-btn', null, 'Devam (Enter)', null, practiceEnter);
+    const doneBtn = button('sl-main-btn', null, slT('done'), null, practiceEnter);
+    const sayBtn = button(null, 'mic', slT('sayAgain'), null, startListening);
+    const voiceBtn = button(null, 'play', slT('myVoice'), null, playVoice);
+    const goBtn = button('sl-main-btn', null, slT('goOn'), null, practiceEnter);
     btns.append(
-      button(null, 'repeat', 'Tekrar dinle (↑)', null, practiceReplay),
+      button(null, 'repeat', slT('hearAgain'), null, practiceReplay),
       checkBtn,
       doneBtn,
       sayBtn,
       voiceBtn,
       goBtn,
-      button(null, null, 'Geç (↓)', null, () => closePractice(true))
+      button(null, null, slT('skip'), null, () => closePractice(true))
     );
     const score = el('span', 'sl-score');
     actions.append(btns, score);
@@ -1786,7 +1804,7 @@
     const panel = el('div', 'sl-panel');
     panel.hidden = true;
     const panelHead = el('div', 'sl-panel-head');
-    panelHead.append(el('span', null, 'Altyazılar'), button('sl-ibtn', 'close', null, 'Kapat', togglePanel));
+    panelHead.append(el('span', null, slT('allLines')), button('sl-ibtn', 'close', null, slT('close'), togglePanel));
     const list = el('div', 'sl-list');
     panel.append(panelHead, list);
 
@@ -1837,7 +1855,7 @@
       if (sample) speak(sample.text.split(/\s+/).slice(0, 3).join(' '));
     };
     const accentSel = el('select');
-    for (const [code, label] of [['en-GB', 'İngiliz'], ['en-US', 'Amerikan'], ['en-AU', 'Avustralya']]) {
+    for (const [code, label] of [['en-GB', slT('accentGB')], ['en-US', slT('accentUS')], ['en-AU', slT('accentAU')]]) {
       const o = el('option', null, label);
       o.value = code;
       accentSel.appendChild(o);
@@ -1846,7 +1864,7 @@
       setSetting('accent', accentSel.value);
       speakSample();
     });
-    const accentRow = row('Aksan', accentSel);
+    const accentRow = row(slT('accent'), accentSel);
     const vol = el('span', 'sl-range');
     const volRange = el('input');
     volRange.type = 'range';
@@ -1864,9 +1882,11 @@
       volRange.blur();
       speakSample();
     });
-    const reviewBtn = el('button', 'sl-wide-btn', 'Kelime tekrarını aç');
-    const fileBtn = el('button', 'sl-wide-btn sl-file-btn', 'Altyazı dosyası aç (.srt, .vtt)…');
-    fileBtn.title = 'Bilgisayarındaki bir altyazı dosyasını bu videoda kullan. İkinci dosya alt satıra gelir.';
+    const engineNote = el('div', 'sl-hint sl-engine');
+    engineNote.hidden = true;
+    const reviewBtn = el('button', 'sl-wide-btn', slT('openReview'));
+    const fileBtn = el('button', 'sl-wide-btn sl-file-btn', slT('openFile'));
+    fileBtn.title = slT('openFileTip');
     fileBtn.addEventListener('click', () => {
       const input = el('input');
       input.type = 'file';
@@ -1874,32 +1894,33 @@
       input.addEventListener('change', () => input.files[0] && openSubtitleFile(input.files[0]));
       input.click();
     });
-    const traceBtn = el('button', 'sl-wide-btn sl-quiet-btn', 'Tanılama kaydını kopyala');
-    traceBtn.title = 'Alıştırmalarda bir şey ters giderse, son olayların kaydını panoya kopyalar';
+    const traceBtn = el('button', 'sl-wide-btn sl-quiet-btn', slT('copyDiag'));
+    traceBtn.title = slT('copyDiagTip');
     const statusEl = el('div', 'sl-status');
     statusEl.hidden = true;
     const advanced = el('details', 'sl-more');
-    advanced.append(el('summary', null, 'Gelişmiş'), row('Altyazı gecikmesi', sync.wrap), traceBtn);
+    advanced.append(el('summary', null, slT('advanced')), row(slT('delay'), sync.wrap), traceBtn);
     menu.append(
       statusEl,
-      el('div', 'sl-mhead', 'Altyazı'),
-      row('Çift altyazı', check('enabled'), 'label'),
-      row('Üst satır', priSel),
-      row('Alt satır', secSel),
-      row('Sitenin kendi altyazısını gizle', check('hideNative'), 'label'),
+      el('div', 'sl-mhead', slT('headSubtitles')),
+      row(slT('dual'), check('enabled'), 'label'),
+      row(slT('upper'), priSel),
+      row(slT('lower'), secSel),
+      engineNote,
+      row(slT('hideNative'), check('hideNative'), 'label'),
       fileBtn,
-      el('div', 'sl-mhead', 'Kelime kartı ve ses'),
-      row('Üzerine gelince duraklat', check('hoverPause'), 'label'),
-      row('Kelimenin üzerine gelince çevir', check('hoverLookup'), 'label'),
-      row('Kelimeyi sesli oku', check('autoSpeak'), 'label'),
+      el('div', 'sl-mhead', slT('headCard')),
+      row(slT('hoverPause'), check('hoverPause'), 'label'),
+      row(slT('hoverLookup'), check('hoverLookup'), 'label'),
+      row(slT('autoSpeak'), check('autoSpeak'), 'label'),
       accentRow,
-      row('Okuma sesi', vol),
-      el('div', 'sl-mhead', 'Görünüm'),
-      row('Yazı boyutu', size.wrap),
-      row('Konum', pos.wrap),
+      row(slT('volume'), vol),
+      el('div', 'sl-mhead', slT('headLook')),
+      row(slT('fontSize'), size.wrap),
+      row(slT('position'), pos.wrap),
       reviewBtn,
       advanced,
-      el('div', 'sl-hint', 'A önceki · S tekrar · Z yavaş tekrar · D sonraki · Q her cümlede dur · W yaz · E söyle · L liste')
+      el('div', 'sl-hint', slT('keysHint'))
     );
 
     root.append(subs, popup, toastEl, menu, panel);
@@ -1907,7 +1928,7 @@
       root, subs, box, pri, sec, bar, barWrap, strip, stripWrap, answer, heard, heardText, score, actions,
       checkBtn, doneBtn, sayBtn, voiceBtn, goBtn, modeBtns, pauseBtn, starBtn, listBtn, gearBtn,
       popup, toast: toastEl, menu, panel, list, checks, priSel, secSel, accentSel, accentRow,
-      volRange, volVal, size, pos, sync, status: statusEl,
+      volRange, volVal, size, pos, sync, status: statusEl, engineNote,
     };
 
     // Keep clicks on our controls from reaching the player underneath.
@@ -1924,7 +1945,7 @@
     });
     reviewBtn.addEventListener('click', () => send({ type: 'open-review' }));
     traceBtn.addEventListener('click', () => {
-      navigator.clipboard.writeText(diagnostics()).then(() => toast('Tanılama kaydı kopyalandı'), () => toast('Kopyalanamadı'));
+      navigator.clipboard.writeText(diagnostics()).then(() => toast(slT('diagCopied')), () => toast(slT('notCopied')));
     });
     // Fallback for the case where something keeps key events from reaching the window listener.
     answer.addEventListener('keydown', onKey);
@@ -2006,31 +2027,43 @@
     };
     const trackOpts = tracks.map((t) => [t.url, trackLabel(t)]);
     const priName = primary ? trackLabel(primary.track) : '—';
-    fill(ui.priSel, [['auto', `Otomatik (${priName})`], ...trackOpts], choice.primary);
+    fill(ui.priSel, [['auto', slT('optAuto', priName)], ...trackOpts], choice.primary);
     const secName =
-      secondary.kind === 'track' ? trackLabel(secondary.track) : secondary.kind === 'mt' ? 'makine çevirisi' : 'kapalı';
+      secondary.kind === 'track' ? trackLabel(secondary.track) : secondary.kind === 'mt' ? slT('machine') : slT('off');
     fill(
       ui.secSel,
-      [['auto', `Otomatik (${secName})`], ['mt', `Makine çevirisi (${langName(settings.nativeLang)})`], ...trackOpts, ['off', 'Kapalı']],
+      [['auto', slT('optAuto', secName)], ['mt', slT('optMachine', langName(settings.nativeLang))], ...trackOpts, ['off', slT('optOff')]],
       choice.secondary
     );
+    // Where the machine-translated lines come from, once some have come.
+    ui.engineNote.hidden = !engine;
+    if (engine) ui.engineNote.textContent = slT('translatedBy', slT(engine.name === 'browser' ? 'engineBrowser' : 'engineOnline')) + (engine.canGet ? slT('engineHint') : '');
     ui.accentSel.value = settings.accent;
     ui.accentRow.hidden = !speaksEnglish();
     ui.volRange.value = settings.speechVolume;
     ui.volVal.textContent = settings.speechVolume + '%';
     ui.size.val.textContent = settings.fontSize + '%';
     ui.pos.val.textContent = settings.bottomOffset + '%';
-    ui.sync.val.textContent = (offset > 0 ? '+' : '') + offset.toFixed(2) + ' sn';
+    ui.sync.val.textContent = slT('seconds', (offset > 0 ? '+' : '') + offset.toFixed(2));
   }
 
   // ---------- events ----------
+
+  // A field where letters are typed: the keys there are the page's. Other controls a player may
+  // leave the focus on — its volume slider, the choices of its subtitle menu — are not such
+  // fields, and the shortcuts still work there (Prime Video opened its subtitle menu otherwise).
+  function typingInto(node) {
+    if (!node) return false;
+    if (node.isContentEditable || node.tagName === 'TEXTAREA') return true;
+    return node.tagName === 'INPUT' && /^(text|search|email|url|password|number|tel)?$/i.test(node.getAttribute('type') || '');
+  }
 
   function onKey(e) {
     const target = e.target && e.target.nodeType === 1 ? e.target : null;
     const combo = e.ctrlKey || e.metaKey || e.altKey;
     if (practice && ui) {
       const inBox = target === ui.answer;
-      const otherField = !inBox && target && (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName));
+      const otherField = !inBox && typingInto(target);
       const skip = () => closePractice(true);
       if (practice.mode === 'write' && !otherField) {
         // While the answer box is open the keyboard belongs to it, wherever the page has put the
@@ -2087,7 +2120,7 @@
       return;
     }
     if (combo) return;
-    if (target && (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName))) return;
+    if (typingInto(target)) return;
     let handled = true;
     if (e.code === 'Escape') {
       handled = !!ui && (closePopup(true) || !ui.menu.hidden);
@@ -2100,7 +2133,7 @@
     else if (e.code === 'KeyZ') replaySlow();
     else if (e.code === 'KeyQ') {
       setSetting('autoPause', !settings.autoPause);
-      toast('Her cümlede duraklat: ' + (settings.autoPause ? 'açık' : 'kapalı'));
+      toast(slT(settings.autoPause ? 'pauseEachOn' : 'pauseEachOff'));
     } else if (e.code === 'KeyW') setMode('write');
     else if (e.code === 'KeyE') setMode('speak');
     else if (e.code === 'KeyL' && SITE !== 'youtube') togglePanel(); // on YouTube, L skips ahead
@@ -2128,9 +2161,9 @@
     else if (e.data.type === 'yt-notes') siteNotes = Array.isArray(e.data.notes) ? e.data.notes.map(String) : [];
     else if (e.data.type === 'yt-tracks') {
       // Until the player has fetched a caption file itself there is no address to fetch one from.
-      emptyNote = e.data.ready ? NO_CAPTIONS : '';
+      emptyNote = e.data.ready ? slT('noCaptions') : '';
       setTracks(e.data.ready ? e.data.tracks : [], true);
-      if (!primary && !tracks.length) setStatus(emptyNote || WAITING);
+      if (!primary && !tracks.length) setStatus(emptyNote || waiting());
     } else if (e.data.type === 'sub-seen' && !tracks.length && typeof e.data.url === 'string' && e.data.url !== seenUrl) {
       seenUrl = e.data.url;
       reload();
@@ -2211,6 +2244,8 @@
   chrome.storage.sync.get(SL_DEFAULTS, (stored) => {
     settings = { ...SL_DEFAULTS, ...stored };
     settingsLoaded = true;
+    slSetUiLang(settings.uiLang);
+    if (!primary && !status) setStatus(emptyNote || waiting());
     applySettings([]);
     hello();
   });

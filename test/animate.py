@@ -1,15 +1,16 @@
 # Puts the frames taken by `node test/pictures.js frames` together as the short film at the top
 # of the README, drawing the pointer into each frame (a screenshot has none).
 #
-#   python test/animate.py        needs Pillow
+#   python test/animate.py [tr]        needs Pillow; `tr` names the film docs/demo.tr.webp
 import json
 import os
+import sys
 
 from PIL import Image, ImageDraw
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 FRAMES = os.path.join(HERE, '..', '.frames')
-OUT = os.path.join(HERE, '..', 'docs', 'demo.webp')
+OUT = os.path.join(HERE, '..', 'docs', 'demo.tr.webp' if 'tr' in sys.argv[1:] else 'demo.webp')
 WIDTH = 800          # of the finished film, in pixels
 SPACING = 90         # least time between two frames that are kept, in milliseconds
 LAST = 2600          # how long the last frame stays

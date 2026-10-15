@@ -84,13 +84,14 @@ saklayan servislerde (Netflix gibi) çalışmaz; orada kendi altyazı dosyanı a
 
 ## Nasıl yapıldı
 
-Manifest V3, yalın JavaScript; bağımlılık ve derleme adımı yok. 46 birim testi, site olmadan denenebilen her şey
+Manifest V3, yalın JavaScript; bağımlılık ve derleme adımı yok. 53 birim testi, site olmadan denenebilen her şey
 için oynatıcıyı taklit eden bir test sayfası ve gerisi için eklentiyi gerçek bir tarayıcıya yükleyip yöneten bir
 betik var. Altyazıların sitelerde nasıl bulunduğu, iki altyazı izinin nasıl eşleştirildiği ve yolda çıkan
 sorunlar [İngilizce README](README.md#engineering-notes)'de anlatılıyor.
 
-Çeviri, tanım ve seslendirme Google Translate'in resmî olmayan, ücretsiz web uçlarından geliyor; anahtar
-gerektirmez ama destekli bir API değildir. Bu yüzden proje kişisel çalışma içindir.
+Cümleler, dil paketi indirildikten sonra tarayıcının kendi çevirisiyle bilgisayarda çevrilir. Ondan önce, ve
+kelime kartındaki sözlük bilgisi ile seslendirme için, Google Translate'in resmî olmayan ücretsiz web ucu
+kullanılır; anahtar gerektirmez ama destekli bir API değildir.
 
 ## Lisans
 

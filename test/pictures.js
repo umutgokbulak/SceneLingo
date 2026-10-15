@@ -1,23 +1,28 @@
 // Takes the pictures for the README: the extension itself, loaded into a real browser, on a
-// film that may be shown (test/film.html). Run by hand; it needs the network and Microsoft Edge.
+// film that may be shown (test/film.html). Run by hand; it needs the network.
 //
-//   node test/pictures.js            the stills, into docs/screenshots
-//   node test/pictures.js frames     the frames of the short film at the top of the README, into
-//                                    .frames; `python test/animate.py` puts them together
+//   node test/pictures.js [en|tr]          the stills, into docs/screenshots (docs/screenshots/tr)
+//   node test/pictures.js frames [en|tr]   the frames of the short film at the top of the README,
+//                                          into .frames; `python test/animate.py [tr]` puts them together
+//
+// The language is the interface's; the learner in the pictures learns English and reads Turkish.
 const fs = require('fs');
 const path = require('path');
 const { launch, wait } = require('./real-browser.js');
 require('./server.js'); // serves test/film.html
 
 const frames = process.argv[2] === 'frames';
+const ui = process.argv.includes('tr') ? 'tr' : 'en';
 const LINE = 179.14; // "You have to learn to listen." runs from 2:59.14 to 3:02.00
-const stills = path.join(__dirname, '..', 'docs', 'screenshots');
+const stills = path.join(__dirname, '..', 'docs', 'screenshots', ui === 'en' ? '' : ui);
 const frameDir = path.join(__dirname, '..', '.frames');
 
 (async () => {
   const browser = await launch({ everywhere: true });
   try {
-    await browser.worker(`chrome.storage.sync.set({ introSeen: true })`); // no first-run note in the pictures
+    // No first-run note in the pictures.
+    await browser.worker(`chrome.storage.sync.set({ introSeen: true, uiLang: '${ui}', learnLang: 'en', nativeLang: 'tr' })`);
+    fs.mkdirSync(stills, { recursive: true });
     await browser.size(1280, 720);
     await browser.open('http://localhost:8765/test/film.html');
     const page = (expression) => browser.page(`(() => { const root = document.getElementById('scenelingo-root'); const video = document.querySelector('video'); return ${expression}; })()`);
@@ -31,8 +36,14 @@ const frameDir = path.join(__dirname, '..', '.frames');
     const wordAt = (word) => page(`(() => { const b = [...root.querySelectorAll('.sl-word')].find((w) => w.textContent.toLowerCase() === ${JSON.stringify(word)}).getBoundingClientRect(); return [b.left + b.width / 2, b.top + b.height / 2]; })()`);
     const playLine = (lead) => page(`(video.currentTime = ${LINE} - ${lead}, video.play(), true)`);
     const lineShown = () => until(`!!root && root.querySelector('.sl-primary').textContent.includes('learn to listen')`);
-    const boxOpen = () => until(`!root.querySelector('.sl-strip-wrap').hidden`, 150);
-    const modeNoteGone = () => wait(2600);
+    // The practice box, open for this line: the film has stopped at the line's end.
+    const boxOpen = () => until(`!root.querySelector('.sl-strip-wrap').hidden && video.paused && video.currentTime > ${LINE} + 2 && video.currentTime < ${LINE} + 3`, 150);
+    // A mode is chosen with the film standing still, so that no other line is practised meanwhile.
+    const mode = async (code, key) => {
+      await page(`(video.pause(), true)`);
+      await browser.press(code, key);
+      await wait(2600); // until the note that says which mode is on has gone
+    };
     const save = async (name) => fs.writeFileSync(path.join(stills, name), await browser.picture());
     await until(`!!root && !root.hidden`, 300);
 
@@ -61,8 +72,7 @@ const frameDir = path.join(__dirname, '..', '.frames');
       await browser.move(1100, 120);
 
       // Writing practice, with one word missed.
-      await browser.press('KeyW', 'w');
-      await modeNoteGone();
+      await mode('KeyW', 'w');
       await playLine(0.3);
       await boxOpen();
       await wait(500);
@@ -71,8 +81,7 @@ const frameDir = path.join(__dirname, '..', '.frames');
       await wait(900);
       await save('write.jpg');
       await browser.named('ArrowDown', 40);
-      await browser.press('KeyW', 'w');
-      await modeNoteGone();
+      await mode('KeyW', 'w');
 
       // Speaking practice. There is no microphone here: a stand-in for the browser's speech
       // recogniser "hears" the sentence with its last word different, and a tone stands in for
@@ -95,8 +104,7 @@ const frameDir = path.join(__dirname, '..', '.frames');
           return out.stream;
         };
       })()`);
-      await browser.press('KeyE', 'e');
-      await modeNoteGone();
+      await mode('KeyE', 'e');
       await playLine(0.3);
       await boxOpen();
       await until(`!!root.querySelector('.sl-score').textContent`, 150);
@@ -137,6 +145,7 @@ const frameDir = path.join(__dirname, '..', '.frames');
       await wait(2300);
       await glide([980, 240], 500); // away: the card closes and the film goes on
       await wait(900);
+      await page(`(video.pause(), true)`);
       await browser.press('KeyW', 'w'); // writing practice: the line is hidden until it has been typed
       await playLine(0.2);
       await boxOpen();

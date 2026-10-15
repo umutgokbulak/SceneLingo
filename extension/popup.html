@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="tr">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <title>SceneLingo</title>
@@ -12,7 +12,7 @@
   button { cursor: pointer; }
   button:hover { background: #3a4a5c; }
   input[type=range] { width: 130px; margin: 0; accent-color: #1a98ff; vertical-align: middle; }
-  #volumeValue { display: inline-block; min-width: 44px; text-align: right; font-variant-numeric: tabular-nums; }
+  #volumeValue, #boostValue { display: inline-block; min-width: 44px; text-align: right; font-variant-numeric: tabular-nums; }
   input[type=checkbox] { width: 16px; height: 16px; accent-color: #1a98ff; }
   #words { max-height: 260px; overflow-y: auto; border: 1px solid #2c3947; border-radius: 8px; }
   .word { display: flex; gap: 8px; align-items: flex-start; padding: 6px 8px; border-bottom: 1px solid #222c37; }
@@ -32,31 +32,41 @@
   #siteHost { font-weight: 600; overflow-wrap: anywhere; }
   #activate { width: 100%; margin: 4px 0; }
   #siteNote:empty { display: none; }
+  #engineGet { width: 100%; margin: 6px 0 2px; }
+  #engineGet[hidden] { display: none; }
   #diagnose { width: 100%; margin-top: 10px; font-size: 12px; color: #8fa3b5; background: none; border-color: transparent; }
   #diagnose:hover { background: #222c37; }
 </style>
 </head>
 <body>
   <h1>SceneLingo</h1>
-  <label class="row"><span>Çift altyazı</span><input type="checkbox" id="enabled"></label>
-  <div class="row"><span>Öğrendiğim dil</span><select id="learnLang"></select></div>
-  <div class="row"><span>Ana dilim</span><select id="nativeLang"></select></div>
-  <div class="row"><span>Okuma sesi</span><span><input type="range" id="volume" min="0" max="300" step="10"><span id="volumeValue"></span></span></div>
-  <label class="row"><span>Varsa sitenin kendi çevirisini kullan</span><input type="checkbox" id="preferHuman"></label>
+  <label class="row"><span data-t="dual"></span><input type="checkbox" id="enabled"></label>
+  <div class="row"><span data-t="learnLang"></span><select id="learnLang"></select></div>
+  <div class="row"><span data-t="nativeLang"></span><select id="nativeLang"></select></div>
+  <div class="row"><span data-t="uiLang"></span><select id="uiLang"></select></div>
+  <div class="row" data-t-title="boostTip"><span data-t="boost"></span><span><input type="range" id="boost" min="100" max="600" step="10" value="100"><span id="boostValue">100%</span></span></div>
+  <div class="sites" id="boostNote"></div>
+  <div class="row"><span data-t="volume"></span><span><input type="range" id="volume" min="0" max="300" step="10"><span id="volumeValue"></span></span></div>
+  <label class="row"><span data-t="preferHuman"></span><input type="checkbox" id="preferHuman"></label>
 
-  <h2><span>Siteler</span></h2>
-  <div class="sites">Prime Video ve YouTube'da kendiliğinden çalışır.</div>
-  <label class="row"><span>Diğer sitelerde de çalış</span><input type="checkbox" id="everywhere"></label>
-  <label class="row" id="siteRow" hidden><span>Bu sitede çalış: <b id="siteHost"></b></span><input type="checkbox" id="siteOn"></label>
-  <button id="activate" title="Altyazısı olmayan bir videoda çubuğu açar; oradan kendi altyazı dosyanı (.srt, .vtt) seçebilirsin">Bu sekmedeki videoda aç</button>
+  <h2><span data-t="headEngine"></span></h2>
+  <div class="sites" id="engineState"></div>
+  <button id="engineGet" hidden></button>
+
+  <h2><span data-t="headSites"></span></h2>
+  <div class="sites" data-t="sitesNote"></div>
+  <label class="row"><span data-t="everywhere"></span><input type="checkbox" id="everywhere"></label>
+  <label class="row" id="siteRow" hidden><span><span data-t="siteOn"></span> <b id="siteHost"></b></span><input type="checkbox" id="siteOn"></label>
+  <button id="activate" data-t="activate" data-t-title="activateTip"></button>
   <div class="sites" id="siteNote"></div>
 
-  <h2><span>Kaydedilen kelimeler (<span id="count">0</span>)</span><button id="export">CSV indir</button></h2>
-  <button id="review">Tekrar et</button>
+  <h2><span id="wordsHead"></span><button id="export" data-t="exportCsv"></button></h2>
+  <button id="review"></button>
   <div id="words"></div>
 
-  <div class="note">Kelimenin üzerine gelince çevirisi açılır ve okunur; tıklarsan kart sabit kalır. Birkaç kelimeyi fareyle seçersen kalıp olarak çevrilir. Diğer ayarlar videoda, altyazının üstündeki çalışma çubuğunda. Kısayollar: A önceki · S tekrar · Z yavaş tekrar · D sonraki · Q her cümlede dur · W yaz · E söyle · L liste.</div>
-  <button id="diagnose" title="Bir şey ters giderse: eklentinin bu sekmede gördüklerini panoya kopyalar">Tanılama kaydını kopyala</button>
+  <div class="note" data-t="popupNote"></div>
+  <button id="diagnose" data-t="copyDiag" data-t-title="diagTip"></button>
+  <script src="messages.js"></script>
   <script src="shared.js"></script>
   <script src="popup.js"></script>
 </body>

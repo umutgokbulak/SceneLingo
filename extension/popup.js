@@ -1,14 +1,42 @@
 const $ = (id) => document.getElementById(id);
+let settings = { ...SL_DEFAULTS };
 let words = [];
 
-for (const id of ['learnLang', 'nativeLang']) {
-  for (const [code, name] of SL_LANGS) {
-    const o = document.createElement('option');
-    o.value = code;
-    o.textContent = name;
-    $(id).appendChild(o);
+const option = (value, label) => {
+  const o = document.createElement('option');
+  o.value = value;
+  o.textContent = label;
+  return o;
+};
+
+// Everything that is words: said again whenever the language of the interface changes.
+function paint() {
+  document.documentElement.lang = slSetUiLang(settings.uiLang);
+  slApply(document);
+  for (const id of ['learnLang', 'nativeLang']) {
+    $(id).textContent = '';
+    for (const code of SL_LANGS) $(id).appendChild(option(code, slLangName(code)));
+    $(id).value = settings[id];
   }
-  $(id).addEventListener('change', () => chrome.storage.sync.set({ [id]: $(id).value }));
+  // The interface's own languages, each under its own name.
+  const own = (code) => {
+    const name = new Intl.DisplayNames([code], { type: 'language' }).of(code);
+    return name.charAt(0).toLocaleUpperCase(code) + name.slice(1);
+  };
+  $('uiLang').textContent = '';
+  $('uiLang').append(option('auto', slT('uiAuto')), ...Object.keys(SL_TEXTS).map((code) => option(code, own(code))));
+  $('uiLang').value = settings.uiLang;
+  renderWords();
+  showEngine();
+}
+
+for (const id of ['learnLang', 'nativeLang', 'uiLang']) {
+  $(id).addEventListener('change', () => {
+    settings[id] = $(id).value;
+    chrome.storage.sync.set({ [id]: $(id).value });
+    if (id === 'uiLang') paint();
+    else showEngine();
+  });
 }
 for (const id of ['enabled', 'preferHuman']) {
   $(id).addEventListener('change', () => chrome.storage.sync.set({ [id]: $(id).checked }));
@@ -20,25 +48,16 @@ $('volume').addEventListener('input', () => {
 });
 $('volume').addEventListener('change', () => chrome.storage.sync.set({ speechVolume: +$('volume').value }));
 
-chrome.storage.sync.get(SL_DEFAULTS, (s) => {
-  $('volume').value = s.speechVolume;
-  $('volumeValue').textContent = s.speechVolume + '%';
-  $('enabled').checked = s.enabled;
-  $('preferHuman').checked = s.preferHuman;
-  $('learnLang').value = s.learnLang;
-  $('nativeLang').value = s.nativeLang;
-});
-
 function renderWords() {
   const box = $('words');
   box.textContent = '';
-  $('count').textContent = words.length;
+  $('wordsHead').textContent = slT('headWords', words.length);
   const due = words.filter((w) => slIsDue(w, Date.now())).length;
-  $('review').textContent = due ? 'Tekrar et (' + due + ' kart hazır)' : 'Tekrar sayfasını aç';
+  $('review').textContent = due ? slT('reviewDue', due) : slT('reviewOpen');
   if (!words.length) {
     const empty = document.createElement('div');
     empty.className = 'empty';
-    empty.textContent = 'Altyazıda bir kelimeye tıkla, açılan pencerede ☆ Kaydet de.';
+    empty.textContent = slT('noWordsYet');
     box.appendChild(empty);
     return;
   }
@@ -52,7 +71,7 @@ function renderWords() {
     b.textContent = w.word;
     const kind = document.createElement('span');
     kind.className = 'kind';
-    kind.textContent = w.kind === 'phrase' ? 'kalıp' : w.kind === 'sentence' ? 'cümle' : '';
+    kind.textContent = w.kind === 'phrase' ? slT('kindPhrase') : w.kind === 'sentence' ? slT('kindSentence') : '';
     const tr = document.createElement('span');
     tr.className = 'tr';
     tr.textContent = w.translation ? ' — ' + w.translation : '';
@@ -64,7 +83,7 @@ function renderWords() {
     const del = document.createElement('button');
     del.className = 'del';
     del.textContent = '✕';
-    del.title = 'Sil';
+    del.title = slT('remove');
     del.addEventListener('click', () => {
       words = words.filter((x) => x !== w);
       chrome.storage.local.set({ words });
@@ -75,12 +94,59 @@ function renderWords() {
   }
 }
 
-chrome.storage.local.get({ words: [] }, (d) => {
-  words = d.words;
-  renderWords();
-});
-
 $('review').addEventListener('click', () => chrome.tabs.create({ url: chrome.runtime.getURL('review.html') }));
+
+// Translation inside the browser. The browser fetches a language pack the first time a pair of
+// languages is used, and only when a person asks for it: so the asking is done here, with a
+// button. After that the background translates with it, on every site.
+const pair = () => {
+  const names = (code) => ({ he: ['he', 'iw'], no: ['no', 'nb'] })[code] || [code];
+  const all = [];
+  for (const sourceLanguage of names(settings.learnLang)) for (const targetLanguage of names(settings.nativeLang)) all.push({ sourceLanguage, targetLanguage });
+  return all;
+};
+
+async function showEngine() {
+  const from = slLangName(settings.learnLang);
+  const to = slLangName(settings.nativeLang);
+  const say = (text, button) => {
+    $('engineState').textContent = text;
+    $('engineGet').hidden = !button;
+    $('engineGet').textContent = button || '';
+    $('engineGet').disabled = false;
+  };
+  if (settings.learnLang === settings.nativeLang) return say('');
+  if (typeof Translator !== 'function') return say(slT('engineNone', from, to));
+  let best = 'unavailable';
+  for (const langs of pair()) {
+    const state = await Translator.availability(langs).catch(() => 'unavailable');
+    if (state === 'available') return say(slT('engineReady', from, to));
+    if (state !== 'unavailable') best = state;
+  }
+  if (best === 'unavailable') say(slT('engineNone', from, to));
+  else say(slT('engineNote'), slT('engineGet', from, to));
+}
+
+$('engineGet').addEventListener('click', async () => {
+  $('engineGet').disabled = true;
+  let failure = null;
+  for (const langs of pair()) {
+    try {
+      const translator = await Translator.create({
+        ...langs,
+        monitor(m) {
+          m.addEventListener('downloadprogress', (e) => ($('engineGet').textContent = slT('engineGetting', Math.round(e.loaded * 100))));
+        },
+      });
+      if (translator.destroy) translator.destroy();
+      return showEngine();
+    } catch (e) {
+      failure = e;
+    }
+  }
+  $('engineGet').disabled = false;
+  $('engineState').textContent = slT('engineFailed', (failure && failure.message) || failure);
+});
 
 // Other sites: access is asked for when the switch is turned on, and given back when it is turned
 // off. The background registers the content script to match.
@@ -95,10 +161,39 @@ $('everywhere').addEventListener('change', () => {
   const done = (has) => {
     $('everywhere').checked = has;
     chrome.runtime.sendMessage({ type: 'sync-sites' });
-    siteNote(has ? 'Açık. Zaten açık olan sekmelerde sayfayı yenile ya da aşağıdaki düğmeye bas.' : '');
+    siteNote(has ? slT('everywhereOn') : '');
   };
   if ($('everywhere').checked) chrome.permissions.request(EVERYWHERE, done);
   else chrome.permissions.remove(EVERYWHERE, () => done(false));
+});
+
+// The sound of the film, louder: the tab's sound is captured and played through a gain. The
+// browser gives an extension a tab's sound only when the person has opened its popup on it.
+let boostTimer = 0;
+const ask = (msg) => new Promise((resolve) => chrome.runtime.sendMessage(msg, (res) => resolve(chrome.runtime.lastError ? { ok: false, error: chrome.runtime.lastError.message } : res)));
+async function boost(level) {
+  const tab = await activeTab();
+  if (!tab) return;
+  const now = await ask({ type: 'boost-state', tabId: tab.id });
+  let streamId;
+  if (level > 100 && !(now.ok && now.result.level > 100)) {
+    streamId = await new Promise((resolve) => chrome.tabCapture.getMediaStreamId({ targetTabId: tab.id }, (id) => resolve(chrome.runtime.lastError ? null : id)));
+    if (!streamId) return ($('boostNote').textContent = slT('boostFailed', slT('boostNoTab')));
+  }
+  const res = await ask({ type: 'boost', tabId: tab.id, level, streamId });
+  $('boostNote').textContent = res.ok ? '' : slT('boostFailed', res.error);
+}
+$('boost').addEventListener('input', () => {
+  $('boostValue').textContent = $('boost').value + '%';
+  clearTimeout(boostTimer);
+  boostTimer = setTimeout(() => boost(+$('boost').value), 120);
+});
+activeTab().then(async (tab) => {
+  if (!tab) return;
+  const res = await ask({ type: 'boost-state', tabId: tab.id });
+  if (!res.ok) return;
+  $('boost').value = res.result.level;
+  $('boostValue').textContent = res.result.level + '%';
 });
 
 // A site can be switched off on its own: the page in this tab says which site it is.
@@ -124,38 +219,49 @@ $('activate').addEventListener('click', async () => {
     // The page was open before the extension could run on it: start there now, if allowed.
     const started = await new Promise((resolve) => chrome.runtime.sendMessage({ type: 'start-in-tab', tabId: tab.id }, (res) => resolve(!chrome.runtime.lastError && res && res.ok)));
     if (!started || !(await toTab(tab, { type: 'activate' }))) {
-      siteNote($('everywhere').checked ? 'Bu sayfada çalışamıyor (tarayıcının kendi sayfası olabilir).' : 'Bu site için önce "Diğer sitelerde de çalış"ı aç.');
+      siteNote(slT($('everywhere').checked ? 'cannotHere' : 'needEverywhere'));
       return;
     }
   }
-  siteNote('Açıldı. Videoda çubuk görünmüyorsa videoyu başlat; altyazı dosyası için çubuktaki ayar düğmesine bas.');
+  siteNote(slT('activated'));
 });
 
 // For reporting a problem: what the extension sees on the tab in front, whether or not its overlay is showing.
 $('diagnose').addEventListener('click', () => {
-  const label = $('diagnose').textContent;
   const say = (text) => {
     $('diagnose').textContent = text;
-    setTimeout(() => ($('diagnose').textContent = label), 3000);
+    setTimeout(() => ($('diagnose').textContent = slT('copyDiag')), 3000);
   };
   chrome.tabs.query({ active: true, currentWindow: true }, ([tab]) => {
     chrome.tabs.sendMessage(tab.id, { type: 'diagnose' }, (report) => {
-      if (chrome.runtime.lastError || !report) return say('Bu sekmede çalışmıyor; sayfayı yenileyip tekrar dene');
-      navigator.clipboard.writeText(report).then(() => say('Kopyalandı'), () => say('Kopyalanamadı'));
+      if (chrome.runtime.lastError || !report) return say(slT('notRunning'));
+      navigator.clipboard.writeText(report).then(() => say(slT('copied')), () => say(slT('notCopied')));
     });
   });
 });
 
 $('export').addEventListener('click', () => {
   const cell = (v) => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
-  const lines = [['Kelime', 'Çeviri', 'Okunuş', 'Tanım', 'Cümle', 'Dil', 'Kaynak', 'Tarih'].map(cell).join(';')];
+  const lines = [slT('csvHead').split(';').map(cell).join(';')];
   for (const w of words) {
     lines.push([w.word, w.translation, w.ipa, w.definition, w.context, w.lang, w.title, new Date(w.added).toISOString().slice(0, 10)].map(cell).join(';'));
   }
   const url = URL.createObjectURL(new Blob(['﻿' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' }));
   const a = document.createElement('a');
   a.href = url;
-  a.download = 'scenelingo-kelimeler.csv';
+  a.download = slT('csvName');
   a.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
+});
+
+chrome.storage.sync.get(SL_DEFAULTS, (stored) => {
+  settings = { ...SL_DEFAULTS, ...stored };
+  $('volume').value = settings.speechVolume;
+  $('volumeValue').textContent = settings.speechVolume + '%';
+  $('enabled').checked = settings.enabled;
+  $('preferHuman').checked = settings.preferHuman;
+  chrome.storage.local.get({ words: [] }, (data) => {
+    words = data.words;
+    paint();
+  });
 });

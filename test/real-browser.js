@@ -1,7 +1,6 @@
-// Loads the unpacked extension into a real browser, with a throwaway profile, and watches what
-// it does on real sites. It needs the network and a browser that still takes --load-extension
-// (Microsoft Edge does; Google Chrome no longer does), so it is a check to run by hand, not a
-// part of `npm test`.
+// Loads the unpacked extension into a real browser (Google Chrome, or Microsoft Edge where
+// there is no Chrome), with a throwaway profile, and watches what it does on real sites. It
+// needs the network, so it is a check to run by hand, not a part of `npm test`.
 //
 //   node test/real-browser.js            YouTube: first line, next line, writing practice
 //   node test/real-browser.js sites      other sites: what is found and shown on each
@@ -11,15 +10,21 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 
-const EXE = process.env.BROWSER || 'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe';
+const EXE =
+  process.env.BROWSER ||
+  ['C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe', 'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe'].find((exe) => fs.existsSync(exe));
 const SOURCE = path.join(__dirname, '..', 'extension');
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
 // `everywhere` gives the browser a copy of the extension that already has the permission for
 // other sites: a person gives it through a browser prompt, which cannot be answered from here.
 // A window is opened rather than a headless browser when `window` is set: YouTube's player
-// does not fetch captions in a headless one.
-async function launch({ everywhere = false, window = false } = {}) {
+// does not fetch captions in a headless one. `language` is the browser's own (its interface and
+// what pages are told), for seeing the extension as a user of that language would.
+//
+// Chrome no longer takes --load-extension. The extension is loaded over the DevTools protocol
+// instead, which the browser offers for that only on a pipe, not on a network port.
+async function launch({ everywhere = false, window = false, language = '' } = {}) {
   const work = fs.mkdtempSync(path.join(os.tmpdir(), 'scenelingo-check-'));
   let extension = SOURCE;
   if (everywhere) {
@@ -36,31 +41,20 @@ async function launch({ everywhere = false, window = false } = {}) {
     manifest.host_permissions.push('*://*/*');
     fs.writeFileSync(path.join(extension, 'manifest.json'), JSON.stringify(manifest));
   }
-  const port = 9333 + Math.floor(Math.random() * 500);
   const browser = spawn(EXE, [
-    '--user-data-dir=' + path.join(work, 'profile'), '--remote-debugging-port=' + port, '--load-extension=' + extension,
-    '--disable-features=DisableLoadExtensionCommandLineSwitch,CalculateNativeWinOcclusion', '--disable-backgrounding-occluded-windows',
+    '--user-data-dir=' + path.join(work, 'profile'), '--remote-debugging-pipe', '--enable-unsafe-extension-debugging',
+    '--disable-features=CalculateNativeWinOcclusion', '--disable-backgrounding-occluded-windows',
     '--no-first-run', '--no-default-browser-check', '--disable-sync', '--autoplay-policy=no-user-gesture-required', '--mute-audio',
-    '--window-size=1280,800', ...(window ? [] : ['--headless=new']), 'about:blank',
-  ], { stdio: 'ignore' });
-  let version;
-  for (let i = 0; i < 60 && !version; i++) {
-    await wait(250);
-    version = await fetch(`http://127.0.0.1:${port}/json/version`).then((r) => r.json(), () => null);
-  }
-  if (!version) throw new Error('the browser did not open its debugging port');
-  const socket = new WebSocket(version.webSocketDebuggerUrl);
-  await new Promise((resolve, reject) => {
-    socket.onopen = resolve;
-    socket.onerror = reject;
-  });
+    '--window-size=1280,800', ...(language ? ['--lang=' + language, '--accept-lang=' + language] : []), ...(window ? [] : ['--headless=new']), 'about:blank',
+  ], { stdio: ['ignore', 'ignore', 'ignore', 'pipe', 'pipe'] });
+  const [, , , toBrowser, fromBrowser] = browser.stdio;
   let lastId = 0;
   const pending = new Map();
   const frames = new Map(); // session -> the contexts of its frames: true for the page's own world, false for the extension's
   const send = (method, params = {}, sessionId) =>
     new Promise((resolve, reject) => {
       pending.set(++lastId, { resolve, reject });
-      socket.send(JSON.stringify({ id: lastId, method, params, sessionId }));
+      toBrowser.write(JSON.stringify({ id: lastId, method, params, sessionId }) + '\0');
     });
   // A frame from another site is a target of its own; all of them are followed.
   const follow = (sessionId) => {
@@ -68,8 +62,7 @@ async function launch({ everywhere = false, window = false } = {}) {
     send('Runtime.enable', {}, sessionId).catch(() => {});
     send('Target.setAutoAttach', { autoAttach: true, waitForDebuggerOnStart: false, flatten: true }, sessionId).catch(() => {});
   };
-  socket.onmessage = (m) => {
-    const msg = JSON.parse(m.data);
+  const receive = (msg) => {
     if (pending.has(msg.id)) {
       const { resolve, reject } = pending.get(msg.id);
       pending.delete(msg.id);
@@ -84,8 +77,20 @@ async function launch({ everywhere = false, window = false } = {}) {
     else if (msg.method === 'Runtime.executionContextDestroyed' && own) own.delete(msg.params.executionContextId);
     else if (msg.method === 'Runtime.executionContextsCleared' && own) own.clear();
   };
+  // On the pipe, messages are JSON texts with a zero byte after each.
+  let unread = '';
+  fromBrowser.setEncoding('utf8');
+  fromBrowser.on('data', (chunk) => {
+    unread += chunk;
+    for (let end = unread.indexOf('\0'); end >= 0; end = unread.indexOf('\0')) {
+      const text = unread.slice(0, end);
+      unread = unread.slice(end + 1);
+      receive(JSON.parse(text));
+    }
+  });
+  const { id } = await send('Extensions.loadUnpacked', { path: extension });
   await wait(1500);
-  const isWorker = (t) => t.url.startsWith('chrome-extension://') && t.url.endsWith('background.js');
+  const isWorker = (t) => t.url === 'chrome-extension://' + id + '/background.js';
   if (!(await send('Target.getTargets')).targetInfos.some(isWorker)) throw new Error('the browser did not load the extension');
   const { targetId } = await send('Target.createTarget', { url: 'about:blank' });
   const { sessionId } = await send('Target.attachToTarget', { targetId, flatten: true });
@@ -96,9 +101,10 @@ async function launch({ everywhere = false, window = false } = {}) {
     return r.result.value;
   };
   return {
+    extensionPage: (file) => 'chrome-extension://' + id + '/' + file,
     open: (url) => send('Page.navigate', { url }, sessionId),
     // In the top frame.
-    page: async (expression) => value(await send('Runtime.evaluate', { expression, returnByValue: true, userGesture: true }, sessionId)),
+    page: async (expression) => value(await send('Runtime.evaluate', { expression, awaitPromise: true, returnByValue: true, userGesture: true }, sessionId)),
     // In every frame; one answer for each.
     everyFrame: async (expression) => {
       const out = [];
@@ -147,9 +153,6 @@ async function launch({ everywhere = false, window = false } = {}) {
       for (const type of ['mouseMoved', 'mousePressed', 'mouseReleased']) await send('Input.dispatchMouseEvent', { type, x, y, button: type === 'mouseMoved' ? 'none' : 'left', clickCount: type === 'mouseMoved' ? 0 : 1 }, sessionId);
     },
     close: async () => {
-      try {
-        socket.close();
-      } catch (e) { /* closed already */ }
       try {
         execFileSync('taskkill', ['/PID', String(browser.pid), '/T', '/F'], { stdio: 'ignore' });
       } catch (e) {

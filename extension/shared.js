@@ -1,8 +1,23 @@
 // Shared by the content script and the toolbar popup.
+
+// The languages that can be chosen; their names come from the browser, in the interface's language.
+const SL_LANGS = [
+  'en', 'tr', 'de', 'fr', 'es', 'it', 'pt', 'nl', 'ru', 'ja', 'ko', 'zh', 'ar',
+  'pl', 'sv', 'da', 'no', 'fi', 'el', 'hi', 'id', 'he', 'cs', 'ro', 'hu', 'uk',
+];
+
+// A new user's languages are guessed from the browser's: their own language is the browser's,
+// and what they learn is English — or Spanish, if English is their own.
+function slGuessLanguages(browserLanguage) {
+  const own = String(browserLanguage || 'en').toLowerCase().split('-')[0];
+  const nativeLang = SL_LANGS.includes(own) ? own : 'en';
+  return { nativeLang, learnLang: nativeLang === 'en' ? 'es' : 'en' };
+}
+
 const SL_DEFAULTS = {
   enabled: true,
-  learnLang: 'en',
-  nativeLang: 'tr',
+  ...slGuessLanguages(typeof navigator !== 'undefined' ? navigator.language : 'en'),
+  uiLang: 'auto', // the language of the interface: 'auto' follows the browser
   preferHuman: true, // use Prime's own track in the native language when there is one
   hideNative: true,
   hoverPause: true,
@@ -41,14 +56,4 @@ function slGrade(item, grade, now) {
   return { ...item, ease, interval, reps, lapses, due: now + interval * SL_DAY };
 }
 
-const SL_LANGS = [
-  ['en', 'İngilizce'], ['tr', 'Türkçe'], ['de', 'Almanca'], ['fr', 'Fransızca'],
-  ['es', 'İspanyolca'], ['it', 'İtalyanca'], ['pt', 'Portekizce'], ['nl', 'Felemenkçe'],
-  ['ru', 'Rusça'], ['ja', 'Japonca'], ['ko', 'Korece'], ['zh', 'Çince'],
-  ['ar', 'Arapça'], ['pl', 'Lehçe'], ['sv', 'İsveççe'], ['da', 'Danca'],
-  ['no', 'Norveççe'], ['fi', 'Fince'], ['el', 'Yunanca'], ['hi', 'Hintçe'],
-  ['id', 'Endonezce'], ['he', 'İbranice'], ['cs', 'Çekçe'], ['ro', 'Rumence'],
-  ['hu', 'Macarca'], ['uk', 'Ukraynaca'],
-];
-
-if (typeof module !== 'undefined') module.exports = { SL_DEFAULTS, SL_LANGS, SL_DAY, slIsDue, slGrade };
+if (typeof module !== 'undefined') module.exports = { SL_DEFAULTS, SL_LANGS, SL_DAY, slIsDue, slGrade, slGuessLanguages };

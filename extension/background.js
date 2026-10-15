@@ -1,5 +1,11 @@
-// Translation requests go through the service worker so they are not subject
-// to the page's CORS rules.
+// Translation, word lookup and speech requests come here from the pages.
+//
+// Sentences are translated inside the browser where it can do that (the Translator API): no
+// network, no limits, and the subtitles do not leave the computer. Where it cannot — an older
+// browser, a pair of languages it does not have, or a language pack that has not been fetched
+// yet — and for what it does not know at all (a word's dictionary entry, its sound), the
+// requests go to Google Translate's web endpoint; from here, so that they are not subject to
+// the page's CORS rules.
 const ENDPOINT = 'https://translate.googleapis.com/translate_a/single';
 const MAX_Q = 1600; // encoded characters per request
 
@@ -13,8 +19,9 @@ function gLang(code) {
 
 async function call(q, sl, tl, extra = '') {
   const url = `${ENDPOINT}?client=gtx&sl=${gLang(sl)}&tl=${gLang(tl)}&dt=t${extra}&q=${encodeURIComponent(q)}`;
-  const res = await fetch(url);
-  if (!res.ok) throw new Error('Çeviri servisi yanıt vermedi (HTTP ' + res.status + ')');
+  // A request that does not get through at all is tried once more after a moment.
+  const res = await fetch(url).catch(() => new Promise((r) => setTimeout(r, 700)).then(() => fetch(url)));
+  if (!res.ok) throw new Error('HTTP ' + res.status);
   return res.json();
 }
 
@@ -30,8 +37,58 @@ async function translateGroup(texts, sl, tl) {
   return out;
 }
 
+// ---- inside the browser
+
+const translators = new Map(); // 'en>tr' -> a translator that is ready
+
+// The names a language may go by there: it knows Hebrew and Norwegian by their older codes.
+function builtInNames(code) {
+  const c = String(code || '').toLowerCase();
+  if (!c) return [];
+  if (c.startsWith('zh') || c.startsWith('cmn')) return [/hant|tw|hk/.test(c) ? 'zh-Hant' : 'zh'];
+  const base = c.split(/[-_]/)[0];
+  return { he: ['he', 'iw'], iw: ['he', 'iw'], no: ['no', 'nb'], nb: ['nb', 'no'] }[base] || [base];
+}
+
+// A translator for the pair, or why there is none: 'none' (no such thing in this browser),
+// 'unavailable' (not for these languages), or 'downloadable' (its language pack has to be
+// fetched first, which the browser only does when a person asks: see the toolbar popup).
+async function builtIn(sl, tl) {
+  if (typeof Translator !== 'function') return { state: 'none' };
+  const key = sl + '>' + tl;
+  if (translators.has(key)) return { state: 'available', key, translator: translators.get(key) };
+  let state = 'unavailable';
+  for (const sourceLanguage of builtInNames(sl)) {
+    for (const targetLanguage of builtInNames(tl)) {
+      if (sourceLanguage === targetLanguage) continue;
+      const found = await Translator.availability({ sourceLanguage, targetLanguage }).catch(() => 'unavailable');
+      if (found === 'available') {
+        const translator = await Translator.create({ sourceLanguage, targetLanguage });
+        translators.set(key, translator);
+        return { state: 'available', key, translator };
+      }
+      if (found !== 'unavailable') state = 'downloadable';
+    }
+  }
+  return { state };
+}
+
 async function translateMany(texts, sl, tl) {
   const flat = texts.map((t) => String(t).replace(/\s*\n\s*/g, ' ').trim());
+  const own = await builtIn(sl, tl).catch(() => ({ state: 'none' }));
+  if (own.translator) {
+    try {
+      const lines = [];
+      for (const t of flat) lines.push(t ? String(await own.translator.translate(t)).trim() : '');
+      return { lines, engine: 'browser' };
+    } catch (e) {
+      translators.delete(own.key); // it may have been closed with the worker's last sleep; the network answers this time
+    }
+  }
+  return { lines: await translateOnline(flat, sl, tl), engine: 'online', canGet: own.state === 'downloadable' };
+}
+
+async function translateOnline(flat, sl, tl) {
   const out = [];
   let group = [];
   let size = 0;
@@ -54,7 +111,15 @@ async function translateMany(texts, sl, tl) {
 // Translation plus what the service knows about the word in its own language:
 // phonetic spelling, definitions and synonyms. Phrases usually get the translation only.
 async function lookup(text, sl, tl) {
-  const data = await call(text, sl, tl, '&dt=bd&dt=md&dt=ss&dt=rm');
+  let data;
+  try {
+    data = await call(text, sl, tl, '&dt=bd&dt=md&dt=ss&dt=rm');
+  } catch (e) {
+    // Without the service there is no dictionary entry, but the browser may still translate.
+    const own = await builtIn(sl, tl).catch(() => ({}));
+    if (!own.translator) throw e;
+    return { translation: String(await own.translator.translate(text)).trim(), dict: [], ipa: '', defs: [], synonyms: [] };
+  }
   const phonetic = (data[0] || []).find((s) => s && s[0] == null && typeof s[3] === 'string');
   const defs = [];
   for (const group of data[12] || []) {
@@ -92,9 +157,9 @@ async function tts(text, lang, slow) {
     `https://translate.googleapis.com/translate_tts?client=gtx&ie=UTF-8&tl=${encodeURIComponent(lang)}` +
     `${slow ? '&ttsspeed=0.24' : ''}&q=${encodeURIComponent(text.slice(0, 200))}`;
   const res = await fetch(url);
-  if (!res.ok) throw new Error('Ses servisi yanıt vermedi (HTTP ' + res.status + ')');
+  if (!res.ok) throw new Error('HTTP ' + res.status);
   const bytes = new Uint8Array(await res.arrayBuffer());
-  if (bytes.length < 200) throw new Error('Ses servisi boş yanıt verdi');
+  if (bytes.length < 200) throw new Error('empty answer');
   let bin = '';
   for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
   return btoa(bin);
@@ -142,17 +207,32 @@ for (const event of [chrome.permissions.onAdded, chrome.permissions.onRemoved, c
 }
 chrome.runtime.onInstalled.addListener(() => syncSites(true).catch(() => {}));
 
+// The sound of a tab, louder: played by a page without a window (offscreen.html), which is
+// opened the first time it is needed. The popup gets the tab's sound; it is passed on there.
+async function toOffscreen(msg) {
+  const open = await chrome.runtime.getContexts({ contextTypes: ['OFFSCREEN_DOCUMENT'] });
+  if (!open.length) {
+    await chrome.offscreen.createDocument({ url: 'offscreen.html', reasons: ['USER_MEDIA'], justification: 'Plays the sound of a tab louder, as the user asked.' });
+  }
+  const res = await chrome.runtime.sendMessage({ ...msg, target: 'offscreen' });
+  if (!res || !res.ok) throw new Error((res && res.error) || 'no answer');
+  return res.result;
+}
+
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+  if (msg && msg.target === 'offscreen') return false; // for the offscreen page, not for here
   let job;
   if (msg && msg.type === 'translate') job = translateMany(msg.texts || [], msg.sl, msg.tl);
   else if (msg && msg.type === 'lookup') job = lookup(String(msg.text || ''), msg.sl, msg.tl);
   else if (msg && msg.type === 'tts') job = tts(String(msg.text || ''), String(msg.lang || 'en'), !!msg.slow);
+  else if (msg && (msg.type === 'boost' || msg.type === 'boost-state')) job = toOffscreen({ type: msg.type, tabId: msg.tabId, level: msg.level, streamId: msg.streamId });
   else if (msg && msg.type === 'sync-sites') job = syncSites(false);
   else if (msg && msg.type === 'start-in-tab') job = startInTab(msg.tabId);
   else if (msg && msg.type === 'open-review') job = chrome.tabs.create({ url: chrome.runtime.getURL('review.html') }).then(() => true);
   else return false;
   job.then(
-    (result) => sendResponse({ ok: true, result }),
+    // A translation also says where it was made.
+    (result) => sendResponse(result && result.lines ? { ok: true, result: result.lines, engine: result.engine, canGet: !!result.canGet } : { ok: true, result }),
     (err) => sendResponse({ ok: false, error: String((err && err.message) || err) })
   );
   return true;

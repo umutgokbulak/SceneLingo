@@ -48,7 +48,7 @@ test('the content script is registered for other sites only while the user allow
   assert.deepEqual(site.calls, ['register']); // once, however often it is asked
   const [script] = site.registered;
   assert.deepEqual(script.matches, ['*://*/*']);
-  assert.deepEqual(script.js, ['shared.js', 'core.js', 'subtitles.js', 'content.js']);
+  assert.deepEqual(script.js, ['messages.js', 'shared.js', 'core.js', 'subtitles.js', 'content.js']);
   assert.equal(script.runAt, 'document_start');
   assert.equal(script.allFrames, true);
   // The sites the manifest covers are left to the manifest, so nothing runs twice there.
@@ -67,7 +67,7 @@ const reset = (fn) => {
 test('translate sends many cues in one request and splits the answer back', async () => {
   reset((url) => translated(url.searchParams.get('q')));
   const res = await ask({ type: 'translate', texts: ['Hello there,\nhow are you?', '', 'Bye.'], sl: 'en-us', tl: 'tr' });
-  assert.deepEqual(res, { ok: true, result: ['T(Hello there, how are you?)', 'T()', 'T(Bye.)'] });
+  assert.deepEqual(res, { ok: true, result: ['T(Hello there, how are you?)', 'T()', 'T(Bye.)'], engine: 'online', canGet: false });
   assert.equal(calls.length, 1);
   assert.equal(calls[0].searchParams.get('sl'), 'en');
   assert.equal(calls[0].searchParams.get('tl'), 'tr');
@@ -98,6 +98,33 @@ test('language codes are mapped to what the service expects', async () => {
   await ask({ type: 'translate', texts: ['x'], sl: 'zh-Hant', tl: 'nb-NO' });
   await ask({ type: 'translate', texts: ['x'], sl: '', tl: 'he' });
   assert.deepEqual(calls.map((u) => [u.searchParams.get('sl'), u.searchParams.get('tl')]), [['zh-TW', 'no'], ['auto', 'iw']]);
+});
+
+test('sentences are translated inside the browser when it can, and say so', async () => {
+  reset((url) => translated(url.searchParams.get('q')));
+  const asked = [];
+  globalThis.Translator = Object.assign(function Translator() {}, {
+    availability: async (pair) => (asked.push(pair.sourceLanguage + '>' + pair.targetLanguage), pair.targetLanguage === 'tr' ? 'available' : pair.targetLanguage === 'de' ? 'downloadable' : 'unavailable'),
+    create: async (pair) => ({ translate: async (text) => 'B(' + text + ')' }),
+  });
+  try {
+    const own = await ask({ type: 'translate', texts: ['One.', 'Two\nlines.', ''], sl: 'en-US', tl: 'tr' });
+    assert.deepEqual(own, { ok: true, result: ['B(One.)', 'B(Two lines.)', ''], engine: 'browser', canGet: false });
+    assert.equal(calls.length, 0); // nothing went to the network
+    // A pair whose language pack has not been fetched: the network, and a note that it could be.
+    const pack = await ask({ type: 'translate', texts: ['One.'], sl: 'en', tl: 'de' });
+    assert.deepEqual([pack.result, pack.engine, pack.canGet], [['T(One.)'], 'online', true]);
+    // A pair the browser does not have. Hebrew is tried under both of its codes.
+    const none = await ask({ type: 'translate', texts: ['One.'], sl: 'en', tl: 'he' });
+    assert.deepEqual([none.engine, none.canGet], ['online', false]);
+    assert.ok(asked.includes('en>he') && asked.includes('en>iw'));
+    // Without the service a word still gets its translation, if not its dictionary entry.
+    reset(() => ({ status: 429, json: null }));
+    const word = await ask({ type: 'lookup', text: 'umbrella', sl: 'en', tl: 'tr' });
+    assert.deepEqual(word.result, { translation: 'B(umbrella)', dict: [], ipa: '', defs: [], synonyms: [] });
+  } finally {
+    delete globalThis.Translator;
+  }
 });
 
 test('a failing service is reported instead of thrown', async () => {

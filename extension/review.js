@@ -1,6 +1,6 @@
 const $ = (id) => document.getElementById(id);
 const keyOf = (item) => item.word.toLowerCase();
-const KIND_LABEL = { word: 'Kelime', phrase: 'Kalıp', sentence: 'Cümle' };
+const KIND_LABEL = { word: 'kindWordCard', phrase: 'kindPhraseCard', sentence: 'kindSentenceCard' };
 
 let settings = { ...SL_DEFAULTS };
 let words = [];
@@ -23,8 +23,8 @@ function speak(slow) {
 }
 
 function intervalLabel(item) {
-  if (!item.interval) return '10 dakika sonra';
-  return item.interval === 1 ? 'yarın' : item.interval + ' gün sonra';
+  if (!item.interval) return slT('inMinutes');
+  return item.interval === 1 ? slT('tomorrow') : slT('inDays', item.interval);
 }
 
 // The sentence the item was saved from, with the item itself marked.
@@ -49,14 +49,14 @@ function show() {
     current = words.find((w) => keyOf(w) === key) || null;
     if (!current) queue.shift();
   }
-  $('progress').textContent = `Kalan ${queue.length} · Biten ${finished}`;
+  $('progress').textContent = slT('progress', queue.length, finished);
   $('card').hidden = !current;
   $('empty').hidden = !!current;
   if (!current) return showEmpty();
 
   revealed = false;
   const kind = current.kind || (/\s/.test(current.word) ? 'phrase' : 'word');
-  $('kind').textContent = KIND_LABEL[kind] || '';
+  $('kind').textContent = KIND_LABEL[kind] ? slT(KIND_LABEL[kind]) : '';
   $('term').textContent = current.word;
   $('term').classList.toggle('long', current.word.length > 28);
   $('ipa').textContent = current.ipa ? '/' + current.ipa + '/' : '';
@@ -64,7 +64,7 @@ function show() {
   $('source').textContent = current.title || '';
   $('translation').textContent = current.translation || '—';
   $('definition').textContent = current.definition || '';
-  $('synonyms').textContent = current.synonyms && current.synonyms.length ? 'Eş anlamlı: ' + current.synonyms.join(', ') : '';
+  $('synonyms').textContent = current.synonyms && current.synonyms.length ? slT('synonymsOf', current.synonyms.join(', ')) : '';
   $('answer').hidden = true;
   $('grades').hidden = true;
   $('show').hidden = false;
@@ -79,12 +79,12 @@ function showEmpty() {
   const now = Date.now();
   const next = words.map((w) => w.due || 0).filter((d) => d > now).sort((a, b) => a - b)[0];
   let text;
-  if (!words.length) text = 'Henüz kayıtlı kelime yok. Film izlerken bir kelimeye tıkla ve ☆ Kaydet de.';
-  else if (finished) text = `Bugünlük bitti: ${finished} kart tekrar edildi.`;
-  else text = 'Şu an tekrar zamanı gelen kart yok.';
+  if (!words.length) text = slT('noSaved');
+  else if (finished) text = slT('doneToday', finished);
+  else text = slT('nothingDue');
   if (next) {
     const hours = (next - now) / 3600000;
-    text += ' Sıradaki kart ' + (hours < 1 ? 'bir saat içinde' : hours < 24 ? Math.round(hours) + ' saat sonra' : Math.round(hours / 24) + ' gün sonra') + ' hazır.';
+    text += hours < 1 ? slT('nextSoon') : hours < 24 ? slT('nextHours', Math.round(hours)) : slT('nextDays', Math.round(hours / 24));
   }
   $('emptyText').textContent = text;
   $('studyAll').hidden = !words.length;
@@ -158,6 +158,9 @@ document.addEventListener('keydown', (e) => {
 
 chrome.storage.sync.get(SL_DEFAULTS, (stored) => {
   settings = { ...SL_DEFAULTS, ...stored };
+  document.documentElement.lang = slSetUiLang(settings.uiLang);
+  slApply(document);
+  document.title = slT('reviewTitle') + ' — SceneLingo';
   chrome.storage.local.get({ words: [] }, (data) => {
     words = data.words;
     start(false);

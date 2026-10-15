@@ -54,7 +54,7 @@
       sendMessage(msg, cb) {
         window.__sent.push(msg);
         if (msg.type === 'translate') {
-          setTimeout(() => cb({ ok: true, result: msg.texts.map((t) => '[' + msg.tl + '] ' + t.replace(/\n/g, ' ')) }), 30);
+          setTimeout(() => cb({ ok: true, result: msg.texts.map((t) => '[' + msg.tl + '] ' + t.replace(/\n/g, ' ')), engine: 'online' }), 30);
         } else if (msg.type === 'sync-sites' || msg.type === 'start-in-tab') {
           if (cb) cb({ ok: true, result: true });
         } else if (msg.type === 'open-review') {
