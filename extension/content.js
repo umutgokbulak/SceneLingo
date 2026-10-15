@@ -768,6 +768,7 @@
     }
     video = best;
     if (video) followVideo(video);
+    if (SITE === 'youtube') playerButton();
     if (SITE === 'other') scanPage();
     // On a site that is not known, a video is left alone unless it comes with subtitles or the
     // user has asked for the overlay.
@@ -1637,8 +1638,34 @@
     pickVideo();
   }
 
+  // On YouTube a button of its own sits in the player's control bar, as other extensions put
+  // theirs: it switches the dual subtitles on and off, and says which they are.
+  function playerButton() {
+    const bar = document.querySelector('#movie_player .ytp-right-controls') || document.querySelector('.html5-video-player .ytp-right-controls');
+    if (!bar || !settingsLoaded) return;
+    let b = bar.querySelector('.sl-yt-button');
+    if (!b) {
+      b = el('button', 'ytp-button sl-yt-button');
+      b.append(el('span', 'sl-yt-mark', 'SL'), el('span', 'sl-yt-state'));
+      b.addEventListener('click', (e) => {
+        e.stopPropagation();
+        setSetting('enabled', !settings.enabled);
+        toast(slT(settings.enabled ? 'dualOn' : 'dualOff'));
+      });
+      bar.prepend(b);
+    }
+    b.classList.toggle('sl-on', !!settings.enabled);
+    b.lastChild.textContent = settings.enabled ? 'ON' : 'OFF';
+    const tip = 'SceneLingo — ' + slT(settings.enabled ? 'dualOn' : 'dualOff');
+    if (b.title !== tip) {
+      b.title = tip;
+      b.setAttribute('aria-label', tip);
+    }
+  }
+
   function applySettings(keys) {
     if (keys.includes('uiLang')) rebuild();
+    if (SITE === 'youtube') playerButton();
     if (practice && (practice.mode !== settings.mode || !settings.enabled)) closePractice(false);
     if (settings.mode !== 'speak') releaseMic();
     applyNativeHiding();

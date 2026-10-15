@@ -689,3 +689,39 @@ html.sl-hide-native video::-webkit-media-text-track-container {
   font-size: 15px;
   text-align: center;
 }
+
+/* ---- the button in YouTube's control bar (outside the overlay, so styled on its own) ---- */
+
+.ytp-button.sl-yt-button {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  width: auto !important;
+  padding: 0 10px !important;
+  font: 600 12px/1 "Segoe UI", Arial, sans-serif;
+  color: #fff;
+  opacity: 0.75;
+  vertical-align: top;
+}
+.ytp-button.sl-yt-button:hover {
+  opacity: 1;
+}
+.sl-yt-button .sl-yt-mark {
+  padding: 4px 5px;
+  border: 2px solid currentColor;
+  border-radius: 6px;
+  letter-spacing: 0.04em;
+}
+.sl-yt-button .sl-yt-state {
+  font-size: 11px;
+  color: #c7d1db;
+}
+.sl-yt-button.sl-on .sl-yt-mark {
+  color: #fff;
+  background: #1a6fd6;
+  border-color: #1a98ff;
+}
+.sl-yt-button.sl-on .sl-yt-state {
+  color: #9fd4ff;
+}

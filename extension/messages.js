@@ -93,6 +93,8 @@ const SL_TEXTS = {
     // ---- settings menu
     headSubtitles: 'Subtitles',
     dual: 'Dual subtitles',
+    dualOn: 'dual subtitles on',
+    dualOff: 'dual subtitles off',
     upper: 'Upper line',
     lower: 'Lower line',
     hideNative: 'Hide the site’s own subtitles',
@@ -276,6 +278,8 @@ const SL_TEXTS = {
     close: 'Kapat',
     headSubtitles: 'Altyazı',
     dual: 'Çift altyazı',
+    dualOn: 'çift altyazı açık',
+    dualOff: 'çift altyazı kapalı',
     upper: 'Üst satır',
     lower: 'Alt satır',
     hideNative: 'Sitenin kendi altyazısını gizle',
