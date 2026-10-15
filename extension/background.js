@@ -219,13 +219,53 @@ async function toOffscreen(msg) {
   return res.result;
 }
 
+// While a tab's sound is captured, the browser keeps a video's fullscreen inside the tab and the
+// window stays as it was. So the page says when a video goes fullscreen, and the window follows.
+async function boostTab(msg) {
+  const result = await toOffscreen({ type: 'boost', tabId: msg.tabId, level: msg.level, streamId: msg.streamId });
+  if (result.level > 100) {
+    await chrome.scripting
+      .executeScript({
+        target: { tabId: msg.tabId },
+        func: () => {
+          if (window.__slFullscreen) return;
+          window.__slFullscreen = true;
+          document.addEventListener('fullscreenchange', () => chrome.runtime.sendMessage({ type: 'tab-fullscreen', on: !!document.fullscreenElement }).catch(() => {}));
+        },
+      })
+      .catch(() => {}); // a page the extension may not touch keeps the fullscreen inside the tab
+  }
+  return result;
+}
+
+async function tabFullscreen(tab, on) {
+  if (!tab) return false;
+  const key = 'window-' + tab.windowId;
+  if (on) {
+    const open = await chrome.runtime.getContexts({ contextTypes: ['OFFSCREEN_DOCUMENT'] });
+    if (!open.length || (await toOffscreen({ type: 'boost-state', tabId: tab.id })).level <= 100) return false;
+    const win = await chrome.windows.get(tab.windowId);
+    if (win.state === 'fullscreen') return false;
+    await chrome.storage.session.set({ [key]: win.state });
+    await chrome.windows.update(tab.windowId, { state: 'fullscreen' });
+    return true;
+  }
+  const { [key]: before } = await chrome.storage.session.get(key);
+  if (!before) return false;
+  await chrome.storage.session.remove(key);
+  await chrome.windows.update(tab.windowId, { state: before });
+  return true;
+}
+
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (msg && msg.target === 'offscreen') return false; // for the offscreen page, not for here
   let job;
   if (msg && msg.type === 'translate') job = translateMany(msg.texts || [], msg.sl, msg.tl);
   else if (msg && msg.type === 'lookup') job = lookup(String(msg.text || ''), msg.sl, msg.tl);
   else if (msg && msg.type === 'tts') job = tts(String(msg.text || ''), String(msg.lang || 'en'), !!msg.slow);
-  else if (msg && (msg.type === 'boost' || msg.type === 'boost-state')) job = toOffscreen({ type: msg.type, tabId: msg.tabId, level: msg.level, streamId: msg.streamId });
+  else if (msg && msg.type === 'boost') job = boostTab(msg);
+  else if (msg && msg.type === 'boost-state') job = toOffscreen({ type: msg.type, tabId: msg.tabId });
+  else if (msg && msg.type === 'tab-fullscreen') job = tabFullscreen(sender.tab, !!msg.on);
   else if (msg && msg.type === 'sync-sites') job = syncSites(false);
   else if (msg && msg.type === 'start-in-tab') job = startInTab(msg.tabId);
   else if (msg && msg.type === 'open-review') job = chrome.tabs.create({ url: chrome.runtime.getURL('review.html') }).then(() => true);

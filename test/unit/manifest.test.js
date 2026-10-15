@@ -35,7 +35,7 @@ test('the page-world hooks and the content script run on the same pages', () => 
 });
 
 test('it asks for little, and for other sites only when the user says so', () => {
-  assert.deepEqual(manifest.permissions, ['storage', 'scripting', 'tabCapture', 'offscreen']);
+  assert.deepEqual(manifest.permissions, ['storage', 'scripting', 'tabCapture', 'offscreen', 'activeTab']);
   assert.deepEqual(manifest.host_permissions, ['https://translate.googleapis.com/*']);
   assert.deepEqual(manifest.optional_host_permissions, ['*://*/*']);
   assert.match(manifest.version, /^\d+\.\d+\.\d+$/);

@@ -6,7 +6,7 @@
   "default_locale": "en",
   "icons": { "16": "icons/16.png", "48": "icons/48.png", "128": "icons/128.png" },
   "minimum_chrome_version": "111",
-  "permissions": ["storage", "scripting", "tabCapture", "offscreen"],
+  "permissions": ["storage", "scripting", "tabCapture", "offscreen", "activeTab"],
   "host_permissions": ["https://translate.googleapis.com/*"],
   "optional_host_permissions": ["*://*/*"],
   "background": { "service_worker": "background.js" },
