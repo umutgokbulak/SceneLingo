@@ -34,6 +34,8 @@ const noEvent = { addListener() {} };
 globalThis.chrome = {
   runtime: { onMessage: { addListener(fn) { handler = fn; } }, getURL: (p) => '/extension/' + p, onInstalled: noEvent, onStartup: noEvent },
   tabs: { create: async () => ({}) },
+  contextMenus: { create() {}, onClicked: noEvent },
+  storage: { local: { get: async (defaults) => ({ ...defaults }) } },
   permissions: { onAdded: noEvent, onRemoved: noEvent },
 };
 require('../extension/background.js');

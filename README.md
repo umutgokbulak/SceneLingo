@@ -41,7 +41,7 @@
   flashcards that come back on a schedule.
 - **Where:** Amazon Prime Video, YouTube, and any site whose subtitles can be found from outside the page
   (TED, Vimeo's player and Wikimedia Commons were checked) — or any video at all, with a subtitle file of your own.
-- **How it is built:** Manifest V3, plain JavaScript, no dependencies and no build step; 53 unit tests, a
+- **How it is built:** Manifest V3, plain JavaScript, no dependencies and no build step; 56 unit tests, a
   stand-in player for everything that can be tested without a site, and a script that loads the real extension
   into a real browser for what cannot.
 
@@ -76,6 +76,10 @@ them), plyr.io, Vimeo's player, Wikimedia Commons and a YouTube player embedded 
     line then appears with the words you got in green and the ones you missed in red.
   - **Speak** — after each sentence you say it aloud. The browser's speech recognition tells you which words it
     understood, and you can play your own recording back.
+- **What a word means in its sentence.** A dictionary lists every meaning of "ripped"; in "you ripped off
+  the wrong people" the card says *soymak*. The sentence is translated with the word marked, and the marked
+  part of the translation is the answer. With your own free Gemini API key it also names the phrase the word
+  belongs to and explains the use. Review cards show it, with the sentence's translation.
 - **Select text on any page.** A small SL button appears beside it: translation, dictionary entry, voice,
   and a Save that sends it to review with the sentence it came from. Text in your own language is shown in
   the language you learn. On sites SceneLingo has no access to, right-click the selection.

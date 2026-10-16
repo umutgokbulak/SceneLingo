@@ -26,6 +26,10 @@
   #definition { margin-top: 8px; color: #dbe4ec; }
   #contextTr { margin-top: 6px; font-size: 15px; font-style: italic; color: #b8c7d6; }
   #contextTr:empty { display: none; }
+  #contextMeaning { margin: 8px auto 2px; padding: 6px 10px; max-width: 520px; border-left: 3px solid #1a98ff; background: rgba(26, 152, 255, 0.1); border-radius: 4px; color: #fff; }
+  #contextMeaning:empty { display: none; }
+  #contextMeaning small { display: block; margin-top: 3px; color: #b8c7d6; font-size: 13px; }
+  #contextMeaning .label { color: #8fa3b5; font-style: italic; margin-right: 6px; }
   #synonyms { margin-top: 6px; font-size: 14px; color: #8fa3b5; }
   #actions { margin-top: 22px; }
   button { font: inherit; color: #fff; background: #2c3947; border: 1px solid #46566a; border-radius: 8px; padding: 8px 14px; cursor: pointer; }
@@ -60,6 +64,7 @@
     <div id="source"></div>
     <div id="answer" hidden>
       <div id="translation"></div>
+      <div id="contextMeaning"></div>
       <div id="contextTr"></div>
       <div id="definition"></div>
       <div id="synonyms"></div>

@@ -161,6 +161,82 @@ async function lookup(text, sl, tl) {
   };
 }
 
+// What a word means in the sentence it is in. A dictionary gives every meaning of "ripped";
+// in "you ripped off the wrong people" it is "soymak". With the user's own Gemini key, the model
+// answers, and also says when the word is part of a phrase. Without one, or when its free quota
+// is used up, the sentence is translated with the word marked, and the marked part of the
+// translation is the word's meaning there.
+const senses = new Map();
+let geminiRestUntil = 0; // after "too many requests", Gemini is left alone for a while
+let geminiModel = null; // the first of GEMINI_MODELS this key may use
+const GEMINI_MODELS = ['gemini-flash-lite-latest', 'gemini-3.5-flash-lite', 'gemini-3.1-flash-lite', 'gemini-flash-latest'];
+
+async function sense(word, sentence, sl, tl) {
+  word = String(word || '').trim();
+  sentence = String(sentence || '').replace(/\s+/g, ' ').trim();
+  if (!word || !sentence || sentence.toLowerCase() === word.toLowerCase()) return null;
+  const key = [sl, tl, word, sentence].join('|').toLowerCase();
+  if (senses.has(key)) return senses.get(key);
+  const { geminiKey } = await chrome.storage.local.get({ geminiKey: '' });
+  let answer = null;
+  if (geminiKey && Date.now() > geminiRestUntil) {
+    answer = await askGemini(geminiKey, word, sentence, sl, tl).catch((e) => {
+      if (/429|quota|exhausted/i.test(e.message)) geminiRestUntil = Date.now() + 60000;
+      return { error: e.message };
+    });
+  }
+  if (!answer || answer.error) {
+    const marked = await markedMeaning(word, sentence, sl, tl).catch(() => null);
+    answer = marked ? { meaning: marked, engine: 'marked', ...(answer && answer.error ? { geminiError: answer.error } : {}) } : answer;
+  }
+  if (answer && answer.meaning) {
+    if (senses.size > 500) senses.clear();
+    senses.set(key, answer);
+  }
+  return answer;
+}
+
+async function markedMeaning(word, sentence, sl, tl) {
+  const at = sentence.toLowerCase().indexOf(word.toLowerCase());
+  if (at < 0) return '';
+  const marked = sentence.slice(0, at) + '<b>' + sentence.slice(at, at + word.length) + '</b>' + sentence.slice(at + word.length);
+  const out = joined(await call(marked, sl, tl));
+  const m = /<\s*b\s*>([\s\S]*?)<\s*\/\s*b\s*>/i.exec(out);
+  const meaning = m ? m[1].replace(/<[^>]*>/g, '').replace(/^[\s"'“”«»]+|[\s"'“”«».,!?;:]+$/g, '') : '';
+  return meaning.length && meaning.length < 60 ? meaning : '';
+}
+
+async function askGemini(apiKey, word, sentence, sl, tl) {
+  const name = (code) => new Intl.DisplayNames(['en'], { type: 'language' }).of(code) || code;
+  const prompt =
+    `A learner of ${name(sl)} whose own language is ${name(tl)} points at "${word}" in this sentence from a film or a page:\n` +
+    `"${sentence}"\n\n` +
+    `Answer in JSON with these keys:\n` +
+    `"phrase": the phrase or idiom "${word}" belongs to in this sentence, in its dictionary form (for example "rip off", "make up one's mind"), or "" if it is used on its own;\n` +
+    `"meaning": what "${word}" (or that phrase) means in this sentence, in ${name(tl)}, as a dictionary would put it: a few words, in the base form;\n` +
+    `"note": one short sentence in ${name(tl)} that explains the use here, for example the tone or the grammar; "" if there is nothing worth saying.`;
+  const body = JSON.stringify({
+    contents: [{ role: 'user', parts: [{ text: prompt }] }],
+    generationConfig: { temperature: 0.2, responseMimeType: 'application/json', maxOutputTokens: 300 },
+  });
+  for (const model of geminiModel ? [geminiModel] : GEMINI_MODELS) {
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
+      body,
+    });
+    if (res.status === 404) continue; // a model name this key or this year does not know
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error('Gemini ' + res.status + ((data.error && ': ' + data.error.message) || ''));
+    geminiModel = model;
+    const text = (((data.candidates || [])[0] || {}).content || { parts: [] }).parts.map((p) => p.text || '').join('');
+    const json = JSON.parse(text.replace(/^```(?:json)?\s*|\s*```$/g, ''));
+    if (!json.meaning) throw new Error('Gemini: empty answer');
+    return { meaning: String(json.meaning).trim(), phrase: String(json.phrase || '').trim(), note: String(json.note || '').trim(), engine: 'gemini' };
+  }
+  throw new Error('Gemini: no model available for this key');
+}
+
 // Spoken audio for a word or short phrase, returned as base64 MP3.
 async function tts(text, lang, slow) {
   const url =
@@ -289,6 +365,8 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   let job;
   if (msg && msg.type === 'translate') job = translateMany(msg.texts || [], msg.sl, msg.tl);
   else if (msg && msg.type === 'lookup') job = lookup(String(msg.text || ''), msg.sl, msg.tl);
+  else if (msg && msg.type === 'sense') job = sense(msg.word, msg.sentence, msg.sl, msg.tl);
+  else if (msg && msg.type === 'gemini-test') job = chrome.storage.local.get({ geminiKey: '' }).then(({ geminiKey }) => askGemini(geminiKey, 'ripped', 'It is not my fault you ripped off the wrong people.', 'en', msg.tl || 'tr'));
   else if (msg && msg.type === 'tts') job = tts(String(msg.text || ''), String(msg.lang || 'en'), !!msg.slow);
   else if (msg && msg.type === 'boost') job = boostTab(msg);
   else if (msg && msg.type === 'boost-state') job = toOffscreen({ type: msg.type, tabId: msg.tabId });

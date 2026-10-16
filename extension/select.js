@@ -193,6 +193,7 @@
       if ((info.synonyms || []).length) labelled(slT('synonyms'), info.synonyms.join(', '));
     }
 
+    let sensed = null;
     const btns = el('div', 'sl-sel-btns');
     const voice = learntLang === 'en' ? settings.accent || 'en-GB' : learntLang;
     const listen = el('button', 'sl-sel-btn', '🔊 ' + slT('listen'));
@@ -220,6 +221,9 @@
                 definition: !reversed && info.defs && info.defs[0] ? info.defs[0].text : '',
                 synonyms: reversed ? [] : info.synonyms || [],
                 context: reversed ? '' : context,
+                contextMeaning: sensed ? sensed.meaning : '',
+                contextPhrase: sensed ? sensed.phrase || '' : '',
+                contextNote: sensed ? sensed.note || '' : '',
                 lang: learntLang,
                 title: document.title || location.hostname,
                 added: Date.now(),
@@ -233,6 +237,21 @@
     btns.append(listen, slow, save);
     card.insertBefore(btns, body);
     place(card, picked.rect);
+
+    // What it means in the sentence it was selected from.
+    if (!reversed && short && context) {
+      const r = await send({ type: 'sense', word: text, sentence: context, sl, tl });
+      if (mine !== token || !r || !r.ok || !r.result || !r.result.meaning) return;
+      sensed = r.result;
+      if (!sensed.phrase && !sensed.note && sensed.meaning.toLowerCase() === String(info.translation).toLowerCase()) return;
+      const box = el('div', 'sl-sel-sense');
+      const line = el('div');
+      line.append(el('span', 'sl-sel-pos', slT('inSentence')), document.createTextNode(' ' + (sensed.phrase ? sensed.phrase + ' — ' : '') + sensed.meaning));
+      box.append(line);
+      if (sensed.note) box.append(el('div', 'sl-sel-ex', sensed.note));
+      body.insertBefore(box, body.querySelector('.sl-sel-main').nextSibling);
+      place(card, picked.rect);
+    }
   }
 
   document.addEventListener(
@@ -311,6 +330,7 @@
     .sl-sel-line { font-size: 13px; color: #c9d1d9; margin-top: 2px; }
     .sl-sel-pos { color: #8b949e; font-style: italic; }
     .sl-sel-ex { font-size: 12px; color: #8b949e; margin-top: 2px; }
+    .sl-sel-sense { margin: 4px 0 6px; padding: 6px 8px; border-left: 3px solid #1a98ff; background: rgba(26,152,255,.1); border-radius: 4px; color: #fff; }
     .sl-sel-note { font-size: 11px; color: #8b949e; text-transform: uppercase; letter-spacing: .04em; }
   `;
 })();

@@ -136,6 +136,17 @@ const SL_TEXTS = {
     uiAuto: 'Automatic',
     preferHuman: 'Use the site’s own translation when there is one',
     selectLookup: 'Translate text I select on any page',
+    inSentence: 'In this sentence:',
+    headGemini: 'Meaning in the sentence (Gemini)',
+    geminiNote: 'With your own free Gemini API key, the word card says what a word means in its sentence and which phrase it belongs to. Without a key, the sentence is translated with the word marked. The key stays in this browser.',
+    geminiKeyPh: 'Paste your Gemini API key',
+    geminiSave: 'Save',
+    geminiGetKey: 'Get a free key',
+    geminiHas: 'a key is saved',
+    geminiNone: 'no key: the marked sentence is used',
+    geminiTrying: 'trying the key…',
+    geminiWorks: 'works: “ripped” → {0}',
+    geminiFailed: 'did not work: {0}',
     selectLookupTip: 'Select a word or sentence and press the SL button beside it. On sites SceneLingo is not allowed on, right-click the selection instead.',
     selectTip: 'SceneLingo: translate, listen, save',
     selectIn: 'in {0}',
@@ -324,6 +335,17 @@ const SL_TEXTS = {
     uiAuto: 'Otomatik',
     preferHuman: 'Varsa sitenin kendi çevirisini kullan',
     selectLookup: 'Her sayfada seçtiğim metni çevir',
+    inSentence: 'Bu cümlede:',
+    headGemini: 'Cümledeki anlam (Gemini)',
+    geminiNote: 'Kendi ücretsiz Gemini API anahtarınla kelime kartı, kelimenin o cümlede ne demek olduğunu ve hangi kalıbın parçası olduğunu söyler. Anahtar yoksa cümle, kelime işaretlenerek çevrilir. Anahtar sadece bu tarayıcıda kalır.',
+    geminiKeyPh: 'Gemini API anahtarını yapıştır',
+    geminiSave: 'Kaydet',
+    geminiGetKey: 'Ücretsiz anahtar al',
+    geminiHas: 'anahtar kayıtlı',
+    geminiNone: 'anahtar yok: işaretli cümle kullanılıyor',
+    geminiTrying: 'anahtar deneniyor…',
+    geminiWorks: 'çalışıyor: “ripped” → {0}',
+    geminiFailed: 'çalışmadı: {0}',
     selectLookupTip: 'Bir kelime ya da cümle seç ve yanındaki SL düğmesine bas. SceneLingo’ya izin verilmeyen sitelerde seçime sağ tıkla.',
     selectTip: 'SceneLingo: çevir, dinle, kaydet',
     selectIn: '{0} olarak',
@@ -416,6 +438,7 @@ function slLangName(code) {
 function slApply(root) {
   for (const node of root.querySelectorAll('[data-t]')) node.textContent = slT(node.dataset.t);
   for (const node of root.querySelectorAll('[data-t-title]')) node.title = slT(node.dataset.tTitle);
+  for (const node of root.querySelectorAll('[data-t-placeholder]')) node.placeholder = slT(node.dataset.tPlaceholder);
 }
 
 if (typeof module !== 'undefined') module.exports = { SL_TEXTS, slSetUiLang, slT, slLangName };

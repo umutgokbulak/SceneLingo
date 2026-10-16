@@ -25,7 +25,7 @@ test('every text the code asks for exists', () => {
     for (const m of read(file).matchAll(/'([A-Za-z]+)'/g)) named.add(m[1]);
   }
   for (const file of ['popup.html', 'review.html']) {
-    for (const m of read(file).matchAll(/data-t(?:-title)?="([A-Za-z]+)"/g)) asked.add(m[1]);
+    for (const m of read(file).matchAll(/data-t(?:-title|-placeholder)?="([A-Za-z]+)"/g)) asked.add(m[1]);
   }
   assert.deepEqual([...asked].filter((key) => !(key in SL_TEXTS.en)), []);
   // And nothing is kept that is not asked for. (Three are put together: slT(settings.mode + 'Note').)

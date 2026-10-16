@@ -14,6 +14,7 @@ globalThis.chrome = {
     onStartup: noEvent,
   },
   tabs: { create: async (opts) => opts },
+  storage: { local: { get: async (defaults) => ({ ...defaults, geminiKey: site.geminiKey || '' }) } },
   contextMenus: { create() {}, onClicked: noEvent },
   permissions: { contains: async () => site.allowed, onAdded: noEvent, onRemoved: noEvent },
   scripting: {
@@ -30,8 +31,9 @@ globalThis.chrome = {
 };
 let respond; // set by each test: (URL) => { status?, json?, bytes? }
 const calls = [];
-globalThis.fetch = async (input) => {
+globalThis.fetch = async (input, init) => {
   const url = new URL(String(input));
+  url.init = init;
   calls.push(url);
   const r = respond(url);
   return { ok: (r.status || 200) < 400, status: r.status || 200, json: async () => r.json, arrayBuffer: async () => r.bytes.buffer };
@@ -192,4 +194,33 @@ test('tts rejects an empty audio answer', async () => {
 
 test('unknown messages are left for other listeners', () => {
   assert.equal(handler({ type: 'something-else' }, {}, () => {}), false);
+});
+
+test('sense: without a key the sentence is translated with the word marked, and the marked part is the meaning', async () => {
+  site.geminiKey = '';
+  reset(() => ({ json: [[['Yanlış insanları <b>soyman</b> benim suçum değil.', 'x']]] }));
+  const res = await ask({ type: 'sense', word: 'ripped off', sentence: 'It is not my fault you ripped off the wrong people.', sl: 'en', tl: 'tr' });
+  assert.deepEqual(res.result, { meaning: 'soyman', engine: 'marked' });
+  assert.equal(calls[0].searchParams.get('q'), 'It is not my fault you <b>ripped off</b> the wrong people.');
+});
+
+test('sense: with a key Gemini answers, and the phrase it names is kept', async () => {
+  site.geminiKey = 'test-key';
+  reset((url) => {
+    if (url.hostname !== 'generativelanguage.googleapis.com') throw new Error('not expected: ' + url);
+    return { json: { candidates: [{ content: { parts: [{ text: '{"phrase":"rip off","meaning":"soymak, dolandırmak","note":"Argo."}' }] } }] } };
+  });
+  const res = await ask({ type: 'sense', word: 'ripped', sentence: 'You ripped off the wrong people again.', sl: 'en', tl: 'tr' });
+  assert.deepEqual(res.result, { meaning: 'soymak, dolandırmak', phrase: 'rip off', note: 'Argo.', engine: 'gemini' });
+  assert.equal(calls[0].init.headers['x-goog-api-key'], 'test-key');
+  assert.ok(!calls[0].search.includes('test-key'), 'the key is not put in the address');
+});
+
+test('sense: when Gemini refuses (quota), the marked sentence answers instead', async () => {
+  site.geminiKey = 'test-key';
+  reset((url) => (url.hostname === 'generativelanguage.googleapis.com' ? { status: 429, json: { error: { message: 'quota' } } } : { json: [[['Hatta <b>belki</b> sana bir kız bile bulurum.', 'x']]] }));
+  const res = await ask({ type: 'sense', word: 'Might', sentence: 'Might even find you a girl.', sl: 'en', tl: 'tr' });
+  assert.equal(res.result.meaning, 'belki');
+  assert.equal(res.result.engine, 'marked');
+  site.geminiKey = '';
 });

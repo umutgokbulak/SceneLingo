@@ -725,3 +725,22 @@ html.sl-hide-native video::-webkit-media-text-track-container {
 .sl-yt-button.sl-on .sl-yt-state {
   color: #9fd4ff;
 }
+
+/* ---- what the word means in this sentence ---- */
+
+#scenelingo-root .sl-pop-sense {
+  margin: 4px 0 6px;
+  padding: 6px 8px;
+  border-left: 3px solid #1a98ff;
+  background: rgba(26, 152, 255, 0.1);
+  border-radius: 4px;
+}
+#scenelingo-root .sl-pop-sense-line {
+  color: #ffffff;
+  font-size: 15px;
+}
+#scenelingo-root .sl-pop-sense-note {
+  margin-top: 3px;
+  color: #b8c7d6;
+  font-size: 13px;
+}

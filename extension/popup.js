@@ -148,6 +148,24 @@ $('engineGet').addEventListener('click', async () => {
   $('engineState').textContent = slT('engineFailed', (failure && failure.message) || failure);
 });
 
+// The user's own Gemini key: kept in this browser only (local storage, not synced), and sent
+// nowhere but to Google's Gemini API. Saving it also tries it once.
+chrome.storage.local.get({ geminiKey: '' }, ({ geminiKey }) => {
+  $('geminiState').textContent = geminiKey ? slT('geminiHas') : slT('geminiNone');
+});
+$('geminiSave').addEventListener('click', () => {
+  const key = $('geminiKey').value.trim();
+  $('geminiKey').value = '';
+  chrome.storage.local.set({ geminiKey: key }, () => {
+    if (!key) return ($('geminiState').textContent = slT('geminiNone'));
+    $('geminiState').textContent = slT('geminiTrying');
+    chrome.runtime.sendMessage({ type: 'gemini-test', tl: settings.nativeLang }, (res) => {
+      if (chrome.runtime.lastError || !res) return ($('geminiState').textContent = slT('geminiFailed', chrome.runtime.lastError ? chrome.runtime.lastError.message : '?'));
+      $('geminiState').textContent = res.ok ? slT('geminiWorks', (res.result.phrase ? res.result.phrase + ' — ' : '') + res.result.meaning) : slT('geminiFailed', res.error);
+    });
+  });
+});
+
 // Other sites: access is asked for when the switch is turned on, and given back when it is turned
 // off. The background registers the content script to match.
 const EVERYWHERE = { origins: ['*://*/*'] };

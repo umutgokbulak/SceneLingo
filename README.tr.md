@@ -36,6 +36,10 @@ yazdım, çalışırken ihtiyaç duyduklarımı ekledim, sonra onu izlediğim di
     yeşil, kaçırdıkların kırmızı görünür.
   - **Söyle** — her cümleden sonra cümleyi sesli söylersin. Tarayıcının konuşma tanıması hangi kelimeleri
     anladığını gösterir; kendi kaydını da dinleyebilirsin.
+- **Kelimenin cümledeki anlamı.** Sözlük "ripped" için her anlamı verir; "you ripped off the wrong people"
+  cümlesinde kart *soymak* der. Cümle, kelime işaretlenerek çevrilir; çevirinin işaretli kısmı cevaptır. Kendi
+  ücretsiz Gemini API anahtarınla kelimenin hangi kalıbın parçası olduğunu da söyler ve kullanımını açıklar.
+  Tekrar kartlarında cümlenin çevirisiyle birlikte görünür.
 - **Her sayfada seçtiğin metin.** Seçimin yanında küçük bir SL düğmesi çıkar: çeviri, sözlük bilgisi, ses ve
   geçtiği cümleyle birlikte tekrara gönderen Kaydet. Türkçe bir metin seçersen İngilizcesi gösterilir. SceneLingo'ya
   izin verilmemiş sitelerde seçime sağ tıkla.
@@ -87,7 +91,7 @@ saklayan servislerde (Netflix gibi) çalışmaz; orada kendi altyazı dosyanı a
 
 ## Nasıl yapıldı
 
-Manifest V3, yalın JavaScript; bağımlılık ve derleme adımı yok. 53 birim testi, site olmadan denenebilen her şey
+Manifest V3, yalın JavaScript; bağımlılık ve derleme adımı yok. 56 birim testi, site olmadan denenebilen her şey
 için oynatıcıyı taklit eden bir test sayfası ve gerisi için eklentiyi gerçek bir tarayıcıya yükleyip yöneten bir
 betik var. Altyazıların sitelerde nasıl bulunduğu, iki altyazı izinin nasıl eşleştirildiği ve yolda çıkan
 sorunlar [İngilizce README](README.md#engineering-notes)'de anlatılıyor.

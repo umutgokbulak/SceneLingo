@@ -870,6 +870,7 @@
 
     let translation = '';
     let info = {};
+    let sensed = null; // what the word means in this sentence, when that is known
     save.addEventListener('click', () => {
       toggleSaved({
         word,
@@ -881,6 +882,9 @@
         context: cue ? cueSentence() : '',
         // The line under the subtitle: the sentence in one's own language, where the word means what it means.
         contextTranslation: cue && shown.sec ? shown.sec.replace(/\s*\n\s*/g, ' ') : '',
+        contextMeaning: sensed ? sensed.meaning : '',
+        contextPhrase: sensed ? sensed.phrase || '' : '',
+        contextNote: sensed ? sensed.note || '' : '',
         lang: langOf(lang),
         title: document.title,
         added: Date.now(),
@@ -888,6 +892,12 @@
       }).then(paintSave);
     });
 
+    // Asked for once the card has stayed open a moment, so that a mouse passing over words does
+    // not spend the free quota of the user's key.
+    const sentence = cue ? cueSentence() : '';
+    const senseJob = sentence
+      ? new Promise((r) => setTimeout(r, 350)).then(() => (token === popupToken ? send({ type: 'sense', word, sentence, sl: lang, tl: settings.nativeLang }) : null))
+      : Promise.resolve(null);
     const res = await lookup(query, lang);
     if (token !== popupToken) return;
     body.textContent = '';
@@ -917,8 +927,26 @@
       } else if (defs.length || synonyms.length || entries.length > 1) {
         body.append(el('div', 'sl-pop-more', slT('clickForMore')));
       }
+      senseJob.then((r) => {
+        if (token !== popupToken || !r || !r.ok || !r.result || !r.result.meaning) return;
+        sensed = r.result;
+        // Said only when it adds something to the headline above it.
+        if (!sensed.phrase && !sensed.note && sensed.meaning.toLowerCase() === String(translation).toLowerCase()) return;
+        body.insertBefore(senseBox(sensed), body.children[1] || null);
+        if (ui.pri.contains(anchor.commonAncestorContainer || anchor)) placePopup(anchor);
+      });
     }
     if (ui.pri.contains(anchor.commonAncestorContainer || anchor)) placePopup(anchor);
+  }
+
+  // "In this sentence: rip off — soymak", and a note on the use when the model gave one.
+  function senseBox(s) {
+    const box = el('div', 'sl-pop-sense');
+    const line = el('div', 'sl-pop-sense-line');
+    line.append(el('span', 'sl-pop-pos', slT('inSentence')), document.createTextNode(' ' + (s.phrase ? s.phrase + ' — ' : '') + s.meaning));
+    box.append(line);
+    if (s.note) box.append(el('div', 'sl-pop-sense-note', s.note));
+    return box;
   }
 
   // The same word comes up again and again in one film; ask the service only once.

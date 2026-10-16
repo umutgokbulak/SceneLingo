@@ -64,6 +64,7 @@ function show() {
   $('source').textContent = current.title || '';
   $('translation').textContent = current.translation || '—';
   showContextTranslation(current, kind);
+  showContextMeaning(current, kind);
   refreshWord(current, kind);
   $('definition').textContent = current.definition || '';
   $('synonyms').textContent = current.synonyms && current.synonyms.length ? slT('synonymsOf', current.synonyms.join(', ')) : '';
@@ -114,6 +115,37 @@ function refreshWord(item, kind) {
       $('translation').textContent = current.translation || '—';
       $('definition').textContent = current.definition || '';
       $('synonyms').textContent = current.synonyms.length ? slT('synonymsOf', current.synonyms.join(', ')) : '';
+    }
+    update((list) => list.map((w) => (keyOf(w) === key ? { ...w, ...fresh } : w)), () => {});
+  });
+}
+
+// What the word meant in its sentence. Items saved before this was kept have it asked for once.
+function paintContextMeaning(item) {
+  const box = $('contextMeaning');
+  box.textContent = '';
+  if (!item.contextMeaning) return;
+  const label = document.createElement('span');
+  label.className = 'label';
+  label.textContent = slT('inSentence');
+  box.append(label, (item.contextPhrase ? item.contextPhrase + ' — ' : '') + item.contextMeaning);
+  if (item.contextNote) {
+    const note = document.createElement('small');
+    note.textContent = item.contextNote;
+    box.append(note);
+  }
+}
+function showContextMeaning(item, kind) {
+  paintContextMeaning(item);
+  if (kind === 'sentence' || !item.context || item.contextMeaning || item.sensed) return;
+  const key = keyOf(item);
+  chrome.runtime.sendMessage({ type: 'sense', word: item.word, sentence: item.context, sl: item.lang || settings.learnLang, tl: settings.nativeLang }, (res) => {
+    if (chrome.runtime.lastError || !res || !res.ok) return;
+    const s = res.result || {};
+    const fresh = { contextMeaning: s.meaning || '', contextPhrase: s.phrase || '', contextNote: s.note || '', sensed: true };
+    if (current && keyOf(current) === key) {
+      Object.assign(current, fresh);
+      paintContextMeaning(current);
     }
     update((list) => list.map((w) => (keyOf(w) === key ? { ...w, ...fresh } : w)), () => {});
   });

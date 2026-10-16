@@ -8,6 +8,8 @@
   h1 { margin: 0 0 10px; font-size: 17px; }
   h2 { margin: 16px 0 6px; font-size: 14px; display: flex; justify-content: space-between; align-items: center; }
   .row { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 32px; }
+  a { color: #6cb6ff; }
+  input[type=password] { font: inherit; color: #fff; background: #1b2530; border: 1px solid #46566a; border-radius: 6px; padding: 4px 8px; margin-right: 6px; }
   select, button { font: inherit; color: #fff; background: #2c3947; border: 1px solid #46566a; border-radius: 6px; padding: 4px 8px; }
   button { cursor: pointer; }
   button:hover { background: #3a4a5c; }
@@ -53,6 +55,11 @@
   <h2><span data-t="headEngine"></span></h2>
   <div class="sites" id="engineState"></div>
   <button id="engineGet" hidden></button>
+
+  <h2><span data-t="headGemini"></span></h2>
+  <div class="sites" data-t="geminiNote"></div>
+  <div class="row"><input type="password" id="geminiKey" autocomplete="off" spellcheck="false" data-t-placeholder="geminiKeyPh" style="flex:1;min-width:0"><button id="geminiSave" data-t="geminiSave"></button></div>
+  <div class="sites"><a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener" data-t="geminiGetKey"></a> · <span id="geminiState"></span></div>
 
   <h2><span data-t="headSites"></span></h2>
   <div class="sites" data-t="sitesNote"></div>
