@@ -7,6 +7,7 @@ let settings = { ...SL_DEFAULTS };
 let words = [];
 let log = {};
 let queue = []; // keys still to go in this session; a missed card goes back to the end
+let sessionSize = 0; // for the bar at the top
 let current = null;
 let type = 'recognize';
 let revealed = false;
@@ -21,10 +22,16 @@ const el = (tag, cls, text) => {
   if (text != null) n.textContent = text;
   return n;
 };
-const btn = (label, onClick, cls) => {
+const btn = (label, onClick, cls = 'btn small') => {
   const b = el('button', cls, label);
   b.addEventListener('click', onClick);
   return b;
+};
+// A button's words with its key beside them.
+const withKey = (button, label, key) => {
+  button.textContent = '';
+  button.append(el('span', null, label));
+  if (key) button.append(el('kbd', null, key));
 };
 const ask = (msg) =>
   new Promise((resolve) => chrome.runtime.sendMessage(msg, (res) => resolve(chrome.runtime.lastError || !res ? { ok: false, error: chrome.runtime.lastError ? chrome.runtime.lastError.message : '' } : res)));
@@ -66,57 +73,63 @@ function patchCurrent(fresh) {
 
 // ---------- the parts of a card ----------
 
+// The word, big, with its two voices beside it.
+function headword(item) {
+  const box = el('div', 'headword');
+  const term = el('div', 'term', item.word);
+  term.classList.toggle('long', item.word.length > 28);
+  const lang = voiceOf(item);
+  const listen = btn('🔊', () => speakText(item.word, lang, false), 'icon');
+  listen.title = slT('reviewListen') + ' (R)';
+  const slow = btn('🐢', () => speakText(item.word, lang, true), 'icon');
+  slow.title = slT('reviewSlow');
+  box.append(term, listen, slow);
+  return box;
+}
+
 // The sentence the item was saved from, with the item marked, or with a gap to type it in.
 function contextLine(item, gap) {
-  const box = el('div', 'context');
   const context = item.context || '';
-  const parts = slClozeParts(item);
   if (!context || slKindOf(item) === 'sentence') return null;
-  if (!parts) {
-    box.textContent = context;
-    return box;
-  }
-  if (gap) {
+  const box = el('div', 'quote');
+  const parts = slClozeParts(item);
+  if (!parts) box.textContent = context;
+  else if (gap) {
     gap.size = Math.max(4, parts.answer.length + 1);
     box.append(parts.before, gap, parts.after);
-  } else {
-    box.append(parts.before, el('b', null, parts.answer), parts.after);
-  }
+  } else box.append(parts.before, el('b', null, parts.answer), parts.after);
   return box;
 }
 
-function sourceLine(item) {
-  const box = el('div', 'source', item.title || '');
-  return item.title ? box : null;
-}
+const sourceLine = (item) => (item.title ? el('div', 'source', item.title) : null);
 
-function audioButtons(text, lang) {
-  const box = el('div', 'audio');
-  box.append(btn(slT('reviewListen'), () => speakText(text, lang, false)), btn(slT('reviewSlow'), () => speakText(text, lang, true)));
-  return box;
-}
-
-function senseBox(item) {
-  if (!item.contextMeaning) return null;
-  const box = el('div', 'sense');
-  box.append(el('span', 'label', slT('inSentence')), (item.contextPhrase ? item.contextPhrase + ' — ' : '') + item.contextMeaning);
-  box.append(el('span', 'tag', item.senseEngine === 'gemini' ? 'Gemini' : slT('engineMarked')));
-  if (item.contextNote) box.append(el('small', null, item.contextNote));
-  return box;
-}
-
-// Scenes: the one the item was saved in, and the others it was met in since.
 function openScene(source) {
   ask({ type: 'open-scene', url: source.url, time: source.time });
 }
 
-function block(title, items) {
-  if (!items.length) return null;
-  const box = el('div', 'block');
-  const list = el('ul');
-  for (const li of items) list.append(li);
-  box.append(el('h3', null, title), list);
+function section(title, ...children) {
+  const box = el('div', 'section');
+  box.append(el('h3', null, title), ...children.filter(Boolean));
   return box;
+}
+
+// Rows of a list: the text, what it means, and a button for its scene when it has one.
+function listOf(rows) {
+  const list = el('ul', 'list');
+  for (const { text, sub, source } of rows) {
+    const li = el('li');
+    const t = el('div', 't');
+    t.append(el('div', null, text));
+    if (sub) t.append(el('small', null, sub));
+    li.append(t);
+    if (source && source.url) {
+      const play = btn('▶', () => openScene(source), 'play');
+      play.title = slT('openScene');
+      li.append(play);
+    }
+    list.append(li);
+  }
+  return list;
 }
 
 // ---------- the front: what is asked ----------
@@ -127,13 +140,11 @@ function paintTop() {
   const top = $('top');
   top.textContent = '';
   const kind = slKindOf(current);
-  const label = [slT(KIND_LABEL[kind] || 'kindWordCard'), TYPE_LABEL[type] && slT(TYPE_LABEL[type])].filter(Boolean).join(' · ');
-  top.append(el('span', null, label));
-  top.firstChild.id = 'kind';
+  top.append(el('span', 'kind', [slT(KIND_LABEL[kind] || 'kindWordCard'), TYPE_LABEL[type] && slT(TYPE_LABEL[type])].filter(Boolean).join(' · ')));
   const extra = current.extra || {};
-  if (extra.level) top.append(el('span', 'badge level', extra.level));
-  if (extra.academic) top.append(el('span', 'badge academic', slT('academic')));
-  if ((current.lapses || 0) >= 3) top.append(el('span', 'badge hard', slT('hardCard')));
+  if (extra.level) top.append(el('span', 'chip level', extra.level));
+  if (extra.academic) top.append(el('span', 'chip academic', slT('academic')));
+  if ((current.lapses || 0) >= 3) top.append(el('span', 'chip hard', slT('hardCard')));
 }
 
 function paintFront() {
@@ -141,39 +152,40 @@ function paintFront() {
   front.textContent = '';
   answerInput = null;
   const item = current;
-  const lang = voiceOf(item);
+  const add = (...nodes) => front.append(...nodes.filter(Boolean));
   if (type === 'recognize') {
-    const term = el('div', 'term', item.word);
-    term.classList.toggle('long', item.word.length > 28);
-    front.append(term, el('div', 'ipa', item.ipa ? '/' + item.ipa + '/' : ''), audioButtons(item.word, lang));
-    for (const n of [contextLine(item), sourceLine(item)]) if (n) front.append(n);
+    add(headword(item), el('div', 'ipa', item.ipa ? '/' + item.ipa + '/' : ''), contextLine(item), sourceLine(item));
     return;
   }
   if (type === 'cloze') {
     answerInput = el('input');
-    answerInput.autocomplete = 'off';
-    answerInput.spellcheck = false;
-    front.append(el('div', 'ask', slT('askCloze')), contextLine(item, answerInput));
     const hint = item.contextMeaning || item.translation;
-    if (hint) front.append(el('div', 'hintline', '(' + hint + ')'));
-    const s = sourceLine(item);
-    if (s) front.append(s);
+    add(el('div', 'ask', slT('askCloze')), contextLine(item, answerInput), hint && el('div', 'hintline', hint), sourceLine(item));
   } else {
     // Producing: from the meaning in one's own language to the item itself.
     const sentence = slKindOf(item) === 'sentence';
     const meaning = sentence ? item.translation : item.contextMeaning || item.translation;
-    front.append(el('div', 'ask', slT(sentence ? 'askSentence' : 'askProduce', slLangName(item.lang || settings.learnLang))));
-    front.append(el('div', 'term meaning', meaning || '—'));
-    if (!sentence && item.contextTranslation) front.append(el('div', 'hintline', '“' + item.contextTranslation + '”'));
+    add(el('div', 'ask', slT(sentence ? 'askSentence' : 'askProduce', slLangName(item.lang || settings.learnLang))));
+    const m = el('div', 'term meaning', meaning || '—');
+    m.classList.toggle('long', (meaning || '').length > 40);
+    add(el('div', 'headword'));
+    front.lastChild.append(m);
+    if (!sentence && item.contextTranslation) add(el('div', 'hintline', '“' + item.contextTranslation + '”'));
     const row = el('div', 'typed');
     answerInput = el(sentence ? 'textarea' : 'input');
-    answerInput.autocomplete = 'off';
-    answerInput.spellcheck = false;
+    answerInput.placeholder = slT('typeHere');
     row.append(answerInput);
     const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (Recognition) row.append(btn('🎤', () => listen(Recognition, lang)));
-    front.append(row);
+    if (Recognition) {
+      const mic = btn('🎤', () => listen(Recognition, voiceOf(item), mic), 'icon');
+      mic.title = slT('sayIt');
+      mic.style.cssText = 'width:46px;height:auto;border-radius:10px';
+      row.append(mic);
+    }
+    add(row);
   }
+  answerInput.autocomplete = 'off';
+  answerInput.spellcheck = false;
   answerInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && !(e.shiftKey && answerInput.tagName === 'TEXTAREA')) {
       e.preventDefault();
@@ -184,11 +196,12 @@ function paintFront() {
 }
 
 // Saying the answer instead of typing it.
-function listen(Recognition, lang) {
+function listen(Recognition, lang, mic) {
   const r = new Recognition();
   r.lang = lang;
   r.interimResults = false;
   r.maxAlternatives = 3;
+  mic.style.borderColor = 'var(--red)';
   r.onresult = (e) => {
     const said = [...e.results[0]].map((a) => a.transcript);
     // Of what the recogniser heard, the reading that matches best.
@@ -196,6 +209,7 @@ function listen(Recognition, lang) {
     answerInput.value = said.find((s) => slCheckAnswer(s, accepted) === 'right') || said[0] || '';
     check();
   };
+  r.onend = () => (mic.style.borderColor = '');
   r.onerror = () => {};
   r.start();
 }
@@ -206,52 +220,78 @@ function paintBack() {
   const back = $('back');
   back.textContent = '';
   const item = current;
-  const lang = voiceOf(item);
-  if (type !== 'recognize') {
-    // What was asked for, in full now.
-    const term = el('div', 'term', item.word);
-    term.classList.toggle('long', item.word.length > 28);
-    back.append(term, el('div', 'ipa', item.ipa ? '/' + item.ipa + '/' : ''), audioButtons(item.word, lang));
-    const c = contextLine(item);
-    if (c) back.append(c);
-  }
-  back.append(el('div', 'translation', item.translation || '—'));
-  const sense = senseBox(item);
-  if (sense) back.append(sense);
-  if (item.contextTranslation && slKindOf(item) !== 'sentence') back.append(el('div', 'contextTr', '“' + item.contextTranslation + '”'));
-  if (item.definition) back.append(el('div', 'definition', item.definition));
-  if (item.synonyms && item.synonyms.length) back.append(el('div', 'synonyms', slT('synonymsOf', item.synonyms.join(', '))));
+  const kind = slKindOf(item);
+  const add = (...nodes) => back.append(...nodes.filter(Boolean));
 
-  // Turning a word into the phrase it belongs to: "ripped" into "rip off".
-  const tools = el('div', 'tools');
-  if (item.contextPhrase && slNormalize(item.contextPhrase) !== slNormalize(item.word)) {
-    tools.append(btn(slT('makePhrase', item.contextPhrase), () => saveEdit({ word: item.contextPhrase, translation: item.contextMeaning || item.translation })));
+  // What was asked for, in full, when the front did not show it.
+  if (type !== 'recognize') {
+    const head = el('div', 'answerhead');
+    head.append(headword(item), el('div', 'ipa', item.ipa ? '/' + item.ipa + '/' : ''));
+    // After a gap the sentence is on the front already, filled in.
+    const c = type === 'produce' && contextLine(item);
+    if (c) head.append(c);
+    add(head);
   }
-  if (item.source && item.source.url) tools.append(btn('▶ ' + slT('openScene'), () => openScene(item.source)));
-  tools.append(btn('✎ ' + slT('editCard'), paintEdit));
-  back.append(tools);
+
+  // The meaning: in this sentence first, since that is the one to learn; the dictionary's after it.
+  const meaning = el('div', 'meaning-box');
+  if (item.contextMeaning && kind !== 'sentence') {
+    meaning.append(el('div', 'm-label', slT('inSentence').replace(/:$/, '')));
+    const main = el('div', 'm-main');
+    if (item.contextPhrase && slNormalize(item.contextPhrase) !== slNormalize(item.word)) main.append(el('span', 'm-phrase', item.contextPhrase + ' — '));
+    main.append(item.contextMeaning);
+    const engine = el('span', 'engine' + (item.senseEngine === 'gemini' ? ' gemini' : ''), item.senseEngine === 'gemini' ? 'Gemini' : slT('engineMarked'));
+    main.append(engine);
+    meaning.append(main);
+    if (item.contextNote) meaning.append(el('div', 'm-note', item.contextNote));
+    if (item.translation && !slNormalize(item.contextMeaning).includes(slNormalize(item.translation))) {
+      const dict = el('div', 'm-dict', slT('inDictionary') + ' ');
+      dict.append(el('b', null, item.translation));
+      meaning.append(dict);
+    }
+  } else {
+    meaning.append(el('div', 'm-main', item.translation || '—'));
+  }
+  if (item.contextTranslation && kind !== 'sentence') meaning.append(el('div', 'm-ctx', '“' + item.contextTranslation + '”'));
+  add(meaning);
+
+  const sections = el('div', 'sections');
+  const def = item.definition && el('p', null, item.definition);
+  const syn = item.synonyms && item.synonyms.length && el('div', 'syn', slT('synonymsOf', item.synonyms.join(', ')));
+  if (def || syn) sections.append(section(slT('definitionHead'), def, syn));
 
   const extra = item.extra || {};
-  const li = (main, sub, source) => {
-    const row = el('li', null, main);
-    if (source && source.url) row.append(btn('▶', () => openScene(source)));
-    if (sub) row.append(el('small', null, sub));
-    return row;
-  };
-  for (const b of [
-    block(slT('collocations'), (extra.collocations || []).map((c) => li(c.text, c.meaning))),
-    block(slT('moreExamples'), (extra.examples || []).map((e) => li(e.text, e.translation))),
-    block(slT('metAgain'), (item.examples || []).map((e) => li(e.text, e.title, e.source))),
-  ]) {
-    if (b) back.append(b);
+  const pair = [];
+  if ((extra.collocations || []).length) pair.push(section(slT('collocations'), listOf(extra.collocations.map((c) => ({ text: c.text, sub: c.meaning })))));
+  if ((extra.examples || []).length) pair.push(section(slT('moreExamples'), listOf(extra.examples.map((e) => ({ text: e.text, sub: e.translation })))));
+  if (pair.length === 2) {
+    const grid = el('div', 'grid2');
+    grid.append(...pair);
+    sections.append(grid);
+  } else sections.append(...pair);
+  if ((item.examples || []).length) sections.append(section(slT('metAgain'), listOf(item.examples.map((e) => ({ text: e.text, sub: e.title, source: e.source })))));
+  if (geminiKey && kind !== 'sentence') sections.append(ownSentence());
+  if (sections.childNodes.length) add(sections);
+
+  // What can be done with the card.
+  const tools = el('div', 'tools');
+  if (item.contextPhrase && slNormalize(item.contextPhrase) !== slNormalize(item.word)) {
+    tools.append(btn('⇄ ' + slT('makePhrase', item.contextPhrase), () => saveEdit({ word: item.contextPhrase, translation: item.contextMeaning || item.translation })));
   }
-  if (geminiKey && slKindOf(item) !== 'sentence') back.append(ownSentence());
+  if (item.source && item.source.url) tools.append(btn('▶ ' + slT('openScene'), () => openScene(item.source)));
+  tools.append(btn('✎ ' + slT('editCard'), paintEdit, 'btn small ghost'));
+  const remove = btn(slT('removeCard'), () => {
+    // Asked twice: it cannot be undone.
+    if (remove.dataset.sure) return removeCurrent();
+    remove.dataset.sure = '1';
+    remove.textContent = slT('removeSure');
+  }, 'btn small ghost danger');
+  tools.append(remove);
+  add(tools);
 }
 
 // A sentence of one's own with the word, checked by Gemini.
 function ownSentence() {
-  const box = el('div', 'block');
-  box.append(el('h3', null, slT('ownSentence')));
   const row = el('div', 'own');
   const input = el('input');
   input.placeholder = slT('ownSentencePh', current.contextPhrase || current.word);
@@ -266,18 +306,17 @@ function ownSentence() {
     result.textContent = '';
     if (!res.ok) return (result.textContent = slT('ownFailed', res.error === 'noKey' ? slT('geminiNone') : res.error));
     const r = res.result;
-    result.append(el('div', r.correct ? 'better' : null, r.correct ? '✓ ' + slT('ownGood') : '✗ ' + slT('ownBetter')));
-    if (r.better && !r.correct) result.append(el('div', 'better', r.better));
+    result.append(el('div', r.correct ? 'ok' : null, r.correct ? '✓ ' + slT('ownGood') : '✗ ' + slT('ownBetter')));
+    if (r.better && !r.correct) result.append(el('div', 'fix', r.better));
     if (r.note) result.append(el('div', null, r.note));
     patchCurrent({ mine: [...(current.mine || []), { text, better: r.better, correct: r.correct }].slice(-3) });
   });
   input.addEventListener('keydown', (e) => e.key === 'Enter' && go.click());
   row.append(input, go);
-  box.append(row, result);
   for (const m of (current.mine || []).slice().reverse()) {
-    result.append(el('div', m.correct ? 'better' : null, (m.correct ? '✓ ' : '• ') + (m.better || m.text)));
+    result.append(el('div', m.correct ? 'ok' : 'fix', (m.correct ? '✓ ' : '• ') + (m.better || m.text)));
   }
-  return box;
+  return section(slT('ownSentence'), row, result);
 }
 
 // Editing the card: the word itself (its dictionary form) and its meaning.
@@ -295,7 +334,9 @@ function paintEdit() {
   const w = field(slT('editWord'), current.word);
   const t = field(slT('editTranslation'), current.translation);
   const row = el('div', 'tools');
-  row.append(btn(slT('editSave'), () => saveEdit({ word: w.value.trim(), translation: t.value.trim() }), 'main'), btn(slT('editCancel'), paintBack));
+  const save = () => saveEdit({ word: w.value.trim(), translation: t.value.trim() });
+  for (const i of [w, t]) i.addEventListener('keydown', (e) => e.key === 'Enter' && save());
+  row.append(btn(slT('editSave'), save, 'btn small primary'), btn(slT('editCancel'), paintBack, 'btn small ghost'));
   form.append(row);
   back.textContent = '';
   back.append(form);
@@ -320,6 +361,7 @@ function saveEdit({ word, translation }) {
       queue = queue.filter((k) => k !== newKey).map((k) => (k === oldKey ? newKey : k));
       current = words.find((x) => keyOf(x) === newKey);
       refreshWord(current);
+      fillExtra(current);
       paintTop();
       if (type === 'recognize') paintFront();
       paintBack();
@@ -391,6 +433,12 @@ function fillExtra(item) {
 
 // ---------- the session ----------
 
+function paintProgress() {
+  $('progress').textContent = slT('progress', queue.length, finished);
+  const total = Math.max(sessionSize, finished + queue.length);
+  $('bar').style.width = total ? Math.round((finished / total) * 100) + '%' : '0';
+}
+
 function show() {
   current = null;
   while (queue.length && !current) {
@@ -398,9 +446,10 @@ function show() {
     current = words.find((w) => keyOf(w) === key) || null;
     if (!current) queue.shift();
   }
-  $('progress').textContent = slT('progress', queue.length, finished);
+  paintProgress();
   paintStats();
   $('card').hidden = !current;
+  $('dock').hidden = !current;
   $('empty').hidden = !!current;
   if (!current) return showEmpty();
 
@@ -414,9 +463,10 @@ function show() {
   $('grades').hidden = true;
   $('countIt').hidden = true;
   $('show').hidden = false;
-  $('show').textContent = slT(type === 'recognize' ? 'showAnswer' : 'checkAnswer');
+  withKey($('show'), slT(type === 'recognize' ? 'showAnswer' : 'checkAnswer'), type === 'recognize' ? slT('keySpace') : 'Enter');
   $('dontKnow').hidden = type === 'recognize';
-  $('keys').textContent = slT(type === 'recognize' ? 'reviewKeys' : 'reviewKeysTyped');
+  $('dontKnow').textContent = slT('dontKnow');
+  window.scrollTo({ top: 0 });
   refreshWord(current);
   fillContext(current);
   fillExtra(current);
@@ -427,35 +477,44 @@ function showEmpty() {
   const now = Date.now();
   const next = words.map((w) => w.due || 0).filter((d) => d > now).sort((a, b) => a - b)[0];
   const waiting = words.filter(slIsNew).length;
-  let text;
-  if (!words.length) text = slT('noSaved');
-  else if (finished) text = slT('doneToday', finished);
-  else text = slT('nothingDue');
+  const today = slStats(words, log, now).today;
+  let title;
+  let text = '';
+  if (!words.length) {
+    title = slT('emptyNoneTitle');
+    text = slT('noSaved');
+  } else if (today.reviews) {
+    title = slT('emptyDoneTitle');
+    text = slT('doneTodayStats', today.reviews, Math.round((today.correct / today.reviews) * 100));
+  } else {
+    title = slT('emptyRestTitle');
+    text = slT('nothingDue');
+  }
   if (next) {
     const hours = (next - now) / 3600000;
     text += hours < 1 ? slT('nextSoon') : hours < 24 ? slT('nextHours', Math.round(hours)) : slT('nextDays', Math.round(hours / 24));
   }
   if (waiting) text += ' ' + slT('newWaiting', waiting);
+  $('emptyTitle').textContent = title;
   $('emptyText').textContent = text;
   $('studyAll').hidden = !words.length;
-  $('keys').textContent = '';
 }
 
 function paintStats() {
   const s = slStats(words, log, Date.now());
   const box = $('stats');
   box.textContent = '';
-  const part = (label, value) => {
-    const span = el('span', null, label + ' ');
+  const stat = (label, value, cls) => {
+    const span = el('span', 'stat' + (cls ? ' ' + cls : ''), label);
     span.append(el('b', null, String(value)));
     box.append(span);
   };
-  part(slT('statStreak'), slT('statDays', s.streak));
-  part(slT('statLearned'), s.learned);
-  part(slT('statLearning'), s.learning);
-  part(slT('statNew'), s.fresh);
-  if (s.retention != null) part(slT('statRetention'), '%' + s.retention);
-  const label = el('label', null, slT('newPerDay'));
+  if (s.streak) stat('🔥', slT('statDays', s.streak), 'fire');
+  stat(slT('statLearned'), s.learned);
+  stat(slT('statLearning'), s.learning);
+  stat(slT('statNew'), s.fresh);
+  if (s.retention != null) stat(slT('statRetention'), '%' + s.retention);
+  const label = el('label', 'daily', slT('newPerDay'));
   const sel = el('select');
   for (const n of [5, 10, 15, 20, 30, 50]) {
     const o = el('option', null, String(n));
@@ -482,8 +541,8 @@ function check() {
       verdict = score >= 0.9 ? 'right' : score >= 0.6 ? 'close' : 'wrong';
     } else verdict = slCheckAnswer(typed, slAccepted(current, type));
     if (answerInput) answerInput.disabled = true;
-    const line = el('div', 'verdict ' + verdict, verdict === 'right' ? '✓ ' + slT('verdictRight') : verdict === 'close' ? '≈ ' + slT('verdictClose') : '✗ ' + slT('verdictWrong', slAccepted(current, type)[0]));
-    $('front').append(line);
+    const text = verdict === 'right' ? '✓ ' + slT('verdictRight') : verdict === 'close' ? '≈ ' + slT('verdictClose') : '✗ ' + slT('verdictWrong', slAccepted(current, type)[0]);
+    $('front').append(el('div', 'verdict ' + verdict, text));
     speakText(current.word, voiceOf(current), false);
   }
   reveal();
@@ -506,6 +565,8 @@ function reveal() {
   // A typed answer that was wrong is a miss: only "missed it", unless one says it was right after all.
   $('good').hidden = wrong;
   $('easy').hidden = wrong;
+  $('grades').style.gridTemplateColumns = wrong ? 'minmax(0, 260px)' : '';
+  $('grades').style.justifyContent = wrong ? 'center' : '';
   $('countIt').hidden = !wrong;
   const now = Date.now();
   for (const g of ['again', 'good', 'easy']) $(g).querySelector('small').textContent = intervalLabel(slGrade(current, g, now));
@@ -530,6 +591,7 @@ function removeCurrent() {
   if (!current) return;
   const key = keyOf(current);
   queue.shift();
+  sessionSize = Math.max(0, sessionSize - 1);
   update((list) => list.filter((w) => keyOf(w) !== key), show);
 }
 
@@ -537,6 +599,7 @@ function start(all) {
   const now = Date.now();
   const list = all ? words.slice().sort((a, b) => (a.due || 0) - (b.due || 0)) : slTodayQueue(words, now, log, settings.newPerDay);
   queue = list.map(keyOf);
+  sessionSize = queue.length;
   finished = 0;
   show();
 }
@@ -552,7 +615,6 @@ $('countIt').addEventListener('click', () => {
   verdict = 'close';
   reveal();
 });
-$('remove').addEventListener('click', removeCurrent);
 $('studyAll').addEventListener('click', () => start(true));
 for (const g of ['again', 'good', 'easy']) $(g).addEventListener('click', () => grade(g));
 

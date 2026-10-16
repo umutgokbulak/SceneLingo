@@ -215,7 +215,9 @@ async function geminiKeyShown() {
 const langName = (code) => new Intl.DisplayNames(['en'], { type: 'language' }).of(code) || code;
 
 // One question to Gemini, answered in JSON.
-async function geminiJSON(apiKey, prompt, maxOutputTokens = 300) {
+// The newer models think before they answer, and the thinking counts towards the output limit:
+// with a tight limit the answer is cut off mid-way. So the limit is generous; the answer is short.
+async function geminiJSON(apiKey, prompt, maxOutputTokens = 4096) {
   const body = JSON.stringify({
     contents: [{ role: 'user', parts: [{ text: prompt }] }],
     generationConfig: { temperature: 0.2, responseMimeType: 'application/json', maxOutputTokens },
@@ -234,7 +236,11 @@ async function geminiJSON(apiKey, prompt, maxOutputTokens = 300) {
     }
     geminiModel = model;
     const text = (((data.candidates || [])[0] || {}).content || { parts: [] }).parts.map((p) => p.text || '').join('');
-    return JSON.parse(text.replace(/^```(?:json)?\s*|\s*```$/g, ''));
+    try {
+      return JSON.parse(text.replace(/^```(?:json)?\s*|\s*```$/g, ''));
+    } catch (e) {
+      throw new Error('Gemini: the answer was cut off or not JSON');
+    }
   }
   throw new Error('Gemini: no model available for this key');
 }
@@ -271,8 +277,7 @@ async function enrich({ word, phrase, sentence, sl, tl }) {
       `"level": its CEFR level as used here (A1, A2, B1, B2, C1 or C2);\n` +
       `"academic": true if it is useful in academic or formal writing (for example in the IELTS Writing test), else false;\n` +
       `"collocations": up to 3 common word combinations with it, each {"text": the combination in ${langName(sl)}, "meaning": its meaning in ${langName(tl)}};\n` +
-      `"examples": 2 short, natural everyday sentences in ${langName(sl)} that use it in the same sense, each {"text": the sentence, "translation": in ${langName(tl)}}.`,
-    600
+      `"examples": 2 short, natural everyday sentences in ${langName(sl)} that use it in the same sense, each {"text": the sentence, "translation": in ${langName(tl)}}.`
   );
   const list = (v) => (Array.isArray(v) ? v : []);
   return {
