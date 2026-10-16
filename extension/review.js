@@ -63,6 +63,8 @@ function show() {
   fillContext($('context'), { ...current, kind });
   $('source').textContent = current.title || '';
   $('translation').textContent = current.translation || '—';
+  showContextTranslation(current, kind);
+  refreshWord(current, kind);
   $('definition').textContent = current.definition || '';
   $('synonyms').textContent = current.synonyms && current.synonyms.length ? slT('synonymsOf', current.synonyms.join(', ')) : '';
   $('answer').hidden = true;
@@ -73,6 +75,48 @@ function show() {
     $(grade).querySelector('small').textContent = intervalLabel(slGrade(current, grade, now));
   }
   if (settings.autoSpeak) speak(false);
+}
+
+// The sentence the word came from, in one's own language: a word means what it means there
+// ("might" in "Might even have a girl for you" is "belki", not "güç"). Items saved before this
+// was kept have it fetched once, and kept.
+function showContextTranslation(item, kind) {
+  const box = $('contextTr');
+  const said = (text) => (box.textContent = text ? '“' + text + '”' : '');
+  said(kind === 'sentence' ? '' : item.contextTranslation);
+  if (kind === 'sentence' || !item.context || item.contextTranslation) return;
+  const key = keyOf(item);
+  chrome.runtime.sendMessage({ type: 'translate', texts: [item.context], sl: item.lang || settings.learnLang, tl: settings.nativeLang }, (res) => {
+    if (chrome.runtime.lastError || !res || !res.ok || !res.result[0]) return;
+    const text = String(res.result[0]).trim();
+    if (current && keyOf(current) === key) said(text);
+    update((list) => list.map((w) => (keyOf(w) === key ? { ...w, contextTranslation: text } : w)), () => {});
+  });
+}
+
+// Words saved by earlier versions were given the dictionary's first noun even where the service
+// knew better ("might" -> "güç" rather than "belki"); each is looked up again once.
+const LOOKUP_VERSION = 2;
+function refreshWord(item, kind) {
+  if (kind !== 'word' || (item.looked || 0) >= LOOKUP_VERSION) return;
+  const key = keyOf(item);
+  chrome.runtime.sendMessage({ type: 'lookup', text: item.word, sl: item.lang || settings.learnLang, tl: settings.nativeLang }, (res) => {
+    if (chrome.runtime.lastError || !res || !res.ok) return;
+    const info = res.result;
+    const fresh = {
+      translation: info.translation || item.translation,
+      definition: info.defs && info.defs[0] ? info.defs[0].text : item.definition,
+      synonyms: info.synonyms || [],
+      looked: LOOKUP_VERSION,
+    };
+    if (current && keyOf(current) === key) {
+      Object.assign(current, fresh);
+      $('translation').textContent = current.translation || '—';
+      $('definition').textContent = current.definition || '';
+      $('synonyms').textContent = current.synonyms.length ? slT('synonymsOf', current.synonyms.join(', ')) : '';
+    }
+    update((list) => list.map((w) => (keyOf(w) === key ? { ...w, ...fresh } : w)), () => {});
+  });
 }
 
 function showEmpty() {

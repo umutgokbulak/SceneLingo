@@ -879,9 +879,12 @@
         definition: info.defs && info.defs[0] ? info.defs[0].text : '',
         synonyms: info.synonyms || [],
         context: cue ? cueSentence() : '',
+        // The line under the subtitle: the sentence in one's own language, where the word means what it means.
+        contextTranslation: cue && shown.sec ? shown.sec.replace(/\s*\n\s*/g, ' ') : '',
         lang: langOf(lang),
         title: document.title,
         added: Date.now(),
+        looked: 2,
       }).then(paintSave);
     });
 

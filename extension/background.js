@@ -124,24 +124,31 @@ async function lookup(text, sl, tl) {
   const defs = [];
   for (const group of data[12] || []) {
     for (const d of (group[1] || []).slice(0, 2)) {
-      if (defs.length < 3 && d[0]) defs.push({ pos: group[0] || '', text: d[0], example: d[2] || '' });
+      // The dictionary numbers words that are spelt alike: "past of may1."
+      if (defs.length < 3 && d[0]) defs.push({ pos: group[0] || '', text: d[0].replace(/(\p{L})\d+\b/gu, '$1'), example: d[2] || '' });
     }
   }
   const synonyms = [];
-  for (const group of data[11] || []) {
+  // The synonyms of the same part of speech as the first definition: those of "might" the noun
+  // ("strength") do not belong under "past of may".
+  const groups = data[11] || [];
+  const same = defs.length ? groups.filter((g) => g[0] === defs[0].pos) : [];
+  for (const group of defs.length ? same : groups) {
     // Each set belongs to one sense; later sets drift to figurative meanings, so only the
     // first one that is not labelled informal, rare, archaic... is used.
     const set = (group[1] || []).find((s) => !s[2]);
     for (const s of (set && set[0]) || []) if (synonyms.length < 6 && !synonyms.includes(s)) synonyms.push(s);
   }
-  // For a single word the service's one-line answer is sometimes a different word altogether
-  // ("it" -> "BT", as in information technology) while its dictionary entries are right. When
-  // the answer is not among the dictionary's own terms, the first of those is the better headline.
+  // For a single word the service's one-line answer is sometimes an abbreviation ("it" -> "BT",
+  // as in information technology) while its dictionary entries are right; then the first of those
+  // is the better headline. Any other answer stands even when the dictionary does not list it:
+  // "might" is "belki", though the dictionary starts with the noun, "güç".
   let translation = joined(data).trim();
   // Only entries for the word itself: "structured" is listed under "structure", whose terms are verbs.
   const own = (data[1] || []).filter((d) => !d[3] || String(d[3]).toLowerCase() === text.toLowerCase());
   const terms = own.flatMap((d) => d[1] || []);
-  if (terms.length && text.length > 1 && !/\s/.test(text) && !terms.some((t) => t.toLowerCase() === translation.toLowerCase())) {
+  const abbreviation = /^\p{Lu}{2,}$/u.test(translation) && !/^\p{Lu}{2,}$/u.test(text);
+  if (terms.length && abbreviation && !terms.some((t) => t.toLowerCase() === translation.toLowerCase())) {
     translation = terms[0];
   }
   return {

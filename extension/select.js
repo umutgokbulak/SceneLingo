@@ -223,6 +223,7 @@
                 lang: learntLang,
                 title: document.title || location.hostname,
                 added: Date.now(),
+                looked: 2,
               },
               ...d.words,
             ];
