@@ -14,6 +14,7 @@ globalThis.chrome = {
     onStartup: noEvent,
   },
   tabs: { create: async (opts) => opts },
+  contextMenus: { create() {}, onClicked: noEvent },
   permissions: { contains: async () => site.allowed, onAdded: noEvent, onRemoved: noEvent },
   scripting: {
     getRegisteredContentScripts: async () => site.registered,
@@ -48,7 +49,7 @@ test('the content script is registered for other sites only while the user allow
   assert.deepEqual(site.calls, ['register']); // once, however often it is asked
   const [script] = site.registered;
   assert.deepEqual(script.matches, ['*://*/*']);
-  assert.deepEqual(script.js, ['messages.js', 'shared.js', 'core.js', 'subtitles.js', 'content.js']);
+  assert.deepEqual(script.js, ['messages.js', 'shared.js', 'core.js', 'subtitles.js', 'content.js', 'select.js']);
   assert.equal(script.runAt, 'document_start');
   assert.equal(script.allFrames, true);
   // The sites the manifest covers are left to the manifest, so nothing runs twice there.
@@ -168,7 +169,7 @@ test('lookup prefers the dictionary when the one-line answer is some other word'
 test('lookup of a phrase copes with a response that has only the translation', async () => {
   reset(() => ({ json: [[['kararını ver', 'make up your mind']]] }));
   const { result } = await ask({ type: 'lookup', text: 'make up your mind', sl: 'en', tl: 'tr' });
-  assert.deepEqual(result, { translation: 'kararını ver', dict: [], ipa: '', defs: [], synonyms: [] });
+  assert.deepEqual(result, { translation: 'kararını ver', src: '', dict: [], ipa: '', defs: [], synonyms: [] });
 });
 
 test('tts returns the audio as base64 and asks for the slow voice when told to', async () => {

@@ -36,6 +36,9 @@ yazdım, çalışırken ihtiyaç duyduklarımı ekledim, sonra onu izlediğim di
     yeşil, kaçırdıkların kırmızı görünür.
   - **Söyle** — her cümleden sonra cümleyi sesli söylersin. Tarayıcının konuşma tanıması hangi kelimeleri
     anladığını gösterir; kendi kaydını da dinleyebilirsin.
+- **Her sayfada seçtiğin metin.** Seçimin yanında küçük bir SL düğmesi çıkar: çeviri, sözlük bilgisi, ses ve
+  geçtiği cümleyle birlikte tekrara gönderen Kaydet. Türkçe bir metin seçersen İngilizcesi gösterilir. SceneLingo'ya
+  izin verilmemiş sitelerde seçime sağ tıkla.
 - **Tekrar ve yavaş dinleme.** Cümleyi filmin kendi sesiyle dörtte üç hızda tekrar oynat ya da kelimeyi İngiliz,
   Amerikan veya Avustralya aksanıyla dinle.
 - **Aralıklı tekrar.** Kaydettiğin kelime, kalıp ve cümleler, geçtikleri cümleyle birlikte belirli aralıklarla

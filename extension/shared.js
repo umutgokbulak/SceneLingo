@@ -21,6 +21,7 @@ const SL_DEFAULTS = {
   preferHuman: true, // use Prime's own track in the native language when there is one
   hideNative: true,
   hoverPause: true,
+  selectLookup: true, // a button beside text selected on any page, for its translation
   hoverLookup: true, // show the word popup on hover, without a click
   autoSpeak: true, // read the word aloud when its popup opens
   accent: 'en-GB', // which English the word is read in

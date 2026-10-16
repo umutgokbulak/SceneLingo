@@ -38,7 +38,7 @@ for (const id of ['learnLang', 'nativeLang', 'uiLang']) {
     else showEngine();
   });
 }
-for (const id of ['enabled', 'preferHuman']) {
+for (const id of ['enabled', 'preferHuman', 'selectLookup']) {
   $(id).addEventListener('change', () => chrome.storage.sync.set({ [id]: $(id).checked }));
 }
 
@@ -260,6 +260,7 @@ chrome.storage.sync.get(SL_DEFAULTS, (stored) => {
   $('volumeValue').textContent = settings.speechVolume + '%';
   $('enabled').checked = settings.enabled;
   $('preferHuman').checked = settings.preferHuman;
+  $('selectLookup').checked = settings.selectLookup;
   chrome.storage.local.get({ words: [] }, (data) => {
     words = data.words;
     paint();

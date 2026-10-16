@@ -76,6 +76,9 @@ them), plyr.io, Vimeo's player, Wikimedia Commons and a YouTube player embedded 
     line then appears with the words you got in green and the ones you missed in red.
   - **Speak** — after each sentence you say it aloud. The browser's speech recognition tells you which words it
     understood, and you can play your own recording back.
+- **Select text on any page.** A small SL button appears beside it: translation, dictionary entry, voice,
+  and a Save that sends it to review with the sentence it came from. Text in your own language is shown in
+  the language you learn. On sites SceneLingo has no access to, right-click the selection.
 - **Any language pair.** English is not built in: German subtitles with English under them work the same way
   as English with Turkish. The interface itself is in English or Turkish, following the browser.
 - **Sentences translated inside the browser.** Where the browser has a translator of its own (Chrome and Edge

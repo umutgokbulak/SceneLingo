@@ -138,12 +138,15 @@ async function lookup(text, sl, tl) {
   // ("it" -> "BT", as in information technology) while its dictionary entries are right. When
   // the answer is not among the dictionary's own terms, the first of those is the better headline.
   let translation = joined(data).trim();
-  const terms = (data[1] || []).flatMap((d) => d[1] || []);
+  // Only entries for the word itself: "structured" is listed under "structure", whose terms are verbs.
+  const own = (data[1] || []).filter((d) => !d[3] || String(d[3]).toLowerCase() === text.toLowerCase());
+  const terms = own.flatMap((d) => d[1] || []);
   if (terms.length && text.length > 1 && !/\s/.test(text) && !terms.some((t) => t.toLowerCase() === translation.toLowerCase())) {
     translation = terms[0];
   }
   return {
     translation,
+    src: typeof data[2] === 'string' ? data[2] : '', // the language the service found the text in
     dict: (data[1] || []).slice(0, 4).map((d) => ({ pos: d[0] || '', terms: (d[1] || []).slice(0, 5) })),
     ipa: phonetic ? phonetic[3] : '',
     defs,
@@ -218,6 +221,23 @@ async function toOffscreen(msg) {
   if (!res || !res.ok) throw new Error((res && res.error) || 'no answer');
   return res.result;
 }
+
+// Right-click on a selection: the card opens on any page, even one the extension was not let into
+// (the click itself gives it the tab for the moment).
+const SELECT_MENU = 'scenelingo-select';
+chrome.runtime.onInstalled.addListener(() => {
+  chrome.contextMenus.create({ id: SELECT_MENU, title: 'SceneLingo: “%s”', contexts: ['selection'] }, () => void chrome.runtime.lastError);
+});
+chrome.contextMenus.onClicked.addListener(async (info, tab) => {
+  if (info.menuItemId !== SELECT_MENU || !tab) return;
+  const msg = { type: 'select-lookup', text: info.selectionText || '' };
+  try {
+    await chrome.tabs.sendMessage(tab.id, msg, { frameId: 0 });
+  } catch (e) {
+    await chrome.scripting.executeScript({ target: { tabId: tab.id }, files: ['messages.js', 'shared.js', 'select.js'] }).catch(() => {});
+    await chrome.tabs.sendMessage(tab.id, msg, { frameId: 0 }).catch(() => {});
+  }
+});
 
 // While a tab's sound is captured, the browser keeps a video's fullscreen inside the tab and the
 // window stays as it was. So the page says when a video goes fullscreen, and the window follows.
