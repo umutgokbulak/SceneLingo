@@ -221,7 +221,11 @@ function paintBack() {
   back.textContent = '';
   const item = current;
   const kind = slKindOf(item);
-  const add = (...nodes) => back.append(...nodes.filter(Boolean));
+  // Two columns on a wide screen: the meaning and what to do with the card on the left, the
+  // practice and the rest on the right; one after the other on a narrow one.
+  const left = el('div', 'back-main');
+  const side = el('div', 'back-side');
+  const add = (...nodes) => left.append(...nodes.filter(Boolean));
 
   // What was asked for, in full, when the front did not show it.
   if (type !== 'recognize') {
@@ -255,23 +259,15 @@ function paintBack() {
   if (item.contextTranslation && kind !== 'sentence') meaning.append(el('div', 'm-ctx', '“' + item.contextTranslation + '”'));
   add(meaning);
 
-  const sections = el('div', 'sections');
+  // The practice first, then what shows the word in use, then the dictionary.
+  if (geminiKey && kind !== 'sentence') side.append(ownSentence());
+  const extra = item.extra || {};
+  if ((extra.collocations || []).length) side.append(section(slT('collocations'), listOf(extra.collocations.map((c) => ({ text: c.text, sub: c.meaning })))));
+  if ((extra.examples || []).length) side.append(section(slT('moreExamples'), listOf(extra.examples.map((e) => ({ text: e.text, sub: e.translation })))));
+  if ((item.examples || []).length) side.append(section(slT('metAgain'), listOf(item.examples.map((e) => ({ text: e.text, sub: e.title, source: e.source })))));
   const def = item.definition && el('p', null, item.definition);
   const syn = item.synonyms && item.synonyms.length && el('div', 'syn', slT('synonymsOf', item.synonyms.join(', ')));
-  if (def || syn) sections.append(section(slT('definitionHead'), def, syn));
-
-  const extra = item.extra || {};
-  const pair = [];
-  if ((extra.collocations || []).length) pair.push(section(slT('collocations'), listOf(extra.collocations.map((c) => ({ text: c.text, sub: c.meaning })))));
-  if ((extra.examples || []).length) pair.push(section(slT('moreExamples'), listOf(extra.examples.map((e) => ({ text: e.text, sub: e.translation })))));
-  if (pair.length === 2) {
-    const grid = el('div', 'grid2');
-    grid.append(...pair);
-    sections.append(grid);
-  } else sections.append(...pair);
-  if ((item.examples || []).length) sections.append(section(slT('metAgain'), listOf(item.examples.map((e) => ({ text: e.text, sub: e.title, source: e.source })))));
-  if (geminiKey && kind !== 'sentence') sections.append(ownSentence());
-  if (sections.childNodes.length) add(sections);
+  if (def || syn) side.append(section(slT('definitionHead'), def, syn));
 
   // What can be done with the card.
   const tools = el('div', 'tools');
@@ -288,6 +284,9 @@ function paintBack() {
   }, 'btn small ghost danger');
   tools.append(remove);
   add(tools);
+  back.append(left);
+  if (side.childNodes.length) back.append(side);
+  back.classList.toggle('single', !side.childNodes.length);
 }
 
 // A sentence of one's own with the word, checked by Gemini.
@@ -339,7 +338,10 @@ function paintEdit() {
   row.append(btn(slT('editSave'), save, 'btn small primary'), btn(slT('editCancel'), paintBack, 'btn small ghost'));
   form.append(row);
   back.textContent = '';
-  back.append(form);
+  back.classList.add('single');
+  const box = el('div', 'back-main');
+  box.append(form);
+  back.append(box);
   w.focus();
 }
 
@@ -455,6 +457,7 @@ function show() {
 
   type = slCardType(current);
   revealed = false;
+  $('card').classList.remove('revealed');
   verdict = null;
   paintTop();
   paintFront();
@@ -556,8 +559,12 @@ function giveUp() {
 
 function reveal() {
   revealed = true;
+  $('card').classList.add('revealed');
   paintBack();
   $('back').hidden = false;
+  // On a short screen the answer may start below the fold: brought up into view.
+  const top = $('back').getBoundingClientRect().top;
+  if (top > innerHeight * 0.55) window.scrollBy({ top: top - 72, behavior: 'smooth' });
   $('show').hidden = true;
   $('dontKnow').hidden = true;
   $('grades').hidden = false;
