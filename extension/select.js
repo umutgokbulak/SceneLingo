@@ -240,7 +240,8 @@
 
     // What it means in the sentence it was selected from.
     if (!reversed && short && context) {
-      const r = await send({ type: 'sense', word: text, sentence: context, sl, tl });
+      // On the extension's own pages (the review) Gemini is used whenever there is a key.
+      const r = await send({ type: 'sense', word: text, sentence: context, sl, tl, always: location.protocol === 'chrome-extension:' });
       if (mine !== token || !r || !r.ok || !r.result || !r.result.meaning) return;
       sensed = r.result;
       if (!sensed.phrase && !sensed.note && sensed.meaning.toLowerCase() === String(info.translation).toLowerCase()) return;
