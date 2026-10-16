@@ -107,12 +107,6 @@ function openScene(source) {
   ask({ type: 'open-scene', url: source.url, time: source.time });
 }
 
-function section(title, ...children) {
-  const box = el('div', 'section');
-  box.append(el('h3', null, title), ...children.filter(Boolean));
-  return box;
-}
-
 // Rows of a list: the text, what it means, and a button for its scene when it has one.
 function listOf(rows) {
   const list = el('ul', 'list');
@@ -221,11 +215,7 @@ function paintBack() {
   back.textContent = '';
   const item = current;
   const kind = slKindOf(item);
-  // Two columns on a wide screen: the meaning and what to do with the card on the left, the
-  // practice and the rest on the right; one after the other on a narrow one.
-  const left = el('div', 'back-main');
-  const side = el('div', 'back-side');
-  const add = (...nodes) => left.append(...nodes.filter(Boolean));
+  const add = (...nodes) => back.append(...nodes.filter(Boolean));
 
   // What was asked for, in full, when the front did not show it.
   if (type !== 'recognize') {
@@ -238,36 +228,23 @@ function paintBack() {
   }
 
   // The meaning: in this sentence first, since that is the one to learn; the dictionary's after it.
-  const meaning = el('div', 'meaning-box');
   if (item.contextMeaning && kind !== 'sentence') {
-    meaning.append(el('div', 'm-label', slT('inSentence').replace(/:$/, '')));
+    add(el('div', 'm-label', slT('inSentence').replace(/:$/, '')));
     const main = el('div', 'm-main');
     if (item.contextPhrase && slNormalize(item.contextPhrase) !== slNormalize(item.word)) main.append(el('span', 'm-phrase', item.contextPhrase + ' — '));
     main.append(item.contextMeaning);
-    const engine = el('span', 'engine' + (item.senseEngine === 'gemini' ? ' gemini' : ''), item.senseEngine === 'gemini' ? 'Gemini' : slT('engineMarked'));
-    main.append(engine);
-    meaning.append(main);
-    if (item.contextNote) meaning.append(el('div', 'm-note', item.contextNote));
+    main.append(el('span', 'engine' + (item.senseEngine === 'gemini' ? ' gemini' : ''), item.senseEngine === 'gemini' ? 'Gemini' : slT('engineMarked')));
+    add(main);
+    if (item.contextNote) add(el('div', 'm-note', item.contextNote));
     if (item.translation && !slNormalize(item.contextMeaning).includes(slNormalize(item.translation))) {
       const dict = el('div', 'm-dict', slT('inDictionary') + ' ');
       dict.append(el('b', null, item.translation));
-      meaning.append(dict);
+      add(dict);
     }
   } else {
-    meaning.append(el('div', 'm-main', item.translation || '—'));
+    add(el('div', 'm-main', item.translation || '—'));
   }
-  if (item.contextTranslation && kind !== 'sentence') meaning.append(el('div', 'm-ctx', '“' + item.contextTranslation + '”'));
-  add(meaning);
-
-  // The practice first, then what shows the word in use, then the dictionary.
-  if (geminiKey && kind !== 'sentence') side.append(ownSentence());
-  const extra = item.extra || {};
-  if ((extra.collocations || []).length) side.append(section(slT('collocations'), listOf(extra.collocations.map((c) => ({ text: c.text, sub: c.meaning })))));
-  if ((extra.examples || []).length) side.append(section(slT('moreExamples'), listOf(extra.examples.map((e) => ({ text: e.text, sub: e.translation })))));
-  if ((item.examples || []).length) side.append(section(slT('metAgain'), listOf(item.examples.map((e) => ({ text: e.text, sub: e.title, source: e.source })))));
-  const def = item.definition && el('p', null, item.definition);
-  const syn = item.synonyms && item.synonyms.length && el('div', 'syn', slT('synonymsOf', item.synonyms.join(', ')));
-  if (def || syn) side.append(section(slT('definitionHead'), def, syn));
+  if (item.contextTranslation && kind !== 'sentence') add(el('div', 'm-ctx', '“' + item.contextTranslation + '”'));
 
   // What can be done with the card.
   const tools = el('div', 'tools');
@@ -284,14 +261,71 @@ function paintBack() {
   }, 'btn small ghost danger');
   tools.append(remove);
   add(tools);
-  back.append(left);
-  if (side.childNodes.length) back.append(side);
-  back.classList.toggle('single', !side.childNodes.length);
+  paintSide();
+}
+
+// ---------- the panel beside the card ----------
+
+// Before the answer: a word on what will be there. After it: one's own sentence on top, and
+// the word in use in tabs, so that the page stays one screen however much there is.
+let lastTab = 'collocations';
+function paintSide() {
+  const side = $('side');
+  side.textContent = '';
+  if (!revealed) {
+    const wait = el('div', 'side-wait');
+    wait.append(el('div', 'big', '💡'), el('p', null, slT('sideWait')));
+    side.append(wait);
+    return;
+  }
+  const item = current;
+  const kind = slKindOf(item);
+  if (geminiKey && kind !== 'sentence') side.append(ownSentence());
+
+  const extra = item.extra || {};
+  const tabs = [];
+  if ((extra.collocations || []).length) tabs.push(['collocations', extra.collocations.length, () => listOf(extra.collocations.map((c) => ({ text: c.text, sub: c.meaning })))]);
+  if ((extra.examples || []).length) tabs.push(['moreExamples', extra.examples.length, () => listOf(extra.examples.map((e) => ({ text: e.text, sub: e.translation })))]);
+  if ((item.examples || []).length) tabs.push(['metAgain', item.examples.length, () => listOf(item.examples.map((e) => ({ text: e.text, sub: e.title, source: e.source })))]);
+  if (item.definition || (item.synonyms || []).length) {
+    tabs.push(['definitionHead', 0, () => {
+      const pane = el('div');
+      if (item.definition) pane.append(el('p', null, item.definition));
+      if ((item.synonyms || []).length) pane.append(el('div', 'syn', slT('synonymsOf', item.synonyms.join(', '))));
+      return pane;
+    }]);
+  }
+  if (!tabs.length) {
+    if (!side.childNodes.length) {
+      const wait = el('div', 'side-wait');
+      wait.append(el('p', null, slT('sideNothing')));
+      side.append(wait);
+    }
+    return;
+  }
+  const bar = el('div', 'tabs');
+  const body = el('div', 'tabbody pane');
+  const open = (name) => {
+    lastTab = name;
+    for (const b of bar.children) b.classList.toggle('on', b.dataset.name === name);
+    body.textContent = '';
+    body.append(tabs.find((t) => t[0] === name)[2]());
+  };
+  for (const [name, n] of tabs) {
+    const b = el('button', 'tab', slT(name));
+    b.dataset.name = name;
+    if (n) b.append(el('span', 'n', String(n)));
+    b.addEventListener('click', () => open(name));
+    bar.append(b);
+  }
+  side.append(bar, body);
+  open(tabs.some((t) => t[0] === lastTab) ? lastTab : tabs[0][0]);
 }
 
 // A sentence of one's own with the word, checked by Gemini.
 function ownSentence() {
-  const row = el('div', 'own');
+  const box = el('div', 'own');
+  const row = el('div', 'own-row');
   const input = el('input');
   input.placeholder = slT('ownSentencePh', current.contextPhrase || current.word);
   const result = el('div', 'ownResult');
@@ -309,13 +343,14 @@ function ownSentence() {
     if (r.better && !r.correct) result.append(el('div', 'fix', r.better));
     if (r.note) result.append(el('div', null, r.note));
     patchCurrent({ mine: [...(current.mine || []), { text, better: r.better, correct: r.correct }].slice(-3) });
-  });
+  }, 'btn small primary');
   input.addEventListener('keydown', (e) => e.key === 'Enter' && go.click());
   row.append(input, go);
   for (const m of (current.mine || []).slice().reverse()) {
     result.append(el('div', m.correct ? 'ok' : 'fix', (m.correct ? '✓ ' : '• ') + (m.better || m.text)));
   }
-  return section(slT('ownSentence'), row, result);
+  box.append(el('h3', null, slT('ownSentence')), row, result);
+  return box;
 }
 
 // Editing the card: the word itself (its dictionary form) and its meaning.
@@ -338,10 +373,7 @@ function paintEdit() {
   row.append(btn(slT('editSave'), save, 'btn small primary'), btn(slT('editCancel'), paintBack, 'btn small ghost'));
   form.append(row);
   back.textContent = '';
-  back.classList.add('single');
-  const box = el('div', 'back-main');
-  box.append(form);
-  back.append(box);
+  back.append(form);
   w.focus();
 }
 
@@ -451,7 +483,8 @@ function show() {
   paintProgress();
   paintStats();
   $('card').hidden = !current;
-  $('dock').hidden = !current;
+  $('side').hidden = !current;
+  $('stage').classList.toggle('alone', !current);
   $('empty').hidden = !!current;
   if (!current) return showEmpty();
 
@@ -469,7 +502,7 @@ function show() {
   withKey($('show'), slT(type === 'recognize' ? 'showAnswer' : 'checkAnswer'), type === 'recognize' ? slT('keySpace') : 'Enter');
   $('dontKnow').hidden = type === 'recognize';
   $('dontKnow').textContent = slT('dontKnow');
-  window.scrollTo({ top: 0 });
+  paintSide();
   refreshWord(current);
   fillContext(current);
   fillExtra(current);
@@ -562,9 +595,7 @@ function reveal() {
   $('card').classList.add('revealed');
   paintBack();
   $('back').hidden = false;
-  // On a short screen the answer may start below the fold: brought up into view.
-  const top = $('back').getBoundingClientRect().top;
-  if (top > innerHeight * 0.55) window.scrollBy({ top: top - 72, behavior: 'smooth' });
+  $('back').scrollIntoView({ block: 'nearest', behavior: 'smooth' });
   $('show').hidden = true;
   $('dontKnow').hidden = true;
   $('grades').hidden = false;
