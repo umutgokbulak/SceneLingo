@@ -899,8 +899,14 @@
     // Asked for once the card has stayed open a moment, so that a mouse passing over words does
     // not spend the free quota of the user's key.
     const sentence = cue ? cueSentence() : '';
-    const senseJob = sentence
-      ? new Promise((r) => setTimeout(r, 350)).then(() => (token === popupToken ? send({ type: 'sense', word, sentence, sl: lang, tl: settings.nativeLang }) : null))
+    // Several words are explained (a translation that is not word for word, the idioms in them);
+    // one word or two get their meaning in the sentence. A selection of the whole line has no
+    // other sentence to be read in.
+    const many = word.trim().split(/\s+/).length >= 3;
+    const whole = !!sentence && slNormalize(sentence) === slNormalize(word);
+    const question = many ? { type: 'explain', text: word, sentence } : !whole && sentence ? { type: 'sense', word, sentence } : null;
+    const senseJob = question
+      ? new Promise((r) => setTimeout(r, 350)).then(() => (token === popupToken ? send({ ...question, sl: lang, tl: settings.nativeLang }) : null))
       : Promise.resolve(null);
     const res = await lookup(query, lang);
     if (token !== popupToken) return;
@@ -932,7 +938,23 @@
         body.append(el('div', 'sl-pop-more', slT('clickForMore')));
       }
       senseJob.then((r) => {
-        if (token !== popupToken || !r || !r.ok || !r.result || !r.result.meaning) return;
+        if (token !== popupToken) return;
+        if (many) {
+          const x = r && r.ok && r.result;
+          if (x && x.translation) {
+            // What is saved is the good translation, with the idioms as its note.
+            translation = x.translation;
+            sensed = { meaning: x.translation, phrase: '', note: x.idioms.map((i) => i.text + ' — ' + i.meaning).join(' · '), engine: 'gemini' };
+            body.insertBefore(explainBox(x), body.children[1] || null);
+          } else {
+            // No Gemini: the machine's reading is word for word, and the line on screen may be a person's.
+            const human = secondary.kind === 'track';
+            body.append(el('div', 'sl-pop-more', slT('mtNote') + (human ? ' ' + slT('mtNoteHuman') : '')));
+          }
+          if (ui.pri.contains(anchor.commonAncestorContainer || anchor)) placePopup(anchor);
+          return;
+        }
+        if (!r || !r.ok || !r.result || !r.result.meaning) return;
         sensed = r.result;
         // Said only when it adds something to the headline above it.
         if (!sensed.phrase && !sensed.note && sensed.meaning.toLowerCase() === String(translation).toLowerCase()) return;
@@ -941,6 +963,22 @@
       });
     }
     if (ui.pri.contains(anchor.commonAncestorContainer || anchor)) placePopup(anchor);
+  }
+
+  // "Natural translation: …", and each idiom with what it means and what it says word for word.
+  function explainBox(x) {
+    const box = el('div', 'sl-pop-sense');
+    const line = el('div', 'sl-pop-sense-line');
+    line.append(el('span', 'sl-pop-pos', slT('naturalTr')), document.createTextNode(' ' + x.translation));
+    line.append(el('span', 'sl-pop-engine', 'Gemini'));
+    box.append(line);
+    for (const i of x.idioms) {
+      const row = el('div', 'sl-pop-sense-note');
+      row.append(el('b', null, i.text), document.createTextNode(' — ' + i.meaning + (i.literal ? ' (' + slT('literally', i.literal) + ')' : '')));
+      box.append(row);
+    }
+    if (x.note) box.append(el('div', 'sl-pop-sense-note', x.note));
+    return box;
   }
 
   // "In this sentence: rip off — soymak", and a note on the use when the model gave one.

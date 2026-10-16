@@ -259,6 +259,20 @@ test('enrich and check-sentence ask Gemini once each, and need a key', async () 
   site.geminiKey = '';
 });
 
+test('explain: several words get a translation that is not word for word, and their idioms', async () => {
+  site.geminiKey = '';
+  assert.equal((await ask({ type: 'explain', text: 'die Polizei tanzt nach seiner Pfeife', sl: 'de', tl: 'tr' })).result, null, 'nothing without a key');
+  site.geminiKey = 'test-key';
+  reset(() => ({ json: { candidates: [{ content: { parts: [{ text: JSON.stringify({ translation: 'polis onun dediğini yapıyor', idioms: [{ text: 'nach jemandes Pfeife tanzen', meaning: 'birinin dediğini yapmak', literal: 'birinin düdüğüyle dans etmek' }, { meaning: 'no text' }], note: '' }) }] } }] } }));
+  const res = await ask({ type: 'explain', text: 'die Polizei tanzt nach seiner Pfeife', sentence: 'Verbrechen überall, und die Polizei tanzt nach seiner Pfeife.', sl: 'de', tl: 'tr' });
+  assert.deepEqual(res.result, { translation: 'polis onun dediğini yapıyor', idioms: [{ text: 'nach jemandes Pfeife tanzen', meaning: 'birinin dediğini yapmak', literal: 'birinin düdüğüyle dans etmek' }], note: '', engine: 'gemini' });
+  site.useGemini = false;
+  assert.equal((await ask({ type: 'explain', text: 'eins zwei drei', sl: 'de', tl: 'tr' })).result, null, 'switched off for the video');
+  assert.equal((await ask({ type: 'explain', text: 'eins zwei drei', sl: 'de', tl: 'tr', always: true })).result.engine, 'gemini', 'the review page asks anyway');
+  site.useGemini = undefined;
+  site.geminiKey = '';
+});
+
 test('sense: when Gemini refuses (quota), the marked sentence answers instead', async () => {
   site.geminiKey = 'test-key';
   reset((url) => (url.hostname === 'generativelanguage.googleapis.com' ? { status: 429, json: { error: { message: 'quota' } } } : { json: [[['Hatta <b>belki</b> sana bir kız bile bulurum.', 'x']]] }));

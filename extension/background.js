@@ -265,6 +265,43 @@ async function askGemini(apiKey, word, sentence, sl, tl) {
   return { meaning: String(json.meaning).trim(), phrase: String(json.phrase || '').trim(), note: String(json.note || '').trim(), engine: 'gemini' };
 }
 
+// Several words or a whole line: a translation that is not word for word, and the idioms in it.
+// A machine translation reads "nach seiner Pfeife tanzen" as "dancing to his melody"; it means
+// doing whatever he says. Only Gemini answers this; without it, there is nothing to add.
+const explained = new Map();
+async function explain(text, sentence, sl, tl, always) {
+  text = String(text || '').replace(/\s+/g, ' ').trim();
+  sentence = String(sentence || '').replace(/\s+/g, ' ').trim() || text;
+  const { geminiKey } = await chrome.storage.local.get({ geminiKey: '' });
+  const { useGemini } = await chrome.storage.sync.get({ useGemini: true });
+  if (!text || !geminiKey || !(useGemini || always) || Date.now() < geminiRestUntil) return null;
+  const key = [sl, tl, text, sentence].join('|').toLowerCase();
+  if (explained.has(key)) return explained.get(key);
+  const json = await geminiJSON(
+    geminiKey,
+    `A learner of ${langName(sl)} whose own language is ${langName(tl)} selected this text` +
+      (sentence !== text ? ` in the sentence "${sentence}"` : '') +
+      `:\n"${text.slice(0, 600)}"\n\n` +
+      `Answer in JSON with these keys:\n` +
+      `"translation": a natural translation of the selected text into ${langName(tl)}, as a good subtitler would write it, not word for word;\n` +
+      `"idioms": the idioms, fixed expressions and phrasal verbs in the selected text (an empty list if there are none), each {"text": in its dictionary form in ${langName(sl)}, "meaning": what it means, in ${langName(tl)}, "literal": its word-for-word meaning in ${langName(tl)}, or "" if that is the same};\n` +
+      `"note": one short sentence in ${langName(tl)} on anything else worth knowing here (tone, slang, grammar), or "".`
+  );
+  const answer = {
+    translation: String(json.translation || '').trim(),
+    idioms: (Array.isArray(json.idioms) ? json.idioms : [])
+      .slice(0, 4)
+      .map((i) => ({ text: String(i.text || '').trim(), meaning: String(i.meaning || '').trim(), literal: String(i.literal || '').trim() }))
+      .filter((i) => i.text && i.meaning),
+    note: String(json.note || '').trim(),
+    engine: 'gemini',
+  };
+  if (!answer.translation) throw new Error('Gemini: empty answer');
+  if (explained.size > 300) explained.clear();
+  explained.set(key, answer);
+  return answer;
+}
+
 // For a review card, once: how common the word is, what it goes with, and two more sentences.
 async function enrich({ word, phrase, sentence, sl, tl }) {
   const apiKey = await savedKey();
@@ -477,6 +514,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   else if (msg && msg.type === 'lookup') job = lookup(String(msg.text || ''), msg.sl, msg.tl);
   else if (msg && msg.type === 'sense') job = sense(msg.word, msg.sentence, msg.sl, msg.tl, msg.always);
   else if (msg && msg.type === 'enrich') job = enrich(msg);
+  else if (msg && msg.type === 'explain') job = explain(msg.text, msg.sentence, msg.sl, msg.tl, msg.always);
   else if (msg && msg.type === 'check-sentence') job = checkSentence(msg);
   else if (msg && msg.type === 'open-scene') job = openScene(msg.url, msg.time);
   else if (msg && msg.type === 'pending-seek') job = pendingSeek(sender.tab);

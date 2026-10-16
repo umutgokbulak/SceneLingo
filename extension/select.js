@@ -238,6 +238,28 @@
     card.insertBefore(btns, body);
     place(card, picked.rect);
 
+    // Several words: a translation that is not word for word, and the idioms in them.
+    if (!reversed && text.trim().split(/\s+/).length >= 3) {
+      const r = await send({ type: 'explain', text, sentence: context || text, sl, tl, always: location.protocol === 'chrome-extension:' });
+      if (mine !== token) return;
+      const x = r && r.ok && r.result;
+      const box = el('div', 'sl-sel-sense');
+      if (x && x.translation) {
+        sensed = { meaning: x.translation, phrase: '', note: x.idioms.map((i) => i.text + ' — ' + i.meaning).join(' · '), engine: 'gemini' };
+        const line = el('div');
+        line.append(el('span', 'sl-sel-pos', slT('naturalTr')), document.createTextNode(' ' + x.translation), el('span', 'sl-sel-engine', 'Gemini'));
+        box.append(line);
+        for (const i of x.idioms) {
+          const row = el('div', 'sl-sel-ex');
+          row.append(el('b', null, i.text), document.createTextNode(' — ' + i.meaning + (i.literal ? ' (' + slT('literally', i.literal) + ')' : '')));
+          box.append(row);
+        }
+        if (x.note) box.append(el('div', 'sl-sel-ex', x.note));
+      } else box.append(el('div', 'sl-sel-ex', slT('mtNote')));
+      body.insertBefore(box, body.querySelector('.sl-sel-main').nextSibling);
+      place(card, picked.rect);
+      return;
+    }
     // What it means in the sentence it was selected from.
     if (!reversed && short && context) {
       // On the extension's own pages (the review) Gemini is used whenever there is a key.
