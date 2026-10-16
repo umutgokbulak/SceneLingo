@@ -944,6 +944,8 @@
     const box = el('div', 'sl-pop-sense');
     const line = el('div', 'sl-pop-sense-line');
     line.append(el('span', 'sl-pop-pos', slT('inSentence')), document.createTextNode(' ' + (s.phrase ? s.phrase + ' — ' : '') + s.meaning));
+    // Who answered: so that it is plain whether Gemini is in use.
+    line.append(el('span', 'sl-pop-engine', s.engine === 'gemini' ? 'Gemini' : slT('engineMarked')));
     box.append(line);
     if (s.note) box.append(el('div', 'sl-pop-sense-note', s.note));
     return box;

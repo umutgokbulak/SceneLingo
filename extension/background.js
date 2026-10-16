@@ -175,12 +175,14 @@ async function sense(word, sentence, sl, tl) {
   word = String(word || '').trim();
   sentence = String(sentence || '').replace(/\s+/g, ' ').trim();
   if (!word || !sentence || sentence.toLowerCase() === word.toLowerCase()) return null;
-  const key = [sl, tl, word, sentence].join('|').toLowerCase();
-  if (senses.has(key)) return senses.get(key);
   const { geminiKey } = await chrome.storage.local.get({ geminiKey: '' });
   const { useGemini } = await chrome.storage.sync.get({ useGemini: true });
+  const gemini = !!geminiKey && useGemini;
+  // Answers are kept apart by who gave them: with Gemini switched off, none of its answers is shown.
+  const key = [gemini ? 'g' : 'm', sl, tl, word, sentence].join('|').toLowerCase();
+  if (senses.has(key)) return senses.get(key);
   let answer = null;
-  if (geminiKey && useGemini && Date.now() > geminiRestUntil) {
+  if (gemini && Date.now() > geminiRestUntil) {
     answer = await askGemini(geminiKey, word, sentence, sl, tl).catch((e) => {
       if (/429|quota|exhausted/i.test(e.message)) geminiRestUntil = Date.now() + 60000;
       return { error: e.message };

@@ -219,6 +219,22 @@ test('sense: with a key Gemini answers, and the phrase it names is kept', async 
   assert.ok(!calls[0].search.includes('test-key'), 'the key is not put in the address');
 });
 
+test('sense: an answer Gemini gave is not shown once Gemini is switched off', async () => {
+  site.geminiKey = 'test-key';
+  reset((url) =>
+    url.hostname === 'generativelanguage.googleapis.com'
+      ? { json: { candidates: [{ content: { parts: [{ text: '{"phrase":"","meaning":"keskin","note":""}' }] } }] } }
+      : { json: [[['O halde <b>sivri</b> bir zekan mı var?', 'x']]] }
+  );
+  const msg = { type: 'sense', word: 'keen', sentence: 'Possessed of a keen wit, then?', sl: 'en', tl: 'tr' };
+  assert.equal((await ask(msg)).result.engine, 'gemini');
+  site.useGemini = false;
+  const off = (await ask(msg)).result;
+  assert.deepEqual(off, { meaning: 'sivri', engine: 'marked' });
+  site.useGemini = undefined;
+  site.geminiKey = '';
+});
+
 test('sense: when Gemini refuses (quota), the marked sentence answers instead', async () => {
   site.geminiKey = 'test-key';
   reset((url) => (url.hostname === 'generativelanguage.googleapis.com' ? { status: 429, json: { error: { message: 'quota' } } } : { json: [[['Hatta <b>belki</b> sana bir kız bile bulurum.', 'x']]] }));
