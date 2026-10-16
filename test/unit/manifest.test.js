@@ -24,7 +24,7 @@ test('pages load the scripts they depend on, in order', () => {
     for (const s of scripts) assert.ok(exists(s), s + ' is missing');
   }
   const isolated = manifest.content_scripts.find((c) => c.world !== 'MAIN').js;
-  assert.deepEqual(isolated, ['messages.js', 'shared.js', 'core.js', 'subtitles.js', 'content.js', 'select.js']);
+  assert.deepEqual(isolated, ['messages.js', 'shared.js', 'study.js', 'core.js', 'subtitles.js', 'content.js', 'select.js']);
 });
 
 test('the page-world hooks and the content script run on the same pages', () => {
@@ -35,7 +35,7 @@ test('the page-world hooks and the content script run on the same pages', () => 
 });
 
 test('it asks for little, and for other sites only when the user says so', () => {
-  assert.deepEqual(manifest.permissions, ['storage', 'scripting', 'tabCapture', 'offscreen', 'activeTab', 'contextMenus']);
+  assert.deepEqual(manifest.permissions, ['storage', 'scripting', 'tabCapture', 'offscreen', 'activeTab', 'contextMenus', 'alarms']);
   assert.deepEqual(manifest.host_permissions, ['https://translate.googleapis.com/*', 'https://generativelanguage.googleapis.com/*']);
   assert.deepEqual(manifest.optional_host_permissions, ['*://*/*']);
   assert.match(manifest.version, /^\d+\.\d+\.\d+$/);

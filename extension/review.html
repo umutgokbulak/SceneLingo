@@ -7,42 +7,79 @@
 <style>
   * { box-sizing: border-box; }
   body { margin: 0; min-height: 100vh; background: #10161d; color: #fff; font: 16px/1.45 "Segoe UI", Arial, sans-serif; }
-  main { max-width: 680px; margin: 0 auto; padding: 28px 16px 48px; }
-  header { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
+  main { max-width: 720px; margin: 0 auto; padding: 24px 16px 48px; }
+  header { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
   h1 { margin: 0; font-size: 22px; }
   #progress { color: #8fa3b5; font-size: 14px; font-variant-numeric: tabular-nums; }
   [hidden] { display: none !important; }
-  .panel { padding: 26px 24px; border-radius: 14px; background: #1b232d; border: 1px solid #2f3b49; text-align: center; }
+  #stats { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; margin-bottom: 14px; color: #8fa3b5; font-size: 13px; }
+  #stats b { color: #dbe4ec; font-weight: 600; }
+  #stats label { margin-left: auto; display: flex; gap: 6px; align-items: center; }
+  select, input, textarea { font: inherit; color: #fff; background: #10161d; border: 1px solid #46566a; border-radius: 8px; padding: 6px 10px; }
+  select { padding: 3px 6px; font-size: 13px; }
+  .panel { padding: 24px 24px 18px; border-radius: 14px; background: #1b232d; border: 1px solid #2f3b49; text-align: center; }
+  #top { display: flex; justify-content: center; gap: 6px; flex-wrap: wrap; align-items: center; }
   #kind { color: #8fa3b5; font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; }
-  #term { margin-top: 6px; font-size: 34px; font-weight: 700; overflow-wrap: anywhere; }
-  #term.long { font-size: 22px; font-weight: 600; }
-  #ipa { min-height: 22px; color: #8fa3b5; }
-  .audio { display: flex; justify-content: center; gap: 8px; margin: 12px 0 4px; }
-  #context { margin-top: 14px; font-size: 18px; color: #dbe4ec; }
-  #context b { color: #fff; background: rgba(26, 152, 255, 0.3); border-radius: 4px; padding: 0 3px; }
-  #source { margin-top: 4px; font-size: 12px; color: #6f8294; }
-  #answer { margin-top: 18px; padding-top: 16px; border-top: 1px solid #2f3b49; }
-  #translation { font-size: 24px; color: #ffe08a; }
-  #definition { margin-top: 8px; color: #dbe4ec; }
-  #contextTr { margin-top: 6px; font-size: 15px; font-style: italic; color: #b8c7d6; }
-  #contextTr:empty { display: none; }
-  #contextMeaning { margin: 8px auto 2px; padding: 6px 10px; max-width: 520px; border-left: 3px solid #1a98ff; background: rgba(26, 152, 255, 0.1); border-radius: 4px; color: #fff; }
-  #contextMeaning:empty { display: none; }
-  #contextMeaning small { display: block; margin-top: 3px; color: #b8c7d6; font-size: 13px; }
-  #contextMeaning .label { color: #8fa3b5; font-style: italic; margin-right: 6px; }
-  #synonyms { margin-top: 6px; font-size: 14px; color: #8fa3b5; }
-  #actions { margin-top: 22px; }
+  .badge { font-size: 11px; padding: 1px 7px; border-radius: 10px; border: 1px solid #46566a; color: #c7d1db; }
+  .badge.level { border-color: #1a98ff; color: #9fd4ff; }
+  .badge.academic { border-color: #3d8a55; color: #9fe0b2; }
+  .badge.hard { border-color: #a04848; color: #ffb4b4; }
+  .ask { margin-top: 10px; color: #8fa3b5; font-size: 14px; }
+  .term { margin-top: 4px; font-size: 34px; font-weight: 700; overflow-wrap: anywhere; }
+  .term.long { font-size: 22px; font-weight: 600; }
+  .term.meaning { color: #ffe08a; font-weight: 600; font-size: 28px; }
+  .ipa { min-height: 22px; color: #8fa3b5; }
+  .audio { display: flex; justify-content: center; gap: 8px; margin: 10px 0 4px; flex-wrap: wrap; }
+  .context { margin-top: 14px; font-size: 18px; color: #dbe4ec; }
+  .context b { color: #fff; background: rgba(26, 152, 255, 0.3); border-radius: 4px; padding: 0 3px; }
+  .context input { width: auto; min-width: 5ch; padding: 0 6px; font-size: 18px; text-align: center; border-color: #1a98ff; }
+  .hintline { margin-top: 8px; font-size: 15px; font-style: italic; color: #b8c7d6; }
+  .source { margin-top: 4px; font-size: 12px; color: #6f8294; }
+  .typed { display: flex; gap: 8px; justify-content: center; margin-top: 14px; }
+  .typed input, .typed textarea { width: min(420px, 100%); text-align: center; font-size: 18px; }
+  .typed textarea { text-align: left; font-size: 16px; min-height: 70px; resize: vertical; }
+  .verdict { margin-top: 12px; font-size: 15px; }
+  .verdict.right { color: #8fe0a6; }
+  .verdict.close { color: #ffe08a; }
+  .verdict.wrong { color: #ff9c9c; }
+  .answer { margin-top: 18px; padding-top: 16px; border-top: 1px solid #2f3b49; }
+  .translation { font-size: 24px; color: #ffe08a; }
+  .sense { margin: 8px auto 2px; padding: 6px 10px; max-width: 540px; border-left: 3px solid #1a98ff; background: rgba(26, 152, 255, 0.1); border-radius: 4px; color: #fff; text-align: left; }
+  .sense small { display: block; margin-top: 3px; color: #b8c7d6; font-size: 13px; }
+  .label { color: #8fa3b5; font-style: italic; margin-right: 6px; }
+  .tag { margin-left: 8px; font-size: 10px; color: #8fa3b5; text-transform: uppercase; letter-spacing: 0.04em; }
+  .contextTr { margin-top: 6px; font-size: 15px; font-style: italic; color: #b8c7d6; }
+  .definition { margin-top: 8px; color: #dbe4ec; }
+  .synonyms { margin-top: 6px; font-size: 14px; color: #8fa3b5; }
+  .block { margin: 14px auto 0; max-width: 560px; text-align: left; }
+  .block h3 { margin: 0 0 4px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: #8fa3b5; font-weight: 600; }
+  .block ul { margin: 0; padding-left: 18px; }
+  .block li { margin: 3px 0; color: #dbe4ec; }
+  .block li small { display: block; color: #8fa3b5; }
+  .block li button { margin-left: 6px; padding: 0 8px; font-size: 12px; }
+  .own { display: flex; gap: 8px; }
+  .own input { flex: 1; min-width: 0; }
+  .ownResult { margin-top: 6px; font-size: 14px; }
+  .ownResult .better { color: #8fe0a6; }
+  .tools { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 14px; }
+  .tools button { font-size: 13px; padding: 4px 10px; }
+  .edit { margin: 14px auto 0; max-width: 460px; display: grid; gap: 8px; text-align: left; }
+  .edit label { display: grid; gap: 3px; font-size: 13px; color: #8fa3b5; }
+  .actions { margin-top: 20px; }
   button { font: inherit; color: #fff; background: #2c3947; border: 1px solid #46566a; border-radius: 8px; padding: 8px 14px; cursor: pointer; }
   button:hover { background: #3a4a5c; }
+  button:disabled { opacity: 0.45; cursor: default; }
   button.main { background: #1a6fd6; border-color: #1a98ff; padding: 10px 22px; }
   button.main:hover { background: #1f7fee; }
-  #grades { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
-  #grades button { min-width: 150px; padding: 10px 12px; }
-  #grades small { display: block; color: #c7d1db; font-size: 12px; }
+  button.quiet { background: none; border-color: transparent; color: #8fa3b5; font-size: 13px; }
+  button.quiet:hover { color: #fff; background: none; }
+  .grades { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .grades button { min-width: 150px; padding: 10px 12px; }
+  .grades small { display: block; color: #c7d1db; font-size: 12px; }
   #again { border-color: #a04848; }
   #good { border-color: #3d8a55; }
   #easy { border-color: #1a98ff; }
-  #remove { margin-top: 18px; padding: 4px 10px; font-size: 12px; color: #8fa3b5; background: none; border-color: transparent; }
+  #remove { margin-top: 14px; padding: 4px 10px; font-size: 12px; color: #8fa3b5; background: none; border-color: transparent; }
   #remove:hover { color: #ff9c9c; background: none; }
   #empty p { margin: 0 0 14px; color: #dbe4ec; }
   .keys { margin-top: 14px; font-size: 12px; color: #6f8294; text-align: center; }
@@ -51,31 +88,21 @@
 <body>
 <main>
   <header><h1 data-t="reviewTitle"></h1><div id="progress"></div></header>
+  <div id="stats"></div>
 
   <section id="card" class="panel" hidden>
-    <div id="kind"></div>
-    <div id="term"></div>
-    <div id="ipa"></div>
-    <div class="audio">
-      <button id="say" title="R" data-t="reviewListen"></button>
-      <button id="saySlow" data-t="reviewSlow"></button>
-    </div>
-    <div id="context"></div>
-    <div id="source"></div>
-    <div id="answer" hidden>
-      <div id="translation"></div>
-      <div id="contextMeaning"></div>
-      <div id="contextTr"></div>
-      <div id="definition"></div>
-      <div id="synonyms"></div>
-    </div>
-    <div id="actions">
-      <button id="show" class="main" data-t="showAnswer"></button>
-      <div id="grades" hidden>
+    <div id="top"></div>
+    <div id="front"></div>
+    <div id="back" class="answer" hidden></div>
+    <div class="actions">
+      <button id="show" class="main"></button>
+      <button id="dontKnow" class="quiet" data-t="dontKnow" hidden></button>
+      <div class="grades" id="grades" hidden>
         <button id="again"><span data-t="again"></span><small></small></button>
         <button id="good"><span data-t="good"></span><small></small></button>
         <button id="easy"><span data-t="easy"></span><small></small></button>
       </div>
+      <button id="countIt" class="quiet" data-t="countIt" hidden></button>
     </div>
     <button id="remove" data-t="removeCard"></button>
   </section>
@@ -85,10 +112,12 @@
     <button id="studyAll" class="main" hidden data-t="studyAll"></button>
   </section>
 
-  <div class="keys" data-t="reviewKeys"></div>
+  <div class="keys" id="keys"></div>
 </main>
 <script src="messages.js"></script>
 <script src="shared.js"></script>
+<script src="study.js"></script>
+<script src="core.js"></script>
 <script src="review.js"></script>
 </body>
 </html>

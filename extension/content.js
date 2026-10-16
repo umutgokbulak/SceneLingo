@@ -428,7 +428,10 @@
     if (idx !== shown.idx) {
       closePopup(false);
       if (practice && idx !== practice.idx) closePractice(false);
-      if (idx >= 0) fillWords(ui.pri, primary.cues[idx].text, langOf(primary.track.languageCode));
+      if (idx >= 0) {
+        fillWords(ui.pri, primary.cues[idx].text, langOf(primary.track.languageCode));
+        noticeSaved(primary.cues[idx]);
+      }
       else ui.pri.textContent = '';
       ui.pri.hidden = idx < 0;
       highlightRow(idx);
@@ -889,6 +892,7 @@
         title: document.title,
         added: Date.now(),
         looked: 2,
+        source: sceneHere(),
       }).then(paintSave);
     });
 
@@ -1093,6 +1097,48 @@
     }
   }
 
+  // The page and the moment of the film, so that a card can take one back to its scene.
+  function sceneHere() {
+    if (!video) return null;
+    const url = window.top === window ? location.href : document.referrer || location.href;
+    return /^https?:/.test(url) ? { url, time: Math.round(video.currentTime) } : null;
+  }
+
+  // A saved word met again in another line becomes another example on its card. Collected while
+  // watching and written now and then, not at every line.
+  const metLines = new Set();
+  let metQueue = [];
+  let metTimer = 0;
+  function noticeSaved(cue) {
+    if (!savedWords.size || !cue || !connected()) return;
+    const text = cue.text.replace(/\s*\n\s*/g, ' ').trim();
+    const flat = ' ' + text.toLowerCase().replace(/[^\p{L}\p{N}']+/gu, ' ') + ' ';
+    for (const key of savedWords) {
+      if (key.split(' ').length > 4 || !flat.includes(' ' + key + ' ')) continue;
+      const id = key + '|' + text;
+      if (metLines.has(id)) continue;
+      metLines.add(id);
+      metQueue.push({ key, example: { text, title: document.title, source: sceneHere() } });
+    }
+    if (metQueue.length && !metTimer) metTimer = setTimeout(writeMet, 4000);
+  }
+  function writeMet() {
+    metTimer = 0;
+    const met = metQueue;
+    metQueue = [];
+    if (!connected()) return;
+    chrome.storage.local.get({ words: [] }, (data) => {
+      let changed = false;
+      const words = data.words.map((w) => {
+        let out = w;
+        for (const m of met) if (m.key === w.word.toLowerCase()) out = slAddExample(out, m.example);
+        if (out !== w) changed = true;
+        return out;
+      });
+      if (changed) chrome.storage.local.set({ words });
+    });
+  }
+
   function toggleSaved(entry) {
     if (!connected()) {
       warnStale();
@@ -1155,7 +1201,7 @@
       const res = await lookup(text, lang);
       if (res.ok) translation = res.result.translation;
     }
-    await toggleSaved({ word: text, kind: 'sentence', translation, context: '', lang: langOf(lang), title: document.title, added: Date.now() });
+    await toggleSaved({ word: text, kind: 'sentence', translation, context: '', lang: langOf(lang), title: document.title, added: Date.now(), source: sceneHere() });
     toast(savedWords.has(text.toLowerCase()) ? slT('sentenceSaved') : slT('sentenceRemoved'));
   }
 
@@ -2349,6 +2395,22 @@
   });
   onMedia('play', (e) => {
     if (e.target === video) hoverPaused = false;
+  });
+  let sceneAsked = false;
+  onMedia('playing', (e) => {
+    if (e.target !== video || sceneAsked || !connected()) return;
+    sceneAsked = true;
+    const v = video;
+    send({ type: 'pending-seek' }).then((res) => {
+      const seek = res.ok && res.result;
+      if (!seek) return;
+      const go = () => {
+        if (!(v.duration > seek.time)) return false;
+        v.currentTime = seek.time;
+        return true;
+      };
+      if (!go()) v.addEventListener('durationchange', function once() { if (go()) v.removeEventListener('durationchange', once); });
+    });
   });
   for (const type of ['play', 'pause', 'seeking', 'seeked']) {
     onMedia(type, (e) => {

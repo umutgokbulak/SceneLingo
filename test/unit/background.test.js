@@ -54,7 +54,7 @@ test('the content script is registered for other sites only while the user allow
   assert.deepEqual(site.calls, ['register']); // once, however often it is asked
   const [script] = site.registered;
   assert.deepEqual(script.matches, ['*://*/*']);
-  assert.deepEqual(script.js, ['messages.js', 'shared.js', 'core.js', 'subtitles.js', 'content.js', 'select.js']);
+  assert.deepEqual(script.js, ['messages.js', 'shared.js', 'study.js', 'core.js', 'subtitles.js', 'content.js', 'select.js']);
   assert.equal(script.runAt, 'document_start');
   assert.equal(script.allFrames, true);
   // The sites the manifest covers are left to the manifest, so nothing runs twice there.
@@ -232,6 +232,30 @@ test('sense: an answer Gemini gave is not shown once Gemini is switched off', as
   const off = (await ask(msg)).result;
   assert.deepEqual(off, { meaning: 'sivri', engine: 'marked' });
   site.useGemini = undefined;
+  site.geminiKey = '';
+});
+
+test('review cards use Gemini even when it is switched off for the video', async () => {
+  site.geminiKey = 'test-key';
+  site.useGemini = false;
+  reset(() => ({ json: { candidates: [{ content: { parts: [{ text: '{"phrase":"","meaning":"belki","note":""}' }] } }] } }));
+  const res = await ask({ type: 'sense', word: 'Might', sentence: 'Might even have a girl for you, if you like.', sl: 'en', tl: 'tr', always: true });
+  assert.equal(res.result.engine, 'gemini');
+  site.useGemini = undefined;
+  site.geminiKey = '';
+});
+
+test('enrich and check-sentence ask Gemini once each, and need a key', async () => {
+  site.geminiKey = '';
+  assert.equal((await ask({ type: 'enrich', word: 'keen', sl: 'en', tl: 'tr' })).error, 'noKey');
+  site.geminiKey = 'test-key';
+  const answer = (o) => ({ json: { candidates: [{ content: { parts: [{ text: JSON.stringify(o) }] } }] } });
+  reset(() => answer({ level: 'b2', academic: true, collocations: [{ text: 'keen on', meaning: 'meraklı' }, { meaning: 'no text' }], examples: [{ text: 'She is keen on music.', translation: 'Müziğe meraklı.' }] }));
+  const extra = (await ask({ type: 'enrich', word: 'keen', sentence: 'a keen wit', sl: 'en', tl: 'tr' })).result;
+  assert.deepEqual(extra, { level: 'B2', academic: true, collocations: [{ text: 'keen on', meaning: 'meraklı' }], examples: [{ text: 'She is keen on music.', translation: 'Müziğe meraklı.' }] });
+  reset(() => answer({ correct: false, better: 'I am keen on football.', note: 'keen on kalıbı.' }));
+  const checked = (await ask({ type: 'check-sentence', word: 'keen', sentence: 'I am keen to football.', sl: 'en', tl: 'tr' })).result;
+  assert.deepEqual(checked, { correct: false, better: 'I am keen on football.', note: 'keen on kalıbı.' });
   site.geminiKey = '';
 });
 

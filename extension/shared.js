@@ -21,6 +21,7 @@ const SL_DEFAULTS = {
   preferHuman: true, // use Prime's own track in the native language when there is one
   hideNative: true,
   hoverPause: true,
+  newPerDay: 15, // new cards a day in review
   useGemini: true, // ask Gemini for a word's meaning in its sentence, when a key has been saved
   selectLookup: true, // a button beside text selected on any page, for its translation
   hoverLookup: true, // show the word popup on hover, without a click
@@ -49,11 +50,13 @@ function slGrade(item, grade, now) {
     return { ...item, ease: Math.max(1.3, ease - 0.2), interval: 0, reps: 0, lapses: lapses + 1, due: now + 10 * 60000 };
   }
   reps += 1;
+  const good = reps === 1 ? 1 : reps === 2 ? 3 : Math.round(interval * ease);
   if (grade === 'easy') {
-    interval = reps === 1 ? 4 : Math.round(Math.max(interval, 1) * ease * 1.3);
+    // Always further than "got it" would have put it.
+    interval = Math.max(reps === 1 ? 4 : Math.round(Math.max(interval, 1) * ease * 1.3), good + 1);
     ease += 0.15;
   } else {
-    interval = reps === 1 ? 1 : reps === 2 ? 3 : Math.round(interval * ease);
+    interval = good;
   }
   return { ...item, ease, interval, reps, lapses, due: now + interval * SL_DAY };
 }

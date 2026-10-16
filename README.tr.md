@@ -45,8 +45,15 @@ yazdım, çalışırken ihtiyaç duyduklarımı ekledim, sonra onu izlediğim di
   izin verilmemiş sitelerde seçime sağ tıkla.
 - **Tekrar ve yavaş dinleme.** Cümleyi filmin kendi sesiyle dörtte üç hızda tekrar oynat ya da kelimeyi İngiliz,
   Amerikan veya Avustralya aksanıyla dinle.
-- **Aralıklı tekrar.** Kaydettiğin kelime, kalıp ve cümleler, geçtikleri cümleyle birlikte belirli aralıklarla
-  (1, 3, 8, 20… gün) kart olarak geri gelir.
+- **Kelimeyi kullanmaya götüren aralıklı tekrar.** Kaydettiğin kelime önce tanınır, sonra kendi cümlesindeki
+  boşluğa yazılır, sonra Türkçesinden İngilizcesi yazılır ya da söylenir; bilemezsen bir adım geri gider. Yazılan
+  cevap kontrol edilir (küçük yazım hataları doğru sayılır), günde yeni kart sayısı sınırlıdır ve araç
+  çubuğundaki simge bekleyen kartları gösterir.
+- **Büyüyen kartlar.** Kaydettiğin kelime başka bir filmde yine geçerse o cümle karta örnek olarak eklenir; her
+  birinin yanında sahneyi doğru anında açan bir düğme var. Gemini anahtarıyla kart; seviyesini (CEFR), birlikte
+  kullanıldığı kelimeleri, iki örnek daha ve kendi yazdığın cümlenin kontrolünü de alır. Kartlar düzenlenebilir;
+  bir kelime ait olduğu kalıba çevrilebilir ("ripped" → "rip off").
+- **Günlerin kaydı:** seri, öğrenilen kelime, hatırlama oranı.
 
 | Kelime kartı | Tüm satırlar, filmin yanında |
 | --- | --- |
@@ -91,7 +98,7 @@ saklayan servislerde (Netflix gibi) çalışmaz; orada kendi altyazı dosyanı a
 
 ## Nasıl yapıldı
 
-Manifest V3, yalın JavaScript; bağımlılık ve derleme adımı yok. 58 birim testi, site olmadan denenebilen her şey
+Manifest V3, yalın JavaScript; bağımlılık ve derleme adımı yok. 69 birim testi, site olmadan denenebilen her şey
 için oynatıcıyı taklit eden bir test sayfası ve gerisi için eklentiyi gerçek bir tarayıcıya yükleyip yöneten bir
 betik var. Altyazıların sitelerde nasıl bulunduğu, iki altyazı izinin nasıl eşleştirildiği ve yolda çıkan
 sorunlar [İngilizce README](README.md#engineering-notes)'de anlatılıyor.

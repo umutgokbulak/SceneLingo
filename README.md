@@ -41,7 +41,7 @@
   flashcards that come back on a schedule.
 - **Where:** Amazon Prime Video, YouTube, and any site whose subtitles can be found from outside the page
   (TED, Vimeo's player and Wikimedia Commons were checked) — or any video at all, with a subtitle file of your own.
-- **How it is built:** Manifest V3, plain JavaScript, no dependencies and no build step; 58 unit tests, a
+- **How it is built:** Manifest V3, plain JavaScript, no dependencies and no build step; 69 unit tests, a
   stand-in player for everything that can be tested without a site, and a script that loads the real extension
   into a real browser for what cannot.
 
@@ -92,8 +92,15 @@ them), plyr.io, Vimeo's player, Wikimedia Commons and a YouTube player embedded 
   does not clip.
 - **Hear it again, slower.** Replay a line from the film at three-quarter speed, or have a word or sentence read
   by a British, American or Australian voice, at a volume you set.
-- **Spaced-repetition review.** Words, phrases and sentences you save come back as flashcards on a schedule
-  (1, 3, 8, 20… days), each with the sentence it came from.
+- **Spaced-repetition review that moves towards using the word.** A saved word is first recognised, then
+  typed into the gap in its own sentence, then produced from its meaning, typed or said aloud; a miss steps back
+  one. Typed answers are checked (a slip of the keyboard still counts), new cards are limited per day, and the
+  toolbar icon shows how many are waiting.
+- **Cards that grow.** A saved word met again in another film collects that sentence as an example, each with
+  a button that opens its scene at the right moment. With a Gemini key a card also gets its CEFR level, common
+  combinations, two more examples, and a check of a sentence you write with it. Cards can be edited, and a
+  word can be turned into the phrase it belongs to ("ripped" into "rip off").
+- **A record of the days:** streak, words learned, share remembered.
 - **Sentence navigation.** Jump to the previous or next line, repeat the current one, pause automatically after
   every line, or pick a line from the transcript.
 
@@ -197,7 +204,7 @@ TTML, SubStation and YouTube's JSON captions alike.
   played back through the extension's own audio graph.
 - **Pausing at the end of a line survives a stalled frame.** If the page misses the pause window, the next frame
   notices and steps back to just before the line ended.
-- **Review scheduling** is a compact SM-2 variant.
+- **Review scheduling** is a compact SM-2 variant, with stages from recognising to producing on top (`extension/study.js`).
 - **Tested without the real site.** [`test/harness.html`](test/harness.html) mimics the parts of the player the
   extension relies on and runs the real extension files against mocked extension APIs, with stand-ins for the
   microphone and the speech recogniser.
@@ -231,7 +238,7 @@ The interface is in English or Turkish (it follows the browser, or the choice in
 | `L` | Transcript panel (not on YouTube, where `L` skips ahead; use the button) |
 | `Enter`, `↑`, `↓` | In practice: check or continue, hear the line again, skip it |
 | `Space`, `→` | In speaking practice: say it again, play your own recording |
-| `Space`, `1` `2` `3`, `R` | On the review page: show the answer, grade it, replay the audio |
+| `Space` / `Enter`, `1` `2` `3`, `R` | On the review page: show or check the answer, grade it, replay the audio |
 
 ## Development
 
@@ -252,6 +259,7 @@ npm run pictures        # the stills of this README; `npm run film` and test/ani
 | `extension/background.js` | Service worker: translation, lookup and speech requests; access to other sites |
 | `extension/review.*`, `popup.*` | Flashcard page and toolbar popup |
 | `extension/shared.js` | Default settings and the review schedule |
+| `extension/study.js` | Card stages, gap and answer checking, the day's queue, the record of the days |
 | `test/unit/` | Unit tests |
 | `test/harness.html`, `server.js`, `mock-chrome.js` | Mock player, static server, mocked extension APIs |
 

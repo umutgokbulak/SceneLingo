@@ -1,12 +1,12 @@
 {
   "manifest_version": 3,
   "name": "SceneLingo",
-  "version": "0.13.0",
+  "version": "0.14.0",
   "description": "__MSG_description__",
   "default_locale": "en",
   "icons": { "16": "icons/16.png", "48": "icons/48.png", "128": "icons/128.png" },
   "minimum_chrome_version": "111",
-  "permissions": ["storage", "scripting", "tabCapture", "offscreen", "activeTab", "contextMenus"],
+  "permissions": ["storage", "scripting", "tabCapture", "offscreen", "activeTab", "contextMenus", "alarms"],
   "host_permissions": ["https://translate.googleapis.com/*", "https://generativelanguage.googleapis.com/*"],
   "optional_host_permissions": ["*://*/*"],
   "background": { "service_worker": "background.js" },
@@ -46,7 +46,7 @@
         "https://www.youtube.com/*",
         "https://www.youtube-nocookie.com/*"
       ],
-      "js": ["messages.js", "shared.js", "core.js", "subtitles.js", "content.js", "select.js"],
+      "js": ["messages.js", "shared.js", "study.js", "core.js", "subtitles.js", "content.js", "select.js"],
       "css": ["content.css"],
       "run_at": "document_start",
       "all_frames": true

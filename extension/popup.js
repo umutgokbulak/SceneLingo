@@ -1,6 +1,7 @@
 const $ = (id) => document.getElementById(id);
 let settings = { ...SL_DEFAULTS };
 let words = [];
+let reviewLog = {};
 
 const option = (value, label) => {
   const o = document.createElement('option');
@@ -52,7 +53,8 @@ function renderWords() {
   const box = $('words');
   box.textContent = '';
   $('wordsHead').textContent = slT('headWords', words.length);
-  const due = words.filter((w) => slIsDue(w, Date.now())).length;
+  // As many as the review page will show today: what is due, and new cards up to the day's limit.
+  const due = slDueCount(words, Date.now(), reviewLog, settings.newPerDay);
   $('review').textContent = due ? slT('reviewDue', due) : slT('reviewOpen');
   if (!words.length) {
     const empty = document.createElement('div');
@@ -291,7 +293,8 @@ chrome.storage.sync.get(SL_DEFAULTS, (stored) => {
   $('preferHuman').checked = settings.preferHuman;
   $('selectLookup').checked = settings.selectLookup;
   $('useGemini').checked = settings.useGemini;
-  chrome.storage.local.get({ words: [] }, (data) => {
+  chrome.storage.local.get({ words: [], reviewLog: {} }, (data) => {
+    reviewLog = data.reviewLog;
     words = data.words;
     paint();
   });

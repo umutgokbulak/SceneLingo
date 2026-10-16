@@ -45,6 +45,9 @@ test('easy skips ahead and raises the ease', () => {
   assert.equal(first.interval, 4);
   assert.equal(first.due, 4 * SL_DAY);
   assert.ok(first.ease > 2.5);
+  // From a day's interval "got it" gives three days; "easy" must give more.
+  const second = { interval: 1, reps: 1, ease: 2.5 };
+  assert.ok(slGrade(second, 'easy', 0).interval > slGrade(second, 'good', 0).interval);
 });
 
 test('grading keeps the rest of the saved item', () => {
