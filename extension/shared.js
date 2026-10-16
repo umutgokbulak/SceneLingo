@@ -21,6 +21,7 @@ const SL_DEFAULTS = {
   preferHuman: true, // use Prime's own track in the native language when there is one
   hideNative: true,
   hoverPause: true,
+  useGemini: true, // ask Gemini for a word's meaning in its sentence, when a key has been saved
   selectLookup: true, // a button beside text selected on any page, for its translation
   hoverLookup: true, // show the word popup on hover, without a click
   autoSpeak: true, // read the word aloud when its popup opens

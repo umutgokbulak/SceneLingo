@@ -38,7 +38,7 @@ for (const id of ['learnLang', 'nativeLang', 'uiLang']) {
     else showEngine();
   });
 }
-for (const id of ['enabled', 'preferHuman', 'selectLookup']) {
+for (const id of ['enabled', 'preferHuman', 'selectLookup', 'useGemini']) {
   $(id).addEventListener('change', () => chrome.storage.sync.set({ [id]: $(id).checked }));
 }
 
@@ -150,14 +150,22 @@ $('engineGet').addEventListener('click', async () => {
 
 // The user's own Gemini key: kept in this browser only (local storage, not synced), and sent
 // nowhere but to Google's Gemini API. Saving it also tries it once.
-chrome.storage.local.get({ geminiKey: '' }, ({ geminiKey }) => {
-  $('geminiState').textContent = geminiKey ? slT('geminiHas') : slT('geminiNone');
-});
+function showGeminiKey() {
+  chrome.runtime.sendMessage({ type: 'gemini-key' }, (res) => {
+    const shown = !chrome.runtime.lastError && res && res.ok ? res.result : '';
+    $('geminiState').textContent = shown ? slT('geminiKeyShown', shown) : slT('geminiNone');
+    $('geminiRemove').hidden = !shown;
+    $('useGemini').disabled = !shown;
+  });
+}
+showGeminiKey();
+$('geminiRemove').addEventListener('click', () => chrome.storage.local.set({ geminiKey: '' }, showGeminiKey));
 $('geminiSave').addEventListener('click', () => {
   const key = $('geminiKey').value.trim();
   $('geminiKey').value = '';
+  if (!key) return;
   chrome.storage.local.set({ geminiKey: key }, () => {
-    if (!key) return ($('geminiState').textContent = slT('geminiNone'));
+    showGeminiKey();
     $('geminiState').textContent = slT('geminiTrying');
     chrome.runtime.sendMessage({ type: 'gemini-test', tl: settings.nativeLang }, (res) => {
       if (chrome.runtime.lastError || !res) return ($('geminiState').textContent = slT('geminiFailed', chrome.runtime.lastError ? chrome.runtime.lastError.message : '?'));
@@ -192,6 +200,8 @@ const ask = (msg) => new Promise((resolve) => chrome.runtime.sendMessage(msg, (r
 async function boost(level) {
   const tab = await activeTab();
   if (!tab) return;
+  const here = await toTab(tab, { type: 'boost-local', level });
+  if (here && here.ok) return ($('boostNote').textContent = '');
   const now = await ask({ type: 'boost-state', tabId: tab.id });
   let streamId;
   if (level > 100 && !(now.ok && now.result.level > 100)) {
@@ -208,7 +218,8 @@ $('boost').addEventListener('input', () => {
 });
 activeTab().then(async (tab) => {
   if (!tab) return;
-  const res = await ask({ type: 'boost-state', tabId: tab.id });
+  const here = await toTab(tab, { type: 'boost-get' });
+  const res = here ? { ok: true, result: here } : await ask({ type: 'boost-state', tabId: tab.id });
   if (!res.ok) return;
   $('boost').value = res.result.level;
   $('boostValue').textContent = res.result.level + '%';
@@ -279,6 +290,7 @@ chrome.storage.sync.get(SL_DEFAULTS, (stored) => {
   $('enabled').checked = settings.enabled;
   $('preferHuman').checked = settings.preferHuman;
   $('selectLookup').checked = settings.selectLookup;
+  $('useGemini').checked = settings.useGemini;
   chrome.storage.local.get({ words: [] }, (data) => {
     words = data.words;
     paint();

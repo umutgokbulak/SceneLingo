@@ -178,8 +178,9 @@ async function sense(word, sentence, sl, tl) {
   const key = [sl, tl, word, sentence].join('|').toLowerCase();
   if (senses.has(key)) return senses.get(key);
   const { geminiKey } = await chrome.storage.local.get({ geminiKey: '' });
+  const { useGemini } = await chrome.storage.sync.get({ useGemini: true });
   let answer = null;
-  if (geminiKey && Date.now() > geminiRestUntil) {
+  if (geminiKey && useGemini && Date.now() > geminiRestUntil) {
     answer = await askGemini(geminiKey, word, sentence, sl, tl).catch((e) => {
       if (/429|quota|exhausted/i.test(e.message)) geminiRestUntil = Date.now() + 60000;
       return { error: e.message };
@@ -204,6 +205,12 @@ async function markedMeaning(word, sentence, sl, tl) {
   const m = /<\s*b\s*>([\s\S]*?)<\s*\/\s*b\s*>/i.exec(out);
   const meaning = m ? m[1].replace(/<[^>]*>/g, '').replace(/^[\s"'“”«»]+|[\s"'“”«».,!?;:]+$/g, '') : '';
   return meaning.length && meaning.length < 60 ? meaning : '';
+}
+
+// The saved key as it may be shown: its first and last letters only.
+async function geminiKeyShown() {
+  const { geminiKey } = await chrome.storage.local.get({ geminiKey: '' });
+  return geminiKey ? geminiKey.slice(0, 4) + '…' + geminiKey.slice(-4) : '';
 }
 
 async function askGemini(apiKey, word, sentence, sl, tl) {
@@ -341,6 +348,24 @@ async function boostTab(msg) {
   return result;
 }
 
+async function boostState(tabId) {
+  const open = await chrome.runtime.getContexts({ contextTypes: ['OFFSCREEN_DOCUMENT'] });
+  return open.length && tabId != null ? toOffscreen({ type: 'boost-state', tabId }) : { level: 100 };
+}
+
+// The slider in the overlay's menu. The browser hands over a tab's sound only after the user has
+// used the extension on that tab (its toolbar button, its menu); until then this is refused.
+async function boostFromPage(tab, level) {
+  if (!tab) throw new Error('no tab');
+  const now = await boostState(tab.id);
+  let streamId;
+  if (level > 100 && now.level <= 100) {
+    streamId = await chrome.tabCapture.getMediaStreamId({ targetTabId: tab.id }).catch(() => null);
+    if (!streamId) throw new Error('needToolbar');
+  }
+  return boostTab({ tabId: tab.id, level, streamId });
+}
+
 async function tabFullscreen(tab, on) {
   if (!tab) return false;
   const key = 'window-' + tab.windowId;
@@ -369,6 +394,9 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   else if (msg && msg.type === 'gemini-test') job = chrome.storage.local.get({ geminiKey: '' }).then(({ geminiKey }) => askGemini(geminiKey, 'ripped', 'It is not my fault you ripped off the wrong people.', 'en', msg.tl || 'tr'));
   else if (msg && msg.type === 'tts') job = tts(String(msg.text || ''), String(msg.lang || 'en'), !!msg.slow);
   else if (msg && msg.type === 'boost') job = boostTab(msg);
+  else if (msg && msg.type === 'gemini-key') job = geminiKeyShown();
+  else if (msg && msg.type === 'boost-page') job = boostFromPage(sender.tab, msg.level);
+  else if (msg && msg.type === 'boost-state-page') job = boostState(sender.tab && sender.tab.id);
   else if (msg && msg.type === 'boost-state') job = toOffscreen({ type: msg.type, tabId: msg.tabId });
   else if (msg && msg.type === 'tab-fullscreen') job = tabFullscreen(sender.tab, !!msg.on);
   else if (msg && msg.type === 'sync-sites') job = syncSites(false);

@@ -14,7 +14,10 @@ globalThis.chrome = {
     onStartup: noEvent,
   },
   tabs: { create: async (opts) => opts },
-  storage: { local: { get: async (defaults) => ({ ...defaults, geminiKey: site.geminiKey || '' }) } },
+  storage: {
+    local: { get: async (defaults) => ({ ...defaults, geminiKey: site.geminiKey || '' }) },
+    sync: { get: async (defaults) => ({ ...defaults, ...(site.useGemini === false ? { useGemini: false } : {}) }) },
+  },
   contextMenus: { create() {}, onClicked: noEvent },
   permissions: { contains: async () => site.allowed, onAdded: noEvent, onRemoved: noEvent },
   scripting: {
@@ -223,4 +226,19 @@ test('sense: when Gemini refuses (quota), the marked sentence answers instead', 
   assert.equal(res.result.meaning, 'belki');
   assert.equal(res.result.engine, 'marked');
   site.geminiKey = '';
+});
+
+test('sense: with Gemini switched off the key is kept but not used', async () => {
+  site.geminiKey = 'test-key';
+  site.useGemini = false;
+  reset((url) => {
+    if (url.hostname === 'generativelanguage.googleapis.com') throw new Error('Gemini was asked');
+    return { json: [[['Pencereyi <b>açtı</b>.', 'x']]] };
+  });
+  const res = await ask({ type: 'sense', word: 'aufgemacht', sentence: 'Er hat das Fenster aufgemacht.', sl: 'de', tl: 'tr' });
+  assert.deepEqual(res.result, { meaning: 'açtı', engine: 'marked' });
+  assert.equal((await ask({ type: 'gemini-key' })).result, 'test…-key');
+  site.useGemini = undefined;
+  site.geminiKey = '';
+  assert.equal((await ask({ type: 'gemini-key' })).result, '');
 });

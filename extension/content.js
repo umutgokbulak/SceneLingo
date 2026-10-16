@@ -1940,6 +1940,33 @@
       volRange.blur();
       speakSample();
     });
+    // The film's own sound, louder.
+    const boostBox = el('span', 'sl-range');
+    const boostRange = el('input');
+    boostRange.type = 'range';
+    boostRange.min = 100;
+    boostRange.max = 600;
+    boostRange.step = 10;
+    const boostVal = el('span', 'sl-step-val');
+    boostBox.append(boostRange, boostVal);
+    const boostNote = el('div', 'sl-hint');
+    boostNote.hidden = true;
+    let boostTimer = 0;
+    boostRange.addEventListener('input', () => {
+      boostVal.textContent = boostRange.value + '%';
+      clearTimeout(boostTimer);
+      boostTimer = setTimeout(async () => {
+        const res = await setBoost(+boostRange.value);
+        boostNote.hidden = res.ok;
+        if (!res.ok) boostNote.textContent = res.error === 'needToolbar' ? slT('boostNeedToolbar') : slT('boostFailed', res.error);
+      }, 120);
+    });
+    boostRange.addEventListener('change', () => boostRange.blur());
+    const boostRow = row(slT('boost'), boostBox);
+    boostRow.title = slT('boostTip');
+    // Gemini, on and off; and which key is saved.
+    const geminiRow = row(slT('useGemini'), check('useGemini'), 'label');
+    const geminiNote = el('div', 'sl-hint');
     const engineNote = el('div', 'sl-hint sl-engine');
     engineNote.hidden = true;
     const reviewBtn = el('button', 'sl-wide-btn', slT('openReview'));
@@ -1973,6 +2000,10 @@
       row(slT('autoSpeak'), check('autoSpeak'), 'label'),
       accentRow,
       row(slT('volume'), vol),
+      boostRow,
+      boostNote,
+      geminiRow,
+      geminiNote,
       el('div', 'sl-mhead', slT('headLook')),
       row(slT('fontSize'), size.wrap),
       row(slT('position'), pos.wrap),
@@ -1987,6 +2018,7 @@
       checkBtn, doneBtn, sayBtn, voiceBtn, goBtn, modeBtns, pauseBtn, starBtn, listBtn, gearBtn,
       popup, toast: toastEl, menu, panel, list, checks, priSel, secSel, accentSel, accentRow,
       volRange, volVal, size, pos, sync, status: statusEl, engineNote,
+      boostRange, boostVal, geminiNote,
     };
 
     // Keep clicks on our controls from reaching the player underneath.
@@ -2069,7 +2101,65 @@
     ui.menu.style.maxHeight = Math.max(160, top - rr.top - 16) + 'px';
   }
 
+  // ---------- the film's sound ----------
+
+  // A film the page can hear is made louder right here: no capture of the tab, so its fullscreen
+  // stays as it is. A protected film (Prime's) gives a page silence instead of its sound; that
+  // one goes through the background, which captures the tab.
+  let boostLevel = 100;
+  let localBoost = null; // { video, audio, gain }
+
+  function pageCanHear(v) {
+    if (!v || v.mediaKeys) return false;
+    const src = v.currentSrc || '';
+    if (!src || /^(blob|data):/.test(src)) return true;
+    try {
+      return new URL(src).origin === location.origin || !!v.crossOrigin;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  async function setBoost(level) {
+    const here = localBoost && localBoost.video === video;
+    if (!here && level > 100 && pageCanHear(video)) {
+      const now = await send({ type: 'boost-state-page' });
+      if (!(now.ok && now.result.level > 100)) {
+        const audio = new AudioContext();
+        const gain = audio.createGain();
+        const limiter = audio.createDynamicsCompressor();
+        limiter.threshold.value = -2;
+        limiter.knee.value = 0;
+        limiter.ratio.value = 20;
+        limiter.attack.value = 0.003;
+        limiter.release.value = 0.25;
+        audio.createMediaElementSource(video).connect(gain).connect(limiter).connect(audio.destination);
+        localBoost = { video, audio, gain };
+      }
+    }
+    if (localBoost && localBoost.video === video) {
+      if (localBoost.audio.state === 'suspended') localBoost.audio.resume();
+      localBoost.gain.gain.setTargetAtTime(level / 100, localBoost.audio.currentTime, 0.05);
+      boostLevel = level;
+      return { ok: true };
+    }
+    const res = await send({ type: 'boost-page', level });
+    if (res.ok) boostLevel = res.result.level;
+    return res;
+  }
+
+  function showGeminiState() {
+    if (!ui) return;
+    send({ type: 'gemini-key' }).then((res) => {
+      if (!ui) return;
+      const shown = res.ok ? res.result : '';
+      ui.checks.useGemini.disabled = !shown;
+      ui.geminiNote.textContent = shown ? slT('geminiKeyShown', shown) : slT('geminiNoKeyHere');
+    });
+  }
+
   function refreshMenu() {
+    showGeminiState();
     if (!ui) return;
     for (const key of Object.keys(ui.checks)) ui.checks[key].checked = !!settings[key];
     for (const mode of Object.keys(ui.modeBtns)) ui.modeBtns[mode].classList.toggle('sl-on', settings.mode === mode);
@@ -2100,6 +2190,8 @@
     ui.accentRow.hidden = !speaksEnglish();
     ui.volRange.value = settings.speechVolume;
     ui.volVal.textContent = settings.speechVolume + '%';
+    ui.boostRange.value = boostLevel;
+    ui.boostVal.textContent = boostLevel + '%';
     ui.size.val.textContent = settings.fontSize + '%';
     ui.pos.val.textContent = settings.bottomOffset + '%';
     ui.sync.val.textContent = slT('seconds', (offset > 0 ? '+' : '') + offset.toFixed(2));
@@ -2316,6 +2408,13 @@
       forced = true;
       pickVideo();
       if (window.top === window) reply({ ok: true });
+    } else if (msg.type === 'boost-local') {
+      // From the toolbar popup: answered by the frame whose film the page can make louder itself.
+      if (!video || !((localBoost && localBoost.video === video) || pageCanHear(video))) return;
+      setBoost(msg.level).then(reply);
+      return true;
+    } else if (msg.type === 'boost-get') {
+      if (localBoost && localBoost.video === video) reply({ level: boostLevel });
     } else if (msg.type === 'where') {
       if (window.top === window) reply({ host: HOME, off: siteOff() });
     } else if (msg.type === 'diagnose') {
