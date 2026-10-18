@@ -102,6 +102,35 @@ function slSentenceScore(expected, typed, match) {
   return hit.filter(Boolean).length / want.length;
 }
 
+// A subtitle line as a sentence to read: without the notes for the hard of hearing ("[Grace]",
+// "(sighs)", "♪") and the dash that marks a new speaker. A line that is nothing but a note stays.
+function slCleanLine(text) {
+  const raw = String(text || '');
+  const clean = raw
+    .replace(/\[[^\]]*\]|\([^)]*\)|♪+/g, ' ')
+    .replace(/^\s*[-–—]\s*/, '')
+    .replace(/\s+([,.!?;:…])/g, '$1')
+    .replace(/\s+/g, ' ')
+    .trim();
+  return /\p{L}/u.test(clean) ? clean : raw.trim();
+}
+
+// A hint for a typed answer: its first `shown` letters, the rest as gaps, spaces and
+// apostrophes kept so that the shape of the answer shows ("go through" -> "g_ _______").
+function slHintMask(answer, shown) {
+  let left = shown;
+  return [...String(answer || '')]
+    .map((ch) => {
+      if (!/[\p{L}\p{N}]/u.test(ch)) return ch;
+      if (left > 0) {
+        left -= 1;
+        return ch;
+      }
+      return '_';
+    })
+    .join('');
+}
+
 // ---- the days ----
 
 function slDayKey(now) {
@@ -195,5 +224,5 @@ function slMerge(keep, other) {
 }
 
 if (typeof module !== 'undefined') {
-  module.exports = { SL_STAGES, slCardType, slAdvance, slClozeParts, slCheckAnswer, slAccepted, slSentenceScore, slDayKey, slIsNew, slTodayQueue, slLogged, slStats, slDueCount, slAddExample, slMerge, slNormalize };
+  module.exports = { SL_STAGES, slCleanLine, slHintMask, slCardType, slAdvance, slClozeParts, slCheckAnswer, slAccepted, slSentenceScore, slDayKey, slIsNew, slTodayQueue, slLogged, slStats, slDueCount, slAddExample, slMerge, slNormalize };
 }

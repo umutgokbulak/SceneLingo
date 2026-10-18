@@ -252,7 +252,7 @@ test('enrich and check-sentence ask Gemini once each, and need a key', async () 
   const answer = (o) => ({ json: { candidates: [{ content: { parts: [{ text: JSON.stringify(o) }] } }] } });
   reset(() => answer({ level: 'b2', academic: true, collocations: [{ text: 'keen on', meaning: 'meraklı' }, { meaning: 'no text' }], examples: [{ text: 'She is keen on music.', translation: 'Müziğe meraklı.' }] }));
   const extra = (await ask({ type: 'enrich', word: 'keen', sentence: 'a keen wit', sl: 'en', tl: 'tr' })).result;
-  assert.deepEqual(extra, { level: 'B2', academic: true, collocations: [{ text: 'keen on', meaning: 'meraklı' }], examples: [{ text: 'She is keen on music.', translation: 'Müziğe meraklı.' }] });
+  assert.deepEqual(extra, { ipa: '', level: 'B2', academic: true, collocations: [{ text: 'keen on', meaning: 'meraklı' }], examples: [{ text: 'She is keen on music.', translation: 'Müziğe meraklı.' }] });
   reset(() => answer({ correct: false, better: 'I am keen on football.', note: 'keen on kalıbı.' }));
   const checked = (await ask({ type: 'check-sentence', word: 'keen', sentence: 'I am keen to football.', sl: 'en', tl: 'tr' })).result;
   assert.deepEqual(checked, { correct: false, better: 'I am keen on football.', note: 'keen on kalıbı.' });

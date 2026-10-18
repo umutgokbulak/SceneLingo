@@ -51,6 +51,19 @@ test('a sentence said from its translation is scored by the words said in order'
   assert.equal(S.slSentenceScore('Might even have a girl for you.', 'might have a girl for you', matchWords), 6 / 7);
 });
 
+test('a subtitle line is read without the notes for the hard of hearing', () => {
+  assert.equal(S.slCleanLine("[Grace] I'm just going through the whole light spectrum here."), "I'm just going through the whole light spectrum here.");
+  assert.equal(S.slCleanLine('- (sighs) Well, ♪ maybe ♪ not.'), 'Well, maybe not.');
+  assert.equal(S.slCleanLine('[man]'), '[man]', 'a line that is only a note stays');
+});
+
+test('a hint shows the first letters and the shape of the answer', () => {
+  assert.equal(S.slHintMask('go through', 1), 'g_ _______');
+  assert.equal(S.slHintMask('go through', 3), 'go t______');
+  assert.equal(S.slHintMask("don't", 2), "do_'_");
+  assert.equal(S.slHintMask('keen', 9), 'keen');
+});
+
 test("today's queue: what is due, and new cards up to the day's limit", () => {
   const words = [
     { word: 'a', added: 1 },

@@ -311,13 +311,16 @@ async function enrich({ word, phrase, sentence, sl, tl }) {
     `A learner of ${langName(sl)} whose own language is ${langName(tl)} is studying "${item}"` +
       (sentence ? `, met in this sentence: "${sentence}"` : '') +
       `.\nAnswer in JSON with these keys:\n` +
+      `"ipa": the pronunciation of "${word}" in IPA between slashes` + (sl === 'en' ? ' (British English)' : '') + `;\n` +
       `"level": its CEFR level as used here (A1, A2, B1, B2, C1 or C2);\n` +
       `"academic": true if it is useful in academic or formal writing (for example in the IELTS Writing test), else false;\n` +
       `"collocations": up to 3 common word combinations with it, each {"text": the combination in ${langName(sl)}, "meaning": its meaning in ${langName(tl)}};\n` +
       `"examples": 2 short, natural everyday sentences in ${langName(sl)} that use it in the same sense, each {"text": the sentence, "translation": in ${langName(tl)}}.`
   );
   const list = (v) => (Array.isArray(v) ? v : []);
+  const ipa = String(json.ipa || '').trim().replace(/^\/+|\/+$/g, '');
   return {
+    ipa: ipa && ipa.length < 60 ? '/' + ipa + '/' : '',
     level: /^[ABC][12]$/.test(String(json.level || '').toUpperCase()) ? String(json.level).toUpperCase() : '',
     academic: !!json.academic,
     collocations: list(json.collocations).slice(0, 3).map((c) => ({ text: String(c.text || ''), meaning: String(c.meaning || '') })).filter((c) => c.text),

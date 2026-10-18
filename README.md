@@ -41,7 +41,7 @@
   flashcards that come back on a schedule.
 - **Where:** Amazon Prime Video, YouTube, and any site whose subtitles can be found from outside the page
   (TED, Vimeo's player and Wikimedia Commons were checked) — or any video at all, with a subtitle file of your own.
-- **How it is built:** Manifest V3, plain JavaScript, no dependencies and no build step; 70 unit tests, a
+- **How it is built:** Manifest V3, plain JavaScript, no dependencies and no build step; 72 unit tests, a
   stand-in player for everything that can be tested without a site, and a script that loads the real extension
   into a real browser for what cannot.
 

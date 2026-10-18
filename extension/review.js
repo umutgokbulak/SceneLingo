@@ -1,7 +1,9 @@
 const $ = (id) => document.getElementById(id);
 const keyOf = (item) => item.word.toLowerCase();
 const KIND_LABEL = { word: 'kindWordCard', phrase: 'kindPhraseCard', sentence: 'kindSentenceCard' };
-const TYPE_LABEL = { recognize: '', cloze: 'typeCloze', produce: 'typeProduce' };
+const TYPE_LABEL = { recognize: 'typeRecognize', cloze: 'typeCloze', produce: 'typeProduce' };
+const SECONDS_PER_CARD = 15; // for the time the session will take, roughly
+const ENRICH_VERSION = 2; // 2: with the pronunciation in IPA
 
 let settings = { ...SL_DEFAULTS };
 let words = [];
@@ -12,18 +14,40 @@ let current = null;
 let type = 'recognize';
 let revealed = false;
 let verdict = null; // 'right' | 'close' | 'wrong' for a typed answer, null for a recalled one
+let hintLevel = 0; // letters (or words, in a sentence) shown as a hint
 let finished = 0;
 let geminiKey = ''; // shown form only: whether there is a key
+let answerInput = null;
 const audio = new Audio();
 
+// ---------- small things ----------
+
+const ICONS = {
+  speaker: '<path d="M4 9.5v5h3.5L12 18V6L7.5 9.5H4z"/><path d="M15.5 9a4 4 0 0 1 0 6"/><path d="M18 6.5a7.5 7.5 0 0 1 0 11"/>',
+  play: '<path d="M8 5.5v13l10-6.5z"/>',
+  edit: '<path d="M4 20h4L18.5 9.5a2.1 2.1 0 0 0-3-3L5 17v3z"/><path d="M13.5 7.5l3 3"/>',
+  trash: '<path d="M4 7h16"/><path d="M10 11v6M14 11v6"/><path d="M6 7l1 13h10l1-13"/><path d="M9 7V4h6v3"/>',
+  sliders: '<path d="M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1"/><circle cx="15" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="18" r="2"/>',
+  plus: '<path d="M12 5v14M5 12h14"/>',
+  check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+  mic: '<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/>',
+  bulb: '<path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.8 10.6c.8.7 1.3 1.5 1.3 2.4h5c0-.9.5-1.7 1.3-2.4A6 6 0 0 0 12 3z"/>',
+  flame: '<path d="M12 3c1 3.5 5 5.5 5 10a5 5 0 0 1-10 0c0-2.2 1.2-3.6 2.4-4.6.3 1.6 1.1 2.6 2.1 3.1C11 9 11.2 5.8 12 3z"/>',
+};
+function icon(name) {
+  const box = document.createElement('span');
+  box.innerHTML = '<svg class="i" viewBox="0 0 24 24" aria-hidden="true">' + ICONS[name] + '</svg>';
+  return box.firstChild;
+}
 const el = (tag, cls, text) => {
   const n = document.createElement(tag);
   if (cls) n.className = cls;
   if (text != null) n.textContent = text;
   return n;
 };
-const btn = (label, onClick, cls = 'btn small') => {
-  const b = el('button', cls, label);
+const btn = (content, onClick, cls = 'btn small') => {
+  const b = el('button', cls);
+  for (const c of [].concat(content)) b.append(c);
   b.addEventListener('click', onClick);
   return b;
 };
@@ -39,7 +63,6 @@ const ask = (msg) =>
 function voiceOf(item) {
   return (item.lang || 'en') === 'en' ? settings.accent : item.lang;
 }
-
 function speakText(text, lang, slow) {
   ask({ type: 'tts', text, lang, slow: !!slow }).then((res) => {
     if (!res.ok) return;
@@ -49,13 +72,29 @@ function speakText(text, lang, slow) {
     audio.play().catch(() => {});
   });
 }
+// The item as it is read: a sentence without its notes for the hard of hearing.
+const itemText = (item) => (slKindOf(item) === 'sentence' ? slCleanLine(item.word) : item.word);
 function speak(slow) {
-  if (current && (type === 'recognize' || revealed)) speakText(current.word, voiceOf(current), slow);
+  if (current && (type === 'recognize' || revealed)) speakText(itemText(current), voiceOf(current), slow);
 }
 
 function intervalLabel(item) {
   if (!item.interval) return slT('inMinutes');
   return item.interval === 1 ? slT('tomorrow') : slT('inDays', item.interval);
+}
+const percent = (n) => slT('percent', n);
+function ago(ts) {
+  const rtf = new Intl.RelativeTimeFormat(document.documentElement.lang || 'en', { numeric: 'auto' });
+  const mins = Math.round((ts - Date.now()) / 60000);
+  if (Math.abs(mins) < 60) return rtf.format(mins, 'minute');
+  const hours = Math.round(mins / 60);
+  if (Math.abs(hours) < 24) return rtf.format(hours, 'hour');
+  return rtf.format(Math.round(hours / 24), 'day');
+}
+// "Prime Video: Spider-Noir" is shown as the film first: "Spider-Noir · Prime Video".
+function sourceName(title) {
+  const m = /^([^:]{2,40}):\s+(.+)$/.exec(title || '');
+  return m ? m[2] + ' · ' + m[1] : title || '';
 }
 
 // Storage is re-read before every write so a word saved in another tab meanwhile is not lost.
@@ -73,72 +112,72 @@ function patchCurrent(fresh) {
 
 // ---------- the parts of a card ----------
 
-// The word, big, with its two voices beside it.
+function ipaOf(item) {
+  if (item.extra && item.extra.ipa) return item.extra.ipa;
+  return item.ipa ? '/' + item.ipa + '/' : '';
+}
+
+// The word, big, with its pronunciation and its two voices beside it.
 function headword(item) {
-  const box = el('div', 'headword');
-  const term = el('div', 'term', item.word);
-  term.classList.toggle('long', item.word.length > 28);
+  const box = el('div', 'head');
+  const text = itemText(item);
+  const term = el('div', 'term', text);
+  term.classList.toggle('long', text.length > 28);
+  box.append(term);
+  const ipa = ipaOf(item);
+  if (ipa && slKindOf(item) !== 'sentence') box.append(el('span', 'ipa', ipa));
   const lang = voiceOf(item);
-  const listen = btn('🔊', () => speakText(item.word, lang, false), 'icon');
+  const listen = btn(icon('speaker'), () => speakText(text, lang, false), 'round');
   listen.title = slT('reviewListen') + ' (R)';
-  const slow = btn('🐢', () => speakText(item.word, lang, true), 'icon');
+  const slow = btn('0.7×', () => speakText(text, lang, true), 'round slow');
   slow.title = slT('reviewSlow');
-  box.append(term, listen, slow);
+  const say = el('span', 'say');
+  say.append(listen, slow);
+  box.append(say);
   return box;
 }
 
 // The sentence the item was saved from, with the item marked, or with a gap to type it in.
 function contextLine(item, gap) {
-  const context = item.context || '';
-  if (!context || slKindOf(item) === 'sentence') return null;
+  if (!item.context || slKindOf(item) === 'sentence') return null;
+  const shown = { ...item, context: slCleanLine(item.context) };
   const box = el('div', 'quote');
-  const parts = slClozeParts(item);
-  if (!parts) box.textContent = context;
+  const parts = slClozeParts(shown);
+  if (!parts) box.textContent = shown.context;
   else if (gap) {
-    gap.size = Math.max(4, parts.answer.length + 1);
+    gap.size = Math.max(4, parts.answer.length + 2);
     box.append(parts.before, gap, parts.after);
   } else box.append(parts.before, el('b', null, parts.answer), parts.after);
   return box;
 }
 
-const sourceLine = (item) => (item.title ? el('div', 'source', item.title) : null);
+// Where the item comes from, and a way back to that scene.
+function sourceLine(item) {
+  const has = item.source && item.source.url;
+  if (!item.title && !has) return null;
+  const box = el('div', 'source');
+  if (item.title) box.append(el('span', null, sourceName(item.title)));
+  if (has) box.append(btn([icon('play'), slT('openScene')], () => openScene(item.source), 'link'));
+  return box;
+}
 
 function openScene(source) {
   ask({ type: 'open-scene', url: source.url, time: source.time });
 }
 
-// Rows of a list: the text, what it means, and a button for its scene when it has one.
-function listOf(rows) {
-  const list = el('ul', 'list');
-  for (const { text, sub, source } of rows) {
-    const li = el('li');
-    const t = el('div', 't');
-    t.append(el('div', null, text));
-    if (sub) t.append(el('small', null, sub));
-    li.append(t);
-    if (source && source.url) {
-      const play = btn('▶', () => openScene(source), 'play');
-      play.title = slT('openScene');
-      li.append(play);
-    }
-    list.append(li);
-  }
-  return list;
-}
-
 // ---------- the front: what is asked ----------
-
-let answerInput = null;
 
 function paintTop() {
   const top = $('top');
   top.textContent = '';
   const kind = slKindOf(current);
-  top.append(el('span', 'kind', [slT(KIND_LABEL[kind] || 'kindWordCard'), TYPE_LABEL[type] && slT(TYPE_LABEL[type])].filter(Boolean).join(' · ')));
+  top.append(el('span', 'label', [slT(KIND_LABEL[kind] || 'kindWordCard'), slT(TYPE_LABEL[type])].join(' · ')));
   const extra = current.extra || {};
   if (extra.level) top.append(el('span', 'chip level', extra.level));
   if (extra.academic) top.append(el('span', 'chip academic', slT('academic')));
   if ((current.lapses || 0) >= 3) top.append(el('span', 'chip hard', slT('hardCard')));
+  $('editBtn').hidden = !revealed;
+  resetRemove();
 }
 
 function paintFront() {
@@ -148,35 +187,39 @@ function paintFront() {
   const item = current;
   const add = (...nodes) => front.append(...nodes.filter(Boolean));
   if (type === 'recognize') {
-    add(headword(item), el('div', 'ipa', item.ipa ? '/' + item.ipa + '/' : ''), contextLine(item), sourceLine(item));
+    add(headword(item), contextLine(item), sourceLine(item));
     return;
   }
   if (type === 'cloze') {
+    // The meaning is the clue: given before the sentence, so that the gap is filled from it.
     answerInput = el('input');
-    const hint = item.contextMeaning || item.translation;
-    add(el('div', 'ask', slT('askCloze')), contextLine(item, answerInput), hint && el('div', 'hintline', hint), sourceLine(item));
+    const clue = item.contextMeaning || item.translation;
+    add(el('div', 'ask', slT('askCloze')), clue && el('div', 'clue', clue), contextLine(item, answerInput), sourceLine(item));
   } else {
     // Producing: from the meaning in one's own language to the item itself.
     const sentence = slKindOf(item) === 'sentence';
     const meaning = sentence ? item.translation : item.contextMeaning || item.translation;
     add(el('div', 'ask', slT(sentence ? 'askSentence' : 'askProduce', slLangName(item.lang || settings.learnLang))));
+    const head = el('div', 'head');
     const m = el('div', 'term meaning', meaning || '—');
     m.classList.toggle('long', (meaning || '').length > 40);
-    add(el('div', 'headword'));
-    front.lastChild.append(m);
-    if (!sentence && item.contextTranslation) add(el('div', 'hintline', '“' + item.contextTranslation + '”'));
+    head.append(m);
+    add(head);
+    if (!sentence && item.contextTranslation) add(el('div', 'hintline', '“' + slCleanLine(item.contextTranslation) + '”'));
+    const mask = el('div', 'mask');
+    mask.id = 'mask';
+    mask.hidden = true;
     const row = el('div', 'typed');
     answerInput = el(sentence ? 'textarea' : 'input');
     answerInput.placeholder = slT('typeHere');
     row.append(answerInput);
     const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (Recognition) {
-      const mic = btn('🎤', () => listen(Recognition, voiceOf(item), mic), 'icon');
+      const mic = btn(icon('mic'), () => listen(Recognition, voiceOf(item), mic), 'round');
       mic.title = slT('sayIt');
-      mic.style.cssText = 'width:46px;height:auto;border-radius:10px';
       row.append(mic);
     }
-    add(row);
+    add(mask, row);
   }
   answerInput.autocomplete = 'off';
   answerInput.spellcheck = false;
@@ -208,7 +251,26 @@ function listen(Recognition, lang, mic) {
   r.start();
 }
 
-// ---------- the back: the answer, and what goes with it ----------
+// One more letter of the answer (or one more word of a sentence), as a shape to fill in.
+function giveHint() {
+  if (!current || revealed || type === 'recognize') return;
+  hintLevel += 1;
+  let mask;
+  if (slKindOf(current) === 'sentence') {
+    mask = slCleanLine(current.word)
+      .split(' ')
+      .map((w, i) => (i < hintLevel ? w : w.replace(/[\p{L}\p{N}]/gu, '_')))
+      .join(' ');
+  } else mask = slHintMask(slAccepted(current, type)[0] || current.word, hintLevel);
+  if (type === 'cloze' && answerInput) answerInput.placeholder = mask;
+  else if ($('mask')) {
+    $('mask').hidden = false;
+    $('mask').textContent = mask;
+  }
+  if (answerInput) answerInput.focus();
+}
+
+// ---------- the back: the answer ----------
 
 function paintBack() {
   const back = $('back');
@@ -220,137 +282,44 @@ function paintBack() {
   // What was asked for, in full, when the front did not show it.
   if (type !== 'recognize') {
     const head = el('div', 'answerhead');
-    head.append(headword(item), el('div', 'ipa', item.ipa ? '/' + item.ipa + '/' : ''));
-    // After a gap the sentence is on the front already, filled in.
+    head.append(headword(item));
     const c = type === 'produce' && contextLine(item);
     if (c) head.append(c);
     add(head);
   }
 
-  // The meaning: in this sentence first, since that is the one to learn; the dictionary's after it.
+  // The meaning in this sentence first, since that is the one to learn.
+  const phrase = item.contextPhrase && slNormalize(item.contextPhrase) !== slNormalize(item.word) ? item.contextPhrase : '';
+  const main = el('div', 'sense-main');
   if (item.contextMeaning && kind !== 'sentence') {
-    add(el('div', 'm-label', slT('inSentence').replace(/:$/, '')));
-    const main = el('div', 'm-main');
-    if (item.contextPhrase && slNormalize(item.contextPhrase) !== slNormalize(item.word)) main.append(el('span', 'm-phrase', item.contextPhrase + ' — '));
-    main.append(item.contextMeaning);
-    main.append(el('span', 'engine' + (item.senseEngine === 'gemini' ? ' gemini' : ''), item.senseEngine === 'gemini' ? 'Gemini' : slT('engineMarked')));
+    const gemini = item.senseEngine === 'gemini';
+    const top = el('div', 'sense-top');
+    top.append(el('span', 'label', slT('inSentence').replace(/:$/, '')), el('span', 'engine' + (gemini ? ' gemini' : ''), gemini ? 'Gemini' : slT('engineMarked')));
+    add(top);
+    if (phrase) main.append(el('span', 'ph', phrase), el('span', 'arrow', '→'));
+    main.append(el('span', 'tr', item.contextMeaning));
     add(main);
-    if (item.contextNote) add(el('div', 'm-note', item.contextNote));
-    if (item.translation && !slNormalize(item.contextMeaning).includes(slNormalize(item.translation))) {
-      const dict = el('div', 'm-dict', slT('inDictionary') + ' ');
-      dict.append(el('b', null, item.translation));
-      add(dict);
-    }
+    if (item.contextNote) add(el('div', 'note', item.contextNote));
   } else {
-    add(el('div', 'm-main', item.translation || '—'));
+    add(el('div', 'label', slT('editTranslation')));
+    main.append(el('span', 'tr', item.translation || '—'));
+    add(main);
   }
-  if (item.contextTranslation && kind !== 'sentence') add(el('div', 'm-ctx', '“' + item.contextTranslation + '”'));
 
-  // What can be done with the card.
-  const tools = el('div', 'tools');
-  if (item.contextPhrase && slNormalize(item.contextPhrase) !== slNormalize(item.word)) {
-    tools.append(btn('⇄ ' + slT('makePhrase', item.contextPhrase), () => saveEdit({ word: item.contextPhrase, translation: item.contextMeaning || item.translation })));
-  }
-  if (item.source && item.source.url) tools.append(btn('▶ ' + slT('openScene'), () => openScene(item.source)));
-  tools.append(btn('✎ ' + slT('editCard'), paintEdit, 'btn small ghost'));
-  const remove = btn(slT('removeCard'), () => {
-    // Asked twice: it cannot be undone.
-    if (remove.dataset.sure) return removeCurrent();
-    remove.dataset.sure = '1';
-    remove.textContent = slT('removeSure');
-  }, 'btn small ghost danger');
-  tools.append(remove);
-  add(tools);
-  paintSide();
-}
-
-// ---------- the panel beside the card ----------
-
-// Before the answer: a word on what will be there. After it: one's own sentence on top, and
-// the word in use in tabs, so that the page stays one screen however much there is.
-let lastTab = 'collocations';
-function paintSide() {
-  const side = $('side');
-  side.textContent = '';
-  if (!revealed) {
-    const wait = el('div', 'side-wait');
-    wait.append(el('div', 'big', '💡'), el('p', null, slT('sideWait')));
-    side.append(wait);
-    return;
-  }
-  const item = current;
-  const kind = slKindOf(item);
-  if (geminiKey && kind !== 'sentence') side.append(ownSentence());
-
-  const extra = item.extra || {};
-  const tabs = [];
-  if ((extra.collocations || []).length) tabs.push(['collocations', extra.collocations.length, () => listOf(extra.collocations.map((c) => ({ text: c.text, sub: c.meaning })))]);
-  if ((extra.examples || []).length) tabs.push(['moreExamples', extra.examples.length, () => listOf(extra.examples.map((e) => ({ text: e.text, sub: e.translation })))]);
-  if ((item.examples || []).length) tabs.push(['metAgain', item.examples.length, () => listOf(item.examples.map((e) => ({ text: e.text, sub: e.title, source: e.source })))]);
-  if (item.definition || (item.synonyms || []).length) {
-    tabs.push(['definitionHead', 0, () => {
-      const pane = el('div');
-      if (item.definition) pane.append(el('p', null, item.definition));
-      if ((item.synonyms || []).length) pane.append(el('div', 'syn', slT('synonymsOf', item.synonyms.join(', '))));
-      return pane;
-    }]);
-  }
-  if (!tabs.length) {
-    if (!side.childNodes.length) {
-      const wait = el('div', 'side-wait');
-      wait.append(el('p', null, slT('sideNothing')));
-      side.append(wait);
-    }
-    return;
-  }
-  const bar = el('div', 'tabs');
-  const body = el('div', 'tabbody pane');
-  const open = (name) => {
-    lastTab = name;
-    for (const b of bar.children) b.classList.toggle('on', b.dataset.name === name);
-    body.textContent = '';
-    body.append(tabs.find((t) => t[0] === name)[2]());
+  // Then what supports it: the sentence in one's own language, and the dictionary's word.
+  const facts = el('dl', 'facts');
+  const fact = (label, value, cls) => {
+    facts.append(el('dt', null, label), el('dd', cls, value));
   };
-  for (const [name, n] of tabs) {
-    const b = el('button', 'tab', slT(name));
-    b.dataset.name = name;
-    if (n) b.append(el('span', 'n', String(n)));
-    b.addEventListener('click', () => open(name));
-    bar.append(b);
+  if (item.contextTranslation && kind !== 'sentence') fact(slT('factSentence'), slCleanLine(item.contextTranslation), 'it');
+  if (item.contextMeaning && kind !== 'sentence' && item.translation && !slNormalize(item.contextMeaning).includes(slNormalize(item.translation))) {
+    fact(slT('factDictionary'), item.translation);
   }
-  side.append(bar, body);
-  open(tabs.some((t) => t[0] === lastTab) ? lastTab : tabs[0][0]);
-}
+  if (facts.childNodes.length) add(facts);
 
-// A sentence of one's own with the word, checked by Gemini.
-function ownSentence() {
-  const box = el('div', 'own');
-  const row = el('div', 'own-row');
-  const input = el('input');
-  input.placeholder = slT('ownSentencePh', current.contextPhrase || current.word);
-  const result = el('div', 'ownResult');
-  const go = btn(slT('ownCheck'), async () => {
-    const text = input.value.trim();
-    if (!text) return;
-    go.disabled = true;
-    result.textContent = '…';
-    const res = await ask({ type: 'check-sentence', word: current.contextPhrase || current.word, sentence: text, sl: current.lang || settings.learnLang, tl: settings.nativeLang });
-    go.disabled = false;
-    result.textContent = '';
-    if (!res.ok) return (result.textContent = slT('ownFailed', res.error === 'noKey' ? slT('geminiNone') : res.error));
-    const r = res.result;
-    result.append(el('div', r.correct ? 'ok' : null, r.correct ? '✓ ' + slT('ownGood') : '✗ ' + slT('ownBetter')));
-    if (r.better && !r.correct) result.append(el('div', 'fix', r.better));
-    if (r.note) result.append(el('div', null, r.note));
-    patchCurrent({ mine: [...(current.mine || []), { text, better: r.better, correct: r.correct }].slice(-3) });
-  }, 'btn small primary');
-  input.addEventListener('keydown', (e) => e.key === 'Enter' && go.click());
-  row.append(input, go);
-  for (const m of (current.mine || []).slice().reverse()) {
-    result.append(el('div', m.correct ? 'ok' : 'fix', (m.correct ? '✓ ' : '• ') + (m.better || m.text)));
-  }
-  box.append(el('h3', null, slT('ownSentence')), row, result);
-  return box;
+  // Turning a word into the phrase it belongs to: "through" into "go through".
+  if (phrase) add(btn([icon('plus'), slT('makePhrase', phrase)], () => saveEdit({ word: phrase, translation: item.contextMeaning || item.translation }), 'suggest'));
+  paintSide();
 }
 
 // Editing the card: the word itself (its dictionary form) and its meaning.
@@ -367,7 +336,7 @@ function paintEdit() {
   };
   const w = field(slT('editWord'), current.word);
   const t = field(slT('editTranslation'), current.translation);
-  const row = el('div', 'tools');
+  const row = el('div', 'row');
   const save = () => saveEdit({ word: w.value.trim(), translation: t.value.trim() });
   for (const i of [w, t]) i.addEventListener('keydown', (e) => e.key === 'Enter' && save());
   row.append(btn(slT('editSave'), save, 'btn small primary'), btn(slT('editCancel'), paintBack, 'btn small ghost'));
@@ -403,6 +372,167 @@ function saveEdit({ word, translation }) {
   );
 }
 
+// Deleting asks twice: it cannot be undone.
+function resetRemove() {
+  const b = $('removeBtn');
+  delete b.dataset.sure;
+  b.textContent = '';
+  b.append(icon('trash'));
+}
+function removeClicked() {
+  const b = $('removeBtn');
+  if (b.dataset.sure) return removeCurrent();
+  b.dataset.sure = '1';
+  b.append(el('span', 't', slT('removeConfirm')));
+}
+
+// ---------- the panel beside the card ----------
+
+function sec(title, count, ...children) {
+  const box = el('div', 'sec');
+  const head = el('div', 'label', title);
+  if (count) head.append(el('span', 'n', String(count)));
+  box.append(head, ...children.filter(Boolean));
+  return box;
+}
+
+// Before the answer: the card's way so far, and how to study this kind of card; nothing that
+// gives the answer away. After it: the word in use, all of it at once, and a sentence of one's
+// own at the foot, where it is always in reach.
+function paintSide() {
+  const body = $('sideBody');
+  const foot = $('sideFoot');
+  body.textContent = '';
+  foot.textContent = '';
+  foot.hidden = true;
+  $('side').classList.toggle('waiting', !revealed);
+  if (!revealed) return paintJourney(body);
+  const item = current;
+  const kind = slKindOf(item);
+  const extra = item.extra || {};
+  const lang = voiceOf(item);
+
+  if ((extra.collocations || []).length) {
+    const pairs = el('div', 'pairs');
+    for (const c of extra.collocations) pairs.append(el('span', null, c.text), el('span', null, c.meaning));
+    body.append(sec(slT('collocations'), extra.collocations.length, pairs));
+  }
+  const rows = (list) => {
+    const box = el('div', 'rows');
+    for (const r of list) {
+      const row = el('div');
+      row.append(r.button);
+      const t = el('div', 't');
+      t.append(el('div', null, r.text));
+      if (r.sub) t.append(el('small', null, r.sub));
+      row.append(t);
+      box.append(row);
+    }
+    return box;
+  };
+  if ((extra.examples || []).length) {
+    const list = extra.examples.map((e) => {
+      const b = btn(icon('speaker'), () => speakText(e.text, lang, false), 'mini');
+      b.title = slT('reviewListen');
+      return { button: b, text: e.text, sub: e.translation };
+    });
+    body.append(sec(slT('moreExamples'), list.length, rows(list)));
+  }
+  if ((item.examples || []).length) {
+    const list = item.examples.map((e) => {
+      const scene = e.source && e.source.url;
+      const b = scene ? btn(icon('play'), () => openScene(e.source), 'mini') : btn(icon('speaker'), () => speakText(e.text, lang, false), 'mini');
+      b.title = scene ? slT('openScene') : slT('reviewListen');
+      return { button: b, text: slCleanLine(e.text), sub: sourceName(e.title) };
+    });
+    body.append(sec(slT('metAgain'), list.length, rows(list)));
+  }
+  if (item.definition || (item.synonyms || []).length) {
+    const tags = (item.synonyms || []).length ? el('div', 'tags') : null;
+    if (tags) {
+      tags.append(el('small', 'quiet', slT('synonyms')));
+      for (const s of item.synonyms) tags.append(el('span', null, s));
+    }
+    body.append(sec(slT('definitionHead'), 0, item.definition && el('div', 'def', item.definition), tags));
+  }
+  if (!body.childNodes.length) body.append(el('div', 'quiet', slT('sideNothing')));
+  if (geminiKey && kind !== 'sentence') {
+    foot.hidden = false;
+    ownSentence(foot);
+  }
+}
+
+function paintJourney(body) {
+  const item = current;
+  const kind = slKindOf(item);
+  const steps = kind === 'sentence' ? ['recognize', 'produce'] : ['recognize', 'cloze', 'produce'];
+  const now = steps.indexOf(type);
+  const stepper = el('div', 'steps');
+  steps.forEach((s, i) => {
+    if (i) stepper.append(el('span', 'line'));
+    const step = el('span', 'step' + (i < now ? ' done' : i === now ? ' now' : ''));
+    if (i < now) step.append(icon('check'));
+    step.append(slT(TYPE_LABEL[s]));
+    stepper.append(step);
+  });
+  const facts = el('dl', 'facts');
+  const fact = (label, value) => facts.append(el('dt', null, label), el('dd', null, String(value)));
+  if (slIsNew(item)) facts.append(el('dd', 'quiet', slT('histNew')));
+  else {
+    fact(slT('histReps'), item.reps || 0);
+    if (item.last) fact(slT('histLast'), ago(item.last));
+    if (item.interval) fact(slT('histInterval'), slT('statDays', item.interval));
+    if (item.lapses) fact(slT('histLapses'), item.lapses);
+  }
+  body.append(sec(slT('cardJourney'), 0, stepper, facts));
+
+  const tipKey = kind === 'sentence' && type === 'produce' ? 'tipSentence' : { recognize: 'tipRecognize', cloze: 'tipCloze', produce: 'tipProduce' }[type];
+  const tip = el('div', 'tip');
+  tip.append(icon('bulb'), el('div', null, slT(tipKey)));
+  body.append(tip);
+
+  const keys = el('div', 'keys');
+  const key = (caps, what) => {
+    const k = el('span');
+    for (const c of caps) k.append(el('kbd', null, c));
+    keys.append(k, el('span', null, what));
+  };
+  key(type === 'recognize' ? [slT('keySpace')] : ['Enter'], slT('keyReveal'));
+  key(['1', '2', '3'], [slT('again'), slT('good'), slT('easy')].join(' · '));
+  key(['R'], slT('keyListen'));
+  body.append(sec(slT('shortcuts'), 0, keys));
+}
+
+// A sentence of one's own with the word, checked by Gemini: at the panel's foot.
+function ownSentence(foot) {
+  const word = current.contextPhrase || current.word;
+  const result = el('div', 'ownResult');
+  const row = el('div', 'own-row');
+  const input = el('input');
+  input.placeholder = slT('ownSentencePh', word);
+  const go = btn(slT('ownCheck'), async () => {
+    const text = input.value.trim();
+    if (!text) return input.focus();
+    go.disabled = true;
+    result.textContent = '…';
+    const res = await ask({ type: 'check-sentence', word, sentence: text, sl: current.lang || settings.learnLang, tl: settings.nativeLang });
+    go.disabled = false;
+    result.textContent = '';
+    if (!res.ok) return (result.textContent = slT('ownFailed', res.error === 'noKey' ? slT('geminiNone') : res.error));
+    const r = res.result;
+    result.append(el('div', r.correct ? 'ok' : null, r.correct ? '✓ ' + slT('ownGood') : '✗ ' + slT('ownBetter')));
+    if (r.better && !r.correct) result.append(el('div', 'fix', r.better));
+    if (r.note) result.append(el('div', null, r.note));
+    patchCurrent({ mine: [...(current.mine || []), { text, better: r.better, correct: r.correct }].slice(-3) });
+  }, 'btn small primary');
+  input.addEventListener('keydown', (e) => e.key === 'Enter' && go.click());
+  for (const m of (current.mine || []).slice().reverse()) {
+    result.append(el('div', m.correct ? 'ok' : 'fix', (m.correct ? '✓ ' : '• ') + (m.better || m.text)));
+  }
+  row.append(input, go);
+  foot.append(el('div', 'label', slT('ownSentence')), result, row);
+}
+
 // ---------- asking the background for what a card lacks ----------
 
 // Words saved by earlier versions were given the dictionary's first noun even where the service
@@ -434,7 +564,7 @@ function fillContext(item) {
   const lang = item.lang || settings.learnLang;
   if (slKindOf(item) === 'sentence' || !item.context) return;
   if (!item.contextTranslation) {
-    ask({ type: 'translate', texts: [item.context], sl: lang, tl: settings.nativeLang }).then((res) => {
+    ask({ type: 'translate', texts: [slCleanLine(item.context)], sl: lang, tl: settings.nativeLang }).then((res) => {
       if (!res.ok || !res.result[0] || !same()) return;
       patchCurrent({ contextTranslation: String(res.result[0]).trim() });
       if (revealed) paintBack();
@@ -443,7 +573,7 @@ function fillContext(item) {
   const better = geminiKey && item.senseEngine !== 'gemini';
   if (item.contextMeaning && !better) return;
   if (!item.contextMeaning && item.sensed && !geminiKey) return;
-  ask({ type: 'sense', word: item.word, sentence: item.context, sl: lang, tl: settings.nativeLang, always: true }).then((res) => {
+  ask({ type: 'sense', word: item.word, sentence: slCleanLine(item.context), sl: lang, tl: settings.nativeLang, always: true }).then((res) => {
     if (!res.ok || !res.result || !res.result.meaning || !same()) return;
     const s = res.result;
     if (item.contextMeaning && s.engine !== 'gemini') return;
@@ -453,24 +583,69 @@ function fillContext(item) {
   });
 }
 
-// Once for each card, with a key: its level, the words it goes with, two more sentences.
+// Once for each card, with a key: its pronunciation, its level, the words it goes with, two more
+// sentences. Cards enriched before the pronunciation was asked for are asked again, once.
 function fillExtra(item) {
-  if (!geminiKey || item.enriched || slKindOf(item) === 'sentence') return;
+  if (!geminiKey || item.enriched === ENRICH_VERSION || slKindOf(item) === 'sentence') return;
   const key = keyOf(item);
-  ask({ type: 'enrich', word: item.word, phrase: item.contextPhrase, sentence: item.context, sl: item.lang || settings.learnLang, tl: settings.nativeLang }).then((res) => {
+  ask({ type: 'enrich', word: item.word, phrase: item.contextPhrase, sentence: item.context && slCleanLine(item.context), sl: item.lang || settings.learnLang, tl: settings.nativeLang }).then((res) => {
     if (!res.ok || !current || keyOf(current) !== key) return;
-    patchCurrent({ extra: res.result, enriched: true });
+    patchCurrent({ extra: res.result, enriched: ENRICH_VERSION });
     paintTop();
+    if (type === 'recognize') paintFront();
     if (revealed) paintBack();
   });
 }
 
 // ---------- the session ----------
 
-function paintProgress() {
-  $('progress').textContent = slT('progress', queue.length, finished);
+function paintTopbar() {
   const total = Math.max(sessionSize, finished + queue.length);
   $('bar').style.width = total ? Math.round((finished / total) * 100) + '%' : '0';
+  $('left').textContent = queue.length ? slT('leftTime', queue.length, Math.max(1, Math.ceil((queue.length * SECONDS_PER_CARD) / 60))) : '';
+  const s = slStats(words, log, Date.now());
+  const chips = $('chips');
+  chips.textContent = '';
+  if (s.streak) {
+    const p = el('span', 'pill fire');
+    p.append(icon('flame'), el('b', null, slT('statDays', s.streak)));
+    chips.append(p);
+  }
+  if (s.retention != null) {
+    const p = el('span', 'pill', slT('statRetention'));
+    p.append(el('b', null, percent(s.retention)));
+    chips.append(p);
+  }
+}
+
+// The settings and the numbers behind the bar, under the button on the right.
+function paintGear() {
+  const menu = $('gearMenu');
+  menu.textContent = '';
+  const s = slStats(words, log, Date.now());
+  const facts = el('div', 'facts');
+  const fact = (label, value) => facts.append(el('span', null, label), el('b', null, String(value)));
+  fact(slT('statStreak'), slT('statDays', s.streak));
+  fact(slT('statLearned'), s.learned);
+  fact(slT('statLearning'), s.learning);
+  fact(slT('statNew'), s.fresh);
+  if (s.retention != null) fact(slT('statRetention'), percent(s.retention));
+  const label = el('label', null, slT('newPerDay'));
+  const sel = el('select');
+  for (const n of [5, 10, 15, 20, 30, 50]) {
+    const o = el('option', null, String(n));
+    o.value = n;
+    sel.append(o);
+  }
+  sel.value = settings.newPerDay;
+  sel.addEventListener('change', () => {
+    settings.newPerDay = +sel.value;
+    chrome.storage.sync.set({ newPerDay: settings.newPerDay });
+    menu.hidden = true;
+    start(false);
+  });
+  label.append(sel);
+  menu.append(facts, label);
 }
 
 function show() {
@@ -480,8 +655,7 @@ function show() {
     current = words.find((w) => keyOf(w) === key) || null;
     if (!current) queue.shift();
   }
-  paintProgress();
-  paintStats();
+  paintTopbar();
   $('card').hidden = !current;
   $('side').hidden = !current;
   $('stage').classList.toggle('alone', !current);
@@ -490,8 +664,9 @@ function show() {
 
   type = slCardType(current);
   revealed = false;
-  $('card').classList.remove('revealed');
   verdict = null;
+  hintLevel = 0;
+  $('card').classList.remove('revealed');
   paintTop();
   paintFront();
   $('back').hidden = true;
@@ -502,6 +677,9 @@ function show() {
   withKey($('show'), slT(type === 'recognize' ? 'showAnswer' : 'checkAnswer'), type === 'recognize' ? slT('keySpace') : 'Enter');
   $('dontKnow').hidden = type === 'recognize';
   $('dontKnow').textContent = slT('dontKnow');
+  $('hintBtn').hidden = type === 'recognize';
+  $('hintBtn').textContent = '';
+  $('hintBtn').append(icon('bulb'), slT('hint'));
   paintSide();
   refreshWord(current);
   fillContext(current);
@@ -513,15 +691,15 @@ function showEmpty() {
   const now = Date.now();
   const next = words.map((w) => w.due || 0).filter((d) => d > now).sort((a, b) => a - b)[0];
   const waiting = words.filter(slIsNew).length;
-  const today = slStats(words, log, now).today;
+  const s = slStats(words, log, now);
   let title;
   let text = '';
   if (!words.length) {
     title = slT('emptyNoneTitle');
     text = slT('noSaved');
-  } else if (today.reviews) {
+  } else if (s.today.reviews) {
     title = slT('emptyDoneTitle');
-    text = slT('doneTodayStats', today.reviews, Math.round((today.correct / today.reviews) * 100));
+    text = slT('doneTodayStats', s.today.reviews, Math.round((s.today.correct / s.today.reviews) * 100));
   } else {
     title = slT('emptyRestTitle');
     text = slT('nothingDue');
@@ -531,40 +709,25 @@ function showEmpty() {
     text += hours < 1 ? slT('nextSoon') : hours < 24 ? slT('nextHours', Math.round(hours)) : slT('nextDays', Math.round(hours / 24));
   }
   if (waiting) text += ' ' + slT('newWaiting', waiting);
+  $('doneMark').textContent = '';
+  $('doneMark').append(icon('check'));
   $('emptyTitle').textContent = title;
   $('emptyText').textContent = text;
-  $('studyAll').hidden = !words.length;
-}
-
-function paintStats() {
-  const s = slStats(words, log, Date.now());
-  const box = $('stats');
-  box.textContent = '';
-  const stat = (label, value, cls) => {
-    const span = el('span', 'stat' + (cls ? ' ' + cls : ''), label);
-    span.append(el('b', null, String(value)));
-    box.append(span);
+  const metrics = $('emptyStats');
+  metrics.textContent = '';
+  const metric = (label, value) => {
+    const m = el('div', 'metric');
+    m.append(el('small', null, label), el('b', null, String(value)));
+    metrics.append(m);
   };
-  if (s.streak) stat('🔥', slT('statDays', s.streak), 'fire');
-  stat(slT('statLearned'), s.learned);
-  stat(slT('statLearning'), s.learning);
-  stat(slT('statNew'), s.fresh);
-  if (s.retention != null) stat(slT('statRetention'), '%' + s.retention);
-  const label = el('label', 'daily', slT('newPerDay'));
-  const sel = el('select');
-  for (const n of [5, 10, 15, 20, 30, 50]) {
-    const o = el('option', null, String(n));
-    o.value = n;
-    sel.append(o);
+  if (words.length) {
+    metric(slT('statStreak'), slT('statDays', s.streak));
+    metric(slT('statLearned'), s.learned);
+    metric(slT('statLearning'), s.learning);
+    metric(slT('statNew'), s.fresh);
+    if (s.retention != null) metric(slT('statRetention'), percent(s.retention));
   }
-  sel.value = settings.newPerDay;
-  sel.addEventListener('change', () => {
-    settings.newPerDay = +sel.value;
-    chrome.storage.sync.set({ newPerDay: settings.newPerDay });
-    start(false);
-  });
-  label.append(sel);
-  box.append(label);
+  $('studyAll').hidden = !words.length;
 }
 
 // The answer: shown (a recalled card) or checked (a typed one).
@@ -573,13 +736,14 @@ function check() {
   if (type !== 'recognize') {
     const typed = answerInput ? answerInput.value : '';
     if (slKindOf(current) === 'sentence') {
-      const score = slSentenceScore(current.word, typed, SubtitleCore.matchWords);
+      const score = slSentenceScore(slCleanLine(current.word), typed, SubtitleCore.matchWords);
       verdict = score >= 0.9 ? 'right' : score >= 0.6 ? 'close' : 'wrong';
     } else verdict = slCheckAnswer(typed, slAccepted(current, type));
     if (answerInput) answerInput.disabled = true;
-    const text = verdict === 'right' ? '✓ ' + slT('verdictRight') : verdict === 'close' ? '≈ ' + slT('verdictClose') : '✗ ' + slT('verdictWrong', slAccepted(current, type)[0]);
+    const shown = slKindOf(current) === 'sentence' ? slCleanLine(current.word) : slAccepted(current, type)[0];
+    const text = verdict === 'right' ? '✓ ' + slT('verdictRight') : verdict === 'close' ? '≈ ' + slT('verdictClose') : '✗ ' + slT('verdictWrong', shown);
     $('front').append(el('div', 'verdict ' + verdict, text));
-    speakText(current.word, voiceOf(current), false);
+    speakText(itemText(current), voiceOf(current), false);
   }
   reveal();
 }
@@ -593,30 +757,33 @@ function giveUp() {
 function reveal() {
   revealed = true;
   $('card').classList.add('revealed');
+  paintTop();
   paintBack();
   $('back').hidden = false;
-  $('back').scrollIntoView({ block: 'nearest', behavior: 'smooth' });
   $('show').hidden = true;
   $('dontKnow').hidden = true;
+  $('hintBtn').hidden = true;
   $('grades').hidden = false;
   const wrong = verdict === 'wrong';
-  // A typed answer that was wrong is a miss: only "missed it", unless one says it was right after all.
+  // A typed answer that was wrong is a miss: only "missed it", unless one says it was right after
+  // all. With a hint it was not easy.
   $('good').hidden = wrong;
-  $('easy').hidden = wrong;
-  $('grades').style.gridTemplateColumns = wrong ? 'minmax(0, 260px)' : '';
-  $('grades').style.justifyContent = wrong ? 'center' : '';
+  $('easy').hidden = wrong || hintLevel > 0;
+  const shownGrades = ['again', 'good', 'easy'].filter((g) => !$(g).hidden).length;
+  $('grades').style.gridTemplateColumns = shownGrades === 3 ? '' : 'repeat(' + shownGrades + ', minmax(0, 220px))';
+  $('grades').style.justifyContent = 'center';
   $('countIt').hidden = !wrong;
   const now = Date.now();
   for (const g of ['again', 'good', 'easy']) $(g).querySelector('small').textContent = intervalLabel(slGrade(current, g, now));
+  $('back').scrollIntoView({ block: 'nearest', behavior: 'smooth' });
 }
 
 function grade(value) {
-  if (!current || !revealed) return;
-  if (value !== 'again' && verdict === 'wrong') return;
+  if (!current || !revealed || $(value).hidden) return;
   const key = keyOf(current);
   const now = Date.now();
   const isNew = slIsNew(current);
-  const graded = { ...slGrade(current, value, now), ...slAdvance(current, value) };
+  const graded = { ...slGrade(current, value, now), ...slAdvance(current, value), last: now };
   queue.shift();
   if (value === 'again') queue.push(key);
   else finished++;
@@ -646,17 +813,29 @@ function start(all) {
 document.addEventListener('click', (e) => {
   const button = e.target.closest('button');
   if (button) button.blur();
+  if (!e.target.closest('.gear')) $('gearMenu').hidden = true;
 });
 $('show').addEventListener('click', check);
 $('dontKnow').addEventListener('click', giveUp);
+$('hintBtn').addEventListener('click', giveHint);
 $('countIt').addEventListener('click', () => {
   verdict = 'close';
   reveal();
+});
+$('editBtn').append(icon('edit'));
+$('editBtn').addEventListener('click', () => revealed && paintEdit());
+$('removeBtn').addEventListener('click', removeClicked);
+$('gear').append(icon('sliders'));
+$('gear').addEventListener('click', () => {
+  const menu = $('gearMenu');
+  if (menu.hidden) paintGear();
+  menu.hidden = !menu.hidden;
 });
 $('studyAll').addEventListener('click', () => start(true));
 for (const g of ['again', 'good', 'easy']) $(g).addEventListener('click', () => grade(g));
 
 document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') $('gearMenu').hidden = true;
   if (e.ctrlKey || e.metaKey || e.altKey || !current) return;
   if (/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement && document.activeElement.tagName)) return;
   if (!revealed && (e.code === 'Space' || e.code === 'Enter')) check();
