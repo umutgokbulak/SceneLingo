@@ -354,6 +354,11 @@ function days() {
     assert.match(await page(`$('#plan .sl-next').textContent`), /Kart|Cards/);
     assert.equal(await page(`[...document.querySelectorAll('#grid .cell')].slice(-1)[0].textContent`), '2', 'two texts today, in the last column');
     assert.match(await page(`$('#bands').textContent`), /Writing.*Band 6\.0/);
+    // a goal of one's own: no listening, and the plan has a step less
+    await page(`(() => { const sel = document.querySelector('#goals select'); sel.value = '0'; sel.dispatchEvent(new Event('change')); return true; })()`);
+    await wait(500);
+    assert.equal(await page(`document.querySelectorAll('#plan .sl-step').length`), 3);
+    assert.equal(await b.worker(`chrome.storage.sync.get('goalListen').then((d) => d.goalListen)`), 0);
     // the daily reminder, set on the page: an alarm at that hour, and a notification of what is left
     await page(`($('#remindAt').value = '07:30', $('#remindAt').dispatchEvent(new Event('change')), $('#remindOn').click(), true)`);
     await wait(600);

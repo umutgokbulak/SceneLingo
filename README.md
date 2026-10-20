@@ -120,7 +120,8 @@ them), plyr.io, Vimeo's player, Wikimedia Commons and a YouTube player embedded 
 - **Today's plan, and the week.** Each day asks for the cards that are due, five sentences listened to and one
   conversation or spoken answer; the week, two texts. The popup shows what is left and opens what is next; a
   progress page shows the last seven days day by day, what they added up to, and the IELTS bands as they went.
-  Any practice keeps the streak going. A notification at an hour you choose says what is still waiting.
+  Any practice keeps the streak going. A notification at an hour you choose says what is still waiting; the goals are
+  yours to change, or to leave out.
 - **A record of the days:** streak, words learned, share remembered.
 - **All your words in one place.** Every saved word, phrase and sentence, found by search (in the word, its
   meanings or its sentence), by kind, by source, or by where it stands (new, learning, learned, hard); each

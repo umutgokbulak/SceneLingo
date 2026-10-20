@@ -59,7 +59,7 @@ const SL_PLAN_NAMES = { review: 'planReview', listen: 'planListen', speak: 'plan
 function slPlanBox(plan, open) {
   const box = document.createElement('div');
   box.className = 'sl-plan';
-  for (const step of [...plan.steps, plan.week]) {
+  for (const step of [...plan.steps, plan.week].filter(Boolean)) {
     const row = document.createElement('button');
     row.className = 'sl-step' + (step.done ? ' done' : '') + (step.id === plan.next ? ' next' : '');
     const tick = document.createElement('span');

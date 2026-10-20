@@ -72,7 +72,7 @@ yazdım, çalışırken ihtiyaç duyduklarımı ekledim, sonra onu izlediğim di
 - **Bugünün planı ve hafta.** Her gün: bekleyen kartlar, 5 dinleme cümlesi ve bir konuşma; haftada iki yazı.
   Eklenti penceresi neyin kaldığını gösterir ve sıradakini açar; İlerleme sayfası son yedi günü gün gün, toplamları
   ve IELTS bandlarının gidişini gösterir. Hangi alıştırmayı yaparsan yap seri devam eder. Seçtiğin saatte
-  gelen bir bildirim neyin beklediğini söyler.
+  gelen bir bildirim neyin beklediğini söyler; hedefleri kendine göre değiştirebilirsin.
 - **Günlerin kaydı:** seri, öğrenilen kelime, hatırlama oranı.
 - **Bütün kelimelerin tek yerde.** Kaydettiğin her kelime, kalıp ve cümle; kelimeye, anlamlarına ya da cümlesine
   göre aranır, türe, kaynağa ve durumuna göre (yeni, öğreniliyor, öğrenilen, zor) süzülür. Her satır açılınca

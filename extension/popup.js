@@ -59,7 +59,7 @@ function renderToday() {
   plan.textContent = '';
   const open = (id) => chrome.tabs.create({ url: chrome.runtime.getURL(SL_PLAN_PAGES[id]) });
   if (words.length) {
-    const p = slTodayPlan(words, reviewLog, Date.now(), settings.newPerDay);
+    const p = slTodayPlan(words, reviewLog, Date.now(), settings.newPerDay, slGoals(settings));
     plan.append(slPlanBox(p, open), slPlanNext(p, open));
   } else plan.append(Object.assign(document.createElement('div'), { className: 'hint', textContent: slT('noWordsYet') }));
   const { streak } = slStats(words, reviewLog, Date.now());

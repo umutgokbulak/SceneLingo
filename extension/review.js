@@ -708,7 +708,7 @@ function showEmpty() {
   plan.textContent = '';
   plan.hidden = !words.length;
   chrome.storage.local.get({ reviewLog: {} }, (data) => {
-    const p = slTodayPlan(words, data.reviewLog || {}, Date.now(), settings.newPerDay);
+    const p = slTodayPlan(words, data.reviewLog || {}, Date.now(), settings.newPerDay, slGoals(settings));
     const go = (id) => (location.href = SL_PLAN_PAGES[id]);
     plan.append(slPlanBox(p, go), slPlanNext(p, go));
   });

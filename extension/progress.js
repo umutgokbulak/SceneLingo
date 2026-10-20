@@ -1,14 +1,22 @@
 // Progress: today's plan, the last seven days of study day by day, what they added up to, and the
 // IELTS bands the speaking and writing practice estimated, as they went.
-const KINDS = [
+// [kind, its count in the record of days, its name, what fills a day's cell]
+const kinds = (goals) => [
   ['review', 'reviews', 'planReview', 10],
-  ['listen', 'listen', 'planListen', SL_PLAN.listen],
-  ['speak', 'speak', 'planSpeak', SL_PLAN.speak],
+  ['listen', 'listen', 'planListen', goals.listen || SL_PLAN.listen],
+  ['speak', 'speak', 'planSpeak', goals.speak || SL_PLAN.speak],
   ['write', 'write', 'writeTitle', 1],
+];
+// What can be chosen as a goal.
+const GOALS = [
+  ['goalListen', 'planListen', [0, 3, 5, 10, 15, 20]],
+  ['goalSpeak', 'planSpeak', [0, 1, 2, 3]],
+  ['goalWrite', 'planWrite', [0, 1, 2, 3, 5, 7]],
 ];
 const SHOWN = 10; // the latest scores shown as bars
 
 let settings = { ...SL_DEFAULTS };
+const load = () => chrome.storage.local.get({ words: [], reviewLog: {}, speakLog: [], writeLog: [], geminiKey: '', geminiUsage: null }, paint);
 
 function paint(data) {
   const now = Date.now();
@@ -18,7 +26,8 @@ function paint(data) {
   $('streak').textContent = String(stats.streak);
   $('streakText').textContent = slT('progressStreak');
 
-  const plan = slTodayPlan(words, log, now, settings.newPerDay);
+  const goals = slGoals(settings);
+  const plan = slTodayPlan(words, log, now, settings.newPerDay, goals);
   const go = (id) => (location.href = SL_PLAN_PAGES[id]);
   $('plan').textContent = '';
   $('plan').append(slPlanBox(plan, go), slPlanNext(plan, go));
@@ -32,7 +41,7 @@ function paint(data) {
   const dayName = new Intl.DateTimeFormat(slUiLang, { weekday: 'short' });
   grid.append(el('span'));
   for (const d of week.days) grid.append(el('span', 'day' + (d.key === week.days[6].key ? ' today' : ''), dayName.format(new Date(d.at))));
-  for (const [, field, label, goal] of KINDS) {
+  for (const [, field, label, goal] of kinds(goals)) {
     grid.append(el('span', 'kind', slT(label)));
     for (const d of week.days) {
       const n = d[field] || 0;
@@ -99,6 +108,20 @@ chrome.storage.sync.get(SL_DEFAULTS, (stored) => {
   document.title = slT('progressTitle') + ' — SceneLingo';
   $('toReview').append(slIcon('cards'), el('span', 't', slT('reviewTitle')));
   $('toWords').append(slIcon('search'), el('span', 't', slT('wordsTitle')));
+  // The goals of today's plan, each a choice; the plan follows at once.
+  const box = $('goals');
+  for (const [key, label, options] of GOALS) {
+    const row = el('label', 'goal');
+    const sel = el('select');
+    for (const n of options) sel.append(Object.assign(el('option', null, n ? String(n) : slT('goalOff')), { value: n }));
+    sel.value = settings[key];
+    sel.addEventListener('change', () => {
+      settings[key] = +sel.value;
+      chrome.storage.sync.set({ [key]: settings[key] }, load);
+    });
+    row.append(el('span', null, slT(label)), sel);
+    box.append(row);
+  }
   // The daily reminder: a notification from the browser, so not on the phone.
   if (chrome.runtime.getManifest().version !== 'web') {
     $('remindRow').hidden = false;
@@ -111,7 +134,6 @@ chrome.storage.sync.get(SL_DEFAULTS, (stored) => {
     });
     $('remindAt').addEventListener('change', () => $('remindAt').value && chrome.storage.sync.set({ remindAt: $('remindAt').value }));
   }
-  const load = () => chrome.storage.local.get({ words: [], reviewLog: {}, speakLog: [], writeLog: [], geminiKey: '', geminiUsage: null }, paint);
   load();
   // Coming back to the tab after practising elsewhere: up to date.
   document.addEventListener('visibilitychange', () => document.visibilityState === 'visible' && load());

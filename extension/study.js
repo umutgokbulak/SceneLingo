@@ -190,23 +190,27 @@ function slNextAt(now, hhmm) {
 // A day with any study in it.
 const slActive = (day) => !!(day && (day.reviews || day.listen || day.speak || day.write));
 
-// What a day asks for, every day: the cards that are due, five sentences listened to, and one
-// conversation or spoken answer; and, in the week, two texts written. `next` is the first step not
-// yet done.
+// What a day asks for, every day: the cards that are due, some sentences listened to, and some
+// conversations or spoken answers; and, in the week, some texts written. How many is the user's
+// to choose (`goals`); a goal of 0 leaves its step out. `next` is the first step not yet done.
 const SL_PLAN = { listen: 5, speak: 1, write: 2 };
-function slTodayPlan(words, log, now, newPerDay) {
+const slGoals = (settings) => ({
+  listen: settings && settings.goalListen != null ? +settings.goalListen : SL_PLAN.listen,
+  speak: settings && settings.goalSpeak != null ? +settings.goalSpeak : SL_PLAN.speak,
+  write: settings && settings.goalWrite != null ? +settings.goalWrite : SL_PLAN.write,
+});
+function slTodayPlan(words, log, now, newPerDay, goals = SL_PLAN) {
   const today = log[slDayKey(now)] || {};
   const due = slDueCount(words, now, log, newPerDay);
   let written = 0;
   for (let i = 0; i < 7; i++) written += (log[slDayKey(now - i * SL_DAY)] || {}).write || 0;
-  const steps = [
-    { id: 'review', have: today.reviews || 0, left: due, done: due === 0 },
-    { id: 'listen', have: today.listen || 0, goal: SL_PLAN.listen, done: (today.listen || 0) >= SL_PLAN.listen },
-    { id: 'speak', have: today.speak || 0, goal: SL_PLAN.speak, done: (today.speak || 0) >= SL_PLAN.speak },
-  ];
-  const week = { id: 'write', have: written, goal: SL_PLAN.write, done: written >= SL_PLAN.write };
+  const step = (id, have, goal) => ({ id, have, goal, done: have >= goal });
+  const steps = [{ id: 'review', have: today.reviews || 0, left: due, done: due === 0 }];
+  if (goals.listen > 0) steps.push(step('listen', today.listen || 0, goals.listen));
+  if (goals.speak > 0) steps.push(step('speak', today.speak || 0, goals.speak));
+  const week = goals.write > 0 ? step('write', written, goals.write) : null;
   const next = steps.find((s) => !s.done);
-  return { steps, week, next: next ? next.id : week.done ? null : 'write', done: !next };
+  return { steps, week, next: next ? next.id : week && !week.done ? 'write' : null, done: !next };
 }
 
 // The last seven days, oldest first, and what was done in them.
@@ -558,5 +562,5 @@ function slDictationPool(words, lang, rest, now, size, rand = Math.random) {
 }
 
 if (typeof module !== 'undefined') {
-  module.exports = { SL_PLAN, slNextAt, slLogActivity, slActive, slTodayPlan, slWeek, SL_STAGES, slDictation, slDictationPool, slCanon, slFromCsv, slBackup, slStamp, slMergeCard, slMergeAll, slRestore, slStatus, slCleanLine, slHintMask, slCardType, slAdvance, slClozeParts, slCheckAnswer, slAccepted, slSentenceScore, slDayKey, slIsNew, slTodayQueue, slLogged, slStats, slDueCount, slAddExample, slMerge, slNormalize };
+  module.exports = { SL_PLAN, slGoals, slNextAt, slLogActivity, slActive, slTodayPlan, slWeek, SL_STAGES, slDictation, slDictationPool, slCanon, slFromCsv, slBackup, slStamp, slMergeCard, slMergeAll, slRestore, slStatus, slCleanLine, slHintMask, slCardType, slAdvance, slClozeParts, slCheckAnswer, slAccepted, slSentenceScore, slDayKey, slIsNew, slTodayQueue, slLogged, slStats, slDueCount, slAddExample, slMerge, slNormalize };
 }

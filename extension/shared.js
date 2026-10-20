@@ -22,6 +22,9 @@ const SL_DEFAULTS = {
   hideNative: true,
   hoverPause: true,
   newPerDay: 15, // new cards a day in review
+  goalListen: 5, // today's plan: sentences listened to a day,
+  goalSpeak: 1, // conversations or spoken answers a day,
+  goalWrite: 2, // and texts written a week; 0 leaves the step out
   remindOn: false, // a notification at `remindAt` when today's plan is not done
   remindAt: '20:00',
   useGemini: true, // ask Gemini for a word's meaning in its sentence, when a key has been saved

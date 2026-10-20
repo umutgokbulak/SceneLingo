@@ -243,6 +243,14 @@ test("today's plan: the cards, five sentences, one conversation; two texts a wee
   log = S.slLogActivity(log, NOW - 3 * DAY, 'write');
   log = S.slLogActivity(log, NOW, 'write');
   assert.equal(S.slTodayPlan(studied, log, NOW, 15).next, null);
+  // goals of one's own: more listening, no writing
+  const goals = S.slGoals({ goalListen: 10, goalSpeak: 1, goalWrite: 0 });
+  plan = S.slTodayPlan(studied, log, NOW, 15, goals);
+  assert.equal(plan.next, 'listen', 'five sentences are not ten');
+  assert.equal(plan.week, null);
+  assert.deepEqual(plan.steps.map((s) => s.id), ['review', 'listen', 'speak']);
+  assert.deepEqual(S.slTodayPlan(studied, log, NOW, 15, S.slGoals({ goalListen: 0, goalSpeak: 0, goalWrite: 0 })).steps.map((s) => s.id), ['review']);
+  assert.deepEqual(S.slGoals({}), S.SL_PLAN, 'nothing chosen: the usual goals');
 });
 
 test('the reminder: at the chosen time today if it is still to come, or else tomorrow', () => {

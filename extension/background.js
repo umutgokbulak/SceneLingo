@@ -372,7 +372,7 @@ async function planReminder() {
 async function todaysPlan() {
   const settings = await chrome.storage.sync.get(SL_DEFAULTS);
   const { words, reviewLog } = await chrome.storage.local.get({ words: [], reviewLog: {} });
-  return { settings, words, plan: slTodayPlan(words, reviewLog, Date.now(), settings.newPerDay) };
+  return { settings, words, plan: slTodayPlan(words, reviewLog, Date.now(), settings.newPerDay, slGoals(settings)) };
 }
 
 async function remind() {
