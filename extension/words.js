@@ -334,6 +334,13 @@ async function paintCloud(note) {
   } else {
     what.append(el('span', null, slT('cloudTip')));
     if (note) what.append(el('small', null, note));
+  }
+  if ((st.log || []).length) {
+    const steps = el('details', 'steps');
+    steps.append(el('summary', null, slT('cloudSteps')), el('pre', null, st.log.join('\n')));
+    what.append(steps);
+  }
+  if (!st.email) {
     box.append(icon('cloud'), what, btn([icon('cloud'), slT('cloudConnect')], () => cloudSync(true), 'btn small primary'));
   }
 }
