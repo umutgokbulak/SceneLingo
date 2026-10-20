@@ -76,6 +76,7 @@ function days() {
       await page(`($('.row .line').click(), true)`);
       await wait(500);
       fs.writeFileSync(path.join(dir, 'words.jpg'), await b.picture(88));
+      await seed({ listenGloss: { 'you have to learn to listen': { parts: [{ text: 'have to', base: '', meaning: 'zorunda olmak, -meli' }, { text: 'learn', base: '', meaning: 'öğrenmek' }, { text: 'listen', base: '', meaning: 'dinlemek' }], at: NOW } } });
       await b.open(b.extensionPage('listen.html'));
       await wait(1000);
       await page(`(at = round.findIndex((s) => s.text === 'You have to learn to listen.'), show(), $('#typed').value = 'You have learn to lisen', $('#go').click(), true)`);
@@ -142,7 +143,12 @@ function days() {
     await wait(1000);
     // five sentences: "Be careful!" is too short, and the saved sentence is the word's own one
     assert.equal(await page(`$('#count').textContent`), '1 / 5');
-    await page(`($('#typed').value = round[at].text.toLowerCase().replace(/[.,!?…]/g, ''), $('#go').click(), true)`);
+    // typed, then Enter: checked, and still on the same sentence
+    await page(`($('#typed').focus(), true)`);
+    await b.type(await page(`round[at].text.toLowerCase().replace(/[.,!?…]/g, '')`));
+    await b.named('Enter', 13);
+    await wait(300);
+    assert.equal(await page(`$('#count').textContent`), '1 / 5', 'Enter checks; it does not skip');
     assert.match(await page(`$('#result .verdict').className`), /right/);
     assert.match(await page(`$('#result .verdict').textContent`), /100/);
     await page(`($('#go').click(), true)`);
@@ -156,6 +162,24 @@ function days() {
     for (let i = 0; i < 3; i++) await page(`($('#giveUp').click(), $('#go').click(), true)`);
     assert.ok(await page(`$('#card').hidden && !$('#end').hidden && $('#end .list').children.length === 5`));
     assert.equal(Object.keys(JSON.parse(await b.worker(`chrome.storage.local.get('listenRest').then((d) => JSON.stringify(d.listenRest))`))).length, 5, 'each sentence rests a while');
+    // the words of the sentence with their meanings, from Gemini once and kept; each can be saved
+    const parts = [{ text: 'have to', base: '', meaning: 'zorunda olmak' }, { text: 'learn', base: '', meaning: 'öğrenmek' }, { text: 'listen', base: '', meaning: 'dinlemek' }];
+    await seed({ listenGloss: { 'you have to learn to listen': { parts, at: NOW } } });
+    await b.open(b.extensionPage('listen.html'));
+    await wait(1000);
+    await page(`(at = round.findIndex((s) => s.text === 'You have to learn to listen.'), show(), $('#giveUp').click(), true)`);
+    await wait(300);
+    assert.equal(await page(`[...document.querySelectorAll('.part')].map((r) => r.querySelector('b').textContent + '=' + r.querySelector('span').textContent).join()`), 'have to=zorunda olmak,learn=öğrenmek,listen=dinlemek');
+    assert.deepEqual(JSON.parse(await page(`JSON.stringify([...document.querySelectorAll('.part .star')].map((x) => x.textContent))`)), ['☆', '★', '★'], 'learn and listen are saved already');
+    await page(`(document.querySelector('.part .star').click(), true)`);
+    await wait(400);
+    const made = JSON.parse(await b.worker(`chrome.storage.local.get('words').then((d) => JSON.stringify(d.words.find((w) => w.word === 'have to')))`));
+    assert.equal(made.context, 'You have to learn to listen.');
+    assert.equal(made.contextMeaning, 'zorunda olmak');
+    // a word of the sentence, tapped, opens its card
+    await page(`(document.querySelector('#result .heard [data-w]').click(), true)`);
+    await wait(300);
+    assert.ok(await page(`!!document.querySelector('scenelingo-select')`));
 
     // ---- the list of all words ----
     await seed();

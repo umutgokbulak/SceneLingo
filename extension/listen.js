@@ -3,6 +3,7 @@
 const $ = (id) => document.getElementById(id);
 const ROUND = 10; // sentences at a time
 const DAY = 86400000;
+const GLOSS_KEPT = 300; // sentences whose parts are kept, so that Gemini is asked once for each
 
 let settings = { ...SL_DEFAULTS };
 let rest = {}; // sentence -> until when it is not asked again
@@ -12,6 +13,8 @@ let results = []; // { text, score }
 let checked = false;
 let plays = 0;
 let hintLevel = 0;
+let geminiKey = ''; // shown form only: whether there is a key
+let saved = new Set(); // the saved words, in lower case
 const audio = new Audio();
 
 const el = (tag, cls, text) => {
@@ -133,6 +136,8 @@ function check() {
   const line = el('div', 'heard');
   for (const p of parts) {
     const w = el('span', p.state === 'right' ? null : p.state, p.word);
+    // A word of the sentence opens its card: its meaning here, its voice, a way to save it.
+    if (p.state !== 'extra') w.dataset.w = p.word.replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}']+$/gu, '');
     if (p.typed && p.state !== 'right') {
       w.title = slT('listenYouTyped', p.typed);
       w.append(el('s', null, p.typed));
@@ -140,13 +145,6 @@ function check() {
     line.append(w, ' ');
   }
   box.append(line);
-  if (s.translation) box.append(el('div', 'meaning', '“' + s.translation + '”'));
-  if (s.word) {
-    const w = el('div', 'word');
-    w.append(el('b', null, s.word));
-    if (s.meaning) w.append(el('span', null, '— ' + s.meaning));
-    box.append(w);
-  }
   if (parts.some((p) => p.state !== 'right')) {
     const legend = el('div', 'legend');
     const key = (color, label) => {
@@ -161,10 +159,117 @@ function check() {
     if (parts.some((p) => p.state === 'extra')) key('var(--muted)', slT('listenExtra'));
     box.append(legend);
   }
+  if (s.translation) box.append(el('div', 'meaning', '“' + s.translation + '”'));
+  // The saved word the sentence came from; with Gemini it is among the sentence's words below.
+  if (s.word && !geminiKey) {
+    const w = el('div', 'word');
+    w.append(el('b', null, s.word));
+    if (s.meaning) w.append(el('span', null, '— ' + s.meaning));
+    box.append(w);
+  }
+  box.append(paintParts(s));
   box.hidden = false;
   // Heard once more, now that it can be followed word by word.
   if (score < 1) play(false);
 }
+
+// The words and phrases of the sentence with what they mean in it, each one to be saved. Gemini
+// is asked once for a sentence; without a key, a word is tapped to see what it means.
+function paintParts(s) {
+  const box = el('div', 'parts');
+  if (!geminiKey) {
+    box.append(el('div', 'tip', slT('listenTap')));
+    return box;
+  }
+  const head = el('div', 'label');
+  head.append(el('span', null, slT('listenParts')), el('span', 'engine', 'Gemini'));
+  const list = el('div', null, slT('loading'));
+  box.append(head, list);
+  const fill = (parts) => {
+    list.textContent = '';
+    for (const p of parts) {
+      const row = el('div', 'part');
+      const word = el('b', null, p.text);
+      if (p.base) word.append(el('small', null, p.base));
+      const star = el('button', 'star');
+      const paint = () => {
+        const on = saved.has((p.base || p.text).toLowerCase()) || saved.has(p.text.toLowerCase());
+        star.textContent = on ? '★' : '☆';
+        star.classList.toggle('on', on);
+        star.title = slT(on ? 'saved' : 'save');
+      };
+      paint();
+      star.addEventListener('click', () => toggleSave(s, p, paint));
+      row.append(word, el('span', null, p.meaning), star);
+      list.append(row);
+    }
+    if (!parts.length) list.textContent = '';
+    box.append(el('div', 'tip', slT('listenTap')));
+  };
+  chrome.storage.local.get({ listenGloss: {} }, async (data) => {
+    const kept = data.listenGloss || {};
+    if (kept[s.key]) return fill(kept[s.key].parts);
+    const res = await ask({ type: 'gloss', sentence: s.text, sl: s.lang, tl: settings.nativeLang });
+    if (!res.ok) {
+      list.textContent = '';
+      box.querySelector('.label').remove();
+      box.append(el('div', 'tip', slT('listenTap')));
+      return;
+    }
+    fill(res.result);
+    // Kept, the newest first, so that the same sentence costs nothing next time.
+    kept[s.key] = { parts: res.result, at: Date.now() };
+    const keys = Object.keys(kept).sort((a, b) => kept[b].at - kept[a].at);
+    for (const k of keys.slice(GLOSS_KEPT)) delete kept[k];
+    chrome.storage.local.set({ listenGloss: kept });
+  });
+  return box;
+}
+
+// A part of the sentence saved as a card of its own, with this sentence as its sentence; or, saved
+// already, taken off again.
+function toggleSave(s, p, then) {
+  const word = p.text;
+  const keys = [word.toLowerCase(), (p.base || word).toLowerCase()];
+  chrome.storage.local.get({ words: [] }, (data) => {
+    const has = data.words.find((w) => keys.includes(w.word.toLowerCase()));
+    let words;
+    if (has) {
+      slForget(has.word);
+      words = data.words.filter((w) => w !== has);
+      saved.delete(has.word.toLowerCase());
+    } else {
+      words = [
+        {
+          word,
+          kind: /\s/.test(word) ? 'phrase' : 'word',
+          translation: p.meaning,
+          context: s.text,
+          contextTranslation: s.translation,
+          contextMeaning: p.meaning,
+          contextPhrase: p.base,
+          senseEngine: 'gemini',
+          sensed: true,
+          lang: s.lang,
+          title: s.title,
+          source: s.source || undefined,
+          added: Date.now(),
+        },
+        ...data.words,
+      ];
+      saved.add(word.toLowerCase());
+    }
+    chrome.storage.local.set({ words }, then);
+  });
+}
+
+// A tapped word of the sentence: its card, from the same code that reads a selection on any page.
+$('result').addEventListener('click', (e) => {
+  const w = e.target.closest('[data-w]');
+  if (!w || !w.dataset.w) return;
+  const r = w.getBoundingClientRect();
+  window.dispatchEvent(new CustomEvent('sl-lookup', { detail: { text: w.dataset.w, context: sentence() ? sentence().text : '', rect: { left: r.left, top: r.top, right: r.right, bottom: r.bottom } } }));
+});
 
 function next() {
   at++;
@@ -208,6 +313,7 @@ function showEnd() {
 function startRound() {
   chrome.storage.local.get({ words: [], listenRest: {} }, (data) => {
     rest = data.listenRest || {};
+    saved = new Set(data.words.map((w) => w.word.toLowerCase()));
     round = slDictationPool(data.words, settings.learnLang, rest, Date.now(), ROUND);
     at = 0;
     results = [];
@@ -236,7 +342,7 @@ document.addEventListener('keydown', (e) => {
   if ($('card').hidden) return;
   // Ctrl+Space: once more; Ctrl+Shift+Space: slowly. They work while typing.
   if (e.ctrlKey && e.code === 'Space') play(e.shiftKey);
-  else if (checked && e.key === 'Enter' && !/^(BUTTON|A)$/.test(e.target.tagName)) next();
+  else if (checked && e.key === 'Enter' && !e.defaultPrevented && !/^(BUTTON|A|TEXTAREA)$/.test(e.target.tagName)) next();
   else return;
   e.preventDefault();
 });
@@ -252,5 +358,8 @@ chrome.storage.sync.get(SL_DEFAULTS, (stored) => {
   $('hint').append(slIcon('bulb'), slT('listenHint'));
   $('play').title = slT('reviewListen') + ' (Ctrl+Space)';
   $('slow').title = slT('reviewSlow') + ' (Ctrl+Shift+Space)';
-  startRound();
+  ask({ type: 'gemini-key' }).then((res) => {
+    geminiKey = res.ok ? res.result : '';
+    startRound();
+  });
 });

@@ -312,6 +312,16 @@
   );
   document.addEventListener('keydown', (e) => e.key === 'Escape' && hide(), true);
 
+  // From the extension's own pages: a word tapped there (on a phone nothing is selected easily).
+  window.addEventListener('sl-lookup', (e) => {
+    const d = e.detail || {};
+    if (!d.text || !alive()) return;
+    ensureHost();
+    hide();
+    picked = { text: String(d.text).slice(0, 400), context: d.context || '', rect: d.rect };
+    openCard();
+  });
+
   // From the right-click menu: on a page where the extension was not running before.
   chrome.runtime.onMessage.addListener((msg) => {
     if (!msg || msg.type !== 'select-lookup' || window !== top) return false;

@@ -446,6 +446,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   else if (msg && msg.type === 'lookup') job = lookup(String(msg.text || ''), msg.sl, msg.tl);
   else if (msg && msg.type === 'sense') job = sense(msg.word, msg.sentence, msg.sl, msg.tl, msg.always);
   else if (msg && msg.type === 'enrich') job = enrich(msg);
+  else if (msg && msg.type === 'gloss') job = gloss(msg);
   else if (msg && msg.type === 'explain') job = explain(msg.text, msg.sentence, msg.sl, msg.tl, msg.always);
   else if (msg && msg.type === 'check-sentence') job = checkSentence(msg);
   else if (msg && msg.type === 'open-scene') job = openScene(msg.url, msg.time);

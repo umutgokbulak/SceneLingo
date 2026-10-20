@@ -256,6 +256,9 @@ test('enrich and check-sentence ask Gemini once each, and need a key', async () 
   reset(() => answer({ correct: false, better: 'I am keen on football.', note: 'keen on kalıbı.' }));
   const checked = (await ask({ type: 'check-sentence', word: 'keen', sentence: 'I am keen to football.', sl: 'en', tl: 'tr' })).result;
   assert.deepEqual(checked, { correct: false, better: 'I am keen on football.', note: 'keen on kalıbı.' });
+  reset(() => answer({ parts: [{ text: 'ripped off', base: 'rip off', meaning: 'dolandırmak' }, { text: 'fault', base: 'fault', meaning: 'suç' }, { text: 'wrong' }] }));
+  const parts = (await ask({ type: 'gloss', sentence: "It's not my fault you ripped off the wrong people.", sl: 'en', tl: 'tr' })).result;
+  assert.deepEqual(parts, [{ text: 'ripped off', base: 'rip off', meaning: 'dolandırmak' }, { text: 'fault', base: '', meaning: 'suç' }]);
   site.geminiKey = '';
 });
 

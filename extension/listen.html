@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>SceneLingo</title>
-<link rel="stylesheet" href="ui.css?v=0.19.0">
+<link rel="stylesheet" href="ui.css?v=0.19.1">
 <link rel="manifest" href="app.webmanifest">
 <link rel="apple-touch-icon" href="icons/128.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -25,7 +25,7 @@
   #count { color: var(--text-2); font-size: 13px; font-variant-numeric: tabular-nums; white-space: nowrap; }
 
   /* ---- the card ---- */
-  .card { border-radius: 18px; background: var(--surface); border: 1px solid var(--border); box-shadow: var(--shadow); overflow: hidden; }
+  .card { border-radius: 18px; background: var(--surface); border: 1px solid var(--border); box-shadow: var(--shadow); }
   .inner { padding: 28px 36px 26px; }
   .cardhead { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; min-height: 22px; color: var(--muted); font-size: 12.5px; }
   .link { display: inline-flex; align-items: center; gap: 5px; padding: 0; border: 0; background: none; color: var(--accent-text); cursor: pointer; font-size: 12.5px; }
@@ -63,10 +63,24 @@
   .meaning { margin-top: 10px; font-size: 15px; font-style: italic; color: var(--text-2); }
   .word { display: inline-flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; padding: 4px 12px; border-radius: 999px; background: var(--accent-soft); color: var(--accent-text); font-size: 13.5px; }
   .word b { color: var(--text); font-weight: 650; }
-  .legend { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 12px; font-size: 12px; color: var(--muted); }
+  .heard span[data-w] { cursor: pointer; }
+  .heard span[data-w]:hover { text-decoration: underline dotted; text-underline-offset: 4px; }
+  .parts { margin-top: 16px; }
+  .parts .label { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .parts .engine { font-size: 10px; font-weight: 750; letter-spacing: 0.06em; color: var(--accent-text); border: 1px solid var(--accent); border-radius: 999px; padding: 0 7px; }
+  .part { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr) auto; gap: 12px; align-items: center; padding: 6px 0; border-top: 1px solid var(--border); font-size: 15px; }
+  .part b { font-weight: 650; overflow-wrap: anywhere; }
+  .part small { display: block; color: var(--muted); font-size: 12px; font-weight: 400; }
+  .part span { color: var(--gold); overflow-wrap: anywhere; }
+  .star { width: 32px; height: 32px; border-radius: 8px; border: 1px solid transparent; background: none; color: var(--muted); cursor: pointer; font-size: 17px; }
+  .star:hover { background: var(--raised); color: var(--gold); }
+  .star.on { color: var(--gold); }
+  .tip { margin-top: 12px; font-size: 13px; color: var(--muted); }
+  .legend { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 4px; font-size: 12px; color: var(--muted); }
   .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; }
 
-  .actions { display: flex; align-items: center; gap: 10px; justify-content: flex-end; padding: 14px 36px; border-top: 1px solid var(--border); background: var(--surface-2); }
+  /* the buttons stay in sight when the answer makes the card longer than the screen */
+  .actions { position: sticky; bottom: 0; display: flex; align-items: center; gap: 10px; justify-content: flex-end; padding: 14px 36px; border-top: 1px solid var(--border); background: var(--surface-2); border-radius: 0 0 18px 18px; }
   .actions .btn.primary { min-width: 170px; }
   .actions kbd { margin-left: 4px; }
   .actions .spacer { flex: 1; }
@@ -89,7 +103,7 @@
     .topbar { flex-wrap: wrap; gap: 10px 12px; }
     .bar { order: 5; flex-basis: 100%; }
     .inner { padding: 20px 18px; }
-    .actions { padding: 12px 18px; position: sticky; bottom: 0; }
+    .actions { padding: 12px 18px; }
     .actions .btn.primary { flex: 1; min-width: 0; }
     .actions kbd { display: none; }
     .topbar a.btn .t { display: none; }
@@ -131,15 +145,15 @@
 </div>
 
 <!-- On the phone, where there is no extension, this stands in for it. -->
-<script src="web.js?v=0.19.0"></script>
-<script src="messages.js?v=0.19.0"></script>
-<script src="shared.js?v=0.19.0"></script>
-<script src="study.js?v=0.19.0"></script>
-<script src="cloud.js?v=0.19.0"></script>
-<script src="gemini.js?v=0.19.0"></script>
-<script src="ui.js?v=0.19.0"></script>
-<script src="listen.js?v=0.19.0"></script>
+<script src="web.js?v=0.19.1"></script>
+<script src="messages.js?v=0.19.1"></script>
+<script src="shared.js?v=0.19.1"></script>
+<script src="study.js?v=0.19.1"></script>
+<script src="cloud.js?v=0.19.1"></script>
+<script src="gemini.js?v=0.19.1"></script>
+<script src="ui.js?v=0.19.1"></script>
+<script src="listen.js?v=0.19.1"></script>
 <!-- Text selected on this page is translated too: the content script does not run on the extension's own pages. -->
-<script src="select.js?v=0.19.0"></script>
+<script src="select.js?v=0.19.1"></script>
 </body>
 </html>

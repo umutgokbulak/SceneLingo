@@ -55,7 +55,8 @@ yazdım, çalışırken ihtiyaç duyduklarımı ekledim, sonra onu izlediğim di
   bir kelime ait olduğu kalıba çevrilebilir ("ripped" → "rip off").
 - **Dinleme alıştırması.** Kelimelerinin geçtiği cümleler okunur, sen duyduğunu yazarsın; sonra kelime kelime
   neyi doğru duyduğun, neyi yanlış yazdığın, neyi kaçırdığın ve cümlede olmayan neyi yazdığın gösterilir, cümlenin
-  anlamıyla birlikte. Doğru duyulan cümle bir hafta dinlenir, kaçırılan ertesi gün yeniden gelir. Telefonda da
+  anlamıyla birlikte. Gemini varsa cümledeki kelime ve kalıplar o cümledeki anlamlarıyla listelenir, her biri tek
+  dokunuşla kaydedilir; cümlenin herhangi bir kelimesine dokununca kartı açılır. Doğru duyulan cümle bir hafta dinlenir, kaçırılan ertesi gün yeniden gelir. Telefonda da
   çalışır.
 - **Günlerin kaydı:** seri, öğrenilen kelime, hatırlama oranı.
 - **Bütün kelimelerin tek yerde.** Kaydettiğin her kelime, kalıp ve cümle; kelimeye, anlamlarına ya da cümlesine

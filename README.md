@@ -102,7 +102,8 @@ them), plyr.io, Vimeo's player, Wikimedia Commons and a YouTube player embedded 
   word can be turned into the phrase it belongs to ("ripped" into "rip off").
 - **Listening practice.** The sentences your words came from are read out and you type what you hear; then,
   word by word, what you heard right, what nearly (spelt differently), what you missed and what is not in the
-  sentence, with its meaning. A sentence heard right rests for a week, a missed one comes back the next day.
+  sentence, with its meaning and, with Gemini, the words and phrases in it and what they mean there, each one a
+  tap away from being saved. Any word of it opens its card. A sentence heard right rests for a week, a missed one comes back the next day.
   It works on the phone too.
 - **A record of the days:** streak, words learned, share remembered.
 - **All your words in one place.** Every saved word, phrase and sentence, found by search (in the word, its

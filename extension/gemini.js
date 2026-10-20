@@ -133,6 +133,27 @@ async function enrich({ word, phrase, sentence, sl, tl }) {
   };
 }
 
+// A sentence heard in listening practice: its words and phrases, each with what it means there.
+// The phrases are kept whole ("ripped off", not "ripped" and "off"); the plainest words are left out.
+async function gloss({ sentence, sl, tl }) {
+  const apiKey = await savedKey();
+  if (slGeminiResting()) throw new Error('Gemini 429: resting');
+  const json = await geminiJSON(
+    apiKey,
+    `A learner of ${langName(sl)} whose own language is ${langName(tl)} has just written down this sentence from listening:\n"${String(sentence).slice(0, 400)}"\n\n` +
+      `Answer in JSON with the key "parts": the words and phrases of the sentence worth knowing, in the order they come, at most 10. ` +
+      `Keep phrasal verbs, idioms and fixed expressions together as one part. Leave out names and the most basic words (articles, pronouns, "to be", "and"...). Each part is ` +
+      `{"text": exactly as it is written in the sentence, "base": its dictionary form if that is different (for example "rip off" for "ripped off"), else "", ` +
+      `"meaning": what it means in this sentence, in ${langName(tl)}, in a few words}.`
+  );
+  const parts = (Array.isArray(json.parts) ? json.parts : [])
+    .slice(0, 10)
+    .map((p) => ({ text: String(p.text || '').trim(), base: String(p.base || '').trim(), meaning: String(p.meaning || '').trim() }))
+    .filter((p) => p.text && p.meaning);
+  for (const p of parts) if (p.base.toLowerCase() === p.text.toLowerCase()) p.base = '';
+  return parts;
+}
+
 // A sentence of the learner's own, with the word in it: corrected, and said more naturally.
 async function checkSentence({ word, sentence, sl, tl }) {
   const apiKey = await savedKey();
@@ -148,5 +169,5 @@ async function checkSentence({ word, sentence, sl, tl }) {
 }
 
 if (typeof module !== 'undefined') {
-  module.exports = { slGeminiResting, geminiKeyShown, langName, geminiJSON, savedKey, askGemini, explain, enrich, checkSentence };
+  module.exports = { slGeminiResting, geminiKeyShown, langName, geminiJSON, savedKey, askGemini, explain, enrich, gloss, checkSentence };
 }
