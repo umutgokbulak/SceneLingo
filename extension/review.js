@@ -705,6 +705,7 @@ function showEmpty() {
   // Done with the cards for today: the sentences they came from, to listen to.
   $('listenNow').hidden = !words.length;
   $('speakNow').hidden = !words.length;
+  $('writeNow').hidden = !words.length;
   // The day's work goes to the cloud at once, when there is one.
   ask({ type: 'cloud-sync', interactive: false });
 }
@@ -808,6 +809,9 @@ $('removeBtn').addEventListener('click', removeClicked);
 $('allWords').append(icon('cards'));
 $('toListen').append(icon('headphones'));
 $('toSpeak').append(icon('mic'));
+$('toWrite').append(icon('edit'));
+$('writeNow').append(icon('edit'), el('span', null, slT('writeOpen')));
+$('writeNow').addEventListener('click', () => (location.href = 'write.html'));
 $('speakNow').append(icon('mic'), el('span', null, slT('speakOpen')));
 $('speakNow').addEventListener('click', () => (location.href = 'speak.html'));
 $('listenNow').append(icon('headphones'), el('span', null, slT('listenOpen')));

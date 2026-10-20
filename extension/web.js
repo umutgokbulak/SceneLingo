@@ -149,6 +149,10 @@
         return enrich(msg).then((result) => ({ ok: true, result }), (e) => ({ ok: false, error: e.message }));
       case 'speak-feedback':
         return speakingFeedback(msg).then((result) => ({ ok: true, result }), (e) => ({ ok: false, error: e.message }));
+      case 'ielts-writing':
+        return ieltsWriting(msg).then((result) => ({ ok: true, result }), (e) => ({ ok: false, error: e.message }));
+      case 'everyday-writing':
+        return everydayWriting(msg).then((result) => ({ ok: true, result }), (e) => ({ ok: false, error: e.message }));
       case 'roleplay':
         return roleplay(msg).then((result) => ({ ok: true, result }), (e) => ({ ok: false, error: e.message }));
       case 'gloss':

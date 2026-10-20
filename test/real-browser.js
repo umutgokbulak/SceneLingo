@@ -142,8 +142,9 @@ async function launch({ everywhere = false, window = false, language = '' } = {}
         await send('Input.dispatchKeyEvent', { type: 'keyUp', code, key: ch, windowsVirtualKeyCode: vk }, sessionId);
       }
     },
-    named: async (key, vk) => {
-      for (const type of ['keyDown', 'keyUp']) await send('Input.dispatchKeyEvent', { type, code: key, key, windowsVirtualKeyCode: vk }, sessionId);
+    // `modifiers`: 1 Alt, 2 Ctrl, 4 Meta, 8 Shift, added together.
+    named: async (key, vk, modifiers = 0) => {
+      for (const type of ['keyDown', 'keyUp']) await send('Input.dispatchKeyEvent', { type, code: key, key, windowsVirtualKeyCode: vk, modifiers }, sessionId);
     },
     press: async (code, key) => {
       for (const type of ['keyDown', 'keyUp']) await send('Input.dispatchKeyEvent', { type, code, key, windowsVirtualKeyCode: key.toUpperCase().charCodeAt(0) }, sessionId);

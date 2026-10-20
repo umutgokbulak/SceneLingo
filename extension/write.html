@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SceneLingo</title>
+<link rel="stylesheet" href="ui.css?v=0.21.0">
+<link rel="stylesheet" href="practice.css?v=0.21.0">
+<link rel="manifest" href="app.webmanifest">
+<link rel="apple-touch-icon" href="icons/128.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SceneLingo">
+<meta name="theme-color" content="#0d1117">
+<style>
+  /* the task */
+  .task { margin-top: 14px; font-size: clamp(17px, 1.8vw, 19px); line-height: 1.5; font-weight: 600; }
+  .task + .sub { margin-top: 8px; }
+  .task.essay { font-weight: 500; font-style: italic; padding-left: 14px; border-left: 3px solid var(--accent); }
+  .figures { margin-top: 14px; overflow-x: auto; }
+  .figures caption { caption-side: top; text-align: left; font-size: 13.5px; color: var(--text-2); padding-bottom: 8px; }
+  .figures table { border-collapse: collapse; font-size: 14px; font-variant-numeric: tabular-nums; }
+  .figures th, .figures td { padding: 6px 12px; border-bottom: 1px solid var(--border); text-align: right; white-space: nowrap; }
+  .figures th { color: var(--muted); font-weight: 600; font-size: 12.5px; }
+  .figures th:first-child, .figures td:first-child { text-align: left; }
+  .meta { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 18px; font-size: 13px; color: var(--muted); }
+  .meta .spacer { flex: 1; }
+  .pill { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px; background: var(--raised); color: var(--text-2); font-variant-numeric: tabular-nums; }
+  .pill.short { color: var(--gold); }
+  .pill.enough { color: var(--green); background: var(--green-soft); }
+  .pill.over { color: var(--red); background: var(--red-soft); }
+  #text { min-height: 300px; margin-top: 10px; font-size: 16.5px; line-height: 1.65; resize: vertical; }
+  .resume { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .resume span { flex: 1; min-width: 200px; }
+
+  /* the feedback */
+  .level { display: inline-flex; align-items: baseline; gap: 10px; padding: 10px 16px; border-radius: 12px; background: var(--accent-soft); }
+  .level b { font-size: 30px; color: var(--accent-text); }
+  .level small { color: var(--text-2); font-size: 13px; }
+  .checks { display: grid; gap: 4px; margin-top: 14px; font-size: 14.5px; }
+  .checks .yes { color: var(--green); }
+  .checks .no { color: var(--gold); }
+  .model p { white-space: pre-wrap; }
+  .after { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 22px; }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brand"><img src="icons/48.png" alt=""><h1 data-t="writeTitle"></h1></div>
+    <a id="toHome" class="btn small ghost" href="#" hidden></a>
+    <a id="toReview" class="btn small ghost" href="review.html"></a>
+    <a id="toWords" class="btn small ghost" href="words.html"></a>
+  </header>
+
+  <!-- what to write -->
+  <div id="home" class="stack" hidden>
+    <div id="noKey" class="notice" hidden></div>
+    <div id="resume" class="notice resume" hidden></div>
+    <section class="card"><div class="inner">
+      <div class="sechead">
+        <div><h2 data-t="writeDaily"></h2><p class="sub" style="margin: 0;" data-t="writeDailySub"></p></div>
+        <label><span data-t="practiceLevel"></span><select id="level"></select></label>
+      </div>
+      <div class="tiles" id="tasks"></div>
+    </div></section>
+    <section class="card" id="ieltsBox" hidden><div class="inner">
+      <h2>IELTS Writing</h2>
+      <p class="sub" data-t="writeIeltsSub"></p>
+      <div class="tiles parts" id="parts"></div>
+      <div class="last" id="last"></div>
+    </div></section>
+    <div id="usage" class="muted" style="padding: 0 6px;"></div>
+  </div>
+
+  <!-- writing -->
+  <section id="desk" class="card" hidden>
+    <div class="inner">
+      <div class="head" id="deskHead"></div>
+      <div id="task"></div>
+      <div class="try" id="deskTry" hidden></div>
+      <div class="meta"><span class="pill" id="count"></span><span class="pill" id="timer" hidden></span><span class="spacer"></span><span id="saved"></span></div>
+      <textarea id="text" spellcheck="false" data-t-placeholder="writePlaceholder"></textarea>
+      <div id="fb" class="fb" hidden></div>
+    </div>
+    <div class="actions">
+      <button id="leave" class="btn ghost" data-t="writeLeave"></button>
+      <span class="spacer"></span>
+      <button id="go" class="btn primary"></button>
+    </div>
+  </section>
+</div>
+
+<!-- On the phone, where there is no extension, this stands in for it. -->
+<script src="web.js?v=0.21.0"></script>
+<script src="messages.js?v=0.21.0"></script>
+<script src="shared.js?v=0.21.0"></script>
+<script src="study.js?v=0.21.0"></script>
+<script src="cloud.js?v=0.21.0"></script>
+<script src="gemini.js?v=0.21.0"></script>
+<script src="ui.js?v=0.21.0"></script>
+<script src="practice-data.js?v=0.21.0"></script>
+<script src="practice.js?v=0.21.0"></script>
+<script src="write.js?v=0.21.0"></script>
+<!-- Text selected on this page is translated too: the content script does not run on the extension's own pages. -->
+<script src="select.js?v=0.21.0"></script>
+</body>
+</html>

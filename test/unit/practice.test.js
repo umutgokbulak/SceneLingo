@@ -6,7 +6,7 @@ globalThis.SL_DAY = shared.SL_DAY;
 const study = require('../../extension/study.js');
 globalThis.slStatus = study.slStatus;
 globalThis.slKindOf = (item) => item.kind || (/\s/.test(item.word) ? 'phrase' : 'word');
-const S = require('../../extension/speak-data.js');
+const S = require('../../extension/practice-data.js');
 
 test('the overall band: the mean of the four, to the nearest half, a quarter going up', () => {
   assert.equal(S.slIeltsOverall({ fluency: 6, lexical: 6, grammar: 6, pronunciation: 7 }), 6.5);
@@ -39,4 +39,29 @@ test('words to try: of the language, not sentences, those still learnt first', (
   assert.deepEqual(S.slWordsToTry(words, 'en', 2, () => 0.5), ['swoop', 'rip off']);
   assert.deepEqual(S.slWordsToTry(words, 'en', 5, () => 0.5), ['swoop', 'rip off', 'keen', 'approaching', 'NASA']);
   assert.deepEqual(S.slWordsToTry(words, 'de', 5), ['Hund']);
+});
+
+test('writing: every task has what the page shows, in both languages of the interface', () => {
+  assert.ok(S.SL_WRITING.task2.length >= 10);
+  assert.ok(S.SL_WRITING.letters.every((l) => l.situation && l.points.length === 3));
+  for (const t of S.SL_WRITING.tables) assert.ok(t.title && t.rows.every((r) => r.length === t.columns.length), t.title);
+  const ids = new Set();
+  for (const w of S.SL_WRITES) {
+    assert.ok(w.title.en && w.title.tr && w.task.en && w.task.tr && w.icon, w.id);
+    assert.equal(w.points.en.length, w.points.tr.length, w.id);
+    assert.ok(!ids.has(w.id), w.id);
+    ids.add(w.id);
+  }
+  assert.deepEqual(Object.keys(S.SL_WRITE_WORDS), S.SL_LEVELS);
+});
+
+test('words are counted as the test counts them', () => {
+  assert.equal(S.slWordCount("It's a well-known fact — 25 people agree."), 7, 'a number and a hyphenated word count once');
+  assert.equal(S.slWordCount(''), 0);
+  assert.equal(S.slWordCount('Ich hätte gern  einen\nKaffee.'), 5);
+});
+
+test('the overall band of writing is taken from its own four criteria', () => {
+  assert.equal(S.slIeltsOverall({ task: 6, coherence: 6.5, lexical: 6, grammar: 5.5 }, S.SL_WRITING_KEYS), 6);
+  assert.equal(S.slIeltsOverall({ task: 6 }, S.SL_WRITING_KEYS), null);
 });

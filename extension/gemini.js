@@ -276,6 +276,84 @@ async function roleplay({ scene, level, history, words, sl, tl }) {
   };
 }
 
+// What both kinds of writing feedback give back, made safe to show.
+function writingParts(json) {
+  const list = (v) => (Array.isArray(v) ? v : []);
+  return {
+    summary: String(json.summary || '').trim(),
+    corrections: list(json.corrections).slice(0, 8).map((c) => ({ said: String(c.said || '').trim(), better: String(c.better || '').trim(), note: String(c.note || '').trim() })).filter((c) => c.said && c.better),
+    better: String(json.better || '').trim(),
+    phrases: list(json.phrases).slice(0, 6).map((p) => ({ text: String(p.text || '').trim(), meaning: String(p.meaning || '').trim() })).filter((p) => p.text),
+    used: list(json.used).map((u) => ({ word: String(u.word || '').trim(), ok: !!u.ok, sentence: String(u.sentence || '').trim() })).filter((u) => u.word),
+  };
+}
+const usedAsk = (words) =>
+  (words || []).length
+    ? `;\n"used": for each of these words the writer was asked to try to use (${words.slice(0, 5).map((w) => '"' + w + '"').join(', ')}), {"word": the word, "ok": true if it was used, correctly, "sentence": the writer's sentence with it, put right, or ""}.`
+    : '.';
+
+// Writing practice, the IELTS test: a Task 1 (a letter, or a report on a table) or a Task 2 essay,
+// scored as an examiner would on the four criteria, with its mistakes and a better version.
+async function ieltsWriting({ task, prompt, points, table, text, words, tl }) {
+  const apiKey = await savedKey();
+  const what = { task1g: 'General Training Task 1 (a letter, at least 150 words)', task1a: 'Academic Task 1 (a report on the table, at least 150 words)', task2: 'Task 2 (an essay, at least 250 words)' }[task] || 'Task 2';
+  const figures = table ? `\nThe table: ${table.title}\n${[table.columns, ...table.rows].map((r) => r.join(' | ')).join('\n')}` : '';
+  const json = await geminiJSON(
+    apiKey,
+    `You are an experienced IELTS Writing examiner. The candidate's own language is ${langName(tl)}.\n` +
+      `IELTS Writing ${what}.\nThe task: "${String(prompt).slice(0, 600)}"` +
+      ((points || []).length ? `\nIn the letter: ${points.join('; ')}.` : '') +
+      figures +
+      `\n\nThe candidate's text, between the lines:\n---\n${String(text).slice(0, 6000)}\n---\n\n` +
+      `Answer in JSON with these keys:\n` +
+      `"bands": {"task": ${task === 'task2' ? 'Task Response' : 'Task Achievement'}, "coherence": Coherence and Cohesion, "lexical": Lexical Resource, "grammar": Grammatical Range and Accuracy}, each a band from 1 to 9 in steps of 0.5, as you would give; a text under the word limit, or off the task, scores lower;\n` +
+      `"summary": three or four sentences in ${langName(tl)}: what was good, how the text is organised, and the one or two things that would raise the score most;\n` +
+      `"corrections": up to 8 of the most important mistakes, in the order they come, each {"said": the words as written, "better": the same put right, "note": the reason in a few words in ${langName(tl)}};\n` +
+      `"better": the candidate's text rewritten as a band 8 answer, keeping their ideas and their order where they are good, in paragraphs separated by a blank line;\n` +
+      `"phrases": up to 6 useful phrases or collocations from your version, each {"text": as in it, "meaning": in ${langName(tl)}}` +
+      usedAsk(words),
+    16384,
+    true
+  );
+  const band = (v) => {
+    const n = Math.round(Number(v) * 2) / 2;
+    return n >= 1 && n <= 9 ? n : null;
+  };
+  const b = json.bands || {};
+  const bands = { task: band(b.task), coherence: band(b.coherence), lexical: band(b.lexical), grammar: band(b.grammar) };
+  if (Object.values(bands).some((v) => v === null)) throw new Error('Gemini: no score in the answer');
+  return { bands, ...writingParts(json) };
+}
+
+// Writing practice, every day: a message or a letter in the language being learnt, at a level. Its
+// level as written, whether it says what the task asked, its mistakes and a better version.
+async function everydayWriting({ task, points, level, text, words, sl, tl }) {
+  const apiKey = await savedKey();
+  const asked = points || [];
+  const json = await geminiJSON(
+    apiKey,
+    `A learner of ${langName(sl)} at level ${level || 'B1'}, whose own language is ${langName(tl)}, wrote this for the task: "${String(task).slice(0, 400)}"` +
+      (asked.length ? `\nThe text should: ${asked.join('; ')}.` : '') +
+      `\n\nThe text, between the lines:\n---\n${String(text).slice(0, 4000)}\n---\n\n` +
+      `Answer in JSON with these keys:\n` +
+      `"level": the CEFR level the text shows (A1, A2, B1, B2, C1 or C2);\n` +
+      (asked.length ? `"points": for each thing the text should do, in order, true if it does it, else false;\n` : '') +
+      `"summary": two or three sentences in ${langName(tl)}: what was good, and what to work on;\n` +
+      `"corrections": up to 8 of the most important mistakes, in the order they come, each {"said": the words as written, "better": the same put right, "note": the reason in a few words in ${langName(tl)}};\n` +
+      `"better": the text put right and made natural, at level ${level || 'B1'}, keeping the writer's ideas, in ${langName(sl)};\n` +
+      `"phrases": up to 6 useful phrases from your version for this kind of text, each {"text": in ${langName(sl)}, "meaning": in ${langName(tl)}}` +
+      usedAsk(words),
+    8192,
+    true
+  );
+  const shown = String(json.level || '').toUpperCase();
+  return {
+    level: /^[ABC][12]$/.test(shown) ? shown : '',
+    points: asked.map((p, i) => ({ point: p, done: !!(Array.isArray(json.points) && json.points[i]) })),
+    ...writingParts(json),
+  };
+}
+
 // A sentence of the learner's own, with the word in it: corrected, and said more naturally.
 async function checkSentence({ word, sentence, sl, tl }) {
   const apiKey = await savedKey();
@@ -293,5 +371,5 @@ async function checkSentence({ word, sentence, sl, tl }) {
 }
 
 if (typeof module !== 'undefined') {
-  module.exports = { countGemini, slGeminiResting, geminiKeyShown, langName, geminiJSON, savedKey, askGemini, explain, enrich, gloss, speakingFeedback, roleplay, checkSentence };
+  module.exports = { countGemini, slGeminiResting, geminiKeyShown, langName, geminiJSON, savedKey, askGemini, explain, enrich, gloss, speakingFeedback, roleplay, ieltsWriting, everydayWriting, checkSentence };
 }

@@ -1,6 +1,6 @@
 // The extension's own pages, the review and the list of words, in a real browser.
 //   node test/pages.js            checks them: the kinds of cards, typed answers, hints, grading,
-//                                 listening, speaking, the list's filters, editing, deleting, backup and restore
+//                                 listening, speaking, writing, the list's filters, editing, deleting, backup and restore
 //   node test/pages.js pictures   takes the README's pictures of them
 // Sample cards come from Elephants Dream, the film the other pictures show. Needs Google Chrome
 // (or Edge), not the network: what the background would fetch is already on the cards.
@@ -30,6 +30,17 @@ const GEMINI_STUB = `(() => {
         phrases: [{ text: 'within walking distance', meaning: 'yürüme mesafesinde' }],
         used: [{ word: 'learn', ok: true, sentence: 'I learn something new in my neighbourhood every week.' }],
       });
+    if (prompt.includes('IELTS Writing examiner'))
+      return answer({
+        bands: { task: 6, coherence: 6.5, lexical: 6, grammar: 5.5 },
+        summary: 'Fikirlerin net; paragraflar arası bağlantı zayıf.',
+        corrections: [{ said: 'peoples thinks', better: 'people think', note: 'people zaten çoğul' }],
+        better: 'Some people believe that films are the best teachers.\\n\\nOn the other hand, classrooms give structure.',
+        phrases: [{ text: 'on the other hand', meaning: 'öte yandan' }],
+        used: [],
+      });
+    if (prompt.includes('wrote this for the task'))
+      return answer({ level: 'A2', points: [true, true, false], summary: 'Anlaşılır.', corrections: [{ said: 'is broken since three days', better: 'has been broken for three days', note: 'süregelen durum' }], better: 'Dear Mr Brown, the heating has been broken for three days.', phrases: [{ text: 'as soon as possible', meaning: 'en kısa sürede' }], used: [] });
     if (prompt.includes('role-playing')) {
       const turns = prompt.split('Learner: ').length - 1;
       if (!turns) return answer({ reply: 'Good morning! What can I get you?', translation: 'Günaydın! Ne alırsınız?', correction: null, done: false });
@@ -110,6 +121,14 @@ function days() {
       await wait(500);
       fs.writeFileSync(path.join(dir, 'listen.jpg'), await b.picture(88));
       await b.worker(GEMINI_STUB);
+      await b.open(b.extensionPage('write.html'));
+      await wait(1000);
+      await page(`(document.querySelectorAll('#parts .tile')[2].click(), true)`);
+      await wait(300);
+      await page(`(() => { const t = $('#text'); t.value = 'Some peoples thinks that watching films is the best way to learn a language, because you hear how people really speak. Others believe classrooms are better.'; t.dispatchEvent(new Event('input')); $('#go').click(); return true; })()`);
+      await wait(1000);
+      await page(`(scrollTo(0, 0), true)`);
+      fs.writeFileSync(path.join(dir, 'write.jpg'), await b.picture(88));
       await b.open(b.extensionPage('speak.html'));
       await wait(1000);
       await page(`(document.querySelector('#parts .tile').click(), true)`);
@@ -273,6 +292,42 @@ function days() {
     await page(`($('#endBody .btn.primary').click(), document.querySelectorAll('#parts .tile')[1].click(), true)`);
     await wait(300);
     assert.ok(await page(`!$('#clock').hidden && !$('#points').hidden && $('#examMic').disabled`));
+
+    // ---- writing ----
+    await seed();
+    await b.worker(GEMINI_STUB);
+    await b.open(b.extensionPage('write.html'));
+    await wait(1000);
+    assert.equal(await page(`document.querySelectorAll('#tasks .tile:not([disabled])').length`), 10);
+    assert.equal(await page(`document.querySelectorAll('#parts .tile').length`), 3);
+    // IELTS Task 2: against the clock, the words counted, the draft kept
+    await page(`(document.querySelectorAll('#parts .tile')[2].click(), true)`);
+    await wait(300);
+    assert.match(await page(`$('#timer').textContent`), /^(39|40):/);
+    await page(`(() => { const t = $('#text'); t.value = 'Some peoples thinks that films are the best teachers of a language.'; t.dispatchEvent(new Event('input')); return true; })()`);
+    assert.match(await page(`$('#count').textContent`), /^12 \/ 250/);
+    await wait(900);
+    await b.open(b.extensionPage('write.html'));
+    await wait(1000);
+    assert.ok(await page(`!$('#resume').hidden`), 'the half-written text is offered back');
+    await page(`([...document.querySelectorAll('#resume button')].pop().click(), true)`);
+    await wait(300);
+    assert.match(await page(`$('#text').value`), /best teachers/);
+    await b.named('Enter', 13, 2); // with Ctrl
+    await wait(1000);
+    assert.equal(await page(`$('#fb .band.all b').textContent`), '6.0');
+    assert.match(await page(`$('#fb .fix').textContent`), /people think/);
+    const written = JSON.parse(await b.worker(`chrome.storage.local.get(['writeLog', 'writeDraft']).then((d) => JSON.stringify(d))`));
+    assert.equal(written.writeLog.length, 1);
+    assert.equal(written.writeDraft, null, 'sent: the draft is not kept');
+    // everyday: a letter to the landlord, its level and what it said of what was asked
+    await page(`($('#toHome').click(), true)`);
+    await page(`(document.querySelector('#tasks .tile').click(), true)`);
+    await wait(300);
+    await page(`(() => { const t = $('#text'); t.value = 'Dear Mr Brown, the heating is broken since three days.'; t.dispatchEvent(new Event('input')); $('#go').click(); return true; })()`);
+    await wait(1000);
+    assert.match(await page(`$('#fb .level').textContent`), /A2/);
+    assert.equal(await page(`document.querySelectorAll('#fb .checks .yes').length + '/' + document.querySelectorAll('#fb .checks .no').length`), '2/1');
 
     // ---- the list of all words ----
     await seed();

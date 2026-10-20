@@ -335,6 +335,23 @@ test('speaking: an IELTS answer scored by Gemini, and a conversation it plays al
   site.geminiKey = '';
 });
 
+test('writing: an IELTS text scored on its own four criteria, and an everyday one given its level', async () => {
+  site.geminiKey = 'test-key';
+  const answer = (o) => ({ json: { candidates: [{ content: { parts: [{ text: JSON.stringify(o) }] } }] } });
+  reset(() => answer({ bands: { task: 6, coherence: 6.5, lexical: 6, grammar: 5.5 }, summary: 'İyi.', corrections: [{ said: 'peoples', better: 'people', note: 'çoğul' }], better: 'Better.', phrases: [{ text: 'on the other hand', meaning: 'öte yandan' }], used: [] }));
+  const table = { title: 'Visitors', columns: ['Museum', '2019'], rows: [['Art', '640']] };
+  const r = (await ask({ type: 'ielts-writing', task: 'task1a', prompt: 'Summarise the table.', table, text: 'The table shows peoples.', tl: 'tr' })).result;
+  assert.deepEqual(r.bands, { task: 6, coherence: 6.5, lexical: 6, grammar: 5.5 });
+  assert.deepEqual(r.corrections, [{ said: 'peoples', better: 'people', note: 'çoğul' }]);
+  assert.match(calls[0].init.body, /Art \| 640/, 'the figures are given');
+  assert.match(calls[0].init.body, /Task Achievement/);
+  reset(() => answer({ level: 'b1', points: [true, false], summary: 'Gut.', corrections: [], better: 'Sehr geehrter Herr Braun, ...', phrases: [] }));
+  const e = (await ask({ type: 'everyday-writing', task: 'Write to your landlord.', points: ['what is wrong', 'when to come'], level: 'B1', text: 'Hallo, die Heizung ist kaputt.', sl: 'de', tl: 'tr' })).result;
+  assert.equal(e.level, 'B1');
+  assert.deepEqual(e.points, [{ point: 'what is wrong', done: true }, { point: 'when to come', done: false }]);
+  site.geminiKey = '';
+});
+
 test('every request to Gemini is counted for the day, with its tokens and whether it was refused', async () => {
   const kept = {};
   const realLocal = chrome.storage.local;

@@ -449,6 +449,8 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   else if (msg && msg.type === 'gloss') job = gloss(msg);
   else if (msg && msg.type === 'speak-feedback') job = speakingFeedback(msg);
   else if (msg && msg.type === 'roleplay') job = roleplay(msg);
+  else if (msg && msg.type === 'ielts-writing') job = ieltsWriting(msg);
+  else if (msg && msg.type === 'everyday-writing') job = everydayWriting(msg);
   else if (msg && msg.type === 'explain') job = explain(msg.text, msg.sentence, msg.sl, msg.tl, msg.always);
   else if (msg && msg.type === 'check-sentence') job = checkSentence(msg);
   else if (msg && msg.type === 'open-scene') job = openScene(msg.url, msg.time);

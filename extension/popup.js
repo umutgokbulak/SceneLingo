@@ -77,6 +77,7 @@ $('review').addEventListener('click', () => chrome.tabs.create({ url: chrome.run
 $('allWords').addEventListener('click', () => chrome.tabs.create({ url: chrome.runtime.getURL('words.html') }));
 $('listen').addEventListener('click', () => chrome.tabs.create({ url: chrome.runtime.getURL('listen.html') }));
 $('speak').addEventListener('click', () => chrome.tabs.create({ url: chrome.runtime.getURL('speak.html') }));
+$('write').addEventListener('click', () => chrome.tabs.create({ url: chrome.runtime.getURL('write.html') }));
 $('backupDue').addEventListener('click', () => chrome.tabs.create({ url: chrome.runtime.getURL('words.html') }));
 // The words live only in this browser: once a week, a word that a copy should be kept.
 chrome.storage.local.get({ lastBackup: 0, words: [] }, ({ lastBackup, words: saved }) => {

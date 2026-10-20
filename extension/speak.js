@@ -1,7 +1,6 @@
 // Speaking practice. Everyday situations, played out with Gemini in the language being learnt,
 // each turn of the learner's put right; and, in English, the IELTS Speaking test's three parts,
 // each answer scored as an examiner would, with a better answer to learn from.
-const $ = (id) => document.getElementById(id);
 const PART1_QUESTIONS = 4;
 const FULL_PART1 = 3;
 const PREP_SECONDS = 60;
@@ -14,30 +13,9 @@ let words = [];
 let level = 'B1';
 const audio = new Audio();
 
-const el = (tag, cls, text) => {
-  const n = document.createElement(tag);
-  if (cls) n.className = cls;
-  if (text != null) n.textContent = text;
-  return n;
-};
-const btn = (content, onClick, cls) => {
-  const b = el('button', cls);
-  for (const c of [].concat(content)) b.append(c);
-  b.addEventListener('click', onClick);
-  return b;
-};
-const withKey = (button, label, key) => {
-  button.textContent = '';
-  button.append(el('span', null, label));
-  if (key) button.append(el('kbd', null, key));
-};
-const ask = (msg) =>
-  new Promise((resolve) => chrome.runtime.sendMessage(msg, (res) => resolve(chrome.runtime.lastError || !res ? { ok: false, error: chrome.runtime.lastError ? chrome.runtime.lastError.message : '' } : res)));
 const learnt = () => settings.learnLang;
 const voice = () => (learnt() === 'en' ? settings.accent : learnt());
-const clock = (s) => Math.floor(s / 60) + ':' + String(Math.max(0, s) % 60).padStart(2, '0');
 const sceneTitle = (scene) => scene.title[slUiLang] || scene.title.en;
-const failed = (error) => (error === 'noKey' ? slT('speakNoKey') : slT('speakFailed', error || '?'));
 
 function screen(id) {
   for (const s of ['home', 'exam', 'talk', 'end']) $(s).hidden = s !== id;
@@ -159,63 +137,13 @@ const recorder = (() => {
   return { start, stop, toggle: (target) => (on ? stop() : start(target)), get on() { return on; }, available: !!Recognition, paint };
 })();
 
-// ---------- saving what was learnt ----------
-
-function savedHas(list, word) {
-  return list.some((w) => w.word.toLowerCase() === word.toLowerCase());
-}
-// A star that saves (or unsaves) a card made from what is given.
-function starFor(card) {
-  const star = el('button', 'star');
-  const paint = (on) => {
-    star.textContent = on ? '★' : '☆';
-    star.classList.toggle('on', on);
-    star.title = slT(on ? 'saved' : 'save');
-  };
-  paint(savedHas(words, card.word));
-  star.addEventListener('click', () => {
-    chrome.storage.local.get({ words: [] }, (data) => {
-      const has = savedHas(data.words, card.word);
-      if (has) slForget(card.word);
-      const list = has ? data.words.filter((w) => w.word.toLowerCase() !== card.word.toLowerCase()) : [{ lang: learnt(), added: Date.now(), ...card }, ...data.words];
-      chrome.storage.local.set({ words: list }, () => {
-        words = list;
-        paint(!has);
-      });
-    });
-  });
-  return star;
-}
-// The sentence of a text that holds the phrase: the context of a card made from it.
-function sentenceWith(text, phrase) {
-  const sentences = String(text).match(/[^.!?]+[.!?]*/g) || [text];
-  return (sentences.find((s) => s.toLowerCase().includes(phrase.toLowerCase())) || text).trim();
-}
-
-function wordsToTry(box, list) {
-  box.textContent = '';
-  box.hidden = !list.length;
-  if (!list.length) return;
-  box.append(el('b', null, slT('speakTry')));
-  for (const w of list) {
-    const chip = el('span', null, w);
-    chip.dataset.word = w.toLowerCase();
-    box.append(chip);
-  }
-}
-// A word to try, once it has been said, is marked.
-function markUsed(box, text) {
-  const said = ' ' + slNormalize(text) + ' ';
-  for (const chip of box.querySelectorAll('span[data-word]')) chip.classList.toggle('ok', said.includes(' ' + slNormalize(chip.dataset.word) + ' '));
-}
-
 // ---------- choosing ----------
 
 function paintHome() {
   screen('home');
   recorder.stop();
   $('noKey').hidden = !!geminiKey;
-  $('noKey').textContent = slT('speakNoKey');
+  $('noKey').textContent = slT('practiceNoKey');
   const lv = $('level');
   lv.textContent = '';
   for (const l of SL_LEVELS) lv.append(Object.assign(el('option', null, l), { value: l }));
@@ -253,12 +181,11 @@ function paintHome() {
 }
 $('level').addEventListener('change', () => {
   level = $('level').value;
-  chrome.storage.local.set({ speakLevel: level });
+  chrome.storage.local.set({ practiceLevel: level });
 });
 
 // ---------- the IELTS test ----------
 
-const pick = (list) => list[Math.floor(Math.random() * list.length)];
 // The questions of a part (1, 2, 3), or of the whole test (0): a shorter Part 1, then a card and
 // the questions that go deeper into its subject.
 function examPlan(part) {
@@ -297,7 +224,7 @@ function showQuestion() {
   $('points').hidden = !item.points;
   $('points').textContent = '';
   if (item.points) {
-    $('points').append(el('li', 'lead', slT('speakYouShouldSay')));
+    $('points').append(el('li', 'lead', slT('practiceYouShouldSay')));
     for (const p of item.points) $('points').append(el('li', null, p));
   }
   exam.tries = item.part === 3 ? [] : slWordsToTry(words, 'en', 3);
@@ -397,90 +324,30 @@ async function sendAnswer() {
     chrome.storage.local.set({ speakLog: log });
   });
   paintFeedback(fb, r, overall, item);
-  rememberUsed(r.used);
+  rememberUsed(r.used, slT('speakTitle'));
   paintExamGo();
 }
 
 const CRITERIA = [
   ['fluency', 'speakFluency'],
-  ['lexical', 'speakLexical'],
-  ['grammar', 'speakGrammar'],
+  ['lexical', 'practiceLexical'],
+  ['grammar', 'practiceGrammar'],
   ['pronunciation', 'speakPronunciation'],
 ];
 
-function bandsBox(bands, overall) {
-  const box = el('div', 'bands');
-  if (overall != null) {
-    const all = el('div', 'band all');
-    all.append(el('small', null, 'Band'), el('b', null, overall.toFixed(1)));
-    box.append(all);
-  }
-  for (const [k, label] of CRITERIA) {
-    const b = el('div', 'band');
-    b.append(el('small', null, slT(label)), el('b', null, Number(bands[k]).toFixed(1)));
-    box.append(b);
-  }
-  return box;
-}
-
 function paintFeedback(fb, r, overall, item) {
-  fb.append(bandsBox(r.bands, overall));
-  if (r.summary) fb.append(el('div', 'summary', r.summary));
-  if (r.corrections.length) {
-    const block = el('div', 'block');
-    block.append(el('div', 'label', slT('speakCorrections')));
-    for (const c of r.corrections) {
-      const row = el('div', 'fix');
-      row.append(el('s', null, c.said), ' → ', el('span', 'to', c.better));
-      if (c.note) row.append(el('small', null, c.note));
-      block.append(row);
-    }
-    fb.append(block);
-  }
+  const add = (...nodes) => fb.append(...nodes.filter(Boolean));
+  add(bandsBox(r.bands, overall, CRITERIA), r.summary && el('div', 'summary', r.summary), fixesBlock(r.corrections));
   if (r.better) {
-    const block = el('div', 'block');
-    block.append(el('div', 'label', slT('speakBetter')));
     const model = el('div', 'model');
     model.append(el('p', null, r.better), sayButton(r.better));
-    block.append(model);
-    fb.append(block);
+    add(block(slT('speakBetter'), model));
   }
-  if (r.phrases.length) {
-    const block = el('div', 'block');
-    block.append(el('div', 'label', slT('speakPhrases')));
-    for (const p of r.phrases) {
-      const row = el('div', 'phrase');
-      const context = sentenceWith(r.better, p.text);
-      row.append(el('b', null, p.text), el('span', null, p.meaning), starFor({ word: p.text, kind: /\s/.test(p.text) ? 'phrase' : 'word', translation: p.meaning, context, contextMeaning: p.meaning, senseEngine: 'gemini', sensed: true, title: 'IELTS Speaking · Part ' + item.part }));
-      block.append(row);
-    }
-    fb.append(block);
-  }
-  if (r.used.length) {
-    const block = el('div', 'block');
-    block.append(el('div', 'label', slT('speakUsed')));
-    for (const u of r.used) {
-      const row = el('div', 'used');
-      row.append(el('span', u.ok ? 'yes' : 'no', (u.ok ? '✓ ' : '– ') + u.word));
-      if (u.ok && u.sentence) row.append(el('small', null, '“' + u.sentence + '” · ' + slT('speakUsedSaved')));
-      block.append(row);
-    }
-    fb.append(block);
-  }
+  add(
+    phrasesBlock(r.phrases, (p) => ({ word: p.text, kind: /\s/.test(p.text) ? 'phrase' : 'word', translation: p.meaning, context: sentenceWith(r.better, p.text), contextMeaning: p.meaning, senseEngine: 'gemini', sensed: true, lang: 'en', title: 'IELTS Speaking · Part ' + item.part })),
+    usedBlock(r.used)
+  );
   fb.scrollIntoView({ block: 'start', behavior: 'smooth' });
-}
-
-// A saved word used rightly: the learner's own sentence becomes one of its examples.
-function rememberUsed(used) {
-  const good = (used || []).filter((u) => u.ok && u.sentence);
-  if (!good.length) return;
-  chrome.storage.local.get({ words: [] }, (data) => {
-    const list = data.words.map((w) => {
-      const u = good.find((g) => g.word.toLowerCase() === w.word.toLowerCase());
-      return u ? slAddExample(w, { text: u.sentence, title: slT('speakTitle') }) : w;
-    });
-    chrome.storage.local.set({ words: list }, () => (words = list));
-  });
 }
 
 function showExamEnd() {
@@ -494,7 +361,7 @@ function showExamEnd() {
   for (const [k] of CRITERIA) mean[k] = Math.round((done.reduce((a, r) => a + r.bands[k], 0) / done.length) * 2) / 2;
   const overall = slIeltsOverall(mean);
   body.append(el('div', 'label', slT('speakEstimate')), el('div', 'big', 'Band ' + overall.toFixed(1)), el('p', 'muted', slT('speakEstimateNote')));
-  const bands = bandsBox(mean, null);
+  const bands = bandsBox(mean, null, CRITERIA);
   body.append(bands);
   const list = el('div', 'list');
   for (const r of done) {
@@ -605,7 +472,7 @@ function paintCorrection(c, said) {
   const text = el('div');
   text.append(el('b', null, c.better));
   if (c.note) text.append(el('small', null, c.note));
-  box.append(text, starFor({ word: c.better, kind: 'sentence', translation: c.meaning || '', title: slT('speakTitle') + ' · ' + sceneTitle(talk.scene) }));
+  box.append(text, starFor({ word: c.better, kind: 'sentence', translation: c.meaning || '', lang: learnt(), title: slT('speakTitle') + ' · ' + sceneTitle(talk.scene) }));
   $('chat').append(box);
 }
 
@@ -664,7 +531,7 @@ chrome.storage.sync.get(SL_DEFAULTS, (stored) => {
   document.documentElement.lang = slSetUiLang(settings.uiLang);
   slApply(document);
   document.title = slT('speakTitle') + ' — SceneLingo';
-  $('toHome').append(slIcon('back'), el('span', 't', slT('speakHome')));
+  $('toHome').append(slIcon('back'), el('span', 't', slT('practiceHome')));
   $('toReview').append(slIcon('cards'), el('span', 't', slT('reviewTitle')));
   $('toWords').append(slIcon('search'), el('span', 't', slT('wordsTitle')));
   for (const id of ['examMic', 'talkMic']) {
@@ -673,9 +540,9 @@ chrome.storage.sync.get(SL_DEFAULTS, (stored) => {
   }
   ask({ type: 'gemini-key' }).then((res) => {
     geminiKey = res.ok ? res.result : '';
-    chrome.storage.local.get({ words: [], speakLevel: 'B1' }, (data) => {
+    chrome.storage.local.get({ words: [], practiceLevel: 'B1' }, (data) => {
       words = data.words;
-      level = SL_LEVELS.includes(data.speakLevel) ? data.speakLevel : 'B1';
+      level = SL_LEVELS.includes(data.practiceLevel) ? data.practiceLevel : 'B1';
       paintHome();
     });
   });

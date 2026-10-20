@@ -24,8 +24,9 @@
   .today .big b { font-size: 30px; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
   .today .big span { color: var(--text-2); font-size: 13.5px; }
   .today .btn.primary { width: 100%; margin-top: 12px; padding: 10px; font-size: 14.5px; }
-  .today .links { display: flex; gap: 6px; margin-top: 8px; }
-  .today .links .btn { flex: 1; }
+  .today .links { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px; }
+  .today .links .btn { min-width: 0; }
+  .today .links .warn { grid-column: 1 / -1; }
   .today .cloudline { display: flex; align-items: center; gap: 6px; margin-top: 10px; font-size: 12px; color: var(--muted); }
   .today .cloudline svg.i { color: var(--accent-text); }
   .warn { color: var(--gold) !important; border-color: color-mix(in srgb, var(--gold) 40%, transparent) !important; }
@@ -76,6 +77,7 @@
       <button id="allWords" class="btn small"></button>
       <button id="listen" class="btn small" data-t="listenShort"></button>
       <button id="speak" class="btn small" data-t="speakShort"></button>
+      <button id="write" class="btn small" data-t="writeShort"></button>
       <button id="backupDue" class="btn small warn" hidden></button>
     </div>
     <div class="cloudline" id="cloudLine"></div>

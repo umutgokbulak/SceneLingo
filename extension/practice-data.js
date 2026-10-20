@@ -1,5 +1,5 @@
-// What is talked about in speaking practice: the IELTS Speaking test's three parts, and everyday
-// situations played out with Gemini, in any language. Pure: tested in Node.
+// What is practised in speaking and writing: the IELTS test's parts, everyday situations and
+// writing tasks, in any language. Pure: tested in Node.
 
 // Part 1: a topic, a few short questions on it. Part 2: a card to talk about for two minutes, and
 // the Part 3 questions that go deeper into its subject.
@@ -91,10 +91,83 @@ const SL_SCENES = [
 
 const SL_LEVELS = ['A2', 'B1', 'B2', 'C1'];
 
-// The overall band of the Speaking test: the mean of the four, to the nearest half band (a quarter
+// Writing, the IELTS test: Task 2 (an essay), and Task 1 as a letter (General Training) or as a
+// report on a table of figures (Academic). The figures are made up for practice.
+const SL_WRITING = {
+  task2: [
+    'Some people think that children should start learning a foreign language at primary school, while others believe they should wait until secondary school. Discuss both views and give your own opinion.',
+    'Many people now work from home. Do the advantages of this outweigh the disadvantages?',
+    'Watching films and series in a foreign language is a better way to learn it than studying in a classroom. To what extent do you agree or disagree?',
+    'In many cities, the cost of housing is rising faster than wages. What are the causes of this problem, and what can be done about it?',
+    'Some people believe that social media has made people more connected, while others think it has made them more isolated. Discuss both views and give your own opinion.',
+    'Governments should spend more money on public transport than on building new roads. To what extent do you agree or disagree?',
+    'More and more people are choosing to live alone. Why is this happening? Is it a positive or negative development?',
+    'Some people think that universities should only offer subjects that lead to good jobs. Others believe that students should be free to study what interests them. Discuss both views and give your opinion.',
+    'Tourism brings money to many countries, but it can also damage the places people visit. Do the benefits of tourism outweigh its problems?',
+    'Artificial intelligence will soon do many of the jobs that people do today. What problems could this cause, and how could they be solved?',
+  ],
+  letters: [
+    { situation: 'You recently stayed at a hotel and left something valuable in your room.', points: ['when you stayed and in which room', 'what you left and what it looks like', 'how you would like it returned to you'] },
+    { situation: 'Your neighbour has been making a lot of noise late at night for several weeks.', points: ['who you are and where you live', 'what the problem is and how it affects you', 'what you would like your neighbour to do'] },
+    { situation: 'A friend from another country is coming to visit your city for a week.', points: ['what the weather will be like and what to bring', 'places you will take them to', 'what you have planned for the first day'] },
+    { situation: 'You bought a piece of furniture online, but it arrived damaged.', points: ['what you bought and when', 'what is wrong with it', 'what you want the company to do'] },
+    { situation: 'You would like to take some time off work to do a language course.', points: ['which course you want to do and why', 'how long you would be away', 'how your work could be covered while you are away'] },
+    { situation: 'Your local library is planning to close on weekends.', points: ['how you use the library', 'why weekend opening matters to people in your area', 'what the library could do instead'] },
+  ],
+  tables: [
+    {
+      title: 'Hours spent per week learning a foreign language, by method, 2015 and 2025 (average per learner)',
+      columns: ['Method', '2015', '2025'],
+      rows: [['Classroom lessons', '3.5', '2.0'], ['Apps', '0.5', '2.5'], ['Films and series', '1.0', '3.0'], ['Textbooks', '2.0', '0.8'], ['Conversation with native speakers', '0.6', '1.2']],
+    },
+    {
+      title: 'How people travelled to work in one city (% of workers), 2000, 2010 and 2020',
+      columns: ['Way of travelling', '2000', '2010', '2020'],
+      rows: [['Car', '58', '52', '41'], ['Bus', '22', '20', '17'], ['Train', '9', '12', '15'], ['Bicycle', '4', '8', '14'], ['On foot', '7', '8', '9'], ['Worked from home', '0', '0', '4']],
+    },
+    {
+      title: 'Average monthly household spending in one country (in euros), 2010 and 2024',
+      columns: ['Category', '2010', '2024'],
+      rows: [['Housing', '620', '980'], ['Food', '410', '520'], ['Transport', '280', '300'], ['Leisure', '190', '240'], ['Communication', '60', '95'], ['Education', '70', '130']],
+    },
+    {
+      title: 'Number of visitors to four museums in one city (thousands), 2019 to 2023',
+      columns: ['Museum', '2019', '2020', '2021', '2022', '2023'],
+      rows: [['History Museum', '820', '210', '380', '700', '860'], ['Art Gallery', '640', '150', '310', '590', '720'], ['Science Centre', '510', '170', '290', '540', '610'], ['Maritime Museum', '230', '60', '120', '200', '250']],
+    },
+  ],
+};
+
+// Writing, every day, in any language: messages and letters of the kind life asks for (and the
+// German B1 exams too). The task is shown in the language of the interface; Gemini reads `en`.
+const SL_WRITES = [
+  { id: 'landlord', icon: '🔧', title: { en: 'To the landlord', tr: 'Ev sahibine' }, task: { en: 'The heating in your flat has not worked for three days. Write to your landlord.', tr: 'Evindeki kalorifer üç gündür çalışmıyor. Ev sahibine yaz.' }, points: { en: ['what is wrong and since when', 'how it affects you', 'when someone can come to fix it'], tr: ['ne bozuk ve ne zamandan beri', 'bunun seni nasıl etkilediği', 'tamir için ne zaman gelinebileceği'] } },
+  { id: 'invite', icon: '🎉', title: { en: 'Replying to an invitation', tr: 'Davete cevap' }, task: { en: 'A friend has invited you to their birthday party, but you cannot go. Write to them.', tr: 'Bir arkadaşın seni doğum günü partisine davet etti ama gidemiyorsun. Ona yaz.' }, points: { en: ['thank them for the invitation', 'why you cannot come', 'suggest meeting another time'], tr: ['davet için teşekkür et', 'neden gelemediğini söyle', 'başka bir zaman buluşmayı öner'] } },
+  { id: 'complaint', icon: '📦', title: { en: 'A late delivery', tr: 'Geciken sipariş' }, task: { en: 'You ordered something online two weeks ago and it has still not arrived. Write to the shop.', tr: 'İki hafta önce internetten bir şey sipariş ettin, hâlâ gelmedi. Mağazaya yaz.' }, points: { en: ['what you ordered and when', 'what has happened since', 'what you want them to do now'], tr: ['ne zaman ne sipariş ettiğin', 'o zamandan beri ne olduğu', 'şimdi ne yapmalarını istediğin'] } },
+  { id: 'course', icon: '📚', title: { en: 'Signing up for a course', tr: 'Kursa kayıt' }, task: { en: 'You want to join a language course at a school in your town. Write to the school.', tr: 'Şehrindeki bir okulun dil kursuna katılmak istiyorsun. Okula yaz.' }, points: { en: ['which course and why', 'your level and when you are free', 'ask about the price and how to pay'], tr: ['hangi kurs ve neden', 'seviyen ve ne zaman müsait olduğun', 'ücreti ve nasıl ödeneceğini sor'] } },
+  { id: 'teacher', icon: '🏫', title: { en: 'To a teacher', tr: 'Öğretmene' }, task: { en: 'Your child will miss school next week. Write to their teacher.', tr: 'Çocuğun gelecek hafta okula gidemeyecek. Öğretmenine yaz.' }, points: { en: ['why your child will be away', 'for how many days', 'ask how they can catch up'], tr: ['çocuğunun neden gelemeyeceği', 'kaç gün', 'kaçırdıklarını nasıl telafi edebileceğini sor'] } },
+  { id: 'colleague', icon: '💼', title: { en: 'To a colleague', tr: 'İş arkadaşına' }, task: { en: 'You need to swap a shift with a colleague. Write to them.', tr: 'Bir iş arkadaşınla vardiya değiştirmen gerekiyor. Ona yaz.' }, points: { en: ['which shift and why', 'which of their shifts you could take', 'thank them and ask them to reply soon'], tr: ['hangi vardiya ve neden', 'onun hangi vardiyasını alabileceğin', 'teşekkür et ve kısa sürede cevap vermesini rica et'] } },
+  { id: 'review', icon: '🎬', title: { en: 'A film you watched', tr: 'İzlediğin bir film' }, task: { en: 'Write a short review of a film or series you watched recently.', tr: 'Son zamanlarda izlediğin bir film ya da dizi hakkında kısa bir yorum yaz.' }, points: { en: ['what it is about', 'what you liked and did not like', 'who you would recommend it to'], tr: ['ne hakkında olduğu', 'neyi beğenip neyi beğenmediğin', 'kime tavsiye edeceğin'] } },
+  { id: 'doctor', icon: '🩺', title: { en: 'Cancelling an appointment', tr: 'Randevu iptali' }, task: { en: 'You cannot go to your doctor’s appointment tomorrow. Write to the practice.', tr: 'Yarınki doktor randevuna gidemeyeceksin. Muayenehaneye yaz.' }, points: { en: ['which appointment', 'why you cannot come', 'ask for a new appointment'], tr: ['hangi randevu', 'neden gelemeyeceğin', 'yeni bir randevu iste'] } },
+  { id: 'diary', icon: '📝', title: { en: 'My weekend', tr: 'Hafta sonum' }, task: { en: 'Write to a friend about your last weekend.', tr: 'Bir arkadaşına geçen hafta sonunu anlat.' }, points: { en: ['where you were and with whom', 'what you did', 'how you felt about it'], tr: ['nerede ve kiminle olduğun', 'ne yaptığın', 'nasıl hissettiğin'] } },
+  { id: 'free', icon: '✍️', title: { en: 'Free writing', tr: 'Serbest yazı' }, task: { en: 'Write about anything you like: your day, your plans, an opinion.', tr: 'İstediğin bir şey hakkında yaz: günün, planların, bir fikrin.' }, points: { en: [], tr: [] } },
+];
+
+// About how many words a task asks for, at each level.
+const SL_WRITE_WORDS = { A2: 40, B1: 80, B2: 150, C1: 200 };
+
+// Words in a text, as the IELTS test counts them: what stands between spaces.
+function slWordCount(text) {
+  return (String(text || '').match(/[\p{L}\p{N}][\p{L}\p{N}'’-]*/gu) || []).length;
+}
+
+const SL_SPEAKING_KEYS = ['fluency', 'lexical', 'grammar', 'pronunciation'];
+const SL_WRITING_KEYS = ['task', 'coherence', 'lexical', 'grammar'];
+
+// The overall band of a test: the mean of its four criteria, to the nearest half band (a quarter
 // goes up).
-function slIeltsOverall(bands) {
-  const values = ['fluency', 'lexical', 'grammar', 'pronunciation'].map((k) => Number(bands && bands[k])).filter((v) => !isNaN(v));
+function slIeltsOverall(bands, keys = SL_SPEAKING_KEYS) {
+  const values = keys.map((k) => Number(bands && bands[k])).filter((v) => !isNaN(v));
   if (values.length !== 4) return null;
   const mean = values.reduce((a, b) => a + b, 0) / 4;
   return Math.floor(mean * 2 + 0.5) / 2;
@@ -111,4 +184,4 @@ function slWordsToTry(words, lang, n, rand = Math.random) {
     .map((x) => (lang === 'de' ? x.w.word : x.w.word.replace(/^\p{Lu}(?=\p{Ll}*$)/u, (c) => c.toLowerCase())));
 }
 
-if (typeof module !== 'undefined') module.exports = { SL_IELTS, SL_SCENES, SL_LEVELS, slIeltsOverall, slWordsToTry };
+if (typeof module !== 'undefined') module.exports = { SL_IELTS, SL_SCENES, SL_LEVELS, SL_WRITING, SL_WRITES, SL_WRITE_WORDS, slWordCount, SL_SPEAKING_KEYS, SL_WRITING_KEYS, slIeltsOverall, slWordsToTry };
