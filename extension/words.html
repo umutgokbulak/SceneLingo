@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>SceneLingo</title>
 <link rel="icon" href="icons/32.png">
-<link rel="stylesheet" href="ui.css?v=0.22.1">
+<link rel="stylesheet" href="ui.css?v=0.23.0">
 <link rel="manifest" href="app.webmanifest">
 <link rel="apple-touch-icon" href="icons/180.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -51,6 +51,10 @@
   .sum.learned b { color: var(--green); }
   .sum.hard b { color: var(--red); }
 
+  .add { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr) auto; gap: 8px; margin-top: 16px; padding: 12px; border-radius: 14px; border: 1px dashed var(--border-strong); background: var(--surface); }
+  .add input { height: 38px; padding: 0 12px; border-radius: 10px; border: 1px solid var(--border-strong); background: var(--surface-2); outline: none; font-size: 14.5px; min-width: 0; }
+  .add input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .add .addhint { grid-column: 1 / -1; font-size: 12.5px; color: var(--muted); }
   .tools { display: flex; gap: 10px; align-items: center; margin-top: 16px; flex-wrap: wrap; }
   .search { flex: 1; min-width: 220px; display: flex; align-items: center; gap: 8px; padding: 0 12px; height: 38px; border-radius: 10px; border: 1px solid var(--border-strong); background: var(--surface); }
   .search svg.i { color: var(--muted); }
@@ -108,6 +112,7 @@
 
   @media (max-width: 860px) {
     .summary { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .add { grid-template-columns: minmax(0, 1fr); }
     .line { grid-template-columns: 18px minmax(0, 1fr) auto; }
     .line .m, .line .due { grid-column: 2 / 3; }
     .detail { grid-template-columns: minmax(0, 1fr); padding-left: 16px; }
@@ -126,6 +131,14 @@
       <button id="study" class="btn small primary"></button>
     </div>
   </header>
+  <!-- A word heard somewhere else (on the television, in a conversation) added by hand. -->
+  <form class="add" id="add">
+    <input id="addWord" autocomplete="off" spellcheck="false" autocapitalize="off" data-t-placeholder="addWordPh">
+    <input id="addSentence" autocomplete="off" spellcheck="false" data-t-placeholder="addSentencePh">
+    <button id="addGo" class="btn primary" type="submit"></button>
+    <div class="addhint" id="addHint"></div>
+  </form>
+
   <div id="cloud" class="cloud" hidden></div>
   <div id="gemini" class="cloud" hidden></div>
   <div id="banner" class="banner" hidden></div>
@@ -145,15 +158,16 @@
 <input type="file" id="file" accept=".json,.csv,application/json,text/csv" hidden>
 
 <!-- On the phone, where there is no extension, this stands in for it. -->
-<script src="web.js?v=0.22.1"></script>
-<script src="messages.js?v=0.22.1"></script>
-<script src="shared.js?v=0.22.1"></script>
-<script src="study.js?v=0.22.1"></script>
-<script src="cloud.js?v=0.22.1"></script>
-<script src="gemini.js?v=0.22.1"></script>
-<script src="ui.js?v=0.22.1"></script>
-<script src="words.js?v=0.22.1"></script>
+<script src="web.js?v=0.23.0"></script>
+<script src="messages.js?v=0.23.0"></script>
+<script src="shared.js?v=0.23.0"></script>
+<script src="study.js?v=0.23.0"></script>
+<script src="cloud.js?v=0.23.0"></script>
+<script src="gemini.js?v=0.23.0"></script>
+<script src="translate.js?v=0.23.0"></script>
+<script src="ui.js?v=0.23.0"></script>
+<script src="words.js?v=0.23.0"></script>
 <!-- Text selected on this page is translated too: the content script does not run on the extension's own pages. -->
-<script src="select.js?v=0.22.1"></script>
+<script src="select.js?v=0.23.0"></script>
 </body>
 </html>

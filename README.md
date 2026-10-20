@@ -125,6 +125,8 @@ them), plyr.io, Vimeo's player, Wikimedia Commons and a YouTube player embedded 
 - **All your words in one place.** Every saved word, phrase and sentence, found by search (in the word, its
   meanings or its sentence), by kind, by source, or by where it stands (new, learning, learned, hard); each
   opens to everything known about it, and can be edited or deleted there.
+- **Words heard elsewhere, added by hand** (on the phone too): its meaning and pronunciation are looked up and,
+  with the sentence it was in, what it means there; without one, Gemini gives it a sentence and examples.
 - **Backups.** The words live only in the browser, so the list makes a backup file and reads one back in,
   merging it with what is there; once a week it reminds you to make one.
 - **Sentence navigation.** Jump to the previous or next line, repeat the current one, pause automatically after

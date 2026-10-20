@@ -76,6 +76,8 @@ yazdım, çalışırken ihtiyaç duyduklarımı ekledim, sonra onu izlediğim di
 - **Bütün kelimelerin tek yerde.** Kaydettiğin her kelime, kalıp ve cümle; kelimeye, anlamlarına ya da cümlesine
   göre aranır, türe, kaynağa ve durumuna göre (yeni, öğreniliyor, öğrenilen, zor) süzülür. Her satır açılınca
   bilinen her şeyi gösterir; orada düzenlenir ya da silinir.
+- **Başka yerde duyulan kelimeyi elle ekleme** (telefonda da): anlamı ve telaffuzu bulunur; geçtiği cümleyi de
+  yazarsan o cümledeki anlamı, yazmazsan Gemini bir cümle ve örnekler verir.
 - **Yedek.** Kelimeler yalnızca tarayıcıda durduğu için liste bir yedek dosyası indirir ve geri yükler (var
   olanlarla birleştirerek); haftada bir yedek almayı hatırlatır.
 

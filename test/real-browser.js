@@ -160,7 +160,12 @@ async function launch({ everywhere = false, window = false, language = '' } = {}
         browser.kill();
       }
       await wait(1200);
-      fs.rmSync(work, { recursive: true, force: true, maxRetries: 5, retryDelay: 300 });
+      // A browser still letting go of its files is no failure of the check: the folder is left.
+      try {
+        fs.rmSync(work, { recursive: true, force: true, maxRetries: 5, retryDelay: 300 });
+      } catch (e) {
+        console.warn('left behind: ' + work);
+      }
     },
   };
 }

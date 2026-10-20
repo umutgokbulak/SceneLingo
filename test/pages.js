@@ -19,6 +19,12 @@ const GEMINI_STUB = `(() => {
   self.__realFetch = real;
   const answer = (o) => new Response(JSON.stringify({ candidates: [{ content: { parts: [{ text: JSON.stringify(o) }] } }] }), { headers: { 'Content-Type': 'application/json' } });
   self.fetch = async (url, init) => {
+    // Google Translate: the word, and the sentence it was heard in.
+    if (String(url).includes('translate.googleapis.com')) {
+      const q = new URL(String(url)).searchParams.get('q');
+      const tr = { 'swoop in': 'baskın yapmak', 'They swoop in at night.': 'Geceleyin baskın yapıyorlar.' }[q] || q;
+      return new Response(JSON.stringify([[[tr, q]], null, 'en']), { headers: { 'Content-Type': 'application/json' } });
+    }
     if (!String(url).includes('generativelanguage')) return real(url, init);
     const prompt = JSON.parse(init.body).contents[0].parts[0].text;
     if (prompt.includes('IELTS Speaking examiner'))
@@ -355,6 +361,21 @@ function days() {
     await wait(1000);
     assert.equal(await page(`document.querySelectorAll('.row').length`), 7);
     assert.ok(await page(`!$('#banner').hidden`), 'never backed up: the reminder shows');
+    // a word heard somewhere else, added by hand with its sentence; one already there is not added twice
+    await b.worker(GEMINI_STUB);
+    await page(`($('#addWord').value = 'swoop in', $('#addSentence').value = 'They swoop in at night.', $('#addGo').click(), true)`);
+    await wait(1200);
+    assert.equal(await page(`document.querySelectorAll('.row').length`), 8);
+    const added = JSON.parse(await b.worker(`chrome.storage.local.get('words').then((d) => JSON.stringify(d.words[0]))`));
+    assert.deepEqual([added.word, added.kind, added.translation, added.context, added.contextTranslation], ['swoop in', 'phrase', 'baskın yapmak', 'They swoop in at night.', 'Geceleyin baskın yapıyorlar.']);
+    await page(`($('#addWord').value = 'Machine', $('#addGo').click(), true)`);
+    await wait(300);
+    assert.equal(await page(`document.querySelectorAll('.row').length`), 8);
+    assert.match(await page(`$('#notice').textContent`), /zaten|already/);
+    // the rest with the sample cards as they were
+    await seed();
+    await b.open(b.extensionPage('words.html'));
+    await wait(1000);
     await page(`($('.sum.hard').click(), true)`);
     assert.equal(await page(`[...document.querySelectorAll('.row .w b')].map((x) => x.textContent).join()`), 'listen');
     await page(`($('.sum.hard').click(), true)`);

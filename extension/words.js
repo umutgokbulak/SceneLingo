@@ -460,6 +460,75 @@ function notice(text, bad) {
   notice.timer = setTimeout(() => (n.hidden = true), 6000);
 }
 
+// ---------- adding by hand ----------
+
+// A word heard somewhere SceneLingo was not (the television, a conversation): its meaning and its
+// dictionary entry looked up, and, with a sentence, what it means there. Without a sentence,
+// Gemini gives it one; the review page fills in the rest as it does for every card.
+async function addWord() {
+  const word = $('addWord').value.trim().replace(/\s+/g, ' ');
+  const sentence = $('addSentence').value.trim().replace(/\s+/g, ' ');
+  if (!word) return $('addWord').focus();
+  const key = word.toLowerCase();
+  if (words.some((w) => keyOf(w) === key)) {
+    notice(slT('addExists', word));
+    open.add(key);
+    filter.q = '';
+    $('q').value = '';
+    return render();
+  }
+  $('addGo').disabled = true;
+  notice(slT('lookingUp'));
+  const sl = settings.learnLang;
+  const tl = settings.nativeLang;
+  const many = word.split(' ').length;
+  const card = {
+    word,
+    kind: /[.!?]$/.test(word) || many > 5 ? 'sentence' : many > 1 ? 'phrase' : 'word',
+    translation: '',
+    context: sentence,
+    lang: sl,
+    title: slT('addedByHand'),
+    added: Date.now(),
+  };
+  const found = await ask({ type: 'lookup', text: word, sl, tl });
+  if (found.ok) {
+    const info = found.result;
+    Object.assign(card, { translation: info.translation || '', ipa: info.ipa || '', definition: info.defs && info.defs[0] ? info.defs[0].text : '', synonyms: info.synonyms || [], looked: 2 });
+  }
+  const gemini = (await ask({ type: 'gemini-key' })).result;
+  if (sentence && card.kind !== 'sentence') {
+    const [tr, sense] = await Promise.all([
+      ask({ type: 'translate', texts: [sentence], sl, tl }),
+      gemini ? ask({ type: 'sense', word, sentence, sl, tl, always: true }) : Promise.resolve({ ok: false }),
+    ]);
+    if (tr.ok && tr.result[0]) card.contextTranslation = String(tr.result[0]).trim();
+    if (sense.ok && sense.result && sense.result.meaning) {
+      const s = sense.result;
+      Object.assign(card, { contextMeaning: s.meaning, contextPhrase: s.phrase || '', contextNote: s.note || '', senseEngine: s.engine, sensed: true });
+    }
+  } else if (gemini && card.kind !== 'sentence') {
+    const extra = await ask({ type: 'enrich', word, sentence: '', sl, tl });
+    if (extra.ok) {
+      const [first, ...rest] = extra.result.examples;
+      card.extra = { ...extra.result, examples: rest };
+      card.enriched = 2;
+      if (first) Object.assign(card, { context: first.text, contextTranslation: first.translation });
+      if (extra.result.ipa) card.ipa = extra.result.ipa.replace(/^\/|\/$/g, '');
+    }
+  }
+  if (!card.context) delete card.context;
+  update((list) => [card, ...list.filter((w) => keyOf(w) !== key)], () => {
+    $('addGo').disabled = false;
+    $('addWord').value = '';
+    $('addSentence').value = '';
+    open.add(key);
+    render();
+    notice(card.translation ? slT('addDone', word, card.contextMeaning || card.translation) : slT('addDoneBare', word), !found.ok);
+    $('addWord').focus();
+  });
+}
+
 function download(name, blob) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -529,6 +598,10 @@ $('file').addEventListener('change', () => {
   $('file').value = '';
 });
 $('csv').addEventListener('click', csv);
+$('add').addEventListener('submit', (e) => {
+  e.preventDefault();
+  addWord();
+});
 $('study').addEventListener('click', () => (location.href = chrome.runtime.getURL('review.html')));
 $('progress').addEventListener('click', () => (location.href = chrome.runtime.getURL('progress.html')));
 $('searchIcon').append(icon('search'));
@@ -563,6 +636,8 @@ chrome.storage.sync.get(SL_DEFAULTS, (stored) => {
   $('restore').append(icon('upload'), slT('restoreBackup'));
   $('study').append(icon('cards'), slT('studyNow'));
   $('progress').append(icon('chart'), slT('planTitle'));
+  $('addGo').append(icon('plus'), slT('addButton'));
+  ask({ type: 'gemini-key' }).then((res) => ($('addHint').textContent = slT(res.ok && res.result ? 'addHintGemini' : 'addHint', slLangName(settings.learnLang))));
   $('q').placeholder = slT('searchPh');
   fillSelect($('kind'), [['all', slT('kindAll')], ['word', slT('kindWordCard')], ['phrase', slT('kindPhraseCard')], ['sentence', slT('kindSentenceCard')]], filter.kind);
   fillSelect($('sort'), [['new', slT('sortNew')], ['az', slT('sortAz')], ['due', slT('sortDue')], ['hard', slT('sortHard')]], filter.sort);
