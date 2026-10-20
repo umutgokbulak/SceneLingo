@@ -704,6 +704,7 @@ function showEmpty() {
   $('studyAll').hidden = !words.length;
   // Done with the cards for today: the sentences they came from, to listen to.
   $('listenNow').hidden = !words.length;
+  $('speakNow').hidden = !words.length;
   // The day's work goes to the cloud at once, when there is one.
   ask({ type: 'cloud-sync', interactive: false });
 }
@@ -806,6 +807,9 @@ $('editBtn').addEventListener('click', () => revealed && paintEdit());
 $('removeBtn').addEventListener('click', removeClicked);
 $('allWords').append(icon('cards'));
 $('toListen').append(icon('headphones'));
+$('toSpeak').append(icon('mic'));
+$('speakNow').append(icon('mic'), el('span', null, slT('speakOpen')));
+$('speakNow').addEventListener('click', () => (location.href = 'speak.html'));
 $('listenNow').append(icon('headphones'), el('span', null, slT('listenOpen')));
 $('listenNow').addEventListener('click', () => (location.href = 'listen.html'));
 $('gear').append(icon('sliders'));

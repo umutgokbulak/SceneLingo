@@ -4,6 +4,7 @@
 
 let geminiRestUntil = 0; // after "too many requests", Gemini is left alone for a while
 let geminiModel = null; // the first of GEMINI_MODELS this key may use
+let geminiNoQuick = false; // the model refused to answer without thinking first
 const GEMINI_MODELS = ['gemini-flash-lite-latest', 'gemini-3.5-flash-lite', 'gemini-3.1-flash-lite', 'gemini-flash-latest'];
 
 // Resting after Gemini said "too many requests".
@@ -22,11 +23,13 @@ const langName = (code) => new Intl.DisplayNames(['en'], { type: 'language' }).o
 // One question to Gemini, answered in JSON.
 // The newer models think before they answer, and the thinking counts towards the output limit:
 // with a tight limit the answer is cut off mid-way. So the limit is generous; the answer is short.
-async function geminiJSON(apiKey, prompt, maxOutputTokens = 4096) {
-  const body = JSON.stringify({
-    contents: [{ role: 'user', parts: [{ text: prompt }] }],
-    generationConfig: { temperature: 0.2, responseMimeType: 'application/json', maxOutputTokens },
-  });
+// Thinking also takes seconds: a short question (a meaning, a list of words) is asked to be
+// answered without it, unless `think`; a model that does not allow that is asked again as it is.
+async function geminiJSON(apiKey, prompt, maxOutputTokens = 4096, think = false) {
+  const config = { temperature: 0.2, responseMimeType: 'application/json', maxOutputTokens };
+  const quick = !think && !geminiNoQuick;
+  if (quick) config.thinkingConfig = { thinkingBudget: 0 };
+  const body = JSON.stringify({ contents: [{ role: 'user', parts: [{ text: prompt }] }], generationConfig: config });
   for (const model of geminiModel ? [geminiModel] : GEMINI_MODELS) {
     const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
       method: 'POST',
@@ -36,6 +39,10 @@ async function geminiJSON(apiKey, prompt, maxOutputTokens = 4096) {
     if (res.status === 404) continue; // a model name this key or this year does not know
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {
+      if (quick && res.status === 400 && /think/i.test((data.error && data.error.message) || '')) {
+        geminiNoQuick = true;
+        return geminiJSON(apiKey, prompt, maxOutputTokens, think);
+      }
       if (res.status === 429) geminiRestUntil = Date.now() + 60000;
       throw new Error('Gemini ' + res.status + ((data.error && ': ' + data.error.message) || ''));
     }
@@ -137,7 +144,6 @@ async function enrich({ word, phrase, sentence, sl, tl }) {
 // The phrases are kept whole ("ripped off", not "ripped" and "off"); the plainest words are left out.
 async function gloss({ sentence, sl, tl }) {
   const apiKey = await savedKey();
-  if (slGeminiResting()) throw new Error('Gemini 429: resting');
   const json = await geminiJSON(
     apiKey,
     `A learner of ${langName(sl)} whose own language is ${langName(tl)} has just written down this sentence from listening:\n"${String(sentence).slice(0, 400)}"\n\n` +
@@ -152,6 +158,84 @@ async function gloss({ sentence, sl, tl }) {
     .filter((p) => p.text && p.meaning);
   for (const p of parts) if (p.base.toLowerCase() === p.text.toLowerCase()) p.base = '';
   return parts;
+}
+
+// Speaking practice, the IELTS test: an answer, as a speaking examiner would score it, what to put
+// right, and a better answer to learn from. The answer comes from speech recognition. Thought
+// through: the score is worth the wait.
+async function speakingFeedback({ part, question, points, answer, words, sl, tl }) {
+  const apiKey = await savedKey();
+  const length = { 1: 'three or four sentences', 2: 'about 180 words', 3: 'four or five sentences' }[part] || 'four or five sentences';
+  const tries = (words || []).slice(0, 5);
+  const json = await geminiJSON(
+    apiKey,
+    `You are an experienced IELTS Speaking examiner. The candidate's own language is ${langName(tl)}.\n` +
+      `Part ${part}. ${part === 2 ? 'Card' : 'Question'}: "${String(question).slice(0, 300)}"` +
+      ((points || []).length ? `\nYou should say: ${points.join('; ')}.` : '') +
+      `\n\nThe candidate's answer, written down by speech recognition (so ignore punctuation and capital letters; a word that does not fit may have been misheard, which can point to its pronunciation):\n"${String(answer).slice(0, 3000)}"\n\n` +
+      `Answer in JSON with these keys:\n` +
+      `"bands": {"fluency": Fluency and Coherence, "lexical": Lexical Resource, "grammar": Grammatical Range and Accuracy, "pronunciation": Pronunciation}, each a band from 1 to 9 in steps of 0.5, as you would give for this answer alone; an answer much too short for Part ${part} scores lower;\n` +
+      `"summary": two or three sentences in ${langName(tl)}: what was good, and the one thing that would raise the score most;\n` +
+      `"corrections": up to 5 of the most important mistakes, each {"said": the words as the candidate said them, "better": the same put right, "note": the reason in a few words in ${langName(tl)}};\n` +
+      `"better": a natural band 8 answer to the same ${part === 2 ? 'card' : 'question'}, ${length}, keeping the candidate's own ideas where they are good;\n` +
+      `"phrases": up to 4 useful phrases or collocations from your better answer, each {"text": as in the answer, "meaning": in ${langName(tl)}}` +
+      (tries.length
+        ? `;\n"used": for each of these words the candidate was asked to try to use (${tries.map((w) => '"' + w + '"').join(', ')}), {"word": the word, "ok": true if the candidate used it, correctly, "sentence": the candidate's sentence with it, put right, or ""}.`
+        : '.'),
+    8192,
+    true
+  );
+  const list = (v) => (Array.isArray(v) ? v : []);
+  const band = (v) => {
+    const n = Math.round(Number(v) * 2) / 2;
+    return n >= 1 && n <= 9 ? n : null;
+  };
+  const b = json.bands || {};
+  const bands = { fluency: band(b.fluency), lexical: band(b.lexical), grammar: band(b.grammar), pronunciation: band(b.pronunciation) };
+  if (Object.values(bands).some((v) => v === null)) throw new Error('Gemini: no score in the answer');
+  return {
+    bands,
+    summary: String(json.summary || '').trim(),
+    corrections: list(json.corrections).slice(0, 5).map((c) => ({ said: String(c.said || '').trim(), better: String(c.better || '').trim(), note: String(c.note || '').trim() })).filter((c) => c.said && c.better),
+    better: String(json.better || '').trim(),
+    phrases: list(json.phrases).slice(0, 4).map((p) => ({ text: String(p.text || '').trim(), meaning: String(p.meaning || '').trim() })).filter((p) => p.text),
+    used: list(json.used).map((u) => ({ word: String(u.word || '').trim(), ok: !!u.ok, sentence: String(u.sentence || '').trim() })).filter((u) => u.word),
+  };
+}
+
+// Speaking practice, an everyday situation: Gemini plays the other person, and puts the learner's
+// last turn right. `history` is [{ who: 'them' | 'me', text }].
+async function roleplay({ scene, level, history, words, sl, tl }) {
+  const apiKey = await savedKey();
+  const turns = (history || []).slice(-16);
+  const lines = turns.map((t) => (t.who === 'me' ? 'Learner: ' : 'You: ') + String(t.text).slice(0, 600)).join('\n');
+  const last = turns.length && turns[turns.length - 1].who === 'me';
+  const json = await geminiJSON(
+    apiKey,
+    `You are role-playing a conversation with a learner of ${langName(sl)} at level ${level || 'B1'}, whose own language is ${langName(tl)}.\n` +
+      `You play: ${scene.role}. The situation: ${scene.situation}\n` +
+      `Speak only ${langName(sl)}, naturally, as people really talk, at the learner's level. Keep your turns short (one to three sentences) and keep the conversation going, until the situation comes to its natural end (about eight turns each).` +
+      ((words || []).length ? ` Where it fits naturally, give the learner a chance to use these words: ${words.join(', ')}.` : '') +
+      `\n\nThe conversation so far:\n${lines || '(nothing yet: you open it)'}\n` +
+      (last ? `\nThe learner's last turn was written down by speech recognition: ignore punctuation and capital letters.\n` : '') +
+      `\nAnswer in JSON with these keys:\n` +
+      `"reply": your next turn, in ${langName(sl)};\n` +
+      `"translation": your reply in ${langName(tl)};\n` +
+      `"correction": ` +
+      (last
+        ? `about the learner's last turn: {"ok": true if it was correct and natural, "better": the same put right and made natural (only if not ok, else ""), "meaning": what "better" means, in ${langName(tl)} (only if not ok, else ""), "note": one short sentence in ${langName(tl)} that says what changed and why, or what was good};\n`
+        : `null;\n`) +
+      `"done": true if, with your reply, the conversation has come to its natural end, else false.`
+  );
+  const reply = String(json.reply || '').trim();
+  if (!reply) throw new Error('Gemini: empty answer');
+  const c = json.correction;
+  return {
+    reply,
+    translation: String(json.translation || '').trim(),
+    correction: last && c ? { ok: !!c.ok, better: c.ok ? '' : String(c.better || '').trim(), meaning: c.ok ? '' : String(c.meaning || '').trim(), note: String(c.note || '').trim() } : null,
+    done: !!json.done,
+  };
 }
 
 // A sentence of the learner's own, with the word in it: corrected, and said more naturally.
@@ -169,5 +253,5 @@ async function checkSentence({ word, sentence, sl, tl }) {
 }
 
 if (typeof module !== 'undefined') {
-  module.exports = { slGeminiResting, geminiKeyShown, langName, geminiJSON, savedKey, askGemini, explain, enrich, gloss, checkSentence };
+  module.exports = { slGeminiResting, geminiKeyShown, langName, geminiJSON, savedKey, askGemini, explain, enrich, gloss, speakingFeedback, roleplay, checkSentence };
 }

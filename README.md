@@ -41,7 +41,7 @@
   flashcards that come back on a schedule.
 - **Where:** Amazon Prime Video, YouTube, and any site whose subtitles can be found from outside the page
   (TED, Vimeo's player and Wikimedia Commons were checked) — or any video at all, with a subtitle file of your own.
-- **How it is built:** Manifest V3, plain JavaScript, no dependencies and no build step; 82 unit tests, a
+- **How it is built:** Manifest V3, plain JavaScript, no dependencies and no build step; 87 unit tests, a
   stand-in player for everything that can be tested without a site, and a script that loads the real extension
   into a real browser for what cannot.
 
@@ -105,6 +105,12 @@ them), plyr.io, Vimeo's player, Wikimedia Commons and a YouTube player embedded 
   sentence, with its meaning and, with Gemini, the words and phrases in it and what they mean there, each one a
   tap away from being saved. Any word of it opens its card. A sentence heard right rests for a week, a missed one comes back the next day.
   It works on the phone too.
+- **Speaking practice.** Everyday situations (a café, a doctor's appointment, a new colleague, a job interview...)
+  played out with Gemini in the language being learnt, at your level: you speak, it answers in character, and
+  each thing you said is put right, to be saved with a star. In English, the IELTS Speaking test's three parts
+  (with Part 2's minute to prepare and two to talk): each answer gets an estimated band on the four criteria,
+  its mistakes put right, a band 8 answer and phrases to learn. Saved words come up as words to try; one used
+  rightly keeps your sentence as an example.
 - **A record of the days:** streak, words learned, share remembered.
 - **All your words in one place.** Every saved word, phrase and sentence, found by search (in the word, its
   meanings or its sentence), by kind, by source, or by where it stands (new, learning, learned, hard); each
@@ -121,6 +127,10 @@ them), plyr.io, Vimeo's player, Wikimedia Commons and a YouTube player embedded 
 | Write what you heard | Say the line |
 | --- | --- |
 | ![The typed answer under the study bar; in the line below it, the misspelt word is marked in red and the others in green](docs/screenshots/write.jpg) | ![What the recogniser heard, and the line with the word it did not understand marked](docs/screenshots/speak.jpg) |
+
+| IELTS Speaking | Everyday conversation |
+| --- | --- |
+| ![An IELTS Part 1 answer with its estimated band, 6.5, and the four criteria; under them a mistake put right and a band 8 answer](docs/screenshots/speak.jpg) | ![A conversation at a café: the waiter's turns with a button to hear them and their meaning, the learner's turn, and under it the same said better, with a star to save it](docs/screenshots/talk.jpg) |
 
 | Listening practice | |
 | --- | --- |

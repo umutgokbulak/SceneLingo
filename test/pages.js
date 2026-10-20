@@ -1,6 +1,6 @@
 // The extension's own pages, the review and the list of words, in a real browser.
 //   node test/pages.js            checks them: the kinds of cards, typed answers, hints, grading,
-//                                 listening, the list's filters, editing, deleting, backup and restore
+//                                 listening, speaking, the list's filters, editing, deleting, backup and restore
 //   node test/pages.js pictures   takes the README's pictures of them
 // Sample cards come from Elephants Dream, the film the other pictures show. Needs Google Chrome
 // (or Edge), not the network: what the background would fetch is already on the cards.
@@ -12,6 +12,33 @@ const { launch, wait } = require('./real-browser');
 const NOW = Date.now();
 const DAY = 86400000;
 const SOURCE = 'Elephants Dream';
+
+// Gemini, stood in for in the background: an examiner's score, and a waiter at a café.
+const GEMINI_STUB = `(() => {
+  const real = self.__realFetch || fetch;
+  self.__realFetch = real;
+  const answer = (o) => new Response(JSON.stringify({ candidates: [{ content: { parts: [{ text: JSON.stringify(o) }] } }] }), { headers: { 'Content-Type': 'application/json' } });
+  self.fetch = async (url, init) => {
+    if (!String(url).includes('generativelanguage')) return real(url, init);
+    const prompt = JSON.parse(init.body).contents[0].parts[0].text;
+    if (prompt.includes('IELTS Speaking examiner'))
+      return answer({
+        bands: { fluency: 6, lexical: 6.5, grammar: 5.5, pronunciation: 7 },
+        summary: 'Akıcı konuştun; geçmiş zamanı karıştırdın.',
+        corrections: [{ said: 'I live here since five years', better: 'I have lived here for five years', note: 'süregelen durum: present perfect' }],
+        better: 'I have lived in a small flat near the city centre for five years. What I like most is that everything is within walking distance.',
+        phrases: [{ text: 'within walking distance', meaning: 'yürüme mesafesinde' }],
+        used: [{ word: 'learn', ok: true, sentence: 'I learn something new in my neighbourhood every week.' }],
+      });
+    if (prompt.includes('role-playing')) {
+      const turns = prompt.split('Learner: ').length - 1;
+      if (!turns) return answer({ reply: 'Good morning! What can I get you?', translation: 'Günaydın! Ne alırsınız?', correction: null, done: false });
+      return answer({ reply: 'A cappuccino, coming right up. Anything to eat?', translation: 'Bir kapuçino, hemen geliyor. Yiyecek bir şey?', correction: { ok: false, better: 'I would like a cappuccino, please.', meaning: 'Bir kapuçino rica ediyorum.', note: 'I want yerine kibar I would like.' }, done: turns >= 2 });
+    }
+    return answer({ parts: [] });
+  };
+  return true;
+})()`;
 
 function cards() {
   return [
@@ -82,6 +109,22 @@ function days() {
       await page(`(at = round.findIndex((s) => s.text === 'You have to learn to listen.'), show(), $('#typed').value = 'You have learn to lisen', $('#go').click(), true)`);
       await wait(500);
       fs.writeFileSync(path.join(dir, 'listen.jpg'), await b.picture(88));
+      await b.worker(GEMINI_STUB);
+      await b.open(b.extensionPage('speak.html'));
+      await wait(1000);
+      await page(`(document.querySelector('#parts .tile').click(), true)`);
+      await wait(300);
+      await page(`(() => { const t = $('#examText'); t.value = 'I live in a flat near the city centre since five years and I like it because everything is near'; t.dispatchEvent(new Event('input')); $('#examGo').click(); return true; })()`);
+      await wait(1000);
+      await page(`(scrollTo(0, 0), true)`);
+      fs.writeFileSync(path.join(dir, 'speak.jpg'), await b.picture(88));
+      await b.open(b.extensionPage('speak.html'));
+      await wait(1000);
+      await page(`([...document.querySelectorAll('#scenes .tile')].find((t) => /café/i.test(t.textContent)).click(), true)`);
+      await wait(800);
+      await page(`(() => { const t = $('#talkText'); t.value = 'I want a cappuccino'; t.dispatchEvent(new Event('input')); $('#talkGo').click(); return true; })()`);
+      await wait(800);
+      fs.writeFileSync(path.join(dir, 'talk.jpg'), await b.picture(88));
       console.log('pictures written to docs/screenshots');
       return;
     }
@@ -180,6 +223,56 @@ function days() {
     await page(`(document.querySelector('#result .heard [data-w]').click(), true)`);
     await wait(300);
     assert.ok(await page(`!!document.querySelector('scenelingo-select')`));
+
+    // ---- speaking ----
+    await seed();
+    await b.worker(GEMINI_STUB);
+    await b.open(b.extensionPage('speak.html'));
+    await wait(1000);
+    assert.equal(await page(`document.querySelectorAll('#scenes .tile:not([disabled])').length`), 12);
+    assert.ok(await page(`!$('#ieltsBox').hidden`), 'IELTS for English');
+    // a conversation at a café: the waiter opens, the learner answers, and is put right
+    await page(`([...document.querySelectorAll('#scenes .tile')].find((t) => /Kafe|café/i.test(t.textContent)).click(), true)`);
+    await wait(800);
+    assert.match(await page(`$('#chat .msg.them').textContent`), /What can I get you/);
+    await page(`(() => { const t = $('#talkText'); t.focus(); t.value = 'I want cappuccino'; t.dispatchEvent(new Event('input')); return true; })()`);
+    await b.named('Enter', 13);
+    await wait(800);
+    assert.match(await page(`$('#chat .corr.fix b').textContent`), /I would like a cappuccino/);
+    assert.equal(await page(`document.querySelectorAll('#chat .msg.them').length`), 2);
+    await page(`($('#chat .corr.fix .star').click(), true)`);
+    await wait(400);
+    const sentenceCard = JSON.parse(await b.worker(`chrome.storage.local.get('words').then((d) => JSON.stringify(d.words.find((w) => w.word === 'I would like a cappuccino, please.')))`));
+    assert.equal(sentenceCard.kind, 'sentence');
+    assert.equal(sentenceCard.translation, 'Bir kapuçino rica ediyorum.');
+    await page(`(() => { const t = $('#talkText'); t.value = 'no thanks'; t.dispatchEvent(new Event('input')); $('#talkGo').click(); return true; })()`);
+    await wait(800);
+    assert.ok(await page(`!!$('#chat .ended') && $('#talkComposer').hidden`), 'the waiter ends it');
+    // IELTS Part 1: an answer, scored on the four criteria
+    await page(`($('#toHome').click(), true)`);
+    await page(`(document.querySelector('#parts .tile').click(), true)`);
+    await wait(300);
+    assert.match(await page(`$('#examHead').textContent`), /Part 1/);
+    assert.ok(await page(`$('#examGo').disabled`), 'nothing said yet');
+    await page(`(() => { const t = $('#examText'); t.value = 'I live here since five years and I like it'; t.dispatchEvent(new Event('input')); $('#examGo').click(); return true; })()`);
+    await wait(1000);
+    assert.equal(await page(`$('#fb .band.all b').textContent`), '6.5');
+    assert.match(await page(`$('#fb .fix').textContent`), /I have lived here for five years/);
+    await page(`($('#fb .phrase .star').click(), true)`);
+    await wait(400);
+    const saved = JSON.parse(await b.worker(`chrome.storage.local.get(['words', 'speakLog']).then((d) => JSON.stringify(d))`));
+    const phrase = saved.words.find((w) => w.word === 'within walking distance');
+    assert.equal(phrase.context, 'What I like most is that everything is within walking distance.');
+    assert.ok(saved.words.find((w) => w.word === 'learn').examples.some((e) => /neighbourhood/.test(e.text)), 'a word used rightly keeps the sentence');
+    assert.equal(saved.speakLog.length, 1);
+    // the rest skipped: the estimate from the one answer
+    for (let i = 0; i < 4; i++) await page(`(($('#skip').hidden ? $('#examGo') : $('#skip')).click(), true)`);
+    await wait(300);
+    assert.ok(await page(`!$('#end').hidden && /6\.5/.test($('#endBody .big').textContent)`));
+    // Part 2: a minute to prepare first
+    await page(`($('#endBody .btn.primary').click(), document.querySelectorAll('#parts .tile')[1].click(), true)`);
+    await wait(300);
+    assert.ok(await page(`!$('#clock').hidden && !$('#points').hidden && $('#examMic').disabled`));
 
     // ---- the list of all words ----
     await seed();

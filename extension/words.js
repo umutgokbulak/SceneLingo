@@ -529,6 +529,7 @@ $('file').addEventListener('change', () => {
 $('csv').addEventListener('click', csv);
 $('study').addEventListener('click', () => (location.href = chrome.runtime.getURL('review.html')));
 $('listen').addEventListener('click', () => (location.href = chrome.runtime.getURL('listen.html')));
+$('speak').addEventListener('click', () => (location.href = chrome.runtime.getURL('speak.html')));
 $('searchIcon').append(icon('search'));
 $('q').addEventListener('input', () => {
   filter.q = $('q').value.trim();
@@ -561,6 +562,7 @@ chrome.storage.sync.get(SL_DEFAULTS, (stored) => {
   $('restore').append(icon('upload'), slT('restoreBackup'));
   $('study').append(icon('cards'), slT('studyNow'));
   $('listen').append(icon('headphones'), slT('listenShort'));
+  $('speak').append(icon('mic'), slT('speakShort'));
   $('q').placeholder = slT('searchPh');
   fillSelect($('kind'), [['all', slT('kindAll')], ['word', slT('kindWordCard')], ['phrase', slT('kindPhraseCard')], ['sentence', slT('kindSentenceCard')]], filter.kind);
   fillSelect($('sort'), [['new', slT('sortNew')], ['az', slT('sortAz')], ['due', slT('sortDue')], ['hard', slT('sortHard')]], filter.sort);

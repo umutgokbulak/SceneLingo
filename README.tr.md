@@ -58,6 +58,12 @@ yazdım, çalışırken ihtiyaç duyduklarımı ekledim, sonra onu izlediğim di
   anlamıyla birlikte. Gemini varsa cümledeki kelime ve kalıplar o cümledeki anlamlarıyla listelenir, her biri tek
   dokunuşla kaydedilir; cümlenin herhangi bir kelimesine dokununca kartı açılır. Doğru duyulan cümle bir hafta dinlenir, kaçırılan ertesi gün yeniden gelir. Telefonda da
   çalışır.
+- **Konuşma alıştırması.** Günlük durumlar (kafe, doktor randevusu, yeni iş arkadaşı, iş görüşmesi...) öğrendiğin
+  dilde, senin seviyende Gemini ile canlandırılır: sen konuşursun, o rolüne uygun cevap verir; söylediğin her
+  şey düzeltilir ve ☆ ile kaydedilebilir. İngilizcede IELTS Speaking'in üç bölümü de var (Part 2'de 1 dakika
+  hazırlık, 2 dakika konuşma): her cevap dört ölçüte göre tahmini band alır; hatalar düzeltilir, band 8 bir cevap
+  ve öğrenilecek ifadeler gösterilir. Kayıtlı kelimelerin "kullanmayı dene" diye önerilir; doğru kullandığın
+  cümle kartına örnek olarak eklenir.
 - **Günlerin kaydı:** seri, öğrenilen kelime, hatırlama oranı.
 - **Bütün kelimelerin tek yerde.** Kaydettiğin her kelime, kalıp ve cümle; kelimeye, anlamlarına ya da cümlesine
   göre aranır, türe, kaynağa ve durumuna göre (yeni, öğreniliyor, öğrenilen, zor) süzülür. Her satır açılınca
@@ -72,6 +78,10 @@ yazdım, çalışırken ihtiyaç duyduklarımı ekledim, sonra onu izlediğim di
 | Duyduğunu yaz | Cümleyi söyle |
 | --- | --- |
 | ![Yazma alıştırması](docs/screenshots/write.jpg) | ![Söyleme alıştırması](docs/screenshots/speak.jpg) |
+
+| IELTS Speaking | Günlük konuşma |
+| --- | --- |
+| ![IELTS cevabı, tahmini band ve dört ölçüt, düzeltmeler ve band 8 cevap](docs/screenshots/speak.jpg) | ![Kafede konuşma: garsonun cümleleri, senin cevabın ve altında daha iyi hâli](docs/screenshots/talk.jpg) |
 
 | Dinleme alıştırması | |
 | --- | --- |
@@ -132,7 +142,7 @@ saat okuyup yazmasına yeter. Kurulum adımları [İngilizce README](README.md#s
 
 ## Nasıl yapıldı
 
-Manifest V3, yalın JavaScript; bağımlılık ve derleme adımı yok. 82 birim testi, site olmadan denenebilen her şey
+Manifest V3, yalın JavaScript; bağımlılık ve derleme adımı yok. 87 birim testi, site olmadan denenebilen her şey
 için oynatıcıyı taklit eden bir test sayfası ve gerisi için eklentiyi gerçek bir tarayıcıya yükleyip yöneten bir
 betik var. Altyazıların sitelerde nasıl bulunduğu, iki altyazı izinin nasıl eşleştirildiği ve yolda çıkan
 sorunlar [İngilizce README](README.md#engineering-notes)'de anlatılıyor.

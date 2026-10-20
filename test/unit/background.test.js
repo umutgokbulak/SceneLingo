@@ -299,3 +299,50 @@ test('sense: with Gemini switched off the key is kept but not used', async () =>
   site.geminiKey = '';
   assert.equal((await ask({ type: 'gemini-key' })).result, '');
 });
+
+test('speaking: an IELTS answer scored by Gemini, and a conversation it plays along with', async () => {
+  site.geminiKey = 'test-key';
+  const answer = (o) => ({ json: { candidates: [{ content: { parts: [{ text: JSON.stringify(o) }] } }] } });
+  reset(() =>
+    answer({
+      bands: { fluency: 6, lexical: '5.5', grammar: 6.3, pronunciation: 7 },
+      summary: 'İyi.',
+      corrections: [{ said: 'I am agree', better: 'I agree', note: 'agree fiil' }, { said: 'no better' }],
+      better: 'I agree.',
+      phrases: [{ text: 'to some extent', meaning: 'bir dereceye kadar' }],
+      used: [{ word: 'keen', ok: true, sentence: 'I am keen on films.' }],
+    })
+  );
+  const res = (await ask({ type: 'speak-feedback', part: 1, question: 'Do you like films?', answer: 'yes I am agree', words: ['keen'], sl: 'en', tl: 'tr' })).result;
+  assert.deepEqual(res.bands, { fluency: 6, lexical: 5.5, grammar: 6.5, pronunciation: 7 });
+  assert.deepEqual(res.corrections, [{ said: 'I am agree', better: 'I agree', note: 'agree fiil' }]);
+  assert.deepEqual(res.used, [{ word: 'keen', ok: true, sentence: 'I am keen on films.' }]);
+  assert.match(calls[0].init.body, /keen/, 'the words to try are named');
+  assert.doesNotMatch(calls[0].init.body, /thinkingBudget/, 'a score is thought through');
+  reset(() => answer({ bands: { fluency: 6 } }));
+  assert.match((await ask({ type: 'speak-feedback', part: 1, question: 'q', answer: 'a', sl: 'en', tl: 'tr' })).error, /no score/);
+
+  const scene = { role: 'a waiter', situation: 'At a café.' };
+  reset(() => answer({ reply: 'Hallo! Was darf es sein?', translation: 'Merhaba! Ne alırsınız?', correction: { ok: false, better: 'x' }, done: false }));
+  const first = (await ask({ type: 'roleplay', scene, level: 'A2', history: [], sl: 'de', tl: 'tr' })).result;
+  assert.deepEqual(first, { reply: 'Hallo! Was darf es sein?', translation: 'Merhaba! Ne alırsınız?', correction: null, done: false }, 'nothing to put right before the learner speaks');
+  assert.match(calls[0].init.body, /thinkingBudget/, 'a turn of a conversation is quick');
+  reset(() => answer({ reply: 'Gerne.', translation: 'Memnuniyetle.', correction: { ok: false, better: 'Ich hätte gern einen Kaffee.', meaning: 'Bir kahve rica ediyorum.', note: 'gern' }, done: true }));
+  const next = (await ask({ type: 'roleplay', scene, level: 'A2', history: [{ who: 'them', text: 'Hallo!' }, { who: 'me', text: 'ich will kaffee' }], sl: 'de', tl: 'tr' })).result;
+  assert.deepEqual(next.correction, { ok: false, better: 'Ich hätte gern einen Kaffee.', meaning: 'Bir kahve rica ediyorum.', note: 'gern' });
+  assert.equal(next.done, true);
+  assert.match(calls[0].init.body, /Learner: ich will kaffee/);
+  site.geminiKey = '';
+});
+
+test('a model that must think is asked again without being told not to, and then always so', async () => {
+  site.geminiKey = 'test-key';
+  const answer = (o) => ({ json: { candidates: [{ content: { parts: [{ text: JSON.stringify(o) }] } }] } });
+  reset((url) => (/thinkingBudget/.test(url.init.body) ? { status: 400, json: { error: { message: 'Budget 0 is invalid. This model only works in thinking mode.' } } } : answer({ parts: [{ text: 'fault', meaning: 'suç' }] })));
+  const parts = (await ask({ type: 'gloss', sentence: "It's my fault.", sl: 'en', tl: 'tr' })).result;
+  assert.deepEqual(parts, [{ text: 'fault', base: '', meaning: 'suç' }]);
+  assert.equal(calls.length, 2);
+  await ask({ type: 'gloss', sentence: 'Another one.', sl: 'en', tl: 'tr' });
+  assert.equal(calls.length, 3, 'not tried quick again');
+  site.geminiKey = '';
+});

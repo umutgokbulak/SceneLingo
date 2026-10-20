@@ -147,6 +147,10 @@
         return { ok: true, result: true };
       case 'enrich':
         return enrich(msg).then((result) => ({ ok: true, result }), (e) => ({ ok: false, error: e.message }));
+      case 'speak-feedback':
+        return speakingFeedback(msg).then((result) => ({ ok: true, result }), (e) => ({ ok: false, error: e.message }));
+      case 'roleplay':
+        return roleplay(msg).then((result) => ({ ok: true, result }), (e) => ({ ok: false, error: e.message }));
       case 'gloss':
         return gloss(msg).then((result) => ({ ok: true, result }), (e) => ({ ok: false, error: e.message }));
       case 'check-sentence':
