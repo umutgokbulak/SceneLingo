@@ -136,11 +136,11 @@ them), plyr.io, Vimeo's player, Wikimedia Commons and a YouTube player embedded 
 
 | IELTS Speaking | Everyday conversation |
 | --- | --- |
-| ![An IELTS Part 1 answer with its estimated band, 6.5, and the four criteria; under them a mistake put right and a band 8 answer](docs/screenshots/speak.jpg) | ![A conversation at a café: the waiter's turns with a button to hear them and their meaning, the learner's turn, and under it the same said better, with a star to save it](docs/screenshots/talk.jpg) |
+| ![An IELTS Part 1 answer with its estimated band, 6.5, and the four criteria; under them a mistake put right and a band 8 answer](docs/screenshots/ielts-speaking.jpg) | ![A conversation at a café: the waiter's turns with a button to hear them and their meaning, the learner's turn, and under it the same said better, with a star to save it](docs/screenshots/conversation.jpg) |
 
 | IELTS Writing | |
 | --- | --- |
-| ![An IELTS Task 2 essay being written, with the words counted against 250 and the time left; under it, its estimated band and the four criteria](docs/screenshots/write.jpg) | |
+| ![An IELTS Task 2 essay being written, with the words counted against 250 and the time left; under it, its estimated band and the four criteria](docs/screenshots/ielts-writing.jpg) | |
 
 | Listening practice | |
 | --- | --- |

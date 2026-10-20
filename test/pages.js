@@ -128,7 +128,7 @@ function days() {
       await page(`(() => { const t = $('#text'); t.value = 'Some peoples thinks that watching films is the best way to learn a language, because you hear how people really speak. Others believe classrooms are better.'; t.dispatchEvent(new Event('input')); $('#go').click(); return true; })()`);
       await wait(1000);
       await page(`(scrollTo(0, 0), true)`);
-      fs.writeFileSync(path.join(dir, 'write.jpg'), await b.picture(88));
+      fs.writeFileSync(path.join(dir, 'ielts-writing.jpg'), await b.picture(88));
       await b.open(b.extensionPage('speak.html'));
       await wait(1000);
       await page(`(document.querySelector('#parts .tile').click(), true)`);
@@ -136,14 +136,14 @@ function days() {
       await page(`(() => { const t = $('#examText'); t.value = 'I live in a flat near the city centre since five years and I like it because everything is near'; t.dispatchEvent(new Event('input')); $('#examGo').click(); return true; })()`);
       await wait(1000);
       await page(`(scrollTo(0, 0), true)`);
-      fs.writeFileSync(path.join(dir, 'speak.jpg'), await b.picture(88));
+      fs.writeFileSync(path.join(dir, 'ielts-speaking.jpg'), await b.picture(88));
       await b.open(b.extensionPage('speak.html'));
       await wait(1000);
       await page(`([...document.querySelectorAll('#scenes .tile')].find((t) => /café/i.test(t.textContent)).click(), true)`);
       await wait(800);
       await page(`(() => { const t = $('#talkText'); t.value = 'I want a cappuccino'; t.dispatchEvent(new Event('input')); $('#talkGo').click(); return true; })()`);
       await wait(800);
-      fs.writeFileSync(path.join(dir, 'talk.jpg'), await b.picture(88));
+      fs.writeFileSync(path.join(dir, 'conversation.jpg'), await b.picture(88));
       console.log('pictures written to docs/screenshots');
       return;
     }

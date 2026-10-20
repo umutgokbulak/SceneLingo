@@ -86,11 +86,11 @@ yazdım, çalışırken ihtiyaç duyduklarımı ekledim, sonra onu izlediğim di
 
 | IELTS Speaking | Günlük konuşma |
 | --- | --- |
-| ![IELTS cevabı, tahmini band ve dört ölçüt, düzeltmeler ve band 8 cevap](docs/screenshots/speak.jpg) | ![Kafede konuşma: garsonun cümleleri, senin cevabın ve altında daha iyi hâli](docs/screenshots/talk.jpg) |
+| ![IELTS cevabı, tahmini band ve dört ölçüt, düzeltmeler ve band 8 cevap](docs/screenshots/ielts-speaking.jpg) | ![Kafede konuşma: garsonun cümleleri, senin cevabın ve altında daha iyi hâli](docs/screenshots/conversation.jpg) |
 
 | IELTS Writing | |
 | --- | --- |
-| ![IELTS Task 2 denemesi: kelime sayısı, kalan süre ve tahmini band](docs/screenshots/write.jpg) | |
+| ![IELTS Task 2 denemesi: kelime sayısı, kalan süre ve tahmini band](docs/screenshots/ielts-writing.jpg) | |
 
 | Dinleme alıştırması | |
 | --- | --- |
