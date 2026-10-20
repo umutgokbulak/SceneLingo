@@ -399,6 +399,97 @@ function slStatus(item) {
   return (item.interval || 0) >= 21 ? 'learned' : 'learning';
 }
 
+// Dictation: the sentence that was read, word by word against what was typed. Each of its words is
+// 'right', 'close' (heard, but spelt a letter or two off), 'wrong' (another word typed in its place)
+// or 'missed'; a typed word with nothing in its place is 'extra'. A close word counts half, an extra
+// word against.
+function slDictation(expected, typed) {
+  const tokens = (text) =>
+    (String(text || '').match(/\S+/g) || []).map((shown) => ({ shown, norm: slNormalize(shown).replace(/[' ]/g, '') })).filter((t) => t.norm);
+  const want = tokens(expected);
+  const got = tokens(typed);
+  const n = want.length;
+  const m = got.length;
+  const value = (a, b) => {
+    if (a === b) return 2;
+    const allowed = a.length >= 9 ? 2 : a.length >= 5 ? 1 : 0;
+    return allowed && slDistance(a, b) <= allowed ? 1 : 0;
+  };
+  // The best match of the two, a right word worth more than a close one.
+  const best = Array.from({ length: n + 1 }, () => new Array(m + 1).fill(0));
+  for (let i = n - 1; i >= 0; i--) {
+    for (let j = m - 1; j >= 0; j--) {
+      const v = value(want[i].norm, got[j].norm);
+      best[i][j] = Math.max(best[i + 1][j], best[i][j + 1], v ? v + best[i + 1][j + 1] : 0);
+    }
+  }
+  const parts = [];
+  // Between two matched words: the sentence's words paired with what was typed instead.
+  const gap = (i0, i1, j0, j1) => {
+    for (let k = 0; k < Math.max(i1 - i0, j1 - j0); k++) {
+      if (i0 + k < i1 && j0 + k < j1) parts.push({ word: want[i0 + k].shown, state: 'wrong', typed: got[j0 + k].shown });
+      else if (i0 + k < i1) parts.push({ word: want[i0 + k].shown, state: 'missed' });
+      else parts.push({ word: got[j0 + k].shown, state: 'extra' });
+    }
+  };
+  let i = 0;
+  let j = 0;
+  let pi = 0;
+  let pj = 0;
+  while (i < n && j < m) {
+    const v = value(want[i].norm, got[j].norm);
+    if (v && best[i][j] === v + best[i + 1][j + 1]) {
+      gap(pi, i, pj, j);
+      parts.push(v === 2 ? { word: want[i].shown, state: 'right' } : { word: want[i].shown, state: 'close', typed: got[j].shown });
+      pi = ++i;
+      pj = ++j;
+    } else if (best[i + 1][j] >= best[i][j + 1]) i++;
+    else j++;
+  }
+  gap(pi, n, pj, m);
+  const count = (state) => parts.filter((p) => p.state === state).length;
+  const score = n ? (count('right') + count('close') / 2) / (n + count('extra')) : 0;
+  return { parts, score };
+}
+
+// The sentences to listen to, in the language being learnt: the saved sentences, and the ones the
+// saved words were saved from and met again in. First those not resting (`rest`: sentence -> until
+// when), then those of words still being learnt; in a random order otherwise.
+function slDictationPool(words, lang, rest, now, size, rand = Math.random) {
+  const all = new Map();
+  const add = (text, translation, item, extra) => {
+    const clean = slCleanLine(text || '');
+    const count = clean.split(/\s+/).filter((w) => /[\p{L}\p{N}]/u.test(w)).length;
+    const key = slNormalize(clean);
+    if (count < 3 || count > 30 || all.has(key)) return;
+    all.set(key, {
+      key,
+      text: clean,
+      translation: translation ? slCleanLine(translation) : '',
+      word: slKindOf(item) === 'sentence' ? '' : item.word,
+      meaning: slKindOf(item) === 'sentence' ? '' : item.contextMeaning || item.translation || '',
+      lang,
+      title: extra.title || '',
+      source: extra.source || null,
+      learning: slStatus(item) !== 'learned',
+      order: rand(),
+    });
+  };
+  for (const item of words) {
+    if ((item.lang || 'en') !== lang) continue;
+    if (slKindOf(item) === 'sentence') add(item.word, item.translation, item, item);
+    else {
+      add(item.context, item.contextTranslation, item, item);
+      for (const e of item.examples || []) add(e.text, e.translation, item, e);
+    }
+  }
+  const fresh = (s) => !(rest[s.key] > now);
+  return [...all.values()]
+    .sort((a, b) => fresh(b) - fresh(a) || b.learning - a.learning || a.order - b.order)
+    .slice(0, size)
+    .map(({ learning, order, ...s }) => s);
+}
+
 if (typeof module !== 'undefined') {
-  module.exports = { SL_STAGES, slCanon, slFromCsv, slBackup, slStamp, slMergeCard, slMergeAll, slRestore, slStatus, slCleanLine, slHintMask, slCardType, slAdvance, slClozeParts, slCheckAnswer, slAccepted, slSentenceScore, slDayKey, slIsNew, slTodayQueue, slLogged, slStats, slDueCount, slAddExample, slMerge, slNormalize };
+  module.exports = { SL_STAGES, slDictation, slDictationPool, slCanon, slFromCsv, slBackup, slStamp, slMergeCard, slMergeAll, slRestore, slStatus, slCleanLine, slHintMask, slCardType, slAdvance, slClozeParts, slCheckAnswer, slAccepted, slSentenceScore, slDayKey, slIsNew, slTodayQueue, slLogged, slStats, slDueCount, slAddExample, slMerge, slNormalize };
 }

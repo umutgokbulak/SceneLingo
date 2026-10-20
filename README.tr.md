@@ -53,6 +53,10 @@ yazdım, çalışırken ihtiyaç duyduklarımı ekledim, sonra onu izlediğim di
   birinin yanında sahneyi doğru anında açan bir düğme var. Gemini anahtarıyla kart; seviyesini (CEFR), birlikte
   kullanıldığı kelimeleri, iki örnek daha ve kendi yazdığın cümlenin kontrolünü de alır. Kartlar düzenlenebilir;
   bir kelime ait olduğu kalıba çevrilebilir ("ripped" → "rip off").
+- **Dinleme alıştırması.** Kelimelerinin geçtiği cümleler okunur, sen duyduğunu yazarsın; sonra kelime kelime
+  neyi doğru duyduğun, neyi yanlış yazdığın, neyi kaçırdığın ve cümlede olmayan neyi yazdığın gösterilir, cümlenin
+  anlamıyla birlikte. Doğru duyulan cümle bir hafta dinlenir, kaçırılan ertesi gün yeniden gelir. Telefonda da
+  çalışır.
 - **Günlerin kaydı:** seri, öğrenilen kelime, hatırlama oranı.
 - **Bütün kelimelerin tek yerde.** Kaydettiğin her kelime, kalıp ve cümle; kelimeye, anlamlarına ya da cümlesine
   göre aranır, türe, kaynağa ve durumuna göre (yeni, öğreniliyor, öğrenilen, zor) süzülür. Her satır açılınca
@@ -67,6 +71,10 @@ yazdım, çalışırken ihtiyaç duyduklarımı ekledim, sonra onu izlediğim di
 | Duyduğunu yaz | Cümleyi söyle |
 | --- | --- |
 | ![Yazma alıştırması](docs/screenshots/write.jpg) | ![Söyleme alıştırması](docs/screenshots/speak.jpg) |
+
+| Dinleme alıştırması | |
+| --- | --- |
+| ![Dinleme sayfası: cümleyi yeniden ve yavaş dinleme düğmeleri, yazılan cevap ve altında kelime kelime sonuç](docs/screenshots/listen.jpg) | |
 
 | Tekrar | Bütün kelimelerin |
 | --- | --- |
@@ -123,7 +131,7 @@ saat okuyup yazmasına yeter. Kurulum adımları [İngilizce README](README.md#s
 
 ## Nasıl yapıldı
 
-Manifest V3, yalın JavaScript; bağımlılık ve derleme adımı yok. 80 birim testi, site olmadan denenebilen her şey
+Manifest V3, yalın JavaScript; bağımlılık ve derleme adımı yok. 82 birim testi, site olmadan denenebilen her şey
 için oynatıcıyı taklit eden bir test sayfası ve gerisi için eklentiyi gerçek bir tarayıcıya yükleyip yöneten bir
 betik var. Altyazıların sitelerde nasıl bulunduğu, iki altyazı izinin nasıl eşleştirildiği ve yolda çıkan
 sorunlar [İngilizce README](README.md#engineering-notes)'de anlatılıyor.

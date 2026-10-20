@@ -180,3 +180,33 @@ test('two cards for one thing become one: the further studied keeps its schedule
   assert.equal(merged.interval, 8);
   assert.equal(merged.examples[0].text, phrase.context);
 });
+
+test('dictation: each word of the sentence against what was typed', () => {
+  const states = (r) => r.parts.map((p) => p.word + ':' + p.state + (p.typed ? '=' + p.typed : '')).join(' ');
+  let r = S.slDictation("It's not my fault you ripped off the wrong people.", 'its not my fault you ripped off the wrong people');
+  assert.equal(r.score, 1, 'case, punctuation and apostrophes do not count');
+  r = S.slDictation('You ripped off the wrong people.', 'you riped of the people');
+  assert.equal(states(r), 'You:right ripped:close=riped off:wrong=of the:right wrong:missed people.:right');
+  assert.equal(r.score, 3.5 / 6);
+  r = S.slDictation('Might even have a girl for you.', 'might even have girl for you you');
+  assert.equal(states(r), 'Might:right even:right have:right a:missed girl:right for:right you.:right you:extra');
+  assert.equal(r.score, 6 / 8);
+  assert.equal(S.slDictation('Wie geht es dir?', '').score, 0);
+  assert.equal(S.slDictation('Wie geht es dir?', '').parts.every((p) => p.state === 'missed'), true);
+});
+
+test('dictation: the sentences come from the saved ones, those not resting and still learnt first', () => {
+  const words = [
+    { word: 'ripped', context: "It's not my fault you ripped off the wrong people.", contextTranslation: 'Benim suçum değil.', interval: 30, examples: [{ text: 'They ripped me off again.', title: 'Suits' }] },
+    { word: 'Might even have a girl for you.', kind: 'sentence', translation: 'Belki sana bir kız bile bulurum.' },
+    { word: 'swoop', context: 'Swoop!' },
+    { word: 'Hund', lang: 'de', context: 'Der Hund schläft im Garten.' },
+  ];
+  const rest = { [S.slNormalize('Might even have a girl for you.')]: NOW + DAY, [S.slNormalize('They ripped me off again.')]: NOW - DAY };
+  const pool = S.slDictationPool(words, 'en', rest, NOW, 10, () => 0.5);
+  assert.deepEqual(pool.map((s) => s.text), ["It's not my fault you ripped off the wrong people.", 'They ripped me off again.', 'Might even have a girl for you.']);
+  assert.equal(pool[0].word, 'ripped');
+  assert.equal(pool[1].title, 'Suits');
+  assert.equal(pool[2].word, '', 'a saved sentence has no word to point at');
+  assert.deepEqual(S.slDictationPool(words, 'de', {}, NOW, 10).map((s) => s.text), ['Der Hund schläft im Garten.']);
+});

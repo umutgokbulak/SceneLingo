@@ -1,6 +1,6 @@
 // The extension's own pages, the review and the list of words, in a real browser.
 //   node test/pages.js            checks them: the kinds of cards, typed answers, hints, grading,
-//                                 the list's filters, editing, deleting, backup and restore
+//                                 listening, the list's filters, editing, deleting, backup and restore
 //   node test/pages.js pictures   takes the README's pictures of them
 // Sample cards come from Elephants Dream, the film the other pictures show. Needs Google Chrome
 // (or Edge), not the network: what the background would fetch is already on the cards.
@@ -76,6 +76,11 @@ function days() {
       await page(`($('.row .line').click(), true)`);
       await wait(500);
       fs.writeFileSync(path.join(dir, 'words.jpg'), await b.picture(88));
+      await b.open(b.extensionPage('listen.html'));
+      await wait(1000);
+      await page(`(at = round.findIndex((s) => s.text === 'You have to learn to listen.'), show(), $('#typed').value = 'You have learn to lisen', $('#go').click(), true)`);
+      await wait(500);
+      fs.writeFileSync(path.join(dir, 'listen.jpg'), await b.picture(88));
       console.log('pictures written to docs/screenshots');
       return;
     }
@@ -130,6 +135,27 @@ function days() {
     // the settings under the button on the right
     await page(`($('#gear').click(), true)`);
     assert.ok(await page(`!$('#gearMenu').hidden && /Seri|Streak/.test($('#gearMenu').textContent)`));
+
+    // ---- listening ----
+    await seed();
+    await b.open(b.extensionPage('listen.html'));
+    await wait(1000);
+    // five sentences: "Be careful!" is too short, and the saved sentence is the word's own one
+    assert.equal(await page(`$('#count').textContent`), '1 / 5');
+    await page(`($('#typed').value = round[at].text.toLowerCase().replace(/[.,!?…]/g, ''), $('#go').click(), true)`);
+    assert.match(await page(`$('#result .verdict').className`), /right/);
+    assert.match(await page(`$('#result .verdict').textContent`), /100/);
+    await page(`($('#go').click(), true)`);
+    assert.equal(await page(`$('#count').textContent`), '2 / 5');
+    // a word left out is shown as not heard, in its place
+    await page(`($('#typed').value = round[at].text.split(' ').slice(1).join(' '), $('#go').click(), true)`);
+    assert.ok(await page(`!!document.querySelector('#result .heard .missed') && !/right/.test($('#result .verdict').className)`));
+    await b.named('Enter', 13);
+    await wait(300);
+    assert.equal(await page(`$('#count').textContent`), '3 / 5');
+    for (let i = 0; i < 3; i++) await page(`($('#giveUp').click(), $('#go').click(), true)`);
+    assert.ok(await page(`$('#card').hidden && !$('#end').hidden && $('#end .list').children.length === 5`));
+    assert.equal(Object.keys(JSON.parse(await b.worker(`chrome.storage.local.get('listenRest').then((d) => JSON.stringify(d.listenRest))`))).length, 5, 'each sentence rests a while');
 
     // ---- the list of all words ----
     await seed();

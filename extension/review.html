@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>SceneLingo</title>
-<link rel="stylesheet" href="ui.css?v=0.18.0">
+<link rel="stylesheet" href="ui.css?v=0.19.0">
 <link rel="manifest" href="app.webmanifest">
 <link rel="apple-touch-icon" href="icons/128.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -194,6 +194,7 @@
   .donemark { width: 64px; height: 64px; display: grid; place-items: center; border-radius: 50%; background: var(--green-soft); color: var(--green); font-size: 30px; }
   .empty h2 { margin: 14px 0 2px; font-size: 22px; font-weight: 650; }
   .empty p { margin: 0 auto 18px; max-width: 480px; color: var(--text-2); }
+  .empty .row { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
   .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(104px, 1fr)); gap: 10px; width: 620px; max-width: 100%; margin-bottom: 20px; }
   .metric { padding: 12px 14px; border-radius: 12px; background: var(--surface-2); border: 1px solid var(--border); text-align: left; }
   .metric small { display: block; color: var(--muted); font-size: 12.5px; }
@@ -225,6 +226,7 @@
     <div class="bar"><div id="bar"></div></div>
     <span id="left"></span>
     <div id="chips"></div>
+    <a id="toListen" class="iconbtn" href="listen.html" data-t-title="listenOpen"></a>
     <a id="allWords" class="iconbtn" href="words.html" data-t-title="wordsTitle"></a>
     <div class="gear">
       <button id="gear" class="iconbtn" data-t-title="settings"></button>
@@ -266,22 +268,22 @@
       <h2 id="emptyTitle"></h2>
       <p id="emptyText"></p>
       <div id="emptyStats" class="metrics"></div>
-      <button id="studyAll" class="btn" hidden data-t="studyAll"></button>
+      <div class="row"><button id="listenNow" class="btn primary" hidden></button><button id="studyAll" class="btn" hidden data-t="studyAll"></button></div>
     </section>
   </main>
 </div>
 
 <!-- On the phone, where there is no extension, this stands in for it. -->
-<script src="web.js?v=0.18.0"></script>
-<script src="messages.js?v=0.18.0"></script>
-<script src="shared.js?v=0.18.0"></script>
-<script src="study.js?v=0.18.0"></script>
-<script src="cloud.js?v=0.18.0"></script>
-<script src="gemini.js?v=0.18.0"></script>
-<script src="core.js?v=0.18.0"></script>
-<script src="ui.js?v=0.18.0"></script>
-<script src="review.js?v=0.18.0"></script>
+<script src="web.js?v=0.19.0"></script>
+<script src="messages.js?v=0.19.0"></script>
+<script src="shared.js?v=0.19.0"></script>
+<script src="study.js?v=0.19.0"></script>
+<script src="cloud.js?v=0.19.0"></script>
+<script src="gemini.js?v=0.19.0"></script>
+<script src="core.js?v=0.19.0"></script>
+<script src="ui.js?v=0.19.0"></script>
+<script src="review.js?v=0.19.0"></script>
 <!-- Text selected on this page is translated too: the content script does not run on the extension's own pages. -->
-<script src="select.js?v=0.18.0"></script>
+<script src="select.js?v=0.19.0"></script>
 </body>
 </html>

@@ -41,7 +41,7 @@
   flashcards that come back on a schedule.
 - **Where:** Amazon Prime Video, YouTube, and any site whose subtitles can be found from outside the page
   (TED, Vimeo's player and Wikimedia Commons were checked) — or any video at all, with a subtitle file of your own.
-- **How it is built:** Manifest V3, plain JavaScript, no dependencies and no build step; 80 unit tests, a
+- **How it is built:** Manifest V3, plain JavaScript, no dependencies and no build step; 82 unit tests, a
   stand-in player for everything that can be tested without a site, and a script that loads the real extension
   into a real browser for what cannot.
 
@@ -100,6 +100,10 @@ them), plyr.io, Vimeo's player, Wikimedia Commons and a YouTube player embedded 
   a button that opens its scene at the right moment. With a Gemini key a card also gets its CEFR level, common
   combinations, two more examples, and a check of a sentence you write with it. Cards can be edited, and a
   word can be turned into the phrase it belongs to ("ripped" into "rip off").
+- **Listening practice.** The sentences your words came from are read out and you type what you hear; then,
+  word by word, what you heard right, what nearly (spelt differently), what you missed and what is not in the
+  sentence, with its meaning. A sentence heard right rests for a week, a missed one comes back the next day.
+  It works on the phone too.
 - **A record of the days:** streak, words learned, share remembered.
 - **All your words in one place.** Every saved word, phrase and sentence, found by search (in the word, its
   meanings or its sentence), by kind, by source, or by where it stands (new, learning, learned, hard); each
@@ -116,6 +120,10 @@ them), plyr.io, Vimeo's player, Wikimedia Commons and a YouTube player embedded 
 | Write what you heard | Say the line |
 | --- | --- |
 | ![The typed answer under the study bar; in the line below it, the misspelt word is marked in red and the others in green](docs/screenshots/write.jpg) | ![What the recogniser heard, and the line with the word it did not understand marked](docs/screenshots/speak.jpg) |
+
+| Listening practice | |
+| --- | --- |
+| ![The listening page: a big button to hear the sentence again and a slower one, the typed answer, and under it the sentence word by word: the word that was not heard marked in red, the misspelt one in amber with what was typed beside it, then the sentence's meaning and the saved word it came from](docs/screenshots/listen.jpg) | |
 
 | Review | All your words |
 | --- | --- |

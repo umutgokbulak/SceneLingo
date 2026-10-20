@@ -702,6 +702,8 @@ function showEmpty() {
     if (s.retention != null) metric(slT('statRetention'), percent(s.retention));
   }
   $('studyAll').hidden = !words.length;
+  // Done with the cards for today: the sentences they came from, to listen to.
+  $('listenNow').hidden = !words.length;
   // The day's work goes to the cloud at once, when there is one.
   ask({ type: 'cloud-sync', interactive: false });
 }
@@ -803,6 +805,9 @@ $('editBtn').append(icon('edit'));
 $('editBtn').addEventListener('click', () => revealed && paintEdit());
 $('removeBtn').addEventListener('click', removeClicked);
 $('allWords').append(icon('cards'));
+$('toListen').append(icon('headphones'));
+$('listenNow').append(icon('headphones'), el('span', null, slT('listenOpen')));
+$('listenNow').addEventListener('click', () => (location.href = 'listen.html'));
 $('gear').append(icon('sliders'));
 $('gear').addEventListener('click', () => {
   const menu = $('gearMenu');
