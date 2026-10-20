@@ -326,7 +326,7 @@ test('speaking: an IELTS answer scored by Gemini, and a conversation it plays al
   reset(() => answer({ reply: 'Hallo! Was darf es sein?', translation: 'Merhaba! Ne alırsınız?', correction: { ok: false, better: 'x' }, done: false }));
   const first = (await ask({ type: 'roleplay', scene, level: 'A2', history: [], sl: 'de', tl: 'tr' })).result;
   assert.deepEqual(first, { reply: 'Hallo! Was darf es sein?', translation: 'Merhaba! Ne alırsınız?', correction: null, done: false }, 'nothing to put right before the learner speaks');
-  assert.match(calls[0].init.body, /thinkingBudget/, 'a turn of a conversation is quick');
+  assert.doesNotMatch(calls[0].init.body, /thinkingBudget/, 'what is put right is thought through');
   reset(() => answer({ reply: 'Gerne.', translation: 'Memnuniyetle.', correction: { ok: false, better: 'Ich hätte gern einen Kaffee.', meaning: 'Bir kahve rica ediyorum.', note: 'gern' }, done: true }));
   const next = (await ask({ type: 'roleplay', scene, level: 'A2', history: [{ who: 'them', text: 'Hallo!' }, { who: 'me', text: 'ich will kaffee' }], sl: 'de', tl: 'tr' })).result;
   assert.deepEqual(next.correction, { ok: false, better: 'Ich hätte gern einen Kaffee.', meaning: 'Bir kahve rica ediyorum.', note: 'gern' });

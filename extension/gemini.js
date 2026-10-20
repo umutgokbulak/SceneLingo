@@ -23,8 +23,9 @@ const langName = (code) => new Intl.DisplayNames(['en'], { type: 'language' }).o
 // One question to Gemini, answered in JSON.
 // The newer models think before they answer, and the thinking counts towards the output limit:
 // with a tight limit the answer is cut off mid-way. So the limit is generous; the answer is short.
-// Thinking also takes seconds: a short question (a meaning, a list of words) is asked to be
-// answered without it, unless `think`; a model that does not allow that is asked again as it is.
+// Thinking also takes seconds: a look-up (what a word means, the words of a sentence) is asked to
+// be answered without it; whatever puts the learner right (`think`) is thought through. A model
+// that does not allow answering without thinking is asked again as it is.
 async function geminiJSON(apiKey, prompt, maxOutputTokens = 4096, think = false) {
   const config = { temperature: 0.2, responseMimeType: 'application/json', maxOutputTokens };
   if (geminiNoQuick === null) geminiNoQuick = !!(await chrome.storage.local.get({ geminiNoQuick: false })).geminiNoQuick;
@@ -238,7 +239,9 @@ async function roleplay({ scene, level, history, words, sl, tl }) {
       (last
         ? `about the learner's last turn: {"ok": true if it was correct and natural, "better": the same put right and made natural (only if not ok, else ""), "meaning": what "better" means, in ${langName(tl)} (only if not ok, else ""), "note": one short sentence in ${langName(tl)} that says what changed and why, or what was good};\n`
         : `null;\n`) +
-      `"done": true if, with your reply, the conversation has come to its natural end, else false.`
+      `"done": true if, with your reply, the conversation has come to its natural end, else false.`,
+    4096,
+    true // what it puts right is learnt from: worth the wait
   );
   const reply = String(json.reply || '').trim();
   if (!reply) throw new Error('Gemini: empty answer');
@@ -260,7 +263,9 @@ async function checkSentence({ word, sentence, sl, tl }) {
       `Answer in JSON with these keys:\n` +
       `"correct": true if the sentence is correct and natural and uses "${word}" in a fitting way, else false;\n` +
       `"better": the sentence corrected and made natural, changing as little as possible ("" if it needs no change);\n` +
-      `"note": one or two short sentences in ${langName(tl)} that say what was wrong and why, or praise what is good.`
+      `"note": one or two short sentences in ${langName(tl)} that say what was wrong and why, or praise what is good.`,
+    4096,
+    true // a correction is learnt from: worth the wait
   );
   return { correct: !!json.correct, better: String(json.better || '').trim(), note: String(json.note || '').trim() };
 }
