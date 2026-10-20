@@ -358,6 +358,52 @@ async function signOut() {
   paintCloud();
 }
 
+// ---------- Gemini, on the phone ----------
+
+// In the extension the key is set in its popup. On the phone the pages run alone, so the key is
+// given here; it stays in this phone's browser and is not sent to the cloud.
+const onPhone = chrome.runtime.getManifest().version === 'web';
+
+async function paintGemini(note) {
+  const box = $('gemini');
+  box.hidden = !onPhone;
+  if (!onPhone) return;
+  box.textContent = '';
+  const res = await ask({ type: 'gemini-key' });
+  const shown = res.ok ? res.result : '';
+  const what = el('div', 'what');
+  box.append(icon('bulb'), what);
+  if (shown) {
+    what.append(el('span', null, 'Gemini · ' + slT('geminiKeyShown', shown)));
+    if (note) what.append(el('small', null, note));
+    box.append(btn(slT('geminiRemove'), async () => {
+      await ask({ type: 'gemini-remove' });
+      paintGemini();
+    }, 'btn small ghost'));
+    return;
+  }
+  what.append(el('span', null, slT('geminiPhoneTip')));
+  if (note) what.append(el('small', null, note));
+  const link = el('a', null, slT('geminiGetKey'));
+  link.href = 'https://aistudio.google.com/apikey';
+  link.target = '_blank';
+  link.rel = 'noopener';
+  what.append(el('br'), link);
+  const input = el('input');
+  input.type = 'password';
+  input.autocomplete = 'off';
+  input.placeholder = slT('geminiKeyPh');
+  const save = btn(slT('geminiSave'), async () => {
+    const key = input.value.trim();
+    if (!key) return input.focus();
+    save.disabled = true;
+    paintGemini(slT('geminiTrying'));
+    const r = await ask({ type: 'gemini-save', key, tl: settings.nativeLang });
+    paintGemini(r.ok ? slT('geminiWorks', (r.result.phrase ? r.result.phrase + ' — ' : '') + r.result.meaning) : slT('geminiFailed', r.error));
+  }, 'btn small primary');
+  box.append(input, save);
+}
+
 // ---------- the parts above the list ----------
 
 function paintSummary() {
@@ -521,5 +567,6 @@ chrome.storage.sync.get(SL_DEFAULTS, (stored) => {
     lastBackup = data.lastBackup;
     render();
     paintCloud();
+    paintGemini();
   });
 });

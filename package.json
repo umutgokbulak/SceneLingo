@@ -1,6 +1,6 @@
 {
   "name": "scenelingo",
-  "version": "0.17.1",
+  "version": "0.17.2",
   "private": true,
   "description": "Browser extension for learning a language from films, series and videos: dual subtitles, word lookup with audio, writing and speaking practice, spaced-repetition review.",
   "keywords": ["language-learning", "subtitles", "browser-extension", "manifest-v3", "prime-video", "youtube", "hls", "spaced-repetition"],

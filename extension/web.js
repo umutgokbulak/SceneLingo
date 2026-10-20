@@ -126,8 +126,35 @@
       case 'tts':
         speak(msg.text, msg.lang, msg.slow);
         return { ok: false, error: 'spoken here' };
+      // Gemini, with the key kept in this phone only (never sent to the cloud).
       case 'gemini-key':
-        return { ok: true, result: '' };
+        return { ok: true, result: await geminiKeyShown() };
+      case 'gemini-save': {
+        const key = String(msg.key || '').trim();
+        await local.set({ geminiKey: key });
+        if (!key) return { ok: true, result: null };
+        return askGemini(key, 'ripped', 'It is not my fault you ripped off the wrong people.', 'en', msg.tl || 'tr').then(
+          (result) => ({ ok: true, result }),
+          async (e) => {
+            // A key Google turns down is not kept.
+            if (/Gemini 40[013]/.test(e.message)) await local.set({ geminiKey: '' });
+            return { ok: false, error: e.message };
+          }
+        );
+      }
+      case 'gemini-remove':
+        await local.set({ geminiKey: '' });
+        return { ok: true, result: true };
+      case 'enrich':
+        return enrich(msg).then((result) => ({ ok: true, result }), (e) => ({ ok: false, error: e.message }));
+      case 'check-sentence':
+        return checkSentence(msg).then((result) => ({ ok: true, result }), (e) => ({ ok: false, error: e.message }));
+      case 'sense': {
+        // On a review card: what the word means in its sentence, from Gemini when there is a key.
+        const key = (await local.get({ geminiKey: '' })).geminiKey;
+        if (!key || slGeminiResting()) return { ok: false, error: 'noKey' };
+        return askGemini(key, msg.word, msg.sentence, msg.sl, msg.tl).then((result) => ({ ok: true, result }), (e) => ({ ok: false, error: e.message }));
+      }
       case 'open-scene':
         window.open(msg.url, '_blank');
         return { ok: true, result: true };

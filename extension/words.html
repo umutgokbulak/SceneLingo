@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>SceneLingo</title>
-<link rel="stylesheet" href="ui.css?v=0.17.1">
+<link rel="stylesheet" href="ui.css?v=0.17.2">
 <link rel="manifest" href="app.webmanifest">
 <link rel="apple-touch-icon" href="icons/128.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -33,6 +33,9 @@
   .cloud .what code { font-size: 12px; color: var(--accent-text); }
   .cloud .steps { margin-top: 6px; font-size: 12px; color: var(--muted); }
   .cloud .steps pre { margin: 4px 0 0; white-space: pre-wrap; font-size: 11.5px; }
+  .cloud input[type=password] { flex: 1; min-width: 180px; padding: 8px 12px; border-radius: 10px; border: 1px solid var(--border-strong); background: var(--surface-2); outline: none; }
+  .cloud input[type=password]:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .cloud a { color: var(--accent-text); font-size: 12.5px; }
   .notice { margin-top: 14px; padding: 10px 14px; border-radius: 12px; background: var(--green-soft); color: var(--green); font-size: 14px; }
   .notice.bad { background: var(--red-soft); color: var(--red); }
 
@@ -122,6 +125,7 @@
     </div>
   </header>
   <div id="cloud" class="cloud" hidden></div>
+  <div id="gemini" class="cloud" hidden></div>
   <div id="banner" class="banner" hidden></div>
   <div id="notice" class="notice" hidden></div>
 
@@ -139,14 +143,15 @@
 <input type="file" id="file" accept=".json,application/json" hidden>
 
 <!-- On the phone, where there is no extension, this stands in for it. -->
-<script src="web.js?v=0.17.1"></script>
-<script src="messages.js?v=0.17.1"></script>
-<script src="shared.js?v=0.17.1"></script>
-<script src="study.js?v=0.17.1"></script>
-<script src="cloud.js?v=0.17.1"></script>
-<script src="ui.js?v=0.17.1"></script>
-<script src="words.js?v=0.17.1"></script>
+<script src="web.js?v=0.17.2"></script>
+<script src="messages.js?v=0.17.2"></script>
+<script src="shared.js?v=0.17.2"></script>
+<script src="study.js?v=0.17.2"></script>
+<script src="cloud.js?v=0.17.2"></script>
+<script src="gemini.js?v=0.17.2"></script>
+<script src="ui.js?v=0.17.2"></script>
+<script src="words.js?v=0.17.2"></script>
 <!-- Text selected on this page is translated too: the content script does not run on the extension's own pages. -->
-<script src="select.js?v=0.17.1"></script>
+<script src="select.js?v=0.17.2"></script>
 </body>
 </html>
