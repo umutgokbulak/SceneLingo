@@ -5,7 +5,7 @@
 const SL_CLOUD = {
   // The OAuth client made for SceneLingo in Google Cloud (see the README). It is public by design:
   // it names the app to Google, and gives nothing without the user's own sign-in.
-  clientId: '',
+  clientId: '658833440023-ha40akmgia9lpa4uktp5er6qsgmpaufb.apps.googleusercontent.com',
   scopes: 'https://www.googleapis.com/auth/drive.appdata email',
   file: 'scenelingo.json',
   // Where the pages are served on the web, for the phone.
