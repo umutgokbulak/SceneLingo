@@ -223,6 +223,54 @@ function slMerge(keep, other) {
   return out;
 }
 
+// ---- backups ----
+
+// Everything learnt, in one file: the cards with their schedules, sentences and scenes, and the
+// record of the days. Not the Gemini key: that stays in the browser it was given to.
+function slBackup(words, log, now, version) {
+  return { app: 'SceneLingo', kind: 'backup', version: version || '', exported: new Date(now).toISOString(), words, reviewLog: log };
+}
+
+// A backup read back in, merged with what is here: a card in both keeps the copy studied last
+// (or saved last, if neither was studied); the days' records keep the larger counts.
+function slRestore(words, log, data) {
+  if (!data || data.app !== 'SceneLingo' || !Array.isArray(data.words)) throw new Error('not a SceneLingo backup');
+  const key = (w) => String(w.word || '').toLowerCase();
+  const stamp = (w) => w.last || w.added || 0;
+  const byKey = new Map(words.map((w) => [key(w), w]));
+  let added = 0;
+  let updated = 0;
+  for (const w of data.words) {
+    if (!w || !w.word) continue;
+    const here = byKey.get(key(w));
+    if (!here) {
+      byKey.set(key(w), w);
+      added += 1;
+    } else if (stamp(w) > stamp(here)) {
+      byKey.set(key(w), w);
+      updated += 1;
+    }
+  }
+  const merged = { ...log };
+  for (const [day, d] of Object.entries(data.reviewLog || {})) {
+    const h = merged[day] || {};
+    merged[day] = {
+      reviews: Math.max(h.reviews || 0, d.reviews || 0),
+      correct: Math.max(h.correct || 0, d.correct || 0),
+      newSeen: Math.max(h.newSeen || 0, d.newSeen || 0),
+    };
+  }
+  return { words: [...byKey.values()], log: merged, added, updated };
+}
+
+// Where a card stands: new, being learnt, learnt (three weeks apart or more), or hard (missed
+// three times or more), for the list of all cards.
+function slStatus(item) {
+  if (slIsNew(item)) return 'new';
+  if ((item.lapses || 0) >= 3 && (item.interval || 0) < 21) return 'hard';
+  return (item.interval || 0) >= 21 ? 'learned' : 'learning';
+}
+
 if (typeof module !== 'undefined') {
-  module.exports = { SL_STAGES, slCleanLine, slHintMask, slCardType, slAdvance, slClozeParts, slCheckAnswer, slAccepted, slSentenceScore, slDayKey, slIsNew, slTodayQueue, slLogged, slStats, slDueCount, slAddExample, slMerge, slNormalize };
+  module.exports = { SL_STAGES, slBackup, slRestore, slStatus, slCleanLine, slHintMask, slCardType, slAdvance, slClozeParts, slCheckAnswer, slAccepted, slSentenceScore, slDayKey, slIsNew, slTodayQueue, slLogged, slStats, slDueCount, slAddExample, slMerge, slNormalize };
 }

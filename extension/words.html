@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SceneLingo</title>
+<link rel="stylesheet" href="ui.css">
+<style>
+  .app { max-width: 1180px; margin: 0 auto; padding: 22px 22px 60px; }
+
+  /* ---- the head of the page ---- */
+  header { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .brand img { width: 30px; height: 30px; border-radius: 8px; }
+  h1 { margin: 0; font-size: 22px; font-weight: 650; letter-spacing: -0.01em; }
+  #count { color: var(--muted); font-size: 14px; }
+  .actions { margin-left: auto; display: flex; gap: 8px; flex-wrap: wrap; }
+
+  .banner { display: flex; align-items: center; gap: 14px; margin-top: 18px; padding: 12px 16px; border-radius: 14px; background: var(--gold-soft); border: 1px solid color-mix(in srgb, var(--gold) 35%, transparent); color: var(--text); }
+  .banner svg.i { font-size: 20px; color: var(--gold); }
+  .banner div { flex: 1; font-size: 14.5px; }
+  .notice { margin-top: 14px; padding: 10px 14px; border-radius: 12px; background: var(--green-soft); color: var(--green); font-size: 14px; }
+  .notice.bad { background: var(--red-soft); color: var(--red); }
+
+  /* ---- where the cards stand: also the filter ---- */
+  .summary { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; margin-top: 18px; }
+  .sum { padding: 12px 14px; border-radius: 14px; background: var(--surface); border: 1px solid var(--border); text-align: left; cursor: pointer; transition: border-color 0.15s, background 0.15s; }
+  .sum:hover { border-color: var(--border-strong); }
+  .sum.on { border-color: var(--accent); background: var(--accent-soft); }
+  .sum small { display: block; color: var(--muted); font-size: 12.5px; }
+  .sum b { font-size: 24px; font-weight: 650; font-variant-numeric: tabular-nums; }
+  .sum.new b { color: var(--accent-text); }
+  .sum.learned b { color: var(--green); }
+  .sum.hard b { color: var(--red); }
+
+  .tools { display: flex; gap: 10px; align-items: center; margin-top: 16px; flex-wrap: wrap; }
+  .search { flex: 1; min-width: 220px; display: flex; align-items: center; gap: 8px; padding: 0 12px; height: 38px; border-radius: 10px; border: 1px solid var(--border-strong); background: var(--surface); }
+  .search svg.i { color: var(--muted); }
+  .search input { flex: 1; min-width: 0; border: 0; background: none; outline: none; font-size: 14.5px; }
+  .search:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .tools select { height: 38px; padding: 0 10px; border-radius: 10px; font-size: 13.5px; background: var(--surface); }
+
+  /* ---- the list ---- */
+  .list { margin-top: 14px; border-radius: 16px; background: var(--surface); border: 1px solid var(--border); box-shadow: var(--shadow); overflow: hidden; }
+  .row { border-top: 1px solid var(--border); }
+  .row:first-child { border-top: 0; }
+  .line { display: grid; grid-template-columns: 22px minmax(0, 1.1fr) minmax(0, 1fr) 150px 104px; gap: 14px; align-items: center; padding: 12px 16px; cursor: pointer; }
+  .line:hover { background: var(--surface-2); }
+  .row.open .line { background: var(--surface-2); }
+  .chev { color: var(--muted); transition: transform 0.15s; display: inline-flex; }
+  .row.open .chev { transform: rotate(90deg); }
+  .w { min-width: 0; }
+  .w .top { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .w b { font-size: 16.5px; font-weight: 650; overflow-wrap: anywhere; }
+  .w b.sentence { font-weight: 500; font-size: 15px; }
+  .w .ipa { color: var(--muted); font-size: 13.5px; }
+  .w .ctx { margin-top: 3px; color: var(--muted); font-size: 13.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .w .ctx mark { background: none; color: var(--text-2); font-weight: 600; }
+  .m { color: var(--gold); font-size: 15px; overflow-wrap: anywhere; }
+  .m small { display: block; color: var(--muted); font-size: 12.5px; }
+  .due { font-size: 13px; color: var(--text-2); }
+  .due small { display: block; color: var(--muted); font-size: 12px; }
+  .st { display: inline-block; font-size: 11px; font-weight: 650; padding: 1px 8px; border-radius: 999px; }
+  .st.new { color: var(--accent-text); background: var(--accent-soft); }
+  .st.learning { color: var(--text-2); background: var(--raised); }
+  .st.learned { color: var(--green); background: var(--green-soft); }
+  .st.hard { color: var(--red); background: var(--red-soft); }
+  .ops { display: flex; gap: 2px; justify-content: flex-end; }
+
+  .detail { padding: 4px 16px 18px 52px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px 28px; background: var(--surface-2); }
+  .detail .label { margin-bottom: 6px; }
+  .detail p { margin: 0; }
+  .detail .quote { padding-left: 12px; border-left: 3px solid var(--accent); }
+  .detail .quote b { background: var(--mark); border-radius: 4px; padding: 0 3px; }
+  .detail .sub { color: var(--muted); font-size: 13.5px; margin-top: 3px; }
+  .detail ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+  .detail li small { display: block; color: var(--muted); font-size: 13px; }
+  .detail .wide { grid-column: 1 / -1; }
+  .detail .meta { display: flex; gap: 18px; flex-wrap: wrap; color: var(--muted); font-size: 13px; }
+  .detail .meta b { color: var(--text-2); font-weight: 600; }
+  .edit { display: flex; gap: 8px; flex-wrap: wrap; align-items: end; }
+  .edit label { display: grid; gap: 4px; font-size: 12.5px; color: var(--muted); flex: 1; min-width: 180px; }
+  .edit input { padding: 8px 12px; border-radius: 10px; border: 1px solid var(--border-strong); background: var(--surface); outline: none; }
+  .edit input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .link { display: inline-flex; align-items: center; gap: 5px; padding: 0; border: 0; background: none; color: var(--accent-text); cursor: pointer; font-size: 13px; }
+  .link:hover { text-decoration: underline; }
+
+  .empty { padding: 48px 20px; text-align: center; color: var(--text-2); }
+  .more { display: flex; justify-content: center; padding: 14px; border-top: 1px solid var(--border); }
+
+  @media (max-width: 860px) {
+    .summary { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .line { grid-template-columns: 18px minmax(0, 1fr) auto; }
+    .line .m, .line .due { grid-column: 2 / 3; }
+    .detail { grid-template-columns: minmax(0, 1fr); padding-left: 16px; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="brand"><img src="icons/48.png" alt=""><h1 data-t="wordsTitle"></h1><span id="count"></span></div>
+    <div class="actions">
+      <button id="backup" class="btn small"></button>
+      <button id="restore" class="btn small"></button>
+      <button id="csv" class="btn small ghost" data-t="exportCsv"></button>
+      <button id="study" class="btn small primary"></button>
+    </div>
+  </header>
+  <div id="banner" class="banner" hidden></div>
+  <div id="notice" class="notice" hidden></div>
+
+  <div class="summary" id="summary"></div>
+
+  <div class="tools">
+    <label class="search"><span id="searchIcon"></span><input id="q" type="search" autocomplete="off" spellcheck="false"></label>
+    <select id="kind"></select>
+    <select id="source"></select>
+    <select id="sort"></select>
+  </div>
+
+  <div class="list" id="list"></div>
+</div>
+<input type="file" id="file" accept=".json,application/json" hidden>
+
+<script src="messages.js"></script>
+<script src="shared.js"></script>
+<script src="study.js"></script>
+<script src="ui.js"></script>
+<script src="words.js"></script>
+<!-- Text selected on this page is translated too: the content script does not run on the extension's own pages. -->
+<script src="select.js"></script>
+</body>
+</html>

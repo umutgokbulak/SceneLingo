@@ -41,7 +41,7 @@
   flashcards that come back on a schedule.
 - **Where:** Amazon Prime Video, YouTube, and any site whose subtitles can be found from outside the page
   (TED, Vimeo's player and Wikimedia Commons were checked) — or any video at all, with a subtitle file of your own.
-- **How it is built:** Manifest V3, plain JavaScript, no dependencies and no build step; 72 unit tests, a
+- **How it is built:** Manifest V3, plain JavaScript, no dependencies and no build step; 74 unit tests, a
   stand-in player for everything that can be tested without a site, and a script that loads the real extension
   into a real browser for what cannot.
 
@@ -101,6 +101,11 @@ them), plyr.io, Vimeo's player, Wikimedia Commons and a YouTube player embedded 
   combinations, two more examples, and a check of a sentence you write with it. Cards can be edited, and a
   word can be turned into the phrase it belongs to ("ripped" into "rip off").
 - **A record of the days:** streak, words learned, share remembered.
+- **All your words in one place.** Every saved word, phrase and sentence, found by search (in the word, its
+  meanings or its sentence), by kind, by source, or by where it stands (new, learning, learned, hard); each
+  opens to everything known about it, and can be edited or deleted there.
+- **Backups.** The words live only in the browser, so the list makes a backup file and reads one back in,
+  merging it with what is there; once a week it reminds you to make one.
 - **Sentence navigation.** Jump to the previous or next line, repeat the current one, pause automatically after
   every line, or pick a line from the transcript.
 
@@ -112,10 +117,13 @@ them), plyr.io, Vimeo's player, Wikimedia Commons and a YouTube player embedded 
 | --- | --- |
 | ![The typed answer under the study bar; in the line below it, the misspelt word is marked in red and the others in green](docs/screenshots/write.jpg) | ![What the recogniser heard, and the line with the word it did not understand marked](docs/screenshots/speak.jpg) |
 
-<p align="center"><img src="docs/screenshots/review.png" width="520" alt="A flashcard for the word umbrella with its sentence, translation and the three grading buttons"></p>
+| Review | All your words |
+| --- | --- |
+| ![The review page: the word learn with its sentence from the film, what it means in that sentence, and beside it the words it goes with, more examples, where it was met again and its definition; at the foot, the three grading buttons and a box for a sentence of your own](docs/screenshots/review.jpg) | ![The list of all saved words: counts by where they stand, a search box and filters, and rows with each word, its meaning and when it comes up next; one row open with its sentence and meaning](docs/screenshots/words.jpg) |
 
-The pictures are the extension itself in a real browser, taken by [`test/pictures.js`](test/pictures.js). The
-speaking one uses a stand-in for the microphone and the speech recogniser; the flashcard shows sample words.
+The pictures are the extension itself in a real browser, taken by [`test/pictures.js`](test/pictures.js) and
+[`test/pages.js`](test/pages.js). The speaking one uses a stand-in for the microphone and the speech recogniser;
+the review and the list show sample cards made from the film's lines.
 
 ## How it works
 
@@ -247,7 +255,9 @@ npm test                # unit tests (Node's built-in runner, Node 22+)
 npm run harness         # mock player at http://localhost:8765
 npm run check:youtube   # the real extension on YouTube, in Google Chrome (needs the network)
 npm run check:sites     # the same on TED, plyr.io, Vimeo's player and Wikimedia Commons
+npm run check:pages     # the review page and the list of words, driven in a real browser
 npm run pictures        # the stills of this README; `npm run film` and test/animate.py make the short film
+npm run pictures:pages  # the pictures of the review page and the list of words
 ```
 
 | Path | What is there |
@@ -257,7 +267,8 @@ npm run pictures        # the stills of this README; `npm run film` and test/ani
 | `extension/content.js` | Overlay, playback control, word card, study bar, practice modes, what differs per site |
 | `extension/core.js` | Pure logic: subtitle and playlist formats, cue search and alignment, word matching, time-stretch |
 | `extension/background.js` | Service worker: translation, lookup and speech requests; access to other sites |
-| `extension/review.*`, `popup.*` | Flashcard page and toolbar popup |
+| `extension/review.*`, `words.*`, `popup.*` | Review page, list of all words, toolbar popup |
+| `extension/ui.*` | What the extension's own pages share: colours, light and dark, buttons, icons |
 | `extension/shared.js` | Default settings and the review schedule |
 | `extension/study.js` | Card stages, gap and answer checking, the day's queue, the record of the days |
 | `test/unit/` | Unit tests |

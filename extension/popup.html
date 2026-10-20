@@ -27,6 +27,9 @@
   .empty { padding: 12px; color: #8fa3b5; text-align: center; }
   #review { width: 100%; margin: 4px 0 8px; padding: 7px; background: #1a6fd6; border-color: #1a98ff; }
   #review:hover { background: #1f7fee; }
+  .row2 { display: flex; gap: 6px; margin: -2px 0 8px; }
+  .row2 button { flex: 1; padding: 6px; }
+  #backupDue { color: #ffd866; border-color: #8a6d1f; }
   .kind { margin-left: 6px; font-size: 11px; color: #8fa3b5; }
   .note { margin-top: 12px; font-size: 12px; color: #8fa3b5; }
   .sites { font-size: 12px; color: #8fa3b5; }
@@ -72,6 +75,7 @@
 
   <h2><span id="wordsHead"></span><button id="export" data-t="exportCsv"></button></h2>
   <button id="review"></button>
+  <div class="row2"><button id="allWords" data-t="wordsTitle"></button><button id="backupDue" hidden></button></div>
   <div id="words"></div>
 
   <div class="note" data-t="popupNote"></div>

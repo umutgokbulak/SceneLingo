@@ -1,0 +1,77 @@
+/* The look the extension's own pages share: colours (dark, and light when the system is),
+   type, and the small parts every page uses. */
+:root {
+  --bg: #0d1117;
+  --surface: #151b23;
+  --surface-2: #1b222c;
+  --raised: #212833;
+  --border: #2a313c;
+  --border-strong: #3a4350;
+  --text: #e6edf3;
+  --text-2: #b4bdc8;
+  --muted: #7f8995;
+  --accent: #2f81f7;
+  --accent-soft: rgba(47, 129, 247, 0.13);
+  --accent-text: #7ab7ff;
+  --gold: #e3b341;
+  --gold-soft: rgba(227, 179, 65, 0.13);
+  --green: #3fb950;
+  --green-soft: rgba(63, 185, 80, 0.13);
+  --red: #f85149;
+  --red-soft: rgba(248, 81, 73, 0.13);
+  --mark: rgba(47, 129, 247, 0.26);
+  --shadow: 0 1px 0 rgba(255, 255, 255, 0.03) inset, 0 18px 40px rgba(1, 4, 9, 0.4);
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg: #f2f4f7;
+    --surface: #ffffff;
+    --surface-2: #f7f8fa;
+    --raised: #eef1f4;
+    --border: #dfe3e8;
+    --border-strong: #c8cfd7;
+    --text: #1d2229;
+    --text-2: #48515c;
+    --muted: #6f7a86;
+    --accent: #0969da;
+    --accent-soft: rgba(9, 105, 218, 0.08);
+    --accent-text: #0656b3;
+    --gold: #9a6700;
+    --gold-soft: rgba(154, 103, 0, 0.08);
+    --green: #1a7f37;
+    --green-soft: rgba(26, 127, 55, 0.08);
+    --red: #cf222e;
+    --red-soft: rgba(207, 34, 46, 0.07);
+    --mark: rgba(9, 105, 218, 0.14);
+    --shadow: 0 1px 2px rgba(31, 35, 40, 0.04), 0 10px 28px rgba(31, 35, 40, 0.07);
+    color-scheme: light;
+  }
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.5 "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, sans-serif; -webkit-font-smoothing: antialiased; }
+button, input, select, textarea { font: inherit; color: inherit; }
+svg.i { width: 1em; height: 1em; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.label { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+
+/* buttons, chips, keys */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 8px 15px; border-radius: 10px; border: 1px solid var(--border-strong); background: var(--raised); cursor: pointer; font-size: 14px; font-weight: 550; transition: background 0.15s, border-color 0.15s, transform 0.05s; }
+.btn:hover { border-color: var(--muted); }
+.btn:active { transform: translateY(1px); }
+.btn:disabled { opacity: 0.5; cursor: default; }
+.btn.ghost { background: transparent; border-color: transparent; color: var(--muted); }
+.btn.ghost:hover { color: var(--text); background: var(--raised); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+.btn.primary:hover { filter: brightness(1.08); }
+.btn.small { padding: 6px 12px; font-size: 13px; }
+.chip { font-size: 11px; font-weight: 650; padding: 1px 8px; border-radius: 999px; border: 1px solid var(--border-strong); color: var(--text-2); }
+.chip.level { color: var(--accent-text); border-color: transparent; background: var(--accent-soft); }
+.chip.academic { color: var(--green); border-color: transparent; background: var(--green-soft); }
+.chip.hard { color: var(--red); border-color: transparent; background: var(--red-soft); }
+.iconbtn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 30px; min-width: 30px; padding: 0 8px; border-radius: 8px; border: 1px solid transparent; background: none; color: var(--muted); cursor: pointer; font-size: 16px; }
+.iconbtn:hover { color: var(--text); background: var(--raised); }
+.iconbtn.danger:hover { color: var(--red); background: var(--red-soft); }
+.iconbtn .t { font-size: 12.5px; }
+select { padding: 3px 8px; border-radius: 8px; border: 1px solid var(--border-strong); background: var(--surface-2); font-size: 13px; }

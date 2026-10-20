@@ -97,6 +97,14 @@ function renderWords() {
 }
 
 $('review').addEventListener('click', () => chrome.tabs.create({ url: chrome.runtime.getURL('review.html') }));
+$('allWords').addEventListener('click', () => chrome.tabs.create({ url: chrome.runtime.getURL('words.html') }));
+$('backupDue').addEventListener('click', () => chrome.tabs.create({ url: chrome.runtime.getURL('words.html') }));
+// The words live only in this browser: once a week, a word that a copy should be kept.
+chrome.storage.local.get({ lastBackup: 0, words: [] }, ({ lastBackup, words: saved }) => {
+  const due = saved.length && Date.now() - lastBackup > 7 * 86400000;
+  $('backupDue').hidden = !due;
+  $('backupDue').textContent = slT('backupDue');
+});
 
 // Translation inside the browser. The browser fetches a language pack the first time a pair of
 // languages is used, and only when a person asks for it: so the asking is done here, with a

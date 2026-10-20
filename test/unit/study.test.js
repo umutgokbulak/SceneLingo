@@ -64,6 +64,26 @@ test('a hint shows the first letters and the shape of the answer', () => {
   assert.equal(S.slHintMask('keen', 9), 'keen');
 });
 
+test('a backup holds the cards and the days, and merges back in without losing either side', () => {
+  const here = [{ word: 'keen', added: 1, last: 50, interval: 8 }, { word: 'might', added: 2 }];
+  const file = JSON.parse(JSON.stringify(S.slBackup([{ word: 'Keen', added: 1, last: 10, interval: 1 }, { word: 'through', added: 3 }, { word: 'might', added: 2, last: 90, interval: 3 }], { '2026-10-10': { reviews: 5, correct: 4, newSeen: 2 } }, NOW, '0.16.0')));
+  assert.equal(file.app, 'SceneLingo');
+  assert.ok(!('geminiKey' in file));
+  const r = S.slRestore(here, { '2026-10-10': { reviews: 7, correct: 3, newSeen: 1 } }, file);
+  assert.deepEqual([r.added, r.updated], [1, 1]);
+  assert.equal(r.words.find((w) => w.word === 'keen').interval, 8, 'the copy studied last stays');
+  assert.equal(r.words.find((w) => w.word === 'might').interval, 3, 'the backup studied it later');
+  assert.deepEqual(r.log['2026-10-10'], { reviews: 7, correct: 4, newSeen: 2 });
+  assert.throws(() => S.slRestore(here, {}, { words: [] }), /not a SceneLingo backup/);
+});
+
+test('where a card stands', () => {
+  assert.equal(S.slStatus({ word: 'a' }), 'new');
+  assert.equal(S.slStatus({ word: 'a', reps: 1, interval: 3, due: 1 }), 'learning');
+  assert.equal(S.slStatus({ word: 'a', reps: 5, interval: 30, due: 1 }), 'learned');
+  assert.equal(S.slStatus({ word: 'a', lapses: 3, interval: 1, due: 1 }), 'hard');
+});
+
 test("today's queue: what is due, and new cards up to the day's limit", () => {
   const words = [
     { word: 'a', added: 1 },

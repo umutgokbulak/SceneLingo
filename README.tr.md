@@ -54,6 +54,11 @@ yazdım, çalışırken ihtiyaç duyduklarımı ekledim, sonra onu izlediğim di
   kullanıldığı kelimeleri, iki örnek daha ve kendi yazdığın cümlenin kontrolünü de alır. Kartlar düzenlenebilir;
   bir kelime ait olduğu kalıba çevrilebilir ("ripped" → "rip off").
 - **Günlerin kaydı:** seri, öğrenilen kelime, hatırlama oranı.
+- **Bütün kelimelerin tek yerde.** Kaydettiğin her kelime, kalıp ve cümle; kelimeye, anlamlarına ya da cümlesine
+  göre aranır, türe, kaynağa ve durumuna göre (yeni, öğreniliyor, öğrenilen, zor) süzülür. Her satır açılınca
+  bilinen her şeyi gösterir; orada düzenlenir ya da silinir.
+- **Yedek.** Kelimeler yalnızca tarayıcıda durduğu için liste bir yedek dosyası indirir ve geri yükler (var
+  olanlarla birleştirerek); haftada bir yedek almayı hatırlatır.
 
 | Kelime kartı | Tüm satırlar, filmin yanında |
 | --- | --- |
@@ -62,6 +67,10 @@ yazdım, çalışırken ihtiyaç duyduklarımı ekledim, sonra onu izlediğim di
 | Duyduğunu yaz | Cümleyi söyle |
 | --- | --- |
 | ![Yazma alıştırması](docs/screenshots/write.jpg) | ![Söyleme alıştırması](docs/screenshots/speak.jpg) |
+
+| Tekrar | Bütün kelimelerin |
+| --- | --- |
+| ![Tekrar sayfası: kelime, filmdeki cümlesi, o cümledeki anlamı; yanında birlikte kullanıldığı kelimeler, örnekler ve tanım](docs/screenshots/review.jpg) | ![Kaydedilen bütün kelimelerin listesi: durumlarına göre sayılar, arama ve süzgeçler, kelimeler ve anlamları](docs/screenshots/words.jpg) |
 
 ## Nerede çalışır
 
@@ -98,7 +107,7 @@ saklayan servislerde (Netflix gibi) çalışmaz; orada kendi altyazı dosyanı a
 
 ## Nasıl yapıldı
 
-Manifest V3, yalın JavaScript; bağımlılık ve derleme adımı yok. 72 birim testi, site olmadan denenebilen her şey
+Manifest V3, yalın JavaScript; bağımlılık ve derleme adımı yok. 74 birim testi, site olmadan denenebilen her şey
 için oynatıcıyı taklit eden bir test sayfası ve gerisi için eklentiyi gerçek bir tarayıcıya yükleyip yöneten bir
 betik var. Altyazıların sitelerde nasıl bulunduğu, iki altyazı izinin nasıl eşleştirildiği ve yolda çıkan
 sorunlar [İngilizce README](README.md#engineering-notes)'de anlatılıyor.

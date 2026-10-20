@@ -4,63 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>SceneLingo</title>
+<link rel="stylesheet" href="ui.css">
 <style>
-  :root {
-    --bg: #0d1117;
-    --surface: #151b23;
-    --surface-2: #1b222c;
-    --raised: #212833;
-    --border: #2a313c;
-    --border-strong: #3a4350;
-    --text: #e6edf3;
-    --text-2: #b4bdc8;
-    --muted: #7f8995;
-    --accent: #2f81f7;
-    --accent-soft: rgba(47, 129, 247, 0.13);
-    --accent-text: #7ab7ff;
-    --gold: #e3b341;
-    --gold-soft: rgba(227, 179, 65, 0.13);
-    --green: #3fb950;
-    --green-soft: rgba(63, 185, 80, 0.13);
-    --red: #f85149;
-    --red-soft: rgba(248, 81, 73, 0.13);
-    --mark: rgba(47, 129, 247, 0.26);
-    --shadow: 0 1px 0 rgba(255, 255, 255, 0.03) inset, 0 18px 40px rgba(1, 4, 9, 0.4);
-    color-scheme: dark;
-  }
-  @media (prefers-color-scheme: light) {
-    :root:not([data-theme="dark"]) {
-      --bg: #f2f4f7;
-      --surface: #ffffff;
-      --surface-2: #f7f8fa;
-      --raised: #eef1f4;
-      --border: #dfe3e8;
-      --border-strong: #c8cfd7;
-      --text: #1d2229;
-      --text-2: #48515c;
-      --muted: #6f7a86;
-      --accent: #0969da;
-      --accent-soft: rgba(9, 105, 218, 0.08);
-      --accent-text: #0656b3;
-      --gold: #9a6700;
-      --gold-soft: rgba(154, 103, 0, 0.08);
-      --green: #1a7f37;
-      --green-soft: rgba(26, 127, 55, 0.08);
-      --red: #cf222e;
-      --red-soft: rgba(207, 34, 46, 0.07);
-      --mark: rgba(9, 105, 218, 0.14);
-      --shadow: 0 1px 2px rgba(31, 35, 40, 0.04), 0 10px 28px rgba(31, 35, 40, 0.07);
-      color-scheme: light;
-    }
-  }
-
-  * { box-sizing: border-box; }
-  [hidden] { display: none !important; }
   html, body { height: 100%; }
-  body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.5 "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, sans-serif; -webkit-font-smoothing: antialiased; }
-  button, input, select, textarea { font: inherit; color: inherit; }
-  svg.i { width: 1em; height: 1em; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-  .label { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
 
   /* The page is one screen: a bar on top, the card and its panel under it. */
   .app { height: 100%; display: grid; grid-template-rows: auto minmax(0, 1fr); max-width: 1360px; margin: 0 auto; padding: 14px 22px 20px; gap: 14px; }
@@ -273,6 +219,7 @@
     <div class="bar"><div id="bar"></div></div>
     <span id="left"></span>
     <div id="chips"></div>
+    <a id="allWords" class="iconbtn" href="words.html" data-t-title="wordsTitle"></a>
     <div class="gear">
       <button id="gear" class="iconbtn" data-t-title="settings"></button>
       <div id="gearMenu" class="menu" hidden></div>
@@ -322,6 +269,7 @@
 <script src="shared.js"></script>
 <script src="study.js"></script>
 <script src="core.js"></script>
+<script src="ui.js"></script>
 <script src="review.js"></script>
 <!-- Text selected on this page is translated too: the content script does not run on the extension's own pages. -->
 <script src="select.js"></script>
