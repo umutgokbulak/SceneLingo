@@ -373,14 +373,28 @@ function cloudSync(interactive) {
         token = await cloudToken(interactive);
         return slCloudSync(token, chrome.storage.local, Date.now());
       }
-    })().finally(() => (syncing = null));
+    })()
+      .then(
+        async (r) => {
+          await chrome.storage.local.set({ cloudError: '' });
+          return r;
+        },
+        async (e) => {
+          // Kept for the page to say; a sync not asked for by the user, failing quietly, still says why.
+          // Not being signed in at all is no error.
+          const { cloudEmail } = await chrome.storage.local.get({ cloudEmail: '' });
+          if (cloudEmail || interactive) await chrome.storage.local.set({ cloudError: e.message });
+          throw e;
+        }
+      )
+      .finally(() => (syncing = null));
   }
   return syncing;
 }
 
 async function cloudState() {
-  const { cloudEmail, lastSync } = await chrome.storage.local.get({ cloudEmail: '', lastSync: 0 });
-  return { configured: typeof SL_CLOUD !== 'undefined' && !!SL_CLOUD.clientId, email: cloudEmail, lastSync, web: typeof SL_CLOUD !== 'undefined' ? SL_CLOUD.web : '' };
+  const { cloudEmail, lastSync, cloudError } = await chrome.storage.local.get({ cloudEmail: '', lastSync: 0, cloudError: '' });
+  return { configured: typeof SL_CLOUD !== 'undefined' && !!SL_CLOUD.clientId, email: cloudEmail, lastSync, error: cloudError, web: typeof SL_CLOUD !== 'undefined' ? SL_CLOUD.web : '' };
 }
 
 async function cloudSignOut() {

@@ -26,6 +26,8 @@ function slTokenFrom(url) {
   if (h.get('error')) throw new Error(h.get('error'));
   const token = h.get('access_token');
   if (!token) throw new Error('no token');
+  // Google lets the user untick the Drive permission; without it there is nothing to sync with.
+  if (h.get('scope') && !/drive\.appdata/.test(h.get('scope'))) throw new Error('noDrive');
   return { token, expires: Date.now() + (+h.get('expires_in') || 3600) * 1000 - 60000 };
 }
 

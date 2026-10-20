@@ -304,8 +304,17 @@ function remove(key) {
 
 // Signed in: who, when the last sync was, and (in the extension) where the phone finds the cards.
 // Signed out: what the cloud is for, and the way in. Not shown before the app is set up.
+// Google's answers, said plainly.
+function cloudError(e) {
+  if (e === 'noDrive') return slT('cloudNoDrive');
+  if (e === 'access_denied') return slT('cloudDenied');
+  if (e === 'signed out' || e === 'interaction_required' || e === 'login_required') return slT('cloudAgain');
+  return slT('cloudFailed', e);
+}
+
 async function paintCloud(note) {
   const res = await ask({ type: 'cloud-state' });
+  if (!note && res.ok && res.result.error) note = cloudError(res.result.error);
   const box = $('cloud');
   box.textContent = '';
   const st = res.ok ? res.result : null;
@@ -332,7 +341,7 @@ async function paintCloud(note) {
 async function cloudSync(interactive) {
   paintCloud(slT('cloudSyncing'));
   const res = await ask({ type: 'cloud-sync', interactive });
-  if (!res.ok) return paintCloud(slT('cloudFailed', res.error));
+  if (!res.ok) return paintCloud(cloudError(res.error));
   const r = res.result;
   paintCloud(r.added || r.updated ? slT('restored', r.added, r.updated) : '');
 }
@@ -484,6 +493,7 @@ chrome.storage.onChanged.addListener((changes, area) => {
   if (changes.lastBackup) lastBackup = changes.lastBackup.newValue || 0;
   if (changes.words) words = changes.words.newValue || [];
   if (changes.words || changes.lastBackup) render();
+  if (changes.cloudEmail || changes.lastSync || changes.cloudError) paintCloud();
 });
 
 chrome.storage.sync.get(SL_DEFAULTS, (stored) => {

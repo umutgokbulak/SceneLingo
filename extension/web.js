@@ -117,11 +117,21 @@
         window.open(msg.url, '_blank');
         return { ok: true, result: true };
       case 'cloud-state': {
-        const { cloudEmail, lastSync } = await local.get({ cloudEmail: '', lastSync: 0 });
-        return { ok: true, result: { configured: !!SL_CLOUD.clientId, email: cloudEmail, lastSync, web: '' } };
+        const { cloudEmail, lastSync, cloudError } = await local.get({ cloudEmail: '', lastSync: 0, cloudError: '' });
+        return { ok: true, result: { configured: !!SL_CLOUD.clientId, email: cloudEmail, lastSync, error: cloudError, web: '' } };
       }
       case 'cloud-sync':
-        return sync(!!msg.interactive).then((result) => ({ ok: true, result }), (e) => ({ ok: false, error: e.message }));
+        return sync(!!msg.interactive).then(
+          async (result) => {
+            await local.set({ cloudError: '' });
+            return { ok: true, result };
+          },
+          async (e) => {
+            const { cloudEmail } = await local.get({ cloudEmail: '' });
+            if (cloudEmail || msg.interactive) await local.set({ cloudError: e.message });
+            return { ok: false, error: e.message };
+          }
+        );
       case 'cloud-signout':
         localStorage.removeItem('scenelingo.token');
         await local.remove(['cloudEmail', 'lastSync']);
@@ -148,19 +158,28 @@
   };
 
   // Back from Google's sign-in: the token is kept, the address cleaned, and the sync done; the
-  // page is drawn again if the cloud brought anything.
-  if (/access_token=/.test(location.hash)) {
-    try {
-      localStorage.setItem('scenelingo.token', JSON.stringify(slTokenFrom(location.href)));
-    } catch (e) {}
+  // page is drawn again if the cloud brought anything. Read here, before the other scripts: on a
+  // phone the note left before going to Google may not be there when the page comes back.
+  let fresh = false;
+  let refused = '';
+  const back = new URLSearchParams(location.hash.slice(1));
+  if (back.get('access_token')) {
+    // Google lets the user untick the Drive permission; without it there is nothing to sync with.
+    if (!/drive\.appdata/.test(back.get('scope') || '')) refused = 'noDrive';
+    else {
+      const expires = Date.now() + (+back.get('expires_in') || 3600) * 1000 - 60000;
+      localStorage.setItem('scenelingo.token', JSON.stringify({ token: back.get('access_token'), expires }));
+      fresh = true;
+    }
     history.replaceState(null, '', here());
-  } else if (/error=/.test(location.hash)) {
+  } else if (back.get('error')) {
+    refused = back.get('error');
     history.replaceState(null, '', here());
-    sessionStorage.removeItem('scenelingo.after');
   }
   window.addEventListener('load', async () => {
-    const after = sessionStorage.getItem('scenelingo.after');
+    const after = sessionStorage.getItem('scenelingo.after') || fresh;
     sessionStorage.removeItem('scenelingo.after');
+    if (refused) return local.set({ cloudError: refused });
     const { cloudEmail } = await local.get({ cloudEmail: '' });
     if (!after && !cloudEmail) return;
     // Signed in before, but the hour is over: a quick trip to Google, once a visit, with no window.
