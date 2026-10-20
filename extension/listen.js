@@ -96,6 +96,7 @@ function show() {
   withKey($('go'), slT('checkAnswer'), 'Enter');
   paintTimes();
   play(false);
+  glossOf(s);
 }
 
 // One more word of the sentence, the rest as gaps.
@@ -183,7 +184,7 @@ function paintParts(s) {
   }
   const head = el('div', 'label');
   head.append(el('span', null, slT('listenParts')), el('span', 'engine', 'Gemini'));
-  const list = el('div', null, slT('loading'));
+  const list = el('div', 'tip', slT('lookingUp'));
   box.append(head, list);
   const fill = (parts) => {
     list.textContent = '';
@@ -206,24 +207,42 @@ function paintParts(s) {
     if (!parts.length) list.textContent = '';
     box.append(el('div', 'tip', slT('listenTap')));
   };
-  chrome.storage.local.get({ listenGloss: {} }, async (data) => {
-    const kept = data.listenGloss || {};
-    if (kept[s.key]) return fill(kept[s.key].parts);
-    const res = await ask({ type: 'gloss', sentence: s.text, sl: s.lang, tl: settings.nativeLang });
-    if (!res.ok) {
-      list.textContent = '';
-      box.querySelector('.label').remove();
-      box.append(el('div', 'tip', slT('listenTap')));
-      return;
-    }
-    fill(res.result);
-    // Kept, the newest first, so that the same sentence costs nothing next time.
-    kept[s.key] = { parts: res.result, at: Date.now() };
-    const keys = Object.keys(kept).sort((a, b) => kept[b].at - kept[a].at);
-    for (const k of keys.slice(GLOSS_KEPT)) delete kept[k];
-    chrome.storage.local.set({ listenGloss: kept });
+  glossOf(s).then((parts) => {
+    if (parts) return fill(parts);
+    list.textContent = '';
+    box.querySelector('.label').remove();
+    box.append(el('div', 'tip', slT('listenTap')));
   });
   return box;
+}
+
+// The parts of a sentence: kept from an earlier time, or asked for. Asked as soon as the sentence
+// is shown, while it is being listened to, so that they are there when it has been checked.
+const glossing = new Map();
+function glossOf(s) {
+  if (!geminiKey) return Promise.resolve(null);
+  if (glossing.has(s.key)) return glossing.get(s.key);
+  const job = new Promise((resolve) => {
+    chrome.storage.local.get({ listenGloss: {} }, async (data) => {
+      const kept = data.listenGloss || {};
+      if (kept[s.key]) return resolve(kept[s.key].parts);
+      const res = await ask({ type: 'gloss', sentence: s.text, sl: s.lang, tl: settings.nativeLang });
+      if (!res.ok) {
+        glossing.delete(s.key); // asked again next time
+        return resolve(null);
+      }
+      resolve(res.result);
+      // Kept, the newest first, so that the same sentence costs nothing next time.
+      chrome.storage.local.get({ listenGloss: {} }, (fresh) => {
+        const all = { ...(fresh.listenGloss || {}), [s.key]: { parts: res.result, at: Date.now() } };
+        const keys = Object.keys(all).sort((a, b) => all[b].at - all[a].at);
+        for (const k of keys.slice(GLOSS_KEPT)) delete all[k];
+        chrome.storage.local.set({ listenGloss: all });
+      });
+    });
+  });
+  glossing.set(s.key, job);
+  return job;
 }
 
 // A part of the sentence saved as a card of its own, with this sentence as its sentence; or, saved

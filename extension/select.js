@@ -147,7 +147,7 @@
     const close = el('button', 'sl-sel-x', '✕');
     close.addEventListener('click', hide);
     head.append(word, close);
-    const body = el('div', 'sl-sel-body', slT('loading'));
+    const body = el('div', 'sl-sel-body', slT('lookingUp'));
     card.append(head, ipa, body);
     shadow.append(card);
     place(card, picked.rect);
