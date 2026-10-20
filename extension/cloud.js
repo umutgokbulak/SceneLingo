@@ -74,15 +74,19 @@ async function slCloudSync(token, storage, now) {
   const remote = await slCloudRead(token);
   const there = remote.data || {};
   const merged = slMergeAll(here, there, now);
-  const same = (a, b) => JSON.stringify(a || {}) === JSON.stringify(b || {});
+  const same = (a, b) => slCanon(a || {}) === slCanon(b || {});
   const sameCards = (a, b) => same([...(a || [])].sort((x, y) => (x.word < y.word ? -1 : 1)), [...(b || [])].sort((x, y) => (x.word < y.word ? -1 : 1)));
   if (!remote.id || !sameCards(merged.words, there.words) || !same(merged.reviewLog, there.reviewLog) || !same(merged.deleted, there.deleted)) {
     await slCloudWrite(token, remote.id, slBackup(merged.words, merged.reviewLog, now, 'cloud', merged.deleted));
   }
+  // A card graded or saved here while the cloud was being asked is not lost: what is here now is
+  // merged with the result once more before it is written.
+  const latest = await storage.get({ words: [], reviewLog: {}, deleted: {} });
+  const final = sameCards(latest.words, here.words) && same(latest.reviewLog, here.reviewLog) && same(latest.deleted, here.deleted) ? merged : slMergeAll(latest, merged, now);
   const changes = { lastSync: now, lastBackup: now };
-  if (!sameCards(merged.words, here.words)) changes.words = merged.words;
-  if (!same(merged.reviewLog, here.reviewLog)) changes.reviewLog = merged.reviewLog;
-  if (!same(merged.deleted, here.deleted)) changes.deleted = merged.deleted;
+  if (!sameCards(final.words, latest.words)) changes.words = final.words;
+  if (!same(final.reviewLog, latest.reviewLog)) changes.reviewLog = final.reviewLog;
+  if (!same(final.deleted, latest.deleted)) changes.deleted = final.deleted;
   await storage.set(changes);
   return { added: merged.added, updated: merged.updated, count: merged.words.length, changed: 'words' in changes };
 }

@@ -237,6 +237,45 @@ function slStamp(w) {
   return Math.max(w.updated || 0, w.last || 0, w.added || 0);
 }
 
+// Two copies of one card made one, field by field: the word and its meaning as edited last; how
+// far it has been learnt from the copy studied last; and what is known about it (its sentence's
+// meaning, examples, pronunciation, level...) from whichever copy has it. So a card enriched on
+// the phone and studied on the computer keeps both.
+// The same data whatever order its fields were written in.
+function slCanon(v) {
+  return JSON.stringify(v, (k, x) => (x && typeof x === 'object' && !Array.isArray(x) ? Object.keys(x).sort().reduce((o, key) => ((o[key] = x[key]), o), {}) : x));
+}
+
+const SL_PROGRESS = ['due', 'interval', 'ease', 'reps', 'lapses', 'stage', 'stageWins', 'last'];
+const SL_EDITED = ['word', 'kind', 'translation', 'updated'];
+
+function slMergeCard(a, b) {
+  const filled = (v) => v !== undefined && v !== null && v !== '' && !(Array.isArray(v) && !v.length);
+  const byEdit = (b.updated || 0) > (a.updated || 0) ? b : a;
+  const byStudy = (b.last || 0) > (a.last || 0) ? b : a;
+  const out = { ...a };
+  for (const [k, v] of Object.entries(b)) if (!filled(out[k]) && filled(v)) out[k] = v;
+  for (const k of SL_EDITED) if (k in byEdit) out[k] = byEdit[k];
+  for (const k of SL_PROGRESS) {
+    if (k in byStudy) out[k] = byStudy[k];
+    else delete out[k];
+  }
+  // Of what a card has learnt about itself, the fuller copy; of sentences met again, all of them.
+  if (((b.enriched || 0) > (a.enriched || 0) && b.extra) || (!a.extra && b.extra)) out.extra = b.extra;
+  out.enriched = Math.max(+a.enriched || 0, +b.enriched || 0) || a.enriched || b.enriched;
+  if (b.senseEngine === 'gemini' && a.senseEngine !== 'gemini') {
+    for (const k of ['contextMeaning', 'contextPhrase', 'contextNote', 'senseEngine']) out[k] = b[k];
+  }
+  let merged = { ...out, examples: a.examples || [] };
+  for (const e of b.examples || []) merged = slAddExample(merged, e);
+  if (!merged.examples.length) delete merged.examples;
+  merged.seen = Math.max(a.seen || 0, b.seen || 0) || undefined;
+  if (merged.seen === undefined) delete merged.seen;
+  const mine = [...(a.mine || []), ...(b.mine || [])].filter((m, i, all) => all.findIndex((x) => x.text === m.text) === i).slice(-3);
+  if (mine.length) merged.mine = mine;
+  return merged;
+}
+
 // Two copies of everything made one, as when this browser meets its copy in the cloud, or a
 // backup file: a card in both keeps the copy changed last; a card deleted on one side after it
 // last changed on the other stays deleted; the days' records keep the larger counts. Deletions
@@ -256,9 +295,12 @@ function slMergeAll(here, there, now) {
     if (!mine) {
       byKey.set(key(w), w);
       added += 1;
-    } else if (slStamp(w) > slStamp(mine)) {
-      byKey.set(key(w), w);
-      updated += 1;
+    } else {
+      const both = slMergeCard(mine, w);
+      if (slCanon(both) !== slCanon(mine)) {
+        byKey.set(key(w), both);
+        updated += 1;
+      }
     }
   }
   for (const [k, w] of byKey) {
@@ -358,5 +400,5 @@ function slStatus(item) {
 }
 
 if (typeof module !== 'undefined') {
-  module.exports = { SL_STAGES, slFromCsv, slBackup, slStamp, slMergeAll, slRestore, slStatus, slCleanLine, slHintMask, slCardType, slAdvance, slClozeParts, slCheckAnswer, slAccepted, slSentenceScore, slDayKey, slIsNew, slTodayQueue, slLogged, slStats, slDueCount, slAddExample, slMerge, slNormalize };
+  module.exports = { SL_STAGES, slCanon, slFromCsv, slBackup, slStamp, slMergeCard, slMergeAll, slRestore, slStatus, slCleanLine, slHintMask, slCardType, slAdvance, slClozeParts, slCheckAnswer, slAccepted, slSentenceScore, slDayKey, slIsNew, slTodayQueue, slLogged, slStats, slDueCount, slAddExample, slMerge, slNormalize };
 }

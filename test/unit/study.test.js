@@ -113,6 +113,22 @@ test('the word list of an earlier version, saved as CSV, is read back as cards',
   assert.ok(S.slIsNew(cards[0]), 'starts anew');
 });
 
+test('one card changed on two devices keeps both changes', () => {
+  // studied on the computer; enriched by Gemini on the phone
+  const computer = { word: 'keen', added: 1, translation: 'keskin', reps: 3, interval: 8, due: 900, last: 500, stage: 2 };
+  const phone = { word: 'keen', added: 1, translation: 'keskin', reps: 2, interval: 3, due: 400, last: 300, stage: 1, extra: { level: 'B2', ipa: '/kiːn/' }, enriched: 2, contextMeaning: 'keskin', senseEngine: 'gemini', examples: [{ text: 'A keen eye.' }] };
+  for (const [a, b] of [[computer, phone], [phone, computer]]) {
+    const m = S.slMergeCard(a, b);
+    assert.deepEqual([m.reps, m.interval, m.due, m.last, m.stage], [3, 8, 900, 500, 2], 'the progress of the copy studied last');
+    assert.equal(m.extra.level, 'B2', 'what Gemini found');
+    assert.equal(m.senseEngine, 'gemini');
+    assert.equal(m.examples.length, 1);
+  }
+  // edited on one side: the edit stays, whatever was studied where
+  const edited = S.slMergeCard({ ...computer, translation: 'hevesli', updated: 600 }, phone);
+  assert.equal(edited.translation, 'hevesli');
+});
+
 test('where a card stands', () => {
   assert.equal(S.slStatus({ word: 'a' }), 'new');
   assert.equal(S.slStatus({ word: 'a', reps: 1, interval: 3, due: 1 }), 'learning');

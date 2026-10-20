@@ -79,3 +79,21 @@ test('the sign-in address asks for this folder only, and the token comes back in
   assert.throws(() => slTokenFrom('https://x/#error=access_denied'), /access_denied/);
   SL_CLOUD.clientId = '';
 });
+
+test('a card graded while the sync is under way is not lost', async () => {
+  drive();
+  const laptop = store({ words: [{ word: 'keen', added: 1 }] });
+  // the review page grades the card between the sync's read and its write
+  const get = laptop.get;
+  let first = true;
+  laptop.get = async (d) => {
+    const r = await get(d);
+    if (first) {
+      first = false;
+      laptop.data.words = [{ word: 'keen', added: 1, reps: 1, interval: 1, last: 5000 }];
+    }
+    return r;
+  };
+  await slCloudSync('tok', laptop, 6000);
+  assert.equal(laptop.data.words[0].reps, 1, 'the grade made during the sync stays');
+});
