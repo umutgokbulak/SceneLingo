@@ -23,7 +23,10 @@
   .today .big { display: flex; align-items: baseline; gap: 8px; }
   .today .big b { font-size: 30px; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
   .today .big span { color: var(--text-2); font-size: 13.5px; }
-  .today .btn.primary { width: 100%; margin-top: 12px; padding: 10px; font-size: 14.5px; }
+  .today .btn.primary { width: 100%; margin-top: 10px; padding: 10px; font-size: 14.5px; }
+  .todayhead { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+  #streak { font-size: 12.5px; color: var(--gold); font-weight: 650; }
+  #plan .sl-step { padding: 5px 8px; }
   .today .links { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px; }
   .today .links .btn { min-width: 0; }
   .today .links .warn { grid-column: 1 / -1; }
@@ -71,13 +74,11 @@
   </header>
 
   <div class="today">
-    <div class="big"><b id="dueCount">0</b><span id="dueText"></span></div>
-    <button id="review" class="btn primary"></button>
+    <div class="todayhead"><span class="label" data-t="planTitle"></span><span id="streak"></span></div>
+    <div id="plan"></div>
     <div class="links">
       <button id="allWords" class="btn small"></button>
-      <button id="listen" class="btn small" data-t="listenShort"></button>
-      <button id="speak" class="btn small" data-t="speakShort"></button>
-      <button id="write" class="btn small" data-t="writeShort"></button>
+      <button id="progress" class="btn small" data-t="progressTitle"></button>
       <button id="backupDue" class="btn small warn" hidden></button>
     </div>
     <div class="cloudline" id="cloudLine"></div>

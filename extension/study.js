@@ -158,11 +158,70 @@ function slLogged(log, now, { isNew, correct }) {
   day.reviews += 1;
   if (correct) day.correct += 1;
   if (isNew) day.newSeen += 1;
-  const out = { ...log, [key]: day };
-  // A year of days is plenty.
-  const keys = Object.keys(out).sort();
-  for (const k of keys.slice(0, Math.max(0, keys.length - 370))) delete out[k];
-  return out;
+  return slYear({ ...log, [key]: day });
+}
+
+// A year of days is plenty.
+function slYear(log) {
+  const keys = Object.keys(log).sort();
+  for (const k of keys.slice(0, Math.max(0, keys.length - 370))) delete log[k];
+  return log;
+}
+
+// The other practice, in the same record of days: a sentence listened to (`listen`, with how much
+// of it was heard, 0-100), a spoken answer or conversation (`speak`), a text written (`write`).
+function slLogActivity(log, now, kind, score) {
+  const key = slDayKey(now);
+  const day = { ...(log[key] || {}) };
+  day[kind] = (day[kind] || 0) + 1;
+  if (score != null) day[kind + 'Score'] = (day[kind + 'Score'] || 0) + score;
+  return slYear({ ...log, [key]: day });
+}
+
+// A day with any study in it.
+const slActive = (day) => !!(day && (day.reviews || day.listen || day.speak || day.write));
+
+// What a day asks for, every day: the cards that are due, five sentences listened to, and one
+// conversation or spoken answer; and, in the week, two texts written. `next` is the first step not
+// yet done.
+const SL_PLAN = { listen: 5, speak: 1, write: 2 };
+function slTodayPlan(words, log, now, newPerDay) {
+  const today = log[slDayKey(now)] || {};
+  const due = slDueCount(words, now, log, newPerDay);
+  let written = 0;
+  for (let i = 0; i < 7; i++) written += (log[slDayKey(now - i * SL_DAY)] || {}).write || 0;
+  const steps = [
+    { id: 'review', have: today.reviews || 0, left: due, done: due === 0 },
+    { id: 'listen', have: today.listen || 0, goal: SL_PLAN.listen, done: (today.listen || 0) >= SL_PLAN.listen },
+    { id: 'speak', have: today.speak || 0, goal: SL_PLAN.speak, done: (today.speak || 0) >= SL_PLAN.speak },
+  ];
+  const week = { id: 'write', have: written, goal: SL_PLAN.write, done: written >= SL_PLAN.write };
+  const next = steps.find((s) => !s.done);
+  return { steps, week, next: next ? next.id : week.done ? null : 'write', done: !next };
+}
+
+// The last seven days, oldest first, and what was done in them.
+function slWeek(words, log, now) {
+  const days = [];
+  for (let i = 6; i >= 0; i--) {
+    const t = now - i * SL_DAY;
+    days.push({ key: slDayKey(t), at: t, ...(log[slDayKey(t)] || {}) });
+  }
+  const sum = (k) => days.reduce((a, d) => a + (d[k] || 0), 0);
+  const listened = sum('listen');
+  const since = now - 7 * SL_DAY;
+  return {
+    days,
+    active: days.filter(slActive).length,
+    reviews: sum('reviews'),
+    retention: sum('reviews') ? Math.round((sum('correct') / sum('reviews')) * 100) : null,
+    started: sum('newSeen'),
+    saved: words.filter((w) => (w.added || 0) >= since).length,
+    listened,
+    heard: listened ? Math.round(sum('listenScore') / listened) : null,
+    spoken: sum('speak'),
+    written: sum('write'),
+  };
 }
 
 function slStats(words, log, now) {
@@ -171,8 +230,8 @@ function slStats(words, log, now) {
   // Days in a row with some study, up to today (or up to yesterday, while today is still open).
   let streak = 0;
   let day = now;
-  if (!(log[slDayKey(day)] || {}).reviews) day -= SL_DAY;
-  while ((log[slDayKey(day)] || {}).reviews) {
+  if (!slActive(log[slDayKey(day)])) day -= SL_DAY;
+  while (slActive(log[slDayKey(day)])) {
     streak += 1;
     day -= SL_DAY;
   }
@@ -311,11 +370,10 @@ function slMergeAll(here, there, now) {
   const reviewLog = { ...(here.reviewLog || {}) };
   for (const [day, d] of Object.entries(there.reviewLog || {})) {
     const h = reviewLog[day] || {};
-    reviewLog[day] = {
-      reviews: Math.max(h.reviews || 0, d.reviews || 0),
-      correct: Math.max(h.correct || 0, d.correct || 0),
-      newSeen: Math.max(h.newSeen || 0, d.newSeen || 0),
-    };
+    // Each count, as the copy that has more of it says (the same day studied on two devices is
+    // counted as the larger of the two).
+    reviewLog[day] = { ...h };
+    for (const [k, v] of Object.entries(d)) if (typeof v === 'number') reviewLog[day][k] = Math.max(h[k] || 0, v);
   }
   return { words: [...byKey.values()], reviewLog, deleted, added, updated };
 }
@@ -491,5 +549,5 @@ function slDictationPool(words, lang, rest, now, size, rand = Math.random) {
 }
 
 if (typeof module !== 'undefined') {
-  module.exports = { SL_STAGES, slDictation, slDictationPool, slCanon, slFromCsv, slBackup, slStamp, slMergeCard, slMergeAll, slRestore, slStatus, slCleanLine, slHintMask, slCardType, slAdvance, slClozeParts, slCheckAnswer, slAccepted, slSentenceScore, slDayKey, slIsNew, slTodayQueue, slLogged, slStats, slDueCount, slAddExample, slMerge, slNormalize };
+  module.exports = { SL_PLAN, slLogActivity, slActive, slTodayPlan, slWeek, SL_STAGES, slDictation, slDictationPool, slCanon, slFromCsv, slBackup, slStamp, slMergeCard, slMergeAll, slRestore, slStatus, slCleanLine, slHintMask, slCardType, slAdvance, slClozeParts, slCheckAnswer, slAccepted, slSentenceScore, slDayKey, slIsNew, slTodayQueue, slLogged, slStats, slDueCount, slAddExample, slMerge, slNormalize };
 }

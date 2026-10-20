@@ -210,3 +210,54 @@ test('dictation: the sentences come from the saved ones, those not resting and s
   assert.equal(pool[2].word, '', 'a saved sentence has no word to point at');
   assert.deepEqual(S.slDictationPool(words, 'de', {}, NOW, 10).map((s) => s.text), ['Der Hund schläft im Garten.']);
 });
+
+test('the record of days keeps the other practice too, and a day of it counts towards the streak', () => {
+  let log = {};
+  log = S.slLogActivity(log, NOW, 'listen', 80);
+  log = S.slLogActivity(log, NOW, 'listen', 100);
+  log = S.slLogActivity(log, NOW - DAY, 'speak');
+  log = S.slLogged(log, NOW - 2 * DAY, { isNew: true, correct: true });
+  const today = log[S.slDayKey(NOW)];
+  assert.deepEqual(today, { listen: 2, listenScore: 180 });
+  assert.equal(S.slStats([], log, NOW).streak, 3, 'listening today, speaking yesterday, cards the day before');
+  // merged with another device's: each count the larger
+  const other = { [S.slDayKey(NOW)]: { listen: 1, listenScore: 50, write: 1 } };
+  const merged = S.slMergeAll({ words: [], reviewLog: log }, { words: [], reviewLog: other }, NOW).reviewLog[S.slDayKey(NOW)];
+  assert.deepEqual(merged, { listen: 2, listenScore: 180, write: 1 });
+});
+
+test("today's plan: the cards, five sentences, one conversation; two texts a week", () => {
+  const words = [{ word: 'keen', due: NOW - 1000, reps: 1, interval: 1, last: NOW - DAY }];
+  let log = {};
+  let plan = S.slTodayPlan(words, log, NOW, 15);
+  assert.equal(plan.next, 'review');
+  assert.deepEqual(plan.steps.map((s) => s.done), [false, false, false]);
+  const studied = [{ ...words[0], due: NOW + DAY }];
+  for (let i = 0; i < 5; i++) log = S.slLogActivity(log, NOW, 'listen', 90);
+  plan = S.slTodayPlan(studied, log, NOW, 15);
+  assert.equal(plan.next, 'speak');
+  log = S.slLogActivity(log, NOW, 'speak');
+  plan = S.slTodayPlan(studied, log, NOW, 15);
+  assert.ok(plan.done);
+  assert.equal(plan.next, 'write', 'the day is done; the week still wants its texts');
+  log = S.slLogActivity(log, NOW - 3 * DAY, 'write');
+  log = S.slLogActivity(log, NOW, 'write');
+  assert.equal(S.slTodayPlan(studied, log, NOW, 15).next, null);
+});
+
+test('the week: what was done in each of the last seven days, and in all of them', () => {
+  let log = {};
+  log = S.slLogged(log, NOW, { isNew: true, correct: true });
+  log = S.slLogged(log, NOW, { isNew: false, correct: false });
+  log = S.slLogActivity(log, NOW - DAY, 'listen', 60);
+  log = S.slLogActivity(log, NOW - DAY, 'listen', 100);
+  log = S.slLogActivity(log, NOW - 9 * DAY, 'write');
+  const w = S.slWeek([{ word: 'a', added: NOW - DAY }, { word: 'b', added: NOW - 20 * DAY }], log, NOW);
+  assert.equal(w.days.length, 7);
+  assert.equal(w.days[6].key, S.slDayKey(NOW));
+  assert.equal(w.active, 2);
+  assert.equal(w.retention, 50);
+  assert.equal(w.heard, 80);
+  assert.equal(w.written, 0, 'nine days ago is not this week');
+  assert.equal(w.saved, 1);
+});

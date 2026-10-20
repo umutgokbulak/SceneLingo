@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SceneLingo</title>
+<link rel="stylesheet" href="ui.css?v=0.22.0">
+<link rel="stylesheet" href="practice.css?v=0.22.0">
+<link rel="manifest" href="app.webmanifest">
+<link rel="apple-touch-icon" href="icons/128.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SceneLingo">
+<meta name="theme-color" content="#0d1117">
+<style>
+  .split { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 16px; align-items: start; }
+  .streak { display: flex; align-items: baseline; gap: 10px; margin-bottom: 14px; }
+  .streak b { font-size: 34px; font-weight: 700; color: var(--gold); font-variant-numeric: tabular-nums; }
+  .streak span { color: var(--text-2); font-size: 14px; }
+  .plan { display: grid; gap: 10px; }
+
+  /* the week, day by day */
+  .grid { display: grid; grid-template-columns: minmax(84px, auto) repeat(7, minmax(0, 1fr)); gap: 6px; align-items: center; margin-top: 4px; }
+  .grid .day { text-align: center; font-size: 12px; color: var(--muted); }
+  .grid .day.today { color: var(--accent-text); font-weight: 700; }
+  .grid .kind { font-size: 13px; color: var(--text-2); white-space: nowrap; }
+  .grid .cell { height: 30px; border-radius: 8px; background: var(--raised); display: grid; place-items: center; font-size: 12px; font-weight: 650; color: transparent; font-variant-numeric: tabular-nums; }
+  .grid .cell.on { background: var(--accent-soft); color: var(--accent-text); }
+  .grid .cell.full { background: var(--accent); color: #fff; }
+
+  .metrics { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-top: 18px; }
+  .metric { padding: 12px 14px; border-radius: 12px; background: var(--surface-2); border: 1px solid var(--border); }
+  .metric small { display: block; font-size: 12px; color: var(--muted); }
+  .metric b { font-size: 22px; font-weight: 650; font-variant-numeric: tabular-nums; }
+  .metric em { font-style: normal; font-size: 12.5px; color: var(--text-2); margin-left: 4px; }
+  .bandsrow { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .trend { display: flex; align-items: flex-end; gap: 3px; height: 34px; margin-top: 8px; }
+  .trend i { flex: 1; max-width: 14px; border-radius: 3px 3px 0 0; background: var(--accent); opacity: 0.75; }
+  .empty-note { color: var(--muted); font-size: 13px; }
+
+  @media (max-width: 760px) {
+    .split { grid-template-columns: minmax(0, 1fr); }
+    .grid { grid-template-columns: 70px repeat(7, minmax(0, 1fr)); gap: 4px; }
+    .grid .kind { font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brand"><img src="icons/48.png" alt=""><h1 data-t="progressTitle"></h1></div>
+    <a id="toReview" class="btn small ghost" href="review.html"></a>
+    <a id="toWords" class="btn small ghost" href="words.html"></a>
+  </header>
+
+  <div class="split">
+    <section class="card"><div class="inner">
+      <div class="streak"><b id="streak">0</b><span id="streakText"></span></div>
+      <div class="label" data-t="planTitle"></div>
+      <div id="plan" class="plan" style="margin-top: 8px;"></div>
+    </div></section>
+
+    <section class="card"><div class="inner">
+      <h2 data-t="progressWeek"></h2>
+      <p class="sub" id="active"></p>
+      <div class="grid" id="grid"></div>
+      <div class="metrics" id="metrics"></div>
+    </div></section>
+  </div>
+
+  <section class="card" id="ielts" hidden><div class="inner">
+    <h2>IELTS</h2>
+    <p class="sub" data-t="progressIeltsSub"></p>
+    <div class="bandsrow" id="bands"></div>
+  </div></section>
+
+  <div id="usage" class="muted" style="padding: 0 6px;"></div>
+</div>
+
+<!-- On the phone, where there is no extension, this stands in for it. -->
+<script src="web.js?v=0.22.0"></script>
+<script src="messages.js?v=0.22.0"></script>
+<script src="shared.js?v=0.22.0"></script>
+<script src="study.js?v=0.22.0"></script>
+<script src="cloud.js?v=0.22.0"></script>
+<script src="gemini.js?v=0.22.0"></script>
+<script src="ui.js?v=0.22.0"></script>
+<script src="practice-data.js?v=0.22.0"></script>
+<script src="practice.js?v=0.22.0"></script>
+<script src="progress.js?v=0.22.0"></script>
+</body>
+</html>

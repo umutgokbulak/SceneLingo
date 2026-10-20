@@ -75,6 +75,18 @@ svg.i { width: 1em; height: 1em; flex: none; fill: none; stroke: currentColor; s
 .iconbtn.danger:hover { color: var(--red); background: var(--red-soft); }
 .iconbtn .t { font-size: 12.5px; }
 select { padding: 3px 8px; border-radius: 8px; border: 1px solid var(--border-strong); background: var(--surface-2); font-size: 13px; }
+.sl-plan { display: grid; gap: 4px; }
+.sl-step { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 7px 10px; border-radius: 10px; border: 1px solid transparent; background: none; color: var(--text); cursor: pointer; text-align: left; font-size: 14px; }
+.sl-step:hover { background: var(--raised); }
+.sl-step .sl-tick { width: 20px; height: 20px; display: grid; place-items: center; border-radius: 50%; border: 1.5px solid var(--border-strong); font-size: 12px; font-weight: 700; }
+.sl-step.done .sl-tick { background: var(--green); border-color: var(--green); color: #fff; }
+.sl-step.done .sl-name { color: var(--text-2); }
+.sl-step.next { border-color: var(--accent); background: var(--accent-soft); }
+.sl-step .sl-count { font-size: 12.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.sl-step.done .sl-count { color: var(--green); }
+.sl-step:last-child { margin-top: 4px; border-top: 1px dashed var(--border); border-radius: 0 0 10px 10px; padding-top: 9px; }
+.sl-step:last-child.next { border: 1px solid var(--accent); border-radius: 10px; }
+.sl-next { width: 100%; }
 .sl-usage { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 8px; font-size: 12px; color: var(--muted); }
 .sl-usage .sl-bars { display: inline-flex; align-items: flex-end; gap: 2px; height: 18px; }
 .sl-usage .sl-bars i { width: 5px; border-radius: 2px; background: var(--border-strong); }

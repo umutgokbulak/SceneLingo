@@ -129,6 +129,16 @@ function days() {
       await wait(1000);
       await page(`(scrollTo(0, 0), true)`);
       fs.writeFileSync(path.join(dir, 'ielts-writing.jpg'), await b.picture(88));
+      const week = days();
+      const dk = (t) => { const d = new Date(t); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
+      week[dk(NOW)] = { reviews: 9, correct: 8, newSeen: 2, listen: 5, listenScore: 410 };
+      Object.assign(week[dk(NOW - DAY)], { listen: 3, listenScore: 250, speak: 1 });
+      Object.assign(week[dk(NOW - 3 * DAY)], { speak: 2, write: 1 });
+      const bands = (o, n) => Array.from({ length: n }, (_, i) => ({ at: NOW - (n - i) * DAY, bands: Object.fromEntries(Object.entries(o).map(([k, v]) => [k, Math.min(9, v + Math.floor(i / 3) * 0.5)])) }));
+      await seed({ reviewLog: week, speakLog: bands({ fluency: 5.5, lexical: 6, grammar: 5.5, pronunciation: 6.5 }, 8), writeLog: bands({ task: 5.5, coherence: 6, lexical: 6, grammar: 5.5 }, 5) });
+      await b.open(b.extensionPage('progress.html'));
+      await wait(1000);
+      fs.writeFileSync(path.join(dir, 'progress.jpg'), await b.picture(88));
       await b.open(b.extensionPage('speak.html'));
       await wait(1000);
       await page(`(document.querySelector('#parts .tile').click(), true)`);
@@ -328,6 +338,16 @@ function days() {
     await wait(1000);
     assert.match(await page(`$('#fb .level').textContent`), /A2/);
     assert.equal(await page(`document.querySelectorAll('#fb .checks .yes').length + '/' + document.querySelectorAll('#fb .checks .no').length`), '2/1');
+
+    // ---- today's plan, and the week ----
+    // what the writing above did is in the record of days, beside the cards of the four days before
+    await b.open(b.extensionPage('progress.html'));
+    await wait(1000);
+    assert.equal(await page(`$('#streak').textContent`), '5', 'writing today, cards on the four days before');
+    assert.deepEqual(JSON.parse(await page(`JSON.stringify([...document.querySelectorAll('#plan .sl-step')].map((s) => s.classList.contains('done')))`)), [false, false, false, true], 'two texts this week: the week is done');
+    assert.match(await page(`$('#plan .sl-next').textContent`), /Kart|Cards/);
+    assert.equal(await page(`[...document.querySelectorAll('#grid .cell')].slice(-1)[0].textContent`), '2', 'two texts today, in the last column');
+    assert.match(await page(`$('#bands').textContent`), /Writing.*Band 6\.0/);
 
     // ---- the list of all words ----
     await seed();

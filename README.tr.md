@@ -69,6 +69,9 @@ yazdım, çalışırken ihtiyaç duyduklarımı ekledim, sonra onu izlediğim di
   doğal hâlini verir. İngilizcede süreli IELTS Writing görevleri (Task 1 mektup ya da tablo raporu, Task 2
   deneme): dört ölçüte göre tahmini band, hatalar ve yazının band 8 hâli. Yazdıkların yazarken saklanır.
 - **Gemini kullanımı:** bugünkü istek ve token sayısı ile son bir hafta, anahtarın yanında.
+- **Bugünün planı ve hafta.** Her gün: bekleyen kartlar, 5 dinleme cümlesi ve bir konuşma; haftada iki yazı.
+  Eklenti penceresi neyin kaldığını gösterir ve sıradakini açar; İlerleme sayfası son yedi günü gün gün, toplamları
+  ve IELTS bandlarının gidişini gösterir. Hangi alıştırmayı yaparsan yap seri devam eder.
 - **Günlerin kaydı:** seri, öğrenilen kelime, hatırlama oranı.
 - **Bütün kelimelerin tek yerde.** Kaydettiğin her kelime, kalıp ve cümle; kelimeye, anlamlarına ya da cümlesine
   göre aranır, türe, kaynağa ve durumuna göre (yeni, öğreniliyor, öğrenilen, zor) süzülür. Her satır açılınca
@@ -88,9 +91,9 @@ yazdım, çalışırken ihtiyaç duyduklarımı ekledim, sonra onu izlediğim di
 | --- | --- |
 | ![IELTS cevabı, tahmini band ve dört ölçüt, düzeltmeler ve band 8 cevap](docs/screenshots/ielts-speaking.jpg) | ![Kafede konuşma: garsonun cümleleri, senin cevabın ve altında daha iyi hâli](docs/screenshots/conversation.jpg) |
 
-| IELTS Writing | |
+| İlerleme | IELTS Writing |
 | --- | --- |
-| ![IELTS Task 2 denemesi: kelime sayısı, kalan süre ve tahmini band](docs/screenshots/ielts-writing.jpg) | |
+| ![Bugünün planı ve son yedi gün](docs/screenshots/progress.jpg) | ![IELTS Task 2 denemesi: kelime sayısı, kalan süre ve tahmini band](docs/screenshots/ielts-writing.jpg) |
 
 | Dinleme alıştırması | |
 | --- | --- |
@@ -151,7 +154,7 @@ saat okuyup yazmasına yeter. Kurulum adımları [İngilizce README](README.md#s
 
 ## Nasıl yapıldı
 
-Manifest V3, yalın JavaScript; bağımlılık ve derleme adımı yok. 92 birim testi, site olmadan denenebilen her şey
+Manifest V3, yalın JavaScript; bağımlılık ve derleme adımı yok. 95 birim testi, site olmadan denenebilen her şey
 için oynatıcıyı taklit eden bir test sayfası ve gerisi için eklentiyi gerçek bir tarayıcıya yükleyip yöneten bir
 betik var. Altyazıların sitelerde nasıl bulunduğu, iki altyazı izinin nasıl eşleştirildiği ve yolda çıkan
 sorunlar [İngilizce README](README.md#engineering-notes)'de anlatılıyor.

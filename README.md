@@ -41,7 +41,7 @@
   flashcards that come back on a schedule.
 - **Where:** Amazon Prime Video, YouTube, and any site whose subtitles can be found from outside the page
   (TED, Vimeo's player and Wikimedia Commons were checked) — or any video at all, with a subtitle file of your own.
-- **How it is built:** Manifest V3, plain JavaScript, no dependencies and no build step; 92 unit tests, a
+- **How it is built:** Manifest V3, plain JavaScript, no dependencies and no build step; 95 unit tests, a
   stand-in player for everything that can be tested without a site, and a script that loads the real extension
   into a real browser for what cannot.
 
@@ -117,6 +117,10 @@ them), plyr.io, Vimeo's player, Wikimedia Commons and a YouTube player embedded 
   as a letter or a report on a table, Task 2 an essay): an estimated band on the four criteria, the mistakes, and
   the text rewritten at band 8. What is being written is kept as it is typed.
 - **Gemini's use, counted:** today's requests and tokens, and the last week, beside the key.
+- **Today's plan, and the week.** Each day asks for the cards that are due, five sentences listened to and one
+  conversation or spoken answer; the week, two texts. The popup shows what is left and opens what is next; a
+  progress page shows the last seven days day by day, what they added up to, and the IELTS bands as they went.
+  Any practice keeps the streak going.
 - **A record of the days:** streak, words learned, share remembered.
 - **All your words in one place.** Every saved word, phrase and sentence, found by search (in the word, its
   meanings or its sentence), by kind, by source, or by where it stands (new, learning, learned, hard); each
@@ -138,9 +142,9 @@ them), plyr.io, Vimeo's player, Wikimedia Commons and a YouTube player embedded 
 | --- | --- |
 | ![An IELTS Part 1 answer with its estimated band, 6.5, and the four criteria; under them a mistake put right and a band 8 answer](docs/screenshots/ielts-speaking.jpg) | ![A conversation at a café: the waiter's turns with a button to hear them and their meaning, the learner's turn, and under it the same said better, with a star to save it](docs/screenshots/conversation.jpg) |
 
-| IELTS Writing | |
+| Progress | IELTS Writing |
 | --- | --- |
-| ![An IELTS Task 2 essay being written, with the words counted against 250 and the time left; under it, its estimated band and the four criteria](docs/screenshots/ielts-writing.jpg) | |
+| ![Today's plan with the cards, listening, speaking and the week's writing; beside it the last seven days day by day, the week's numbers, and the IELTS bands as bars](docs/screenshots/progress.jpg) | ![An IELTS Task 2 essay being written, with the words counted against 250 and the time left; under it, its estimated band and the four criteria](docs/screenshots/ielts-writing.jpg) |
 
 | Listening practice | |
 | --- | --- |

@@ -52,12 +52,16 @@ $('volume').addEventListener('change', () => chrome.storage.sync.set({ speechVol
 
 // Today: how many cards wait, the way to them, and whether the cards are safe in the cloud.
 function renderToday() {
-  // As many as the review page will show today: what is due, and new cards up to the day's limit.
-  const due = slDueCount(words, Date.now(), reviewLog, settings.newPerDay);
-  $('dueCount').textContent = String(due);
-  $('dueText').textContent = due ? slT('todayDue') : words.length ? slT('todayDone') : slT('noWordsYet');
-  $('dueCount').hidden = !words.length;
-  $('review').textContent = slT(due ? 'studyNow' : 'reviewOpen');
+  // The cards that are due (as many as the review page will show), then the other practice.
+  const plan = $('plan');
+  plan.textContent = '';
+  const open = (id) => chrome.tabs.create({ url: chrome.runtime.getURL(SL_PLAN_PAGES[id]) });
+  if (words.length) {
+    const p = slTodayPlan(words, reviewLog, Date.now(), settings.newPerDay);
+    plan.append(slPlanBox(p, open), slPlanNext(p, open));
+  } else plan.append(Object.assign(document.createElement('div'), { className: 'hint', textContent: slT('noWordsYet') }));
+  const { streak } = slStats(words, reviewLog, Date.now());
+  $('streak').textContent = streak ? '🔥 ' + slT('statDays', streak) : '';
   $('allWords').textContent = slT('wordsTitle') + (words.length ? ' · ' + words.length : '');
 }
 
@@ -73,11 +77,8 @@ function renderCloud() {
   });
 }
 
-$('review').addEventListener('click', () => chrome.tabs.create({ url: chrome.runtime.getURL('review.html') }));
 $('allWords').addEventListener('click', () => chrome.tabs.create({ url: chrome.runtime.getURL('words.html') }));
-$('listen').addEventListener('click', () => chrome.tabs.create({ url: chrome.runtime.getURL('listen.html') }));
-$('speak').addEventListener('click', () => chrome.tabs.create({ url: chrome.runtime.getURL('speak.html') }));
-$('write').addEventListener('click', () => chrome.tabs.create({ url: chrome.runtime.getURL('write.html') }));
+$('progress').addEventListener('click', () => chrome.tabs.create({ url: chrome.runtime.getURL('progress.html') }));
 $('backupDue').addEventListener('click', () => chrome.tabs.create({ url: chrome.runtime.getURL('words.html') }));
 // The words live only in this browser: once a week, a word that a copy should be kept.
 chrome.storage.local.get({ lastBackup: 0, words: [] }, ({ lastBackup, words: saved }) => {

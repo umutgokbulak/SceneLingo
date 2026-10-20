@@ -119,6 +119,7 @@ function check() {
   // A hint is help: the sentence counts as heard, not as heard right.
   const counted = hintLevel ? Math.min(score, 0.89) : score;
   results.push({ text: s.text, score: counted });
+  slLogPractice('listen', Math.round(counted * 100));
   // Heard right, it rests a week; nearly, three days; missed, it comes back tomorrow.
   rest[s.key] = Date.now() + (counted >= 0.9 ? 7 : counted >= 0.6 ? 3 : 1) * DAY;
   saveRest();

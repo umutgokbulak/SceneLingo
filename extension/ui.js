@@ -17,6 +17,7 @@ const SL_ICONS = {
   cloud: '<path d="M7 18a4.5 4.5 0 0 1-.6-9 6 6 0 0 1 11.5 1.5A3.8 3.8 0 0 1 17.5 18H7z"/>',
   sync: '<path d="M20 11a8 8 0 0 0-14.3-4.3L4 9"/><path d="M4 4v5h5"/><path d="M4 13a8 8 0 0 0 14.3 4.3L20 15"/><path d="M20 20v-5h-5"/>',
   headphones: '<path d="M4 15v-3a8 8 0 0 1 16 0v3"/><rect x="3.5" y="14" width="4.5" height="6.5" rx="1.5"/><rect x="16" y="14" width="4.5" height="6.5" rx="1.5"/>',
+  chart: '<path d="M4 20V11M10 20V5M16 20v-6M2 20h20"/>',
   stop: '<rect x="7" y="7" width="10" height="10" rx="2"/>',
   back: '<path d="M15 6l-6 6 6 6"/>',
   flame: '<path d="M12 3c1 3.5 5 5.5 5 10a5 5 0 0 1-10 0c0-2.2 1.2-3.6 2.4-4.6.3 1.6 1.1 2.6 2.1 3.1C11 9 11.2 5.8 12 3z"/>',
@@ -41,6 +42,55 @@ function slAgo(ts) {
 function slSourceName(title) {
   const m = /^([^:]{2,40}):\s+(.+)$/.exec(title || '');
   return m ? m[2] + ' · ' + m[1] : title || '';
+}
+
+// ---------- today's plan ----------
+
+// A piece of practice done, in the record of days that the streak and today's plan are read from.
+// Read again before it is written, so that what another page wrote meanwhile stays.
+function slLogPractice(kind, score) {
+  chrome.storage.local.get({ reviewLog: {} }, (data) => chrome.storage.local.set({ reviewLog: slLogActivity(data.reviewLog || {}, Date.now(), kind, score) }));
+}
+
+const SL_PLAN_PAGES = { review: 'review.html', listen: 'listen.html', speak: 'speak.html', write: 'write.html' };
+const SL_PLAN_NAMES = { review: 'planReview', listen: 'planListen', speak: 'planSpeak', write: 'planWrite' };
+
+// The day's steps (and the week's writing), each a row that opens its page.
+function slPlanBox(plan, open) {
+  const box = document.createElement('div');
+  box.className = 'sl-plan';
+  for (const step of [...plan.steps, plan.week]) {
+    const row = document.createElement('button');
+    row.className = 'sl-step' + (step.done ? ' done' : '') + (step.id === plan.next ? ' next' : '');
+    const tick = document.createElement('span');
+    tick.className = 'sl-tick';
+    tick.textContent = step.done ? '✓' : '';
+    const name = document.createElement('span');
+    name.className = 'sl-name';
+    name.textContent = slT(SL_PLAN_NAMES[step.id]);
+    const count = document.createElement('span');
+    count.className = 'sl-count';
+    if (step.id === 'review') count.textContent = step.left ? slT('planCards', step.left) : slT('planDone');
+    else count.textContent = slT('planOf', Math.min(step.have, step.goal), step.goal);
+    row.append(tick, name, count);
+    row.addEventListener('click', () => open(step.id));
+    box.append(row);
+  }
+  return box;
+}
+
+// The button to what is next today, or the word that the day is done.
+function slPlanNext(plan, open) {
+  const b = document.createElement('button');
+  b.className = 'btn primary sl-next';
+  if (plan.next) {
+    b.textContent = slT('planNext', slT(SL_PLAN_NAMES[plan.next]));
+    b.addEventListener('click', () => open(plan.next));
+  } else {
+    b.textContent = slT('planAllDone');
+    b.disabled = true;
+  }
+  return b;
 }
 
 // Gemini's use, from what gemini.js counts: today's requests and tokens, and the last seven days

@@ -703,9 +703,15 @@ function showEmpty() {
   }
   $('studyAll').hidden = !words.length;
   // Done with the cards for today: the sentences they came from, to listen to.
-  $('listenNow').hidden = !words.length;
-  $('speakNow').hidden = !words.length;
-  $('writeNow').hidden = !words.length;
+  // The cards are done: the rest of today's plan, and the way to what is next.
+  const plan = $('plan');
+  plan.textContent = '';
+  plan.hidden = !words.length;
+  chrome.storage.local.get({ reviewLog: {} }, (data) => {
+    const p = slTodayPlan(words, data.reviewLog || {}, Date.now(), settings.newPerDay);
+    const go = (id) => (location.href = SL_PLAN_PAGES[id]);
+    plan.append(slPlanBox(p, go), slPlanNext(p, go));
+  });
   // The day's work goes to the cloud at once, when there is one.
   ask({ type: 'cloud-sync', interactive: false });
 }
@@ -767,8 +773,11 @@ function grade(value) {
   queue.shift();
   if (value === 'again') queue.push(key);
   else finished++;
-  log = slLogged(log, now, { isNew, correct: value !== 'again' });
-  chrome.storage.local.set({ reviewLog: log });
+  // Read again first: listening or speaking in another tab meanwhile is in it too.
+  chrome.storage.local.get({ reviewLog: {} }, (data) => {
+    log = slLogged(data.reviewLog || {}, now, { isNew, correct: value !== 'again' });
+    chrome.storage.local.set({ reviewLog: log });
+  });
   update((list) => list.map((w) => (keyOf(w) === key ? { ...w, ...graded } : w)), show);
 }
 
@@ -810,12 +819,7 @@ $('allWords').append(icon('cards'));
 $('toListen').append(icon('headphones'));
 $('toSpeak').append(icon('mic'));
 $('toWrite').append(icon('edit'));
-$('writeNow').append(icon('edit'), el('span', null, slT('writeOpen')));
-$('writeNow').addEventListener('click', () => (location.href = 'write.html'));
-$('speakNow').append(icon('mic'), el('span', null, slT('speakOpen')));
-$('speakNow').addEventListener('click', () => (location.href = 'speak.html'));
-$('listenNow').append(icon('headphones'), el('span', null, slT('listenOpen')));
-$('listenNow').addEventListener('click', () => (location.href = 'listen.html'));
+$('toProgress').append(icon('chart'));
 $('gear').append(icon('sliders'));
 $('gear').addEventListener('click', () => {
   const menu = $('gearMenu');

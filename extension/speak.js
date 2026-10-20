@@ -319,6 +319,7 @@ async function sendAnswer() {
   const r = res.result;
   const overall = slIeltsOverall(r.bands);
   exam.results.push({ part: item.part, question: item.question, bands: r.bands, overall });
+  slLogPractice('speak');
   chrome.storage.local.get({ speakLog: [] }, (data) => {
     const log = [...(data.speakLog || []), { at: Date.now(), part: item.part, bands: r.bands }].slice(-LOG_KEPT);
     chrome.storage.local.set({ speakLog: log });
@@ -404,6 +405,7 @@ function startTalk(scene) {
   talk.history = [];
   talk.done = false;
   talk.fixes = [];
+  talk.logged = false;
   talk.tries = slWordsToTry(words, learnt(), 3);
   screen('talk');
   const head = $('talkHead');
@@ -482,6 +484,11 @@ function sendTurn() {
   if (!text || talk.busy) return;
   recorder.stop();
   talk.history.push({ who: 'me', text });
+  // Three turns of one's own make a conversation, for today's plan.
+  if (!talk.logged && talk.history.filter((t) => t.who === 'me').length >= 3) {
+    talk.logged = true;
+    slLogPractice('speak');
+  }
   $('chat').append(el('div', 'msg me', text));
   markUsed($('talkTry'), talk.history.filter((t) => t.who === 'me').map((t) => t.text).join(' '));
   $('talkText').value = '';

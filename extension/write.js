@@ -251,6 +251,7 @@ async function check() {
   chrome.storage.local.set({ writeDraft: null });
   paintFeedback(fb, res.result, w);
   rememberUsed(res.result.used, slT('writeTitle'));
+  slLogPractice('write');
   paintGo();
 }
 
