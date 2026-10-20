@@ -18,6 +18,27 @@ async function geminiKeyShown() {
   return geminiKey ? geminiKey.slice(0, 4) + '…' + geminiKey.slice(-4) : '';
 }
 
+// How much Gemini was asked, day by day, for the user to see: requests, the tokens they took, and
+// those Google turned down. Kept two weeks. One count at a time, so that none is lost when several
+// questions are answered together.
+let geminiCounting = Promise.resolve();
+function countGemini(model, tokens, status) {
+  geminiCounting = geminiCounting
+    .then(async () => {
+      const { geminiUsage } = await chrome.storage.local.get({ geminiUsage: {} });
+      const days = { ...(geminiUsage.days || {}) };
+      const t = new Date();
+      const today = t.getFullYear() + '-' + String(t.getMonth() + 1).padStart(2, '0') + '-' + String(t.getDate()).padStart(2, '0');
+      const d = days[today] || { requests: 0, tokens: 0, refused: 0 };
+      days[today] = { requests: d.requests + 1, tokens: d.tokens + (tokens || 0), refused: d.refused + (status >= 400 ? 1 : 0) };
+      for (const k of Object.keys(days).sort().slice(0, -14)) delete days[k];
+      const limited = status === 429 ? Date.now() : geminiUsage.limited || 0;
+      await chrome.storage.local.set({ geminiUsage: { days, model: model || geminiUsage.model || '', limited } });
+    })
+    .catch(() => {});
+  return geminiCounting;
+}
+
 const langName = (code) => new Intl.DisplayNames(['en'], { type: 'language' }).of(code) || code;
 
 // One question to Gemini, answered in JSON.
@@ -40,6 +61,7 @@ async function geminiJSON(apiKey, prompt, maxOutputTokens = 4096, think = false)
     });
     if (res.status === 404) continue; // a model name this key or this year does not know
     const data = await res.json().catch(() => ({}));
+    countGemini(model, data.usageMetadata && data.usageMetadata.totalTokenCount, res.status);
     if (!res.ok) {
       // Not every model takes the setting, nor says so clearly ("Request contains an invalid
       // argument"): the same question is asked again without it. If that is answered, the setting
@@ -271,5 +293,5 @@ async function checkSentence({ word, sentence, sl, tl }) {
 }
 
 if (typeof module !== 'undefined') {
-  module.exports = { slGeminiResting, geminiKeyShown, langName, geminiJSON, savedKey, askGemini, explain, enrich, gloss, speakingFeedback, roleplay, checkSentence };
+  module.exports = { countGemini, slGeminiResting, geminiKeyShown, langName, geminiJSON, savedKey, askGemini, explain, enrich, gloss, speakingFeedback, roleplay, checkSentence };
 }

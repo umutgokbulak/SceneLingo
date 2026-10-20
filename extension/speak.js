@@ -239,6 +239,10 @@ function paintHome() {
   part('Part 2', slT('speakPartTwo'), () => startExam(examPlan(2)));
   part('Part 3', slT('speakPartThree'), () => startExam(examPlan(3)));
   part(slT('speakFull'), slT('speakFullSub'), () => startExam(examPlan(0)));
+  chrome.storage.local.get({ geminiUsage: null }, (data) => {
+    $('usage').textContent = '';
+    if (geminiKey) $('usage').append(slGeminiUsage(data.geminiUsage));
+  });
   chrome.storage.local.get({ speakLog: [] }, (data) => {
     const recent = (data.speakLog || []).slice(-10);
     $('last').textContent = '';

@@ -43,6 +43,40 @@ function slSourceName(title) {
   return m ? m[2] + ' · ' + m[1] : title || '';
 }
 
+// Gemini's use, from what gemini.js counts: today's requests and tokens, and the last seven days
+// as small bars. Google's free limits are per day and per minute, and differ by model.
+function slGeminiUsage(usage, now = Date.now()) {
+  const box = document.createElement('div');
+  box.className = 'sl-usage';
+  const days = (usage && usage.days) || {};
+  const keys = [];
+  for (let i = 6; i >= 0; i--) keys.push(slDayKey(now - i * 86400000));
+  const today = days[keys[6]] || { requests: 0, tokens: 0, refused: 0 };
+  const week = keys.reduce((a, k) => a + ((days[k] && days[k].requests) || 0), 0);
+  const most = Math.max(1, ...keys.map((k) => (days[k] && days[k].requests) || 0));
+  const bars = document.createElement('span');
+  bars.className = 'sl-bars';
+  for (const k of keys) {
+    const bar = document.createElement('i');
+    const n = (days[k] && days[k].requests) || 0;
+    bar.style.height = Math.max(2, Math.round((n / most) * 18)) + 'px';
+    bar.title = k + ': ' + n;
+    if (k === keys[6]) bar.className = 'now';
+    bars.append(bar);
+  }
+  const text = document.createElement('span');
+  const tokens = today.tokens >= 1000 ? Math.round(today.tokens / 1000) + slT('thousandShort') : String(today.tokens);
+  text.textContent = slT('geminiUsage', today.requests, tokens, week);
+  box.append(bars, text);
+  if (usage && usage.limited && now - usage.limited < 10 * 60000) {
+    const warn = document.createElement('b');
+    warn.textContent = slT('geminiLimited');
+    box.append(warn);
+  }
+  if (usage && usage.model) box.title = usage.model;
+  return box;
+}
+
 // Translation inside the browser. The browser fetches a language pack the first time a pair of
 // languages is used, and only when a person asks for it: so the asking is done on a page, with a
 // button. After that the background translates with it, on every site.

@@ -45,6 +45,7 @@
   .hint { padding: 0 12px 9px; font-size: 12px; color: var(--muted); }
   .hint:empty { display: none; }
   .rows .btn { width: calc(100% - 24px); margin: 0 12px 10px; }
+  .rows .keyrow .btn, .rows .hint .btn { width: auto; margin: 0; flex: none; }
   #engineGet[hidden], #siteRow[hidden] { display: none; }
 
   details { margin-top: 14px; }
@@ -121,6 +122,7 @@
       <div class="hint" data-t="geminiNote"></div>
       <div class="keyrow"><input type="password" id="geminiKey" autocomplete="off" spellcheck="false" data-t-placeholder="geminiKeyPh"><button id="geminiSave" class="btn small" data-t="geminiSave"></button></div>
       <div class="hint"><span id="geminiState"></span> <button id="geminiRemove" class="btn small ghost" hidden data-t="geminiRemove"></button></div>
+      <div class="hint" id="geminiUse"></div>
       <div class="hint"><a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener" data-t="geminiGetKey"></a></div>
     </div>
   </details>

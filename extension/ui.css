@@ -75,4 +75,9 @@ svg.i { width: 1em; height: 1em; flex: none; fill: none; stroke: currentColor; s
 .iconbtn.danger:hover { color: var(--red); background: var(--red-soft); }
 .iconbtn .t { font-size: 12.5px; }
 select { padding: 3px 8px; border-radius: 8px; border: 1px solid var(--border-strong); background: var(--surface-2); font-size: 13px; }
+.sl-usage { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 8px; font-size: 12px; color: var(--muted); }
+.sl-usage .sl-bars { display: inline-flex; align-items: flex-end; gap: 2px; height: 18px; }
+.sl-usage .sl-bars i { width: 5px; border-radius: 2px; background: var(--border-strong); }
+.sl-usage .sl-bars i.now { background: var(--accent); }
+.sl-usage b { flex-basis: 100%; color: var(--gold); font-weight: 600; }
 kbd { display: inline-block; min-width: 22px; padding: 0 6px; border-radius: 6px; border: 1px solid var(--border-strong); border-bottom-width: 2px; background: var(--surface-2); font: 650 11.5px/19px "Segoe UI", system-ui, sans-serif; color: var(--text-2); text-align: center; }

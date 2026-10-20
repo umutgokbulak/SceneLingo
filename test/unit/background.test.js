@@ -335,6 +335,23 @@ test('speaking: an IELTS answer scored by Gemini, and a conversation it plays al
   site.geminiKey = '';
 });
 
+test('every request to Gemini is counted for the day, with its tokens and whether it was refused', async () => {
+  const kept = {};
+  const realLocal = chrome.storage.local;
+  chrome.storage.local = { get: async (d) => ({ ...d, geminiKey: 'test-key', ...kept }), set: async (o) => Object.assign(kept, o) };
+  const answer = (o) => ({ json: { candidates: [{ content: { parts: [{ text: JSON.stringify(o) }] } }], usageMetadata: { totalTokenCount: 120 } } });
+  reset(() => answer({ parts: [{ text: 'fault', meaning: 'suç' }] }));
+  await ask({ type: 'gloss', sentence: 'One.', sl: 'en', tl: 'tr' });
+  await ask({ type: 'gloss', sentence: 'Two.', sl: 'en', tl: 'tr' });
+  reset(() => ({ status: 429, json: { error: { message: 'Resource exhausted' } } }));
+  await ask({ type: 'gloss', sentence: 'Three.', sl: 'en', tl: 'tr' });
+  await new Promise((r) => setTimeout(r, 20));
+  const [day] = Object.values(kept.geminiUsage.days);
+  assert.deepEqual(day, { requests: 3, tokens: 240, refused: 1 });
+  assert.ok(kept.geminiUsage.limited > 0);
+  chrome.storage.local = realLocal;
+});
+
 test('a model that must think is asked again without being told not to, and then always so', async () => {
   site.geminiKey = 'test-key';
   const answer = (o) => ({ json: { candidates: [{ content: { parts: [{ text: JSON.stringify(o) }] } }] } });

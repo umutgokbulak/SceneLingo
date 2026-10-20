@@ -122,6 +122,10 @@ function showGeminiKey() {
     $('geminiRemove').hidden = !shown;
     $('useGemini').disabled = !shown;
   });
+  chrome.storage.local.get({ geminiKey: '', geminiUsage: null }, (data) => {
+    $('geminiUse').textContent = '';
+    if (data.geminiKey || data.geminiUsage) $('geminiUse').append(slGeminiUsage(data.geminiUsage));
+  });
 }
 showGeminiKey();
 $('geminiRemove').addEventListener('click', () => chrome.storage.local.set({ geminiKey: '' }, showGeminiKey));

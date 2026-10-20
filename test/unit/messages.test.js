@@ -20,7 +20,7 @@ test('every language of the interface has every text, with the same blanks to fi
 test('every text the code asks for exists', () => {
   const asked = new Set();
   const named = new Set(); // every quoted word in the code: a key may be chosen between two, or kept in a table
-  for (const file of ['content.js', 'subtitles.js', 'select.js', 'popup.js', 'review.js', 'words.js', 'welcome.js', 'listen.js', 'speak.js']) {
+  for (const file of ['content.js', 'subtitles.js', 'select.js', 'popup.js', 'review.js', 'words.js', 'welcome.js', 'listen.js', 'speak.js', 'ui.js']) {
     for (const m of read(file).matchAll(/slT\('([A-Za-z]+)'/g)) asked.add(m[1]);
     for (const m of read(file).matchAll(/'([A-Za-z]+)'/g)) named.add(m[1]);
   }
@@ -34,7 +34,7 @@ test('every text the code asks for exists', () => {
 });
 
 test('no interface text is left in the code itself', () => {
-  for (const file of ['content.js', 'subtitles.js', 'select.js', 'popup.js', 'review.js', 'words.js', 'welcome.js', 'listen.js', 'speak.js', 'background.js', 'popup.html', 'review.html', 'words.html', 'welcome.html', 'listen.html', 'speak.html']) {
+  for (const file of ['content.js', 'subtitles.js', 'select.js', 'popup.js', 'review.js', 'words.js', 'welcome.js', 'listen.js', 'speak.js', 'ui.js', 'background.js', 'popup.html', 'review.html', 'words.html', 'welcome.html', 'listen.html', 'speak.html']) {
     const text = read(file).replace(/\/\/.*$/gm, '').replace(/<!--[\s\S]*?-->/g, '');
     assert.equal((text.match(/[çğışöüÇĞİŞÖÜ]/g) || []).length, 0, file + ' still has Turkish words in it');
   }

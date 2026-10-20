@@ -376,6 +376,8 @@ async function paintGemini(note) {
   if (shown) {
     what.append(el('span', null, 'Gemini · ' + slT('geminiKeyShown', shown)));
     if (note) what.append(el('small', null, note));
+    const { geminiUsage } = await chrome.storage.local.get({ geminiUsage: null });
+    what.append(slGeminiUsage(geminiUsage));
     box.append(btn(slT('geminiRemove'), async () => {
       await ask({ type: 'gemini-remove' });
       paintGemini();
