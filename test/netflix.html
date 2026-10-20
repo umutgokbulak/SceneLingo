@@ -1,0 +1,44 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Harness Netflix</title>
+<style>
+html,body{margin:0;height:100%;background:#000}
+.watch-video{position:fixed;inset:0}
+video{width:100%;height:100%;background:#123}
+.player-timedtext{position:absolute;bottom:8%;left:0;right:0;text-align:center;color:#f0f;font-size:20px}
+</style>
+<script>
+// Stands in for Netflix's watch page: the address of a title, the script of the page's world, and
+// the content scripts on a plain page (see mock-chrome.js).
+document.documentElement.dataset.scenelingoSite = 'netflix';
+history.replaceState(null, '', '/watch/81234567' + location.search);
+</script>
+<script src="/test/mock-chrome.js"></script>
+<script src="/extension/netflix.js"></script>
+<link rel="stylesheet" href="/extension/content.css">
+<script src="/extension/messages.js"></script>
+<script src="/extension/shared.js"></script>
+<script src="/extension/core.js"></script>
+<script src="/extension/subtitles.js"></script>
+<script src="/extension/content.js"></script>
+</head><body>
+<div class="watch-video"><video src="/test/silence.wav" muted></video>
+<div class="player-timedtext"><div class="player-timedtext-text-container"></div></div></div>
+<script>
+const v = document.querySelector('video');
+// Netflix's player: it seeks by itself, and says when it has been asked to.
+window.__seeks = [];
+window.netflix = { appContext: { state: { playerApp: { getAPI: () => ({ videoPlayer: {
+  getAllPlayerSessionIds: () => ['watch-1'],
+  getVideoPlayerBySessionId: () => ({ seek: (ms) => { window.__seeks.push(ms); v.currentTime = ms / 1000; } }),
+} }) } } } };
+// The player asking for the title's manifest, and reading the answer: English in WebVTT, Turkish
+// in TTML, as Netflix serves them once asked for.
+window.__request = JSON.stringify({ url: 'manifest', params: { viewableId: 81234567, profiles: ['playready-h264mpl30-dash'] } });
+const manifest = { result: { movieId: 81234567, timedtexttracks: [
+  { language: 'en', languageDescription: 'English', rawTrackType: 'subtitles', ttDownloadables: { 'webvtt-lssdh-ios8': { downloadUrls: { 1: '/test/subs/en.vtt' } } } },
+  { language: 'tr', languageDescription: 'Türkçe', rawTrackType: 'subtitles', ttDownloadables: { 'dfxp-ls-sdh': { downloadUrls: { 1: '/test/subs/tr.ttml2' } } } },
+  { isNoneTrack: true, language: 'none', ttDownloadables: {} },
+] } };
+setTimeout(() => JSON.parse(JSON.stringify(manifest) + ' '.repeat(600)), 300);
+</script>
+</body></html>

@@ -39,7 +39,7 @@
 - **For the learner:** the line in the language you are learning with your own language under it; a word's
   meaning, sound and definition when you point at it; every sentence as a dictation or a speaking exercise;
   flashcards that come back on a schedule.
-- **Where:** Amazon Prime Video, YouTube, and any site whose subtitles can be found from outside the page
+- **Where:** Amazon Prime Video, Netflix, YouTube, and any site whose subtitles can be found from outside the page
   (TED, Vimeo's player and Wikimedia Commons were checked) — or any video at all, with a subtitle file of your own.
 - **How it is built:** Manifest V3, plain JavaScript, no dependencies and no build step; 95 unit tests, a
   stand-in player for everything that can be tested without a site, and a script that loads the real extension
@@ -56,6 +56,7 @@ So I built my own, kept adding the things I wanted while studying, and then took
 | Site | Subtitles come from |
 | --- | --- |
 | Amazon Prime Video | the subtitle tracks the player is offered |
+| Netflix | the subtitle tracks of the title's manifest, which the player is made to ask for in WebVTT and TTML; seeking goes through Netflix's own player |
 | YouTube | the video's caption tracks, written or automatic; the translation is YouTube's own |
 | Any other site (after you allow it) | the list of subtitle tracks in the video's stream (HLS or DASH), the files its `<track>` elements point at, subtitle files the page loads, the video's own text tracks, or a `.srt` / `.vtt` / `.ass` file of your own |
 
@@ -204,7 +205,7 @@ TTML, SubStation and YouTube's JSON captions alike.
 ## Engineering notes
 
 - **No dependencies and no build step.** Plain JavaScript, loadable as it is.
-- **Access is asked for, not assumed.** The extension is installed with access to Prime Video and YouTube only.
+- **Access is asked for, not assumed.** The extension is installed with access to Prime Video, Netflix and YouTube only.
   Running on other sites is a switch in the toolbar popup: turning it on asks the browser for the permission and
   registers the content script for all pages; turning it off gives the permission back. On a site it does not
   know, it stays out of sight unless the video has subtitles or you ask for it.
@@ -358,12 +359,14 @@ above were taken on.
 
 ## Limitations and roadmap
 
-- Prime Video and YouTube are supported by name; other sites as far as their subtitles can be found from
-  outside the page. They cannot when a service keeps them to itself (Netflix does), when a stream packs them
-  inside MP4 fragments, or when the address of a file does not look like a subtitle file's; a file of your own
-  still works there, and a service of the first kind needs an adapter like the two that exist. Subtitles of a
+- Prime Video, Netflix and YouTube are supported by name; other sites as far as their subtitles can be found from
+  outside the page. They cannot when a stream packs them inside MP4 fragments, or when the address of a file does not look like a subtitle file's; a file of your own
+  still works there, and a service of the first kind needs an adapter like the three that exist. Subtitles of a
   live broadcast are followed only through the video's own text tracks.
-- Prime Video needs an account and is checked by hand; the other sites named above are checked by the script.
+- Prime Video and Netflix need an account and are checked by hand; Netflix's part is also checked against a
+  stand-in of its player ([`test/netflix.html`](test/netflix.html), `npm run check:netflix`). Netflix changes its
+  player without notice; when its subtitles stop coming, its adapter (`extension/netflix.js`) is the place to
+  look. The other sites named above are checked by the script.
 - Over a video that is fullscreen by itself, the mouse only reaches the subtitle words; the bar is not there.
 - On YouTube the first line can take some seconds after a cold start, until the player has made a caption
   request of its own. Automatic captions come without punctuation, in short pieces.

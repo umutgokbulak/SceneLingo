@@ -111,19 +111,20 @@ yazdım, çalışırken ihtiyaç duyduklarımı ekledim, sonra onu izlediğim di
 | Site | Altyazı nereden gelir |
 | --- | --- |
 | Amazon Prime Video | oynatıcıya sunulan altyazı izlerinden |
+| Netflix | bölümün bilgisindeki altyazı izlerinden (oynatıcı WebVTT ve TTML de istesin diye ayarlanır); ileri geri atlama Netflix'in kendi oynatıcısıyla yapılır |
 | YouTube | videonun yazılmış ya da otomatik altyazılarından; çeviri YouTube'un kendi çevirisi |
 | Diğer siteler (izin verdikten sonra) | videonun yayın listesindeki altyazı izlerinden (HLS, DASH), `<track>` dosyalarından, sayfanın yüklediği altyazı dosyalarından ya da kendi `.srt` / `.vtt` / `.ass` dosyandan |
 
 "Diğer siteler" kısmı, eklenti gerçek bir tarayıcıya yüklenerek TED (49 dil, Türkçe dahil), plyr.io, Vimeo'nun
-oynatıcısı, Wikimedia Commons ve başka bir sayfaya gömülü YouTube oynatıcısında denendi. Altyazısını kendine
-saklayan servislerde (Netflix gibi) çalışmaz; orada kendi altyazı dosyanı açabilirsin.
+oynatıcısı, Wikimedia Commons ve başka bir sayfaya gömülü YouTube oynatıcısında denendi. Altyazıyı videonun
+parçalarının içine gömen sitelerde çalışmaz; orada kendi altyazı dosyanı açabilirsin.
 
 ## Kurulum
 
 1. Bu depoyu indir ya da klonla.
 2. `chrome://extensions` (ya da `edge://extensions`) sayfasını aç ve **Geliştirici modu**nu etkinleştir.
 3. **Paketlenmemiş öğe yükle**'ye basıp `extension` klasörünü seç.
-4. Prime Video ya da YouTube'da bir şey oynat ve fareyi oynat: çalışma çubuğu altyazının üstünde belirir.
+4. Prime Video, Netflix ya da YouTube'da bir şey oynat ve fareyi oynat: çalışma çubuğu altyazının üstünde belirir.
 5. Diğer siteler için araç çubuğundaki SceneLingo penceresinde **Diğer sitelerde de çalış** anahtarını aç.
    Videonun altyazısı yoksa **Bu sekmedeki videoda aç** düğmesi çubuğu getirir; çubuktaki ayarlardan kendi
    altyazı dosyanı seçebilirsin.

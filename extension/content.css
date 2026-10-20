@@ -1,7 +1,8 @@
-/* The site's own subtitles, hidden while ours are shown: Prime Video, YouTube, the players most
+/* The site's own subtitles, hidden while ours are shown: Prime Video, Netflix, YouTube, the players most
    other sites are built on, and the browser's own drawing of a video's text tracks. */
 html.sl-hide-native .atvwebplayersdk-captions-overlay,
 html.sl-hide-native .atvwebplayersdk-captions-text,
+html.sl-hide-native .player-timedtext,
 html.sl-hide-native .ytp-caption-window-container,
 html.sl-hide-native .vjs-text-track-display,
 html.sl-hide-native .jw-captions,

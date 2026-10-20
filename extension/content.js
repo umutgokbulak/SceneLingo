@@ -9,7 +9,13 @@
   // (The test harness names the site it stands in for.)
   const SITE =
     document.documentElement.dataset.scenelingoSite ||
-    (/(^|\.)youtube(-nocookie)?\.com$/.test(location.hostname) ? 'youtube' : /(^|\.)(primevideo|amazon)\./.test(location.hostname) ? 'prime' : 'other');
+    (/(^|\.)youtube(-nocookie)?\.com$/.test(location.hostname)
+      ? 'youtube'
+      : /(^|\.)(primevideo|amazon)\./.test(location.hostname)
+        ? 'prime'
+        : /(^|\.)netflix\.com$/.test(location.hostname)
+          ? 'netflix'
+          : 'other');
   const PAGE = 'scenelingo:page';
   const EXT = 'scenelingo:ext';
   const CHUNK = 20; // cues per machine-translation request
@@ -24,10 +30,10 @@
       return location.hostname;
     }
   })();
-  const NATIVE_SEL = SITE === 'prime' ? '.atvwebplayersdk-captions-text' : '';
+  const NATIVE_SEL = { prime: '.atvwebplayersdk-captions-text', netflix: '.player-timedtext-text-container' }[SITE] || '';
   // What is said while there are no subtitles yet (in the language of the interface, which is
   // only known once the settings have been read).
-  const waiting = () => slT({ prime: 'waitPrime', youtube: 'waitYoutube', other: 'waitOther' }[SITE]);
+  const waiting = () => slT({ prime: 'waitPrime', youtube: 'waitYoutube', netflix: 'waitNetflix', other: 'waitOther' }[SITE]);
 
   let settings = { ...SL_DEFAULTS };
   let savedWords = new Set();
@@ -474,7 +480,7 @@
         t = cues[due].end - 0.05;
         idx = due;
         ownSeek = true;
-        video.currentTime = t + offset;
+        setTime(video, t + offset);
       }
       if (practise) openPractice(due);
     }
@@ -698,11 +704,23 @@
 
   // ---------- playback control ----------
 
+  // Netflix stops playback when the video's clock is set from outside: its own player is asked to
+  // seek, by the script in the page's world.
+  function setTime(v, t) {
+    if (SITE !== 'netflix') {
+      v.currentTime = t;
+      return;
+    }
+    try {
+      window.postMessage({ source: EXT, type: 'nf-seek', time: t }, location.origin);
+    } catch (e) { /* ignore */ }
+  }
+
   function seekTo(i) {
     if (!primary || !video || !primary.cues.length) return;
     i = Math.max(0, Math.min(primary.cues.length - 1, i));
     restoreRate();
-    video.currentTime = primary.cues[i].start + offset + 0.01;
+    setTime(video, primary.cues[i].start + offset + 0.01);
     autoPausedFor = -1;
     lastIdx = -1;
     hoverPaused = false;
@@ -2394,7 +2412,7 @@
     if (e.source !== window || !e.data || e.data.source !== PAGE) return;
     // Each kind of message is taken only on the site whose page script sends it.
     if (SITE === 'other' || (SITE === 'youtube') !== String(e.data.type).startsWith('yt-')) return;
-    if (e.data.type === 'tracks') setTracks(e.data.tracks);
+    if (e.data.type === 'tracks') setTracks(e.data.tracks, !!e.data.empty);
     else if (e.data.type === 'yt-notes') siteNotes = Array.isArray(e.data.notes) ? e.data.notes.map(String) : [];
     else if (e.data.type === 'yt-tracks') {
       // Until the player has fetched a caption file itself there is no address to fetch one from.
@@ -2445,7 +2463,7 @@
       if (!seek) return;
       const go = () => {
         if (!(v.duration > seek.time)) return false;
-        v.currentTime = seek.time;
+        setTime(v, seek.time);
         return true;
       };
       if (!go()) v.addEventListener('durationchange', function once() { if (go()) v.removeEventListener('durationchange', once); });

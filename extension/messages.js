@@ -3,6 +3,7 @@
 const SL_TEXTS = {
   en: {
     // ---- the overlay: status
+    waitNetflix: 'Waiting for subtitles… Start the episode; if none come, reload the page once with the episode open.',
     waitPrime: 'Waiting for subtitles… Start the video; if none come, turn subtitles on once in the Prime player.',
     waitYoutube: 'Waiting for subtitles… If none come, turn captions (CC) on once in the YouTube player.',
     waitOther: 'No subtitles were found for this video. Turn subtitles on once in the site’s player, or choose a subtitle file of your own (.srt, .vtt) below.',
@@ -436,7 +437,7 @@ const SL_TEXTS = {
     selectTip: 'SceneLingo: translate, listen, save',
     selectIn: 'in {0}',
     headSites: 'Sites',
-    sitesNote: 'Works on Prime Video and YouTube by itself.',
+    sitesNote: 'Works on Prime Video, Netflix and YouTube by itself.',
     everywhere: 'Work on other sites too',
     siteOn: 'Work on this site:',
     activate: 'Open on the video in this tab',
@@ -483,6 +484,7 @@ const SL_TEXTS = {
   },
 
   tr: {
+    waitNetflix: 'Altyazı bekleniyor… Bölümü başlat; gelmezse bölüm açıkken sayfayı bir kez yenile.',
     waitPrime: 'Altyazı bekleniyor… Videoyu başlat; gelmezse Prime oynatıcısında altyazıyı bir kez aç.',
     waitYoutube: 'Altyazı bekleniyor… Gelmezse YouTube oynatıcısında altyazıyı (CC) bir kez aç.',
     waitOther: 'Bu videoda altyazı bulunamadı. Sitenin oynatıcısında altyazıyı bir kez aç; yoksa aşağıdan kendi altyazı dosyanı (.srt, .vtt) seç.',
@@ -909,7 +911,7 @@ const SL_TEXTS = {
     selectTip: 'SceneLingo: çevir, dinle, kaydet',
     selectIn: '{0} olarak',
     headSites: 'Siteler',
-    sitesNote: 'Prime Video ve YouTube’da kendiliğinden çalışır.',
+    sitesNote: 'Prime Video, Netflix ve YouTube’da kendiliğinden çalışır.',
     everywhere: 'Diğer sitelerde de çalış',
     siteOn: 'Bu sitede çalış:',
     activate: 'Bu sekmedeki videoda aç',
