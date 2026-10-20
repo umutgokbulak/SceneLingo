@@ -354,6 +354,12 @@ function days() {
     assert.match(await page(`$('#plan .sl-next').textContent`), /Kart|Cards/);
     assert.equal(await page(`[...document.querySelectorAll('#grid .cell')].slice(-1)[0].textContent`), '2', 'two texts today, in the last column');
     assert.match(await page(`$('#bands').textContent`), /Writing.*Band 6\.0/);
+    // the daily reminder, set on the page: an alarm at that hour, and a notification of what is left
+    await page(`($('#remindAt').value = '07:30', $('#remindAt').dispatchEvent(new Event('change')), $('#remindOn').click(), true)`);
+    await wait(600);
+    assert.equal(await b.worker(`chrome.alarms.get('remind').then((a) => a && new Date(a.scheduledTime).toTimeString().slice(0, 5))`), '07:30');
+    assert.deepEqual(await b.worker(`remind().then(() => new Promise((r) => chrome.notifications.getAll(r))).then((n) => Object.keys(n))`), ['remind']);
+    await b.worker(`chrome.storage.sync.set({ remindOn: false })`);
 
     // ---- the list of all words ----
     await seed();

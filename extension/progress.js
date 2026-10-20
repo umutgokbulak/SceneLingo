@@ -99,6 +99,18 @@ chrome.storage.sync.get(SL_DEFAULTS, (stored) => {
   document.title = slT('progressTitle') + ' — SceneLingo';
   $('toReview').append(slIcon('cards'), el('span', 't', slT('reviewTitle')));
   $('toWords').append(slIcon('search'), el('span', 't', slT('wordsTitle')));
+  // The daily reminder: a notification from the browser, so not on the phone.
+  if (chrome.runtime.getManifest().version !== 'web') {
+    $('remindRow').hidden = false;
+    $('remindOn').checked = settings.remindOn;
+    $('remindAt').value = settings.remindAt;
+    $('remindAt').disabled = !settings.remindOn;
+    $('remindOn').addEventListener('change', () => {
+      $('remindAt').disabled = !$('remindOn').checked;
+      chrome.storage.sync.set({ remindOn: $('remindOn').checked });
+    });
+    $('remindAt').addEventListener('change', () => $('remindAt').value && chrome.storage.sync.set({ remindAt: $('remindAt').value }));
+  }
   const load = () => chrome.storage.local.get({ words: [], reviewLog: {}, speakLog: [], writeLog: [], geminiKey: '', geminiUsage: null }, paint);
   load();
   // Coming back to the tab after practising elsewhere: up to date.

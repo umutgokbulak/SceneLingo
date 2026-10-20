@@ -245,6 +245,13 @@ test("today's plan: the cards, five sentences, one conversation; two texts a wee
   assert.equal(S.slTodayPlan(studied, log, NOW, 15).next, null);
 });
 
+test('the reminder: at the chosen time today if it is still to come, or else tomorrow', () => {
+  const at = (t) => new Date(t).toTimeString().slice(0, 5) + (new Date(t).getDate() === new Date(NOW).getDate() ? ' today' : ' tomorrow');
+  assert.equal(at(S.slNextAt(NOW, '20:30')), '20:30 today', 'it is 20:00');
+  assert.equal(at(S.slNextAt(NOW, '20:00')), '20:00 tomorrow', 'not now: tomorrow');
+  assert.equal(at(S.slNextAt(NOW, '08:15')), '08:15 tomorrow');
+});
+
 test('the week: what was done in each of the last seven days, and in all of them', () => {
   let log = {};
   log = S.slLogged(log, NOW, { isNew: true, correct: true });

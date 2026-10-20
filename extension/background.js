@@ -355,3 +355,59 @@ if (chrome.storage && chrome.storage.onChanged) {
   });
 }
 paintBadge().catch(() => {});
+
+// A reminder once a day, at the hour the user chose, when today's plan is not done yet: what is
+// left of it, and a click to the next step.
+if (typeof importScripts === 'function') importScripts('messages.js');
+const PLAN_PAGES = { review: 'review.html', listen: 'listen.html', speak: 'speak.html', write: 'write.html' };
+const PLAN_NAMES = { review: 'planReview', listen: 'planListen', speak: 'planSpeak', write: 'planWrite' };
+
+async function planReminder() {
+  if (!chrome.alarms || typeof slNextAt !== 'function') return;
+  const { remindOn, remindAt } = await chrome.storage.sync.get({ remindOn: false, remindAt: '20:00' });
+  await chrome.alarms.clear('remind');
+  if (remindOn) chrome.alarms.create('remind', { when: slNextAt(Date.now(), remindAt), periodInMinutes: 24 * 60 });
+}
+
+async function todaysPlan() {
+  const settings = await chrome.storage.sync.get(SL_DEFAULTS);
+  const { words, reviewLog } = await chrome.storage.local.get({ words: [], reviewLog: {} });
+  return { settings, words, plan: slTodayPlan(words, reviewLog, Date.now(), settings.newPerDay) };
+}
+
+async function remind() {
+  if (!chrome.notifications || typeof slTodayPlan !== 'function') return;
+  const { settings, words, plan } = await todaysPlan();
+  if (!settings.remindOn || !words.length || plan.done) return;
+  slSetUiLang(settings.uiLang);
+  const left = plan.steps
+    .filter((s) => !s.done)
+    .map((s) => (s.id === 'review' ? slT('planCards', s.left) : slT(PLAN_NAMES[s.id]) + ' ' + slT('planOf', s.have, s.goal)));
+  await chrome.notifications.create('remind', {
+    type: 'basic',
+    iconUrl: 'icons/128.png',
+    title: slT('remindTitle'),
+    message: slT('remindLeft', left.join(' · ')),
+    contextMessage: slT('planNext', slT(PLAN_NAMES[plan.next])),
+    priority: 1,
+  });
+}
+
+if (chrome.notifications) {
+  chrome.notifications.onClicked.addListener(async (id) => {
+    if (id !== 'remind') return;
+    chrome.notifications.clear(id);
+    const { plan } = await todaysPlan();
+    chrome.tabs.create({ url: chrome.runtime.getURL(PLAN_PAGES[plan.next] || 'progress.html') });
+  });
+}
+if (chrome.alarms) chrome.alarms.onAlarm.addListener((a) => a.name === 'remind' && remind().catch(() => {}));
+if (chrome.storage && chrome.storage.onChanged) {
+  chrome.storage.onChanged.addListener((changes, area) => {
+    if (area === 'sync' && (changes.remindOn || changes.remindAt)) planReminder().catch(() => {});
+  });
+}
+// The alarm is set again whenever the browser starts or the extension is updated: its time follows
+// the clock, not the moment it was first set.
+chrome.runtime.onInstalled.addListener(() => planReminder().catch(() => {}));
+if (chrome.runtime.onStartup) chrome.runtime.onStartup.addListener(() => planReminder().catch(() => {}));

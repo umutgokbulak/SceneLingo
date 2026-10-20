@@ -178,6 +178,15 @@ function slLogActivity(log, now, kind, score) {
   return slYear({ ...log, [key]: day });
 }
 
+// The next time the clock shows `hhmm` ("20:00"): later today, or else tomorrow.
+function slNextAt(now, hhmm) {
+  const [h, m] = String(hhmm || '20:00').split(':').map(Number);
+  const at = new Date(now);
+  at.setHours(h || 0, m || 0, 0, 0);
+  if (at.getTime() <= now) at.setDate(at.getDate() + 1);
+  return at.getTime();
+}
+
 // A day with any study in it.
 const slActive = (day) => !!(day && (day.reviews || day.listen || day.speak || day.write));
 
@@ -549,5 +558,5 @@ function slDictationPool(words, lang, rest, now, size, rand = Math.random) {
 }
 
 if (typeof module !== 'undefined') {
-  module.exports = { SL_PLAN, slLogActivity, slActive, slTodayPlan, slWeek, SL_STAGES, slDictation, slDictationPool, slCanon, slFromCsv, slBackup, slStamp, slMergeCard, slMergeAll, slRestore, slStatus, slCleanLine, slHintMask, slCardType, slAdvance, slClozeParts, slCheckAnswer, slAccepted, slSentenceScore, slDayKey, slIsNew, slTodayQueue, slLogged, slStats, slDueCount, slAddExample, slMerge, slNormalize };
+  module.exports = { SL_PLAN, slNextAt, slLogActivity, slActive, slTodayPlan, slWeek, SL_STAGES, slDictation, slDictationPool, slCanon, slFromCsv, slBackup, slStamp, slMergeCard, slMergeAll, slRestore, slStatus, slCleanLine, slHintMask, slCardType, slAdvance, slClozeParts, slCheckAnswer, slAccepted, slSentenceScore, slDayKey, slIsNew, slTodayQueue, slLogged, slStats, slDueCount, slAddExample, slMerge, slNormalize };
 }

@@ -22,6 +22,8 @@ const SL_DEFAULTS = {
   hideNative: true,
   hoverPause: true,
   newPerDay: 15, // new cards a day in review
+  remindOn: false, // a notification at `remindAt` when today's plan is not done
+  remindAt: '20:00',
   useGemini: true, // ask Gemini for a word's meaning in its sentence, when a key has been saved
   selectLookup: true, // a button beside text selected on any page, for its translation
   hoverLookup: true, // show the word popup on hover, without a click

@@ -59,6 +59,8 @@
   summary::before { content: '›'; font-size: 15px; transition: transform 0.15s; }
   details[open] summary::before { transform: rotate(90deg); }
   details .rows { margin-top: 6px; }
+  .pair { display: inline-flex; align-items: center; gap: 8px; }
+  .pair input[type=time] { padding: 3px 6px; border-radius: 8px; border: 1px solid var(--border-strong); background: var(--surface-2); color: var(--text); font: inherit; font-size: 13px; }
   .keyrow { display: flex; gap: 6px; padding: 0 12px 10px; }
   .keyrow input { flex: 1; min-width: 0; padding: 6px 10px; border-radius: 8px; border: 1px solid var(--border-strong); background: var(--surface-2); outline: none; font-size: 13px; }
   .keyrow input:focus { border-color: var(--accent); }
@@ -120,6 +122,7 @@
       <div class="row"><span data-t="uiLang"></span><select id="uiLang"></select></div>
       <label class="row"><span data-t="preferHuman"></span><input type="checkbox" class="switch" id="preferHuman"></label>
       <label class="row" data-t-title="selectLookupTip"><span data-t="selectLookup"></span><input type="checkbox" class="switch" id="selectLookup"></label>
+      <div class="row"><span data-t="remindEvery"></span><span class="pair"><input type="time" id="remindAt"><input type="checkbox" class="switch" id="remindOn"></span></div>
     </div>
     <div class="rows" style="margin-top: 10px">
       <label class="row"><span data-t="headGemini"></span><input type="checkbox" class="switch" id="useGemini"></label>

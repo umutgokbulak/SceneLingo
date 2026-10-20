@@ -40,7 +40,7 @@ for (const id of ['learnLang', 'nativeLang', 'uiLang']) {
     else showEngine();
   });
 }
-for (const id of ['enabled', 'preferHuman', 'selectLookup', 'useGemini']) {
+for (const id of ['enabled', 'preferHuman', 'selectLookup', 'useGemini', 'remindOn']) {
   $(id).addEventListener('change', () => chrome.storage.sync.set({ [id]: $(id).checked }));
 }
 
@@ -49,6 +49,8 @@ $('volume').addEventListener('input', () => {
   $('volumeValue').textContent = $('volume').value + '%';
 });
 $('volume').addEventListener('change', () => chrome.storage.sync.set({ speechVolume: +$('volume').value }));
+$('remindOn').addEventListener('change', () => ($('remindAt').disabled = !$('remindOn').checked));
+$('remindAt').addEventListener('change', () => $('remindAt').value && chrome.storage.sync.set({ remindAt: $('remindAt').value }));
 
 // Today: how many cards wait, the way to them, and whether the cards are safe in the cloud.
 function renderToday() {
@@ -250,6 +252,9 @@ chrome.storage.sync.get(SL_DEFAULTS, (stored) => {
   $('preferHuman').checked = settings.preferHuman;
   $('selectLookup').checked = settings.selectLookup;
   $('useGemini').checked = settings.useGemini;
+  $('remindOn').checked = settings.remindOn;
+  $('remindAt').value = settings.remindAt;
+  $('remindAt').disabled = !settings.remindOn;
   chrome.storage.local.get({ words: [], reviewLog: {} }, (data) => {
     reviewLog = data.reviewLog;
     words = data.words;
