@@ -123,7 +123,7 @@ saat okuyup yazmasına yeter. Kurulum adımları [İngilizce README](README.md#s
 
 ## Nasıl yapıldı
 
-Manifest V3, yalın JavaScript; bağımlılık ve derleme adımı yok. 78 birim testi, site olmadan denenebilen her şey
+Manifest V3, yalın JavaScript; bağımlılık ve derleme adımı yok. 80 birim testi, site olmadan denenebilen her şey
 için oynatıcıyı taklit eden bir test sayfası ve gerisi için eklentiyi gerçek bir tarayıcıya yükleyip yöneten bir
 betik var. Altyazıların sitelerde nasıl bulunduğu, iki altyazı izinin nasıl eşleştirildiği ve yolda çıkan
 sorunlar [İngilizce README](README.md#engineering-notes)'de anlatılıyor.

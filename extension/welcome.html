@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SceneLingo</title>
+<link rel="stylesheet" href="ui.css">
+<style>
+  main { max-width: 760px; margin: 0 auto; padding: 40px 20px 60px; }
+  .hero { text-align: center; margin-bottom: 30px; }
+  .hero img { width: 64px; height: 64px; border-radius: 16px; }
+  h1 { margin: 14px 0 6px; font-size: 28px; font-weight: 700; letter-spacing: -0.02em; }
+  .hero p { margin: 0; color: var(--text-2); font-size: 16px; }
+  .step { display: grid; grid-template-columns: 40px minmax(0, 1fr); gap: 16px; padding: 20px 22px; margin-top: 14px; border-radius: 16px; background: var(--surface); border: 1px solid var(--border); box-shadow: var(--shadow); }
+  .n { width: 36px; height: 36px; display: grid; place-items: center; border-radius: 50%; background: var(--accent-soft); color: var(--accent-text); font-weight: 700; }
+  .step.done .n { background: var(--green-soft); color: var(--green); }
+  h2 { margin: 6px 0 6px; font-size: 17px; font-weight: 650; }
+  .step p { margin: 0 0 10px; color: var(--text-2); }
+  .opt { margin-left: 6px; font-size: 12px; font-weight: 600; color: var(--muted); }
+  .line { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 8px; }
+  .line select { padding: 7px 10px; font-size: 14px; }
+  .line label { display: grid; gap: 4px; font-size: 12.5px; color: var(--muted); }
+  .line input { flex: 1; min-width: 220px; padding: 8px 12px; border-radius: 10px; border: 1px solid var(--border-strong); background: var(--surface-2); outline: none; }
+  .line input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .state { margin-top: 8px; font-size: 13.5px; color: var(--muted); }
+  .state.ok { color: var(--green); }
+  .keys { display: grid; grid-template-columns: max-content 1fr; gap: 8px 14px; align-items: center; margin-top: 10px; font-size: 14px; color: var(--text-2); }
+  .keys span:nth-child(odd) { display: flex; gap: 4px; }
+  code { font-size: 13px; color: var(--accent-text); word-break: break-all; }
+  a { color: var(--accent-text); }
+  .end { text-align: center; margin-top: 28px; }
+  .end .btn { padding: 12px 28px; font-size: 15px; }
+</style>
+</head>
+<body>
+<main>
+  <div class="hero">
+    <img src="icons/128.png" alt="">
+    <h1 data-t="welcomeTitle"></h1>
+    <p data-t="welcomeSub"></p>
+  </div>
+
+  <section class="step" id="s1">
+    <div class="n">1</div>
+    <div>
+      <h2 data-t="stepLangs"></h2>
+      <div class="line">
+        <label><span data-t="learnLang"></span><select id="learnLang"></select></label>
+        <label><span data-t="nativeLang"></span><select id="nativeLang"></select></label>
+      </div>
+    </div>
+  </section>
+
+  <section class="step" id="s2">
+    <div class="n">2</div>
+    <div>
+      <h2 data-t="stepPack"></h2>
+      <p data-t="engineNote"></p>
+      <button id="engineGet" class="btn primary" hidden></button>
+      <div class="state" id="engineState"></div>
+    </div>
+  </section>
+
+  <section class="step">
+    <div class="n">3</div>
+    <div>
+      <h2 data-t="stepWatch"></h2>
+      <p data-t="stepWatchText"></p>
+      <div class="keys" id="keys"></div>
+    </div>
+  </section>
+
+  <section class="step" id="s4">
+    <div class="n">4</div>
+    <div>
+      <h2><span data-t="stepGemini"></span><span class="opt" data-t="optional"></span></h2>
+      <p data-t="geminiNote"></p>
+      <div class="line"><input type="password" id="geminiKey" autocomplete="off" spellcheck="false" data-t-placeholder="geminiKeyPh"><button id="geminiSave" class="btn" data-t="geminiSave"></button></div>
+      <div class="state" id="geminiState"></div>
+      <div class="state"><a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener" data-t="geminiGetKey"></a></div>
+    </div>
+  </section>
+
+  <section class="step" id="s5">
+    <div class="n">5</div>
+    <div>
+      <h2><span data-t="stepCloud"></span><span class="opt" data-t="optional"></span></h2>
+      <p data-t="cloudTip"></p>
+      <button id="connect" class="btn"></button>
+      <div class="state" id="cloudState"></div>
+      <div class="state"><span data-t="cloudPhone"></span> <code id="phoneUrl"></code></div>
+    </div>
+  </section>
+
+  <section class="step">
+    <div class="n">6</div>
+    <div>
+      <h2 data-t="stepDaily"></h2>
+      <p data-t="stepDailyText"></p>
+      <div class="line"><button id="review" class="btn small" data-t="reviewOpen"></button><button id="words" class="btn small" data-t="wordsTitle"></button></div>
+    </div>
+  </section>
+
+  <div class="end"><button id="done" class="btn primary" data-t="welcomeDone"></button></div>
+</main>
+<script src="messages.js"></script>
+<script src="shared.js"></script>
+<script src="cloud.js"></script>
+<script src="ui.js"></script>
+<script src="welcome.js"></script>
+</body>
+</html>

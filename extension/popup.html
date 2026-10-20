@@ -2,87 +2,135 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>SceneLingo</title>
+<link rel="stylesheet" href="ui.css">
 <style>
-  body { width: 340px; margin: 0; padding: 14px; background: #141b23; color: #fff; font: 14px/1.4 "Segoe UI", Arial, sans-serif; }
-  h1 { margin: 0 0 10px; font-size: 17px; }
-  h2 { margin: 16px 0 6px; font-size: 14px; display: flex; justify-content: space-between; align-items: center; }
-  .row { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 32px; }
-  a { color: #6cb6ff; }
-  input[type=password] { font: inherit; color: #fff; background: #1b2530; border: 1px solid #46566a; border-radius: 6px; padding: 4px 8px; margin-right: 6px; }
-  select, button { font: inherit; color: #fff; background: #2c3947; border: 1px solid #46566a; border-radius: 6px; padding: 4px 8px; }
-  button { cursor: pointer; }
-  button:hover { background: #3a4a5c; }
-  input[type=range] { width: 130px; margin: 0; accent-color: #1a98ff; vertical-align: middle; }
-  #volumeValue, #boostValue { display: inline-block; min-width: 44px; text-align: right; font-variant-numeric: tabular-nums; }
-  input[type=checkbox] { width: 16px; height: 16px; accent-color: #1a98ff; }
-  #words { max-height: 260px; overflow-y: auto; border: 1px solid #2c3947; border-radius: 8px; }
-  .word { display: flex; gap: 8px; align-items: flex-start; padding: 6px 8px; border-bottom: 1px solid #222c37; }
-  .word:last-child { border-bottom: 0; }
-  .word-main { flex: 1; min-width: 0; }
-  .word b { font-size: 15px; }
-  .tr { color: #ffe08a; }
-  .ctx { font-size: 12px; color: #8fa3b5; }
-  .del { padding: 0 7px; }
-  .empty { padding: 12px; color: #8fa3b5; text-align: center; }
-  #review { width: 100%; margin: 4px 0 8px; padding: 7px; background: #1a6fd6; border-color: #1a98ff; }
-  #review:hover { background: #1f7fee; }
-  .row2 { display: flex; gap: 6px; margin: -2px 0 8px; }
-  .row2 button { flex: 1; padding: 6px; }
-  #backupDue { color: #ffd866; border-color: #8a6d1f; }
-  .kind { margin-left: 6px; font-size: 11px; color: #8fa3b5; }
-  .note { margin-top: 12px; font-size: 12px; color: #8fa3b5; }
-  .sites { font-size: 12px; color: #8fa3b5; }
-  #siteRow[hidden] { display: none; }
-  #siteHost { font-weight: 600; overflow-wrap: anywhere; }
-  #activate { width: 100%; margin: 4px 0; }
-  #siteNote:empty { display: none; }
-  #engineGet { width: 100%; margin: 6px 0 2px; }
-  #engineGet[hidden] { display: none; }
-  #diagnose { width: 100%; margin-top: 10px; font-size: 12px; color: #8fa3b5; background: none; border-color: transparent; }
-  #diagnose:hover { background: #222c37; }
+  body { width: 360px; margin: 0; padding: 14px 14px 10px; font-size: 14px; }
+  header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  header img { width: 26px; height: 26px; border-radius: 7px; }
+  h1 { margin: 0; flex: 1; font-size: 16px; font-weight: 650; letter-spacing: -0.01em; }
+  .dual { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--muted); cursor: pointer; }
+
+  /* a switch, for every on and off */
+  input.switch { appearance: none; width: 34px; height: 20px; margin: 0; border-radius: 999px; background: var(--border-strong); position: relative; cursor: pointer; flex: none; transition: background 0.15s; }
+  input.switch::after { content: ''; position: absolute; top: 3px; left: 3px; width: 14px; height: 14px; border-radius: 50%; background: #fff; transition: transform 0.15s; }
+  input.switch:checked { background: var(--accent); }
+  input.switch:checked::after { transform: translateX(14px); }
+  input.switch:disabled { opacity: 0.4; cursor: default; }
+  input.switch:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  /* today */
+  .today { padding: 14px; border-radius: 14px; background: var(--surface); border: 1px solid var(--border); box-shadow: var(--shadow); }
+  .today .big { display: flex; align-items: baseline; gap: 8px; }
+  .today .big b { font-size: 30px; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
+  .today .big span { color: var(--text-2); font-size: 13.5px; }
+  .today .btn.primary { width: 100%; margin-top: 12px; padding: 10px; font-size: 14.5px; }
+  .today .links { display: flex; gap: 6px; margin-top: 8px; }
+  .today .links .btn { flex: 1; }
+  .today .cloudline { display: flex; align-items: center; gap: 6px; margin-top: 10px; font-size: 12px; color: var(--muted); }
+  .today .cloudline svg.i { color: var(--accent-text); }
+  .warn { color: var(--gold) !important; border-color: color-mix(in srgb, var(--gold) 40%, transparent) !important; }
+
+  /* sections */
+  section { margin-top: 14px; }
+  h2 { margin: 0 0 6px; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+  .rows { border-radius: 12px; background: var(--surface); border: 1px solid var(--border); }
+  .row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 9px 12px; border-top: 1px solid var(--border); min-height: 40px; }
+  .row:first-child { border-top: 0; }
+  .row > span:first-child { flex: 1; min-width: 0; color: var(--text); }
+  label.row { cursor: pointer; }
+  .row select { max-width: 160px; }
+  .slider { display: flex; align-items: center; gap: 8px; }
+  input[type=range] { width: 120px; margin: 0; accent-color: var(--accent); }
+  .val { min-width: 42px; text-align: right; font-variant-numeric: tabular-nums; color: var(--text-2); font-size: 13px; }
+  .hint { padding: 0 12px 9px; font-size: 12px; color: var(--muted); }
+  .hint:empty { display: none; }
+  .rows .btn { width: calc(100% - 24px); margin: 0 12px 10px; }
+  #engineGet[hidden], #siteRow[hidden] { display: none; }
+
+  details { margin-top: 14px; }
+  summary { cursor: pointer; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); list-style: none; display: flex; align-items: center; gap: 6px; }
+  summary::-webkit-details-marker { display: none; }
+  summary::before { content: '›'; font-size: 15px; transition: transform 0.15s; }
+  details[open] summary::before { transform: rotate(90deg); }
+  details .rows { margin-top: 6px; }
+  .keyrow { display: flex; gap: 6px; padding: 0 12px 10px; }
+  .keyrow input { flex: 1; min-width: 0; padding: 6px 10px; border-radius: 8px; border: 1px solid var(--border-strong); background: var(--surface-2); outline: none; font-size: 13px; }
+  .keyrow input:focus { border-color: var(--accent); }
+  a { color: var(--accent-text); }
+  footer { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; }
+  footer .btn { font-size: 12px; padding: 4px 8px; }
 </style>
 </head>
 <body>
-  <h1>SceneLingo</h1>
-  <label class="row"><span data-t="dual"></span><input type="checkbox" id="enabled"></label>
-  <div class="row"><span data-t="learnLang"></span><select id="learnLang"></select></div>
-  <div class="row"><span data-t="nativeLang"></span><select id="nativeLang"></select></div>
-  <div class="row"><span data-t="uiLang"></span><select id="uiLang"></select></div>
-  <div class="row" data-t-title="boostTip"><span data-t="boost"></span><span><input type="range" id="boost" min="100" max="600" step="10" value="100"><span id="boostValue">100%</span></span></div>
-  <div class="sites" id="boostNote"></div>
-  <div class="row"><span data-t="volume"></span><span><input type="range" id="volume" min="0" max="300" step="10"><span id="volumeValue"></span></span></div>
-  <label class="row"><span data-t="preferHuman"></span><input type="checkbox" id="preferHuman"></label>
-  <label class="row" data-t-title="selectLookupTip"><span data-t="selectLookup"></span><input type="checkbox" id="selectLookup"></label>
+  <header>
+    <img src="icons/48.png" alt="">
+    <h1>SceneLingo</h1>
+    <label class="dual"><span data-t="dual"></span><input type="checkbox" class="switch" id="enabled"></label>
+  </header>
 
-  <h2><span data-t="headEngine"></span></h2>
-  <div class="sites" id="engineState"></div>
-  <button id="engineGet" hidden></button>
+  <div class="today">
+    <div class="big"><b id="dueCount">0</b><span id="dueText"></span></div>
+    <button id="review" class="btn primary"></button>
+    <div class="links">
+      <button id="allWords" class="btn small"></button>
+      <button id="backupDue" class="btn small warn" hidden></button>
+    </div>
+    <div class="cloudline" id="cloudLine"></div>
+  </div>
 
-  <h2><span data-t="headGemini"></span></h2>
-  <div class="sites" data-t="geminiNote"></div>
-  <label class="row"><span data-t="useGemini"></span><input type="checkbox" id="useGemini"></label>
-  <div class="row"><input type="password" id="geminiKey" autocomplete="off" spellcheck="false" data-t-placeholder="geminiKeyPh" style="flex:1;min-width:0"><button id="geminiSave" data-t="geminiSave"></button></div>
-  <div class="sites"><span id="geminiState"></span> <button id="geminiRemove" hidden data-t="geminiRemove"></button></div>
-  <div class="sites"><a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener" data-t="geminiGetKey"></a></div>
+  <section>
+    <h2 data-t="headLangs"></h2>
+    <div class="rows">
+      <div class="row"><span data-t="learnLang"></span><select id="learnLang"></select></div>
+      <div class="row"><span data-t="nativeLang"></span><select id="nativeLang"></select></div>
+      <div class="hint" id="engineState"></div>
+      <button id="engineGet" class="btn small" hidden></button>
+    </div>
+  </section>
 
-  <h2><span data-t="headSites"></span></h2>
-  <div class="sites" data-t="sitesNote"></div>
-  <label class="row"><span data-t="everywhere"></span><input type="checkbox" id="everywhere"></label>
-  <label class="row" id="siteRow" hidden><span><span data-t="siteOn"></span> <b id="siteHost"></b></span><input type="checkbox" id="siteOn"></label>
-  <button id="activate" data-t="activate" data-t-title="activateTip"></button>
-  <div class="sites" id="siteNote"></div>
+  <section>
+    <h2 data-t="headSound"></h2>
+    <div class="rows">
+      <div class="row" data-t-title="boostTip"><span data-t="boost"></span><span class="slider"><input type="range" id="boost" min="100" max="600" step="10" value="100"><span class="val" id="boostValue">100%</span></span></div>
+      <div class="hint" id="boostNote"></div>
+      <div class="row"><span data-t="volume"></span><span class="slider"><input type="range" id="volume" min="0" max="300" step="10"><span class="val" id="volumeValue"></span></span></div>
+    </div>
+  </section>
 
-  <h2><span id="wordsHead"></span><button id="export" data-t="exportCsv"></button></h2>
-  <button id="review"></button>
-  <div class="row2"><button id="allWords" data-t="wordsTitle"></button><button id="backupDue" hidden></button></div>
-  <div id="words"></div>
+  <section>
+    <h2 data-t="headSites"></h2>
+    <div class="rows">
+      <label class="row" id="siteRow" hidden><span><span data-t="siteOn"></span> <b id="siteHost"></b></span><input type="checkbox" class="switch" id="siteOn"></label>
+      <label class="row" data-t-title="sitesNote"><span data-t="everywhere"></span><input type="checkbox" class="switch" id="everywhere"></label>
+      <div class="hint" id="siteNote"></div>
+      <button id="activate" class="btn small" data-t="activate" data-t-title="activateTip"></button>
+    </div>
+  </section>
 
-  <div class="note" data-t="popupNote"></div>
-  <button id="diagnose" data-t="copyDiag" data-t-title="diagTip"></button>
+  <details>
+    <summary data-t="moreSettings"></summary>
+    <div class="rows">
+      <div class="row"><span data-t="uiLang"></span><select id="uiLang"></select></div>
+      <label class="row"><span data-t="preferHuman"></span><input type="checkbox" class="switch" id="preferHuman"></label>
+      <label class="row" data-t-title="selectLookupTip"><span data-t="selectLookup"></span><input type="checkbox" class="switch" id="selectLookup"></label>
+    </div>
+    <div class="rows" style="margin-top: 10px">
+      <label class="row"><span data-t="headGemini"></span><input type="checkbox" class="switch" id="useGemini"></label>
+      <div class="hint" data-t="geminiNote"></div>
+      <div class="keyrow"><input type="password" id="geminiKey" autocomplete="off" spellcheck="false" data-t-placeholder="geminiKeyPh"><button id="geminiSave" class="btn small" data-t="geminiSave"></button></div>
+      <div class="hint"><span id="geminiState"></span> <button id="geminiRemove" class="btn small ghost" hidden data-t="geminiRemove"></button></div>
+      <div class="hint"><a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener" data-t="geminiGetKey"></a></div>
+    </div>
+  </details>
+
+  <footer>
+    <button id="welcome" class="btn ghost" data-t="welcomeOpen"></button>
+    <button id="diagnose" class="btn ghost" data-t="copyDiag" data-t-title="diagTip"></button>
+  </footer>
   <script src="messages.js"></script>
   <script src="shared.js"></script>
   <script src="study.js"></script>
+  <script src="ui.js"></script>
   <script src="popup.js"></script>
 </body>
 </html>

@@ -27,7 +27,8 @@ function paint() {
   $('uiLang').textContent = '';
   $('uiLang').append(option('auto', slT('uiAuto')), ...Object.keys(SL_TEXTS).map((code) => option(code, own(code))));
   $('uiLang').value = settings.uiLang;
-  renderWords();
+  renderToday();
+  renderCloud();
   showEngine();
 }
 
@@ -49,52 +50,27 @@ $('volume').addEventListener('input', () => {
 });
 $('volume').addEventListener('change', () => chrome.storage.sync.set({ speechVolume: +$('volume').value }));
 
-function renderWords() {
-  const box = $('words');
-  box.textContent = '';
-  $('wordsHead').textContent = slT('headWords', words.length);
+// Today: how many cards wait, the way to them, and whether the cards are safe in the cloud.
+function renderToday() {
   // As many as the review page will show today: what is due, and new cards up to the day's limit.
   const due = slDueCount(words, Date.now(), reviewLog, settings.newPerDay);
-  $('review').textContent = due ? slT('reviewDue', due) : slT('reviewOpen');
-  if (!words.length) {
-    const empty = document.createElement('div');
-    empty.className = 'empty';
-    empty.textContent = slT('noWordsYet');
-    box.appendChild(empty);
-    return;
-  }
-  for (const w of words) {
-    const row = document.createElement('div');
-    row.className = 'word';
-    const main = document.createElement('div');
-    main.className = 'word-main';
-    const head = document.createElement('div');
-    const b = document.createElement('b');
-    b.textContent = w.word;
-    const kind = document.createElement('span');
-    kind.className = 'kind';
-    kind.textContent = w.kind === 'phrase' ? slT('kindPhrase') : w.kind === 'sentence' ? slT('kindSentence') : '';
-    const tr = document.createElement('span');
-    tr.className = 'tr';
-    tr.textContent = w.translation ? ' — ' + w.translation : '';
-    head.append(b, kind, tr);
-    const ctx = document.createElement('div');
-    ctx.className = 'ctx';
-    ctx.textContent = w.context || '';
-    main.append(head, ctx);
-    const del = document.createElement('button');
-    del.className = 'del';
-    del.textContent = '✕';
-    del.title = slT('remove');
-    del.addEventListener('click', () => {
-      words = words.filter((x) => x !== w);
-      slForget(w.word);
-      chrome.storage.local.set({ words });
-      renderWords();
-    });
-    row.append(main, del);
-    box.appendChild(row);
-  }
+  $('dueCount').textContent = String(due);
+  $('dueText').textContent = due ? slT('todayDue') : words.length ? slT('todayDone') : slT('noWordsYet');
+  $('dueCount').hidden = !words.length;
+  $('review').textContent = slT(due ? 'studyNow' : 'reviewOpen');
+  $('allWords').textContent = slT('wordsTitle') + (words.length ? ' · ' + words.length : '');
+}
+
+function renderCloud() {
+  chrome.runtime.sendMessage({ type: 'cloud-state' }, (res) => {
+    const line = $('cloudLine');
+    line.textContent = '';
+    const st = !chrome.runtime.lastError && res && res.ok ? res.result : null;
+    if (!st || !st.configured) return;
+    line.append(slIcon('cloud'));
+    if (st.email) line.append(st.email + (st.lastSync ? ' · ' + slT('cloudSynced', slAgo(st.lastSync)) : ''));
+    else line.append(slT('cloudOffLine'));
+  });
 }
 
 $('review').addEventListener('click', () => chrome.tabs.create({ url: chrome.runtime.getURL('review.html') }));
@@ -107,16 +83,7 @@ chrome.storage.local.get({ lastBackup: 0, words: [] }, ({ lastBackup, words: sav
   $('backupDue').textContent = slT('backupDue');
 });
 
-// Translation inside the browser. The browser fetches a language pack the first time a pair of
-// languages is used, and only when a person asks for it: so the asking is done here, with a
-// button. After that the background translates with it, on every site.
-const pair = () => {
-  const names = (code) => ({ he: ['he', 'iw'], no: ['no', 'nb'] })[code] || [code];
-  const all = [];
-  for (const sourceLanguage of names(settings.learnLang)) for (const targetLanguage of names(settings.nativeLang)) all.push({ sourceLanguage, targetLanguage });
-  return all;
-};
-
+// Translation inside the browser: its language pack, fetched from here (see ui.js).
 async function showEngine() {
   const from = slLangName(settings.learnLang);
   const to = slLangName(settings.nativeLang);
@@ -126,37 +93,22 @@ async function showEngine() {
     $('engineGet').textContent = button || '';
     $('engineGet').disabled = false;
   };
-  if (settings.learnLang === settings.nativeLang) return say('');
-  if (typeof Translator !== 'function') return say(slT('engineNone', from, to));
-  let best = 'unavailable';
-  for (const langs of pair()) {
-    const state = await Translator.availability(langs).catch(() => 'unavailable');
-    if (state === 'available') return say(slT('engineReady', from, to));
-    if (state !== 'unavailable') best = state;
-  }
-  if (best === 'unavailable') say(slT('engineNone', from, to));
-  else say(slT('engineNote'), slT('engineGet', from, to));
+  const state = await slPackState(settings.learnLang, settings.nativeLang);
+  if (state === 'same') say('');
+  else if (state === 'ready') say(slT('engineReady', from, to));
+  else if (state === 'get') say(slT('engineNote'), slT('engineGet', from, to));
+  else say(slT('engineNone', from, to));
 }
 
 $('engineGet').addEventListener('click', async () => {
   $('engineGet').disabled = true;
-  let failure = null;
-  for (const langs of pair()) {
-    try {
-      const translator = await Translator.create({
-        ...langs,
-        monitor(m) {
-          m.addEventListener('downloadprogress', (e) => ($('engineGet').textContent = slT('engineGetting', Math.round(e.loaded * 100))));
-        },
-      });
-      if (translator.destroy) translator.destroy();
-      return showEngine();
-    } catch (e) {
-      failure = e;
-    }
+  try {
+    await slPackGet(settings.learnLang, settings.nativeLang, (n) => ($('engineGet').textContent = slT('engineGetting', n)));
+    showEngine();
+  } catch (e) {
+    $('engineGet').disabled = false;
+    $('engineState').textContent = slT('engineFailed', (e && e.message) || e);
   }
-  $('engineGet').disabled = false;
-  $('engineState').textContent = slT('engineFailed', (failure && failure.message) || failure);
 });
 
 // The user's own Gemini key: kept in this browser only (local storage, not synced), and sent
@@ -280,19 +232,7 @@ $('diagnose').addEventListener('click', () => {
   });
 });
 
-$('export').addEventListener('click', () => {
-  const cell = (v) => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
-  const lines = [slT('csvHead').split(';').map(cell).join(';')];
-  for (const w of words) {
-    lines.push([w.word, w.translation, w.ipa, w.definition, w.context, w.lang, w.title, new Date(w.added).toISOString().slice(0, 10)].map(cell).join(';'));
-  }
-  const url = URL.createObjectURL(new Blob(['﻿' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' }));
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = slT('csvName');
-  a.click();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
-});
+$('welcome').addEventListener('click', () => chrome.tabs.create({ url: chrome.runtime.getURL('welcome.html') }));
 
 chrome.storage.sync.get(SL_DEFAULTS, (stored) => {
   settings = { ...SL_DEFAULTS, ...stored };

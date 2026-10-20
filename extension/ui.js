@@ -39,3 +39,46 @@ function slSourceName(title) {
   const m = /^([^:]{2,40}):\s+(.+)$/.exec(title || '');
   return m ? m[2] + ' · ' + m[1] : title || '';
 }
+
+// Translation inside the browser. The browser fetches a language pack the first time a pair of
+// languages is used, and only when a person asks for it: so the asking is done on a page, with a
+// button. After that the background translates with it, on every site.
+function slPackPairs(learn, native) {
+  const names = (code) => ({ he: ['he', 'iw'], no: ['no', 'nb'] })[code] || [code];
+  const all = [];
+  for (const sourceLanguage of names(learn)) for (const targetLanguage of names(native)) all.push({ sourceLanguage, targetLanguage });
+  return all;
+}
+
+// 'same', 'none' (no translator in this browser, or not for these languages), 'ready', or 'get'.
+async function slPackState(learn, native) {
+  if (learn === native) return 'same';
+  if (typeof Translator !== 'function') return 'none';
+  let best = 'unavailable';
+  for (const langs of slPackPairs(learn, native)) {
+    const state = await Translator.availability(langs).catch(() => 'unavailable');
+    if (state === 'available') return 'ready';
+    if (state !== 'unavailable') best = state;
+  }
+  return best === 'unavailable' ? 'none' : 'get';
+}
+
+// Fetches the pack; `progress` hears how far, from 0 to 100.
+async function slPackGet(learn, native, progress) {
+  let failure = null;
+  for (const langs of slPackPairs(learn, native)) {
+    try {
+      const translator = await Translator.create({
+        ...langs,
+        monitor(m) {
+          m.addEventListener('downloadprogress', (e) => progress(Math.round(e.loaded * 100)));
+        },
+      });
+      if (translator.destroy) translator.destroy();
+      return;
+    } catch (e) {
+      failure = e;
+    }
+  }
+  throw failure || new Error('?');
+}

@@ -348,7 +348,11 @@ async function startInTab(tabId) {
 for (const event of [chrome.permissions.onAdded, chrome.permissions.onRemoved, chrome.runtime.onStartup]) {
   event.addListener(() => syncSites().catch(() => {}));
 }
-chrome.runtime.onInstalled.addListener(() => syncSites(true).catch(() => {}));
+chrome.runtime.onInstalled.addListener((details) => {
+  syncSites(true).catch(() => {});
+  // The first time: the page that sets it up, and shows how it is used.
+  if (details && details.reason === 'install' && chrome.tabs) chrome.tabs.create({ url: chrome.runtime.getURL('welcome.html') }).catch(() => {});
+});
 
 // The sound of a tab, louder: played by a page without a window (offscreen.html), which is
 // opened the first time it is needed. The popup gets the tab's sound; it is passed on there.
