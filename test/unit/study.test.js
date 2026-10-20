@@ -101,6 +101,18 @@ test('two copies made one: the later change wins, and a deletion is not undone b
   assert.deepEqual(S.slMergeAll({ words: [], deleted: { old: 1 } }, { words: [] }, 400 * 86400000).deleted, {}, 'old deletions are forgotten');
 });
 
+test('the word list of an earlier version, saved as CSV, is read back as cards', () => {
+  const csv = '﻿"Kelime";"Çeviri";"Okunuş";"Tanım";"Cümle";"Dil";"Kaynak";"Tarih"\r\n' +
+    '"keen";"keskin";"kēn";"sharp";"Possessed of a ""keen"" wit, then?";"en";"Prime Video: Spider-Noir";"2026-10-12"\r\n' +
+    '"rip off";"soymak";"";"";"";"en";"";"2026-10-13"\r\n';
+  const cards = S.slFromCsv(csv);
+  assert.equal(cards.length, 2);
+  assert.deepEqual([cards[0].word, cards[0].translation, cards[0].context, cards[0].kind], ['keen', 'keskin', 'Possessed of a "keen" wit, then?', 'word']);
+  assert.equal(cards[1].kind, 'phrase');
+  assert.equal(cards[0].added, Date.parse('2026-10-12'));
+  assert.ok(S.slIsNew(cards[0]), 'starts anew');
+});
+
 test('where a card stands', () => {
   assert.equal(S.slStatus({ word: 'a' }), 'new');
   assert.equal(S.slStatus({ word: 'a', reps: 1, interval: 3, due: 1 }), 'learning');

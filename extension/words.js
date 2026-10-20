@@ -485,7 +485,8 @@ function restore(fileObj) {
     (text) => {
       let data;
       try {
-        data = JSON.parse(text);
+        // A backup file, or the word list of an earlier version saved as CSV.
+        data = /^\s*[{\[]/.test(text) ? JSON.parse(text) : { app: 'SceneLingo', words: slFromCsv(text) };
       } catch (e) {
         return notice(slT('restoreFailed', e.message), true);
       }

@@ -295,6 +295,60 @@ function slRestore(words, log, data, deleted) {
   return { words: r.words, log: r.reviewLog, deleted: r.deleted, added: r.added, updated: r.updated };
 }
 
+// The word list an earlier version saved as CSV ("Download CSV"), read back as cards: the word,
+// its translation, pronunciation, definition, sentence, language, source and date. What the
+// cards had learnt is not in it, so they start anew.
+function slFromCsv(text) {
+  const rows = [];
+  let row = [];
+  let cell = '';
+  let quoted = false;
+  const src = String(text || '').replace(/^﻿/, '');
+  for (let i = 0; i < src.length; i++) {
+    const ch = src[i];
+    if (quoted) {
+      if (ch === '"' && src[i + 1] === '"') {
+        cell += '"';
+        i++;
+      } else if (ch === '"') quoted = false;
+      else cell += ch;
+    } else if (ch === '"') quoted = true;
+    else if (ch === ';' || ch === ',') {
+      row.push(cell);
+      cell = '';
+    } else if (ch === '\n' || ch === '\r') {
+      if (ch === '\r' && src[i + 1] === '\n') i++;
+      row.push(cell);
+      rows.push(row);
+      row = [];
+      cell = '';
+    } else cell += ch;
+  }
+  if (cell || row.length) {
+    row.push(cell);
+    rows.push(row);
+  }
+  const now = Date.now();
+  return rows
+    .slice(1)
+    .filter((r) => r[0] && r[0].trim())
+    .map((r, i) => {
+      const word = r[0].trim();
+      const added = Date.parse(r[7] || '') || now - i;
+      return {
+        word,
+        kind: /[.!?]$/.test(word) || word.split(/\s+/).length > 5 ? 'sentence' : /\s/.test(word) ? 'phrase' : 'word',
+        translation: (r[1] || '').trim(),
+        ipa: (r[2] || '').trim(),
+        definition: (r[3] || '').trim(),
+        context: (r[4] || '').trim(),
+        lang: (r[5] || '').trim() || 'en',
+        title: (r[6] || '').trim(),
+        added,
+      };
+    });
+}
+
 // Where a card stands: new, being learnt, learnt (three weeks apart or more), or hard (missed
 // three times or more), for the list of all cards.
 function slStatus(item) {
@@ -304,5 +358,5 @@ function slStatus(item) {
 }
 
 if (typeof module !== 'undefined') {
-  module.exports = { SL_STAGES, slBackup, slStamp, slMergeAll, slRestore, slStatus, slCleanLine, slHintMask, slCardType, slAdvance, slClozeParts, slCheckAnswer, slAccepted, slSentenceScore, slDayKey, slIsNew, slTodayQueue, slLogged, slStats, slDueCount, slAddExample, slMerge, slNormalize };
+  module.exports = { SL_STAGES, slFromCsv, slBackup, slStamp, slMergeAll, slRestore, slStatus, slCleanLine, slHintMask, slCardType, slAdvance, slClozeParts, slCheckAnswer, slAccepted, slSentenceScore, slDayKey, slIsNew, slTodayQueue, slLogged, slStats, slDueCount, slAddExample, slMerge, slNormalize };
 }
