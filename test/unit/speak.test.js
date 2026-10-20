@@ -33,8 +33,10 @@ test('words to try: of the language, not sentences, those still learnt first', (
     { word: 'Hund', lang: 'de' },
     { word: 'It is what it is.', kind: 'sentence', lang: 'en' },
     { word: 'rip off', lang: 'en' },
+    { word: 'Approaching', lang: 'en', interval: 50 },
+    { word: 'NASA', lang: 'en', interval: 60 },
   ];
   assert.deepEqual(S.slWordsToTry(words, 'en', 2, () => 0.5), ['swoop', 'rip off']);
-  assert.deepEqual(S.slWordsToTry(words, 'en', 5, () => 0.5), ['swoop', 'rip off', 'keen']);
+  assert.deepEqual(S.slWordsToTry(words, 'en', 5, () => 0.5), ['swoop', 'rip off', 'keen', 'approaching', 'NASA']);
   assert.deepEqual(S.slWordsToTry(words, 'de', 5), ['Hund']);
 });

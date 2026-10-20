@@ -4,7 +4,7 @@
 
 let geminiRestUntil = 0; // after "too many requests", Gemini is left alone for a while
 let geminiModel = null; // the first of GEMINI_MODELS this key may use
-let geminiNoQuick = false; // the model refused to answer without thinking first
+let geminiNoQuick = null; // the model refused to answer without thinking first (kept, once known)
 const GEMINI_MODELS = ['gemini-flash-lite-latest', 'gemini-3.5-flash-lite', 'gemini-3.1-flash-lite', 'gemini-flash-latest'];
 
 // Resting after Gemini said "too many requests".
@@ -27,6 +27,7 @@ const langName = (code) => new Intl.DisplayNames(['en'], { type: 'language' }).o
 // answered without it, unless `think`; a model that does not allow that is asked again as it is.
 async function geminiJSON(apiKey, prompt, maxOutputTokens = 4096, think = false) {
   const config = { temperature: 0.2, responseMimeType: 'application/json', maxOutputTokens };
+  if (geminiNoQuick === null) geminiNoQuick = !!(await chrome.storage.local.get({ geminiNoQuick: false })).geminiNoQuick;
   const quick = !think && !geminiNoQuick;
   if (quick) config.thinkingConfig = { thinkingBudget: 0 };
   const body = JSON.stringify({ contents: [{ role: 'user', parts: [{ text: prompt }] }], generationConfig: config });
@@ -39,9 +40,21 @@ async function geminiJSON(apiKey, prompt, maxOutputTokens = 4096, think = false)
     if (res.status === 404) continue; // a model name this key or this year does not know
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {
-      if (quick && res.status === 400 && /think/i.test((data.error && data.error.message) || '')) {
+      // Not every model takes the setting, nor says so clearly ("Request contains an invalid
+      // argument"): the same question is asked again without it. If that is answered, the setting
+      // was the trouble, and it is left out from then on.
+      if (quick && res.status === 400) {
         geminiNoQuick = true;
-        return geminiJSON(apiKey, prompt, maxOutputTokens, think);
+        try {
+          const answer = await geminiJSON(apiKey, prompt, maxOutputTokens, think);
+          Promise.resolve()
+            .then(() => chrome.storage.local.set({ geminiNoQuick: true }))
+            .catch(() => {});
+          return answer;
+        } catch (e) {
+          geminiNoQuick = false;
+          throw e;
+        }
       }
       if (res.status === 429) geminiRestUntil = Date.now() + 60000;
       throw new Error('Gemini ' + res.status + ((data.error && ': ' + data.error.message) || ''));

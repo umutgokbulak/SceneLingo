@@ -100,14 +100,15 @@ function slIeltsOverall(bands) {
   return Math.floor(mean * 2 + 0.5) / 2;
 }
 
-// A few saved words of the language to try to use: those still being learnt first.
+// A few saved words of the language to try to use: those still being learnt first. A word saved
+// from the start of a sentence ("Approaching") is given in lower case; in German nouns keep theirs.
 function slWordsToTry(words, lang, n, rand = Math.random) {
   return words
     .filter((w) => (w.lang || 'en') === lang && slKindOf(w) !== 'sentence' && w.word.length > 2)
     .map((w) => ({ w, order: (slStatus(w) === 'learned' ? 1 : 0) + rand() }))
     .sort((a, b) => a.order - b.order)
     .slice(0, n)
-    .map((x) => x.w.word);
+    .map((x) => (lang === 'de' ? x.w.word : x.w.word.replace(/^\p{Lu}(?=\p{Ll}*$)/u, (c) => c.toLowerCase())));
 }
 
 if (typeof module !== 'undefined') module.exports = { SL_IELTS, SL_SCENES, SL_LEVELS, slIeltsOverall, slWordsToTry };

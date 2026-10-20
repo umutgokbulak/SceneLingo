@@ -338,7 +338,7 @@ test('speaking: an IELTS answer scored by Gemini, and a conversation it plays al
 test('a model that must think is asked again without being told not to, and then always so', async () => {
   site.geminiKey = 'test-key';
   const answer = (o) => ({ json: { candidates: [{ content: { parts: [{ text: JSON.stringify(o) }] } }] } });
-  reset((url) => (/thinkingBudget/.test(url.init.body) ? { status: 400, json: { error: { message: 'Budget 0 is invalid. This model only works in thinking mode.' } } } : answer({ parts: [{ text: 'fault', meaning: 'suç' }] })));
+  reset((url) => (/thinkingBudget/.test(url.init.body) ? { status: 400, json: { error: { message: 'Request contains an invalid argument.' } } } : answer({ parts: [{ text: 'fault', meaning: 'suç' }] })));
   const parts = (await ask({ type: 'gloss', sentence: "It's my fault.", sl: 'en', tl: 'tr' })).result;
   assert.deepEqual(parts, [{ text: 'fault', base: '', meaning: 'suç' }]);
   assert.equal(calls.length, 2);
