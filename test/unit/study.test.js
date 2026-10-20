@@ -75,6 +75,30 @@ test('a backup holds the cards and the days, and merges back in without losing e
   assert.equal(r.words.find((w) => w.word === 'might').interval, 3, 'the backup studied it later');
   assert.deepEqual(r.log['2026-10-10'], { reviews: 7, correct: 4, newSeen: 2 });
   assert.throws(() => S.slRestore(here, {}, { words: [] }), /not a SceneLingo backup/);
+  const revived = S.slRestore([], {}, file, { through: Date.now() });
+  assert.ok(revived.words.some((w) => w.word === 'through') && !revived.deleted.through, 'a deleted card in the restored file comes back');
+});
+
+test('two copies made one: the later change wins, and a deletion is not undone by an older copy', () => {
+  const T = 1000000;
+  const here = {
+    words: [{ word: 'keen', added: 1, last: T + 50 }, { word: 'might', added: 2 }, { word: 'kept', added: 3 }],
+    reviewLog: {},
+    deleted: { gone: T + 10 },
+  };
+  const there = {
+    words: [{ word: 'keen', added: 1, last: T + 20 }, { word: 'gone', added: 5, last: T }, { word: 'kept', added: 3, updated: T + 99, translation: 'edited' }, { word: 'back', added: T + 30 }],
+    reviewLog: {},
+    deleted: { might: T + 40, back: T + 20 },
+  };
+  const r = S.slMergeAll(here, there, T + 100);
+  const names = r.words.map((w) => w.word).sort();
+  assert.deepEqual(names, ['back', 'keen', 'kept'], 'might deleted there after it changed here; gone deleted here after it changed there');
+  assert.equal(r.words.find((w) => w.word === 'keen').last, T + 50, 'studied later here');
+  assert.equal(r.words.find((w) => w.word === 'kept').translation, 'edited', 'edited later there');
+  assert.equal(r.deleted.back, undefined, 'saved again after it was deleted: no longer deleted');
+  assert.equal(r.deleted.might, T + 40);
+  assert.deepEqual(S.slMergeAll({ words: [], deleted: { old: 1 } }, { words: [] }, 400 * 86400000).deleted, {}, 'old deletions are forgotten');
 });
 
 test('where a card stands', () => {

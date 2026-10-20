@@ -5,6 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>SceneLingo</title>
 <link rel="stylesheet" href="ui.css">
+<link rel="manifest" href="app.webmanifest">
+<link rel="apple-touch-icon" href="icons/128.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SceneLingo">
+<meta name="theme-color" content="#0d1117">
 <style>
   .app { max-width: 1180px; margin: 0 auto; padding: 22px 22px 60px; }
 
@@ -19,6 +25,12 @@
   .banner { display: flex; align-items: center; gap: 14px; margin-top: 18px; padding: 12px 16px; border-radius: 14px; background: var(--gold-soft); border: 1px solid color-mix(in srgb, var(--gold) 35%, transparent); color: var(--text); }
   .banner svg.i { font-size: 20px; color: var(--gold); }
   .banner div { flex: 1; font-size: 14.5px; }
+  .cloud { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 18px; padding: 12px 16px; border-radius: 14px; background: var(--surface); border: 1px solid var(--border); }
+  .cloud > svg.i { font-size: 20px; color: var(--accent-text); }
+  .cloud .what { flex: 1; min-width: 220px; font-size: 14px; color: var(--text-2); }
+  .cloud .what b { color: var(--text); font-weight: 600; }
+  .cloud .what small { display: block; color: var(--muted); font-size: 12.5px; }
+  .cloud .what code { font-size: 12px; color: var(--accent-text); }
   .notice { margin-top: 14px; padding: 10px 14px; border-radius: 12px; background: var(--green-soft); color: var(--green); font-size: 14px; }
   .notice.bad { background: var(--red-soft); color: var(--red); }
 
@@ -107,6 +119,7 @@
       <button id="study" class="btn small primary"></button>
     </div>
   </header>
+  <div id="cloud" class="cloud" hidden></div>
   <div id="banner" class="banner" hidden></div>
   <div id="notice" class="notice" hidden></div>
 
@@ -123,9 +136,12 @@
 </div>
 <input type="file" id="file" accept=".json,application/json" hidden>
 
+<!-- On the phone, where there is no extension, this stands in for it. -->
+<script src="web.js"></script>
 <script src="messages.js"></script>
 <script src="shared.js"></script>
 <script src="study.js"></script>
+<script src="cloud.js"></script>
 <script src="ui.js"></script>
 <script src="words.js"></script>
 <!-- Text selected on this page is translated too: the content script does not run on the extension's own pages. -->

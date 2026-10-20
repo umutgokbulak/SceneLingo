@@ -342,6 +342,53 @@ async function checkSentence({ word, sentence, sl, tl }) {
   return { correct: !!json.correct, better: String(json.better || '').trim(), note: String(json.note || '').trim() };
 }
 
+// ---------- the cloud ----------
+
+// A token for the user's Drive: kept for its hour in the session, asked for again after it.
+// Asked for without a window when the user has signed in before.
+async function cloudToken(interactive) {
+  const { cloudToken: kept } = await chrome.storage.session.get('cloudToken');
+  if (kept && kept.expires > Date.now()) return kept.token;
+  const { cloudEmail } = await chrome.storage.local.get({ cloudEmail: '' });
+  if (!interactive && !cloudEmail) throw new Error('signed out');
+  const url = await chrome.identity.launchWebAuthFlow({ url: slAuthUrl(chrome.identity.getRedirectURL(), interactive, cloudEmail), interactive });
+  const t = slTokenFrom(url);
+  await chrome.storage.session.set({ cloudToken: t });
+  return t.token;
+}
+
+let syncing = null; // one sync at a time
+function cloudSync(interactive) {
+  if (!syncing) {
+    syncing = (async () => {
+      if (typeof SL_CLOUD === 'undefined' || !SL_CLOUD.clientId) throw new Error('noClient');
+      let token = await cloudToken(interactive);
+      const { cloudEmail } = await chrome.storage.local.get({ cloudEmail: '' });
+      if (!cloudEmail) await chrome.storage.local.set({ cloudEmail: (await slWho(token)) || '?' });
+      try {
+        return await slCloudSync(token, chrome.storage.local, Date.now());
+      } catch (e) {
+        if (!e.auth) throw e;
+        await chrome.storage.session.remove('cloudToken');
+        token = await cloudToken(interactive);
+        return slCloudSync(token, chrome.storage.local, Date.now());
+      }
+    })().finally(() => (syncing = null));
+  }
+  return syncing;
+}
+
+async function cloudState() {
+  const { cloudEmail, lastSync } = await chrome.storage.local.get({ cloudEmail: '', lastSync: 0 });
+  return { configured: typeof SL_CLOUD !== 'undefined' && !!SL_CLOUD.clientId, email: cloudEmail, lastSync, web: typeof SL_CLOUD !== 'undefined' ? SL_CLOUD.web : '' };
+}
+
+async function cloudSignOut() {
+  await chrome.storage.session.remove('cloudToken');
+  await chrome.storage.local.remove(['cloudEmail', 'lastSync']);
+  return true;
+}
+
 // Back to the scene a word was saved in: the page is opened, and once its video plays, it is
 // taken to that moment. YouTube is also told in its own address.
 async function openScene(url, time) {
@@ -520,6 +567,9 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   else if (msg && msg.type === 'explain') job = explain(msg.text, msg.sentence, msg.sl, msg.tl, msg.always);
   else if (msg && msg.type === 'check-sentence') job = checkSentence(msg);
   else if (msg && msg.type === 'open-scene') job = openScene(msg.url, msg.time);
+  else if (msg && msg.type === 'cloud-sync') job = cloudSync(!!msg.interactive);
+  else if (msg && msg.type === 'cloud-state') job = cloudState();
+  else if (msg && msg.type === 'cloud-signout') job = cloudSignOut();
   else if (msg && msg.type === 'pending-seek') job = pendingSeek(sender.tab);
   else if (msg && msg.type === 'gemini-test') job = chrome.storage.local.get({ geminiKey: '' }).then(({ geminiKey }) => askGemini(geminiKey, 'ripped', 'It is not my fault you ripped off the wrong people.', 'en', msg.tl || 'tr'));
   else if (msg && msg.type === 'tts') job = tts(String(msg.text || ''), String(msg.lang || 'en'), !!msg.slow);
@@ -543,7 +593,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 
 // The number on the toolbar icon: the cards today's review holds. Worked out again when the
 // saved words or the day's record change, and every half hour, as cards come due.
-if (typeof importScripts === 'function') importScripts('shared.js', 'study.js');
+if (typeof importScripts === 'function') importScripts('shared.js', 'study.js', 'cloud.js');
 async function paintBadge() {
   if (typeof slDueCount !== 'function' || !chrome.action) return;
   const { words, reviewLog } = await chrome.storage.local.get({ words: [], reviewLog: {} });
@@ -554,11 +604,19 @@ async function paintBadge() {
 }
 if (chrome.alarms) {
   chrome.alarms.create('badge', { periodInMinutes: 30 });
-  chrome.alarms.onAlarm.addListener((a) => a.name === 'badge' && paintBadge().catch(() => {}));
+  chrome.alarms.create('cloud', { periodInMinutes: 30 });
+  chrome.alarms.onAlarm.addListener((a) => {
+    if (a.name === 'badge') paintBadge().catch(() => {});
+    // Synced every half hour, and a minute after the cards change, once signed in.
+    if (a.name === 'cloud' || a.name === 'cloud-soon') cloudSync(false).catch(() => {});
+  });
 }
 if (chrome.storage && chrome.storage.onChanged) {
   chrome.storage.onChanged.addListener((changes) => {
     if (changes.words || changes.reviewLog || changes.newPerDay) paintBadge().catch(() => {});
+    if ((changes.words || changes.deleted) && chrome.alarms) {
+      chrome.storage.local.get({ cloudEmail: '' }).then(({ cloudEmail }) => cloudEmail && chrome.alarms.create('cloud-soon', { delayInMinutes: 1 }));
+    }
   });
 }
 paintBadge().catch(() => {});

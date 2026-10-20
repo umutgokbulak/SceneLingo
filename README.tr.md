@@ -94,6 +94,22 @@ saklayan servislerde (Netflix gibi) çalışmaz; orada kendi altyazı dosyanı a
    Videonun altyazısı yoksa **Bu sekmedeki videoda aç** düğmesi çubuğu getirir; çubuktaki ayarlardan kendi
    altyazı dosyanı seçebilirsin.
 
+## Telefonda ve her bilgisayarda
+
+**Kelimelerim** sayfasında **Google ile bağlan** dersen kartların kendi Google Drive'ında, yalnızca SceneLingo'nun
+görebildiği bir klasörde tutulur. Eklentinin kurulu olduğu her tarayıcı onunla eşitlenir: yarım saatte bir, kartlar
+değiştikten bir dakika sonra ve günün tekrarı bitince. İki kopya kart kart birleştirilir; sonra değişen kazanır,
+silinen kart da hatırlanır, böylece eski bir kopya onu geri getirmez.
+
+Telefonda aynı tekrar ve kelime sayfaları web sayfası olarak açılır:
+[umutgokbulak.github.io/SceneLingo/extension/words.html](https://umutgokbulak.github.io/SceneLingo/extension/words.html).
+Aynı Google hesabıyla giriş yap; iPhone'da Safari'de **Paylaş → Ana Ekrana Ekle** onu uygulama gibi yapar.
+Kelimeleri telefonun kendi sesleri okur. Çift altyazıyla izlemek bilgisayarda kalır: telefon tarayıcıları bu eklentiyi
+çalıştırmaz, film uygulamalarına da eklenti eklenemez.
+
+Bizim bir sunucumuz yok: giriş Google'ın kendi sayfasında yapılır, verdiği izin SceneLingo'nun yalnızca o klasörü bir
+saat okuyup yazmasına yeter. Kurulum adımları [İngilizce README](README.md#setting-up-the-google-sign-in)'de.
+
 ## Kısayollar
 
 | Tuş | İşlev |
@@ -107,7 +123,7 @@ saklayan servislerde (Netflix gibi) çalışmaz; orada kendi altyazı dosyanı a
 
 ## Nasıl yapıldı
 
-Manifest V3, yalın JavaScript; bağımlılık ve derleme adımı yok. 74 birim testi, site olmadan denenebilen her şey
+Manifest V3, yalın JavaScript; bağımlılık ve derleme adımı yok. 77 birim testi, site olmadan denenebilen her şey
 için oynatıcıyı taklit eden bir test sayfası ve gerisi için eklentiyi gerçek bir tarayıcıya yükleyip yöneten bir
 betik var. Altyazıların sitelerde nasıl bulunduğu, iki altyazı izinin nasıl eşleştirildiği ve yolda çıkan
 sorunlar [İngilizce README](README.md#engineering-notes)'de anlatılıyor.

@@ -1,0 +1,22 @@
+{
+  "name": "SceneLingo",
+  "short_name": "SceneLingo",
+  "description": "Your saved words and their review",
+  "start_url": "words.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0d1117",
+  "theme_color": "#0d1117",
+  "icons": [
+    {
+      "src": "icons/128.png",
+      "sizes": "128x128",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/48.png",
+      "sizes": "48x48",
+      "type": "image/png"
+    }
+  ]
+}

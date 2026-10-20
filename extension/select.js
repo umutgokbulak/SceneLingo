@@ -210,6 +210,7 @@
       if (!alive()) return;
       chrome.storage.local.get({ words: [] }, (d) => {
         const has = savedHas(d.words, learnt);
+        if (has) slForget(learnt);
         const words = has
           ? d.words.filter((w) => w.word.toLowerCase() !== learnt.toLowerCase())
           : [

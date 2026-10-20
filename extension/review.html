@@ -5,6 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>SceneLingo</title>
 <link rel="stylesheet" href="ui.css">
+<link rel="manifest" href="app.webmanifest">
+<link rel="apple-touch-icon" href="icons/128.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SceneLingo">
+<meta name="theme-color" content="#0d1117">
 <style>
   html, body { height: 100%; }
 
@@ -265,9 +271,12 @@
   </main>
 </div>
 
+<!-- On the phone, where there is no extension, this stands in for it. -->
+<script src="web.js"></script>
 <script src="messages.js"></script>
 <script src="shared.js"></script>
 <script src="study.js"></script>
+<script src="cloud.js"></script>
 <script src="core.js"></script>
 <script src="ui.js"></script>
 <script src="review.js"></script>

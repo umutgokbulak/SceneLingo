@@ -280,7 +280,8 @@ function saveEdit(item, word, translation) {
   const oldKey = keyOf(item);
   const newKey = word.toLowerCase();
   const kind = slKindOf(item) === 'sentence' ? 'sentence' : /\s/.test(word) ? 'phrase' : 'word';
-  let edited = { ...item, word, kind, translation };
+  let edited = { ...item, word, kind, translation, updated: Date.now() };
+  if (newKey !== oldKey) slForget(oldKey);
   if (newKey !== oldKey) Object.assign(edited, { ipa: '', definition: '', synonyms: [], looked: 0, enriched: false, extra: null });
   editing = '';
   open.delete(oldKey);
@@ -293,9 +294,52 @@ function saveEdit(item, word, translation) {
 }
 
 function remove(key) {
+  slForget(key);
   sure.delete(key);
   open.delete(key);
   update((list) => list.filter((w) => keyOf(w) !== key));
+}
+
+// ---------- the cloud ----------
+
+// Signed in: who, when the last sync was, and (in the extension) where the phone finds the cards.
+// Signed out: what the cloud is for, and the way in. Not shown before the app is set up.
+async function paintCloud(note) {
+  const res = await ask({ type: 'cloud-state' });
+  const box = $('cloud');
+  box.textContent = '';
+  const st = res.ok ? res.result : null;
+  box.hidden = !st || !st.configured;
+  if (box.hidden) return;
+  const what = el('div', 'what');
+  if (st.email) {
+    const line = el('span', null, slT('cloudOn') + ' ');
+    line.append(el('b', null, st.email));
+    what.append(line, el('small', null, note || (st.lastSync ? slT('cloudSynced', slAgo(st.lastSync)) : slT('cloudNever'))));
+    if (st.web) {
+      const phone = el('small', null, slT('cloudPhone') + ' ');
+      phone.append(el('code', null, st.web));
+      what.append(phone);
+    }
+    box.append(icon('cloud'), what, btn([icon('sync'), slT('cloudSyncNow')], () => cloudSync(true)), btn(slT('cloudSignOut'), signOut, 'btn small ghost'));
+  } else {
+    what.append(el('span', null, slT('cloudTip')));
+    if (note) what.append(el('small', null, note));
+    box.append(icon('cloud'), what, btn([icon('cloud'), slT('cloudConnect')], () => cloudSync(true), 'btn small primary'));
+  }
+}
+
+async function cloudSync(interactive) {
+  paintCloud(slT('cloudSyncing'));
+  const res = await ask({ type: 'cloud-sync', interactive });
+  if (!res.ok) return paintCloud(slT('cloudFailed', res.error));
+  const r = res.result;
+  paintCloud(r.added || r.updated ? slT('restored', r.added, r.updated) : '');
+}
+
+async function signOut() {
+  await ask({ type: 'cloud-signout' });
+  paintCloud();
 }
 
 // ---------- the parts above the list ----------
@@ -362,9 +406,9 @@ function download(name, blob) {
 }
 
 function backup() {
-  chrome.storage.local.get({ words: [], reviewLog: {} }, (data) => {
+  chrome.storage.local.get({ words: [], reviewLog: {}, deleted: {} }, (data) => {
     const now = Date.now();
-    const file = slBackup(data.words, data.reviewLog, now, chrome.runtime.getManifest().version);
+    const file = slBackup(data.words, data.reviewLog, now, chrome.runtime.getManifest().version, data.deleted);
     const name = slT('backupName', slDayKey(now));
     download(name, new Blob([JSON.stringify(file, null, 1)], { type: 'application/json' }));
     lastBackup = now;
@@ -383,14 +427,14 @@ function restore(fileObj) {
       } catch (e) {
         return notice(slT('restoreFailed', e.message), true);
       }
-      chrome.storage.local.get({ words: [], reviewLog: {} }, (here) => {
+      chrome.storage.local.get({ words: [], reviewLog: {}, deleted: {} }, (here) => {
         let r;
         try {
-          r = slRestore(here.words, here.reviewLog, data);
+          r = slRestore(here.words, here.reviewLog, data, here.deleted);
         } catch (e) {
           return notice(slT('restoreFailed', e.message), true);
         }
-        chrome.storage.local.set({ words: r.words, reviewLog: r.log }, () => {
+        chrome.storage.local.set({ words: r.words, reviewLog: r.log, deleted: r.deleted }, () => {
           words = r.words;
           log = r.log;
           notice(slT('restored', r.added, r.updated));
@@ -436,9 +480,10 @@ for (const id of ['kind', 'source', 'sort']) {
 }
 // Saved in another tab, or reviewed: the list follows.
 chrome.storage.onChanged.addListener((changes, area) => {
-  if (area !== 'local' || !changes.words) return;
-  words = changes.words.newValue || [];
-  render();
+  if (area !== 'local') return;
+  if (changes.lastBackup) lastBackup = changes.lastBackup.newValue || 0;
+  if (changes.words) words = changes.words.newValue || [];
+  if (changes.words || changes.lastBackup) render();
 });
 
 chrome.storage.sync.get(SL_DEFAULTS, (stored) => {
@@ -458,5 +503,6 @@ chrome.storage.sync.get(SL_DEFAULTS, (stored) => {
     log = data.reviewLog;
     lastBackup = data.lastBackup;
     render();
+    paintCloud();
   });
 });

@@ -325,7 +325,8 @@ function saveEdit({ word, translation }) {
   const oldKey = keyOf(current);
   const newKey = word.toLowerCase();
   const kind = slKindOf(current) === 'sentence' ? 'sentence' : /\s/.test(word) ? 'phrase' : 'word';
-  let edited = { ...current, word, kind, translation };
+  let edited = { ...current, word, kind, translation, updated: Date.now() };
+  if (newKey !== oldKey) slForget(oldKey);
   if (newKey !== oldKey) Object.assign(edited, { ipa: '', definition: '', synonyms: [], looked: 0, enriched: false, extra: null });
   update(
     (list) => {
@@ -701,6 +702,8 @@ function showEmpty() {
     if (s.retention != null) metric(slT('statRetention'), percent(s.retention));
   }
   $('studyAll').hidden = !words.length;
+  // The day's work goes to the cloud at once, when there is one.
+  ask({ type: 'cloud-sync', interactive: false });
 }
 
 // The answer: shown (a recalled card) or checked (a typed one).
@@ -768,6 +771,7 @@ function grade(value) {
 function removeCurrent() {
   if (!current) return;
   const key = keyOf(current);
+  slForget(key);
   queue.shift();
   sessionSize = Math.max(0, sessionSize - 1);
   update((list) => list.filter((w) => keyOf(w) !== key), show);

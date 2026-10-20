@@ -1186,6 +1186,7 @@
       chrome.storage.local.get({ words: [] }, (data) => {
         const key = entry.word.toLowerCase();
         const had = data.words.some((w) => w.word.toLowerCase() === key);
+        if (had) slForget(key);
         const words = had ? data.words.filter((w) => w.word.toLowerCase() !== key) : [entry, ...data.words];
         chrome.storage.local.set({ words }, () => {
           setSavedWords(words);

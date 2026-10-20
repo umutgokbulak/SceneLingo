@@ -88,6 +88,7 @@ function renderWords() {
     del.title = slT('remove');
     del.addEventListener('click', () => {
       words = words.filter((x) => x !== w);
+      slForget(w.word);
       chrome.storage.local.set({ words });
       renderWords();
     });

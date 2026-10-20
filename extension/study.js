@@ -225,42 +225,74 @@ function slMerge(keep, other) {
 
 // ---- backups ----
 
-// Everything learnt, in one file: the cards with their schedules, sentences and scenes, and the
-// record of the days. Not the Gemini key: that stays in the browser it was given to.
-function slBackup(words, log, now, version) {
-  return { app: 'SceneLingo', kind: 'backup', version: version || '', exported: new Date(now).toISOString(), words, reviewLog: log };
+// Everything learnt, in one file: the cards with their schedules, sentences and scenes, the
+// record of the days, and which cards were deleted when (so that a copy elsewhere does not bring
+// them back). Not the Gemini key: that stays in the browser it was given to.
+function slBackup(words, log, now, version, deleted) {
+  return { app: 'SceneLingo', kind: 'backup', version: version || '', exported: new Date(now).toISOString(), words, reviewLog: log, deleted: deleted || {} };
 }
 
-// A backup read back in, merged with what is here: a card in both keeps the copy studied last
-// (or saved last, if neither was studied); the days' records keep the larger counts.
-function slRestore(words, log, data) {
-  if (!data || data.app !== 'SceneLingo' || !Array.isArray(data.words)) throw new Error('not a SceneLingo backup');
+// When a card last changed: saved, studied or edited.
+function slStamp(w) {
+  return Math.max(w.updated || 0, w.last || 0, w.added || 0);
+}
+
+// Two copies of everything made one, as when this browser meets its copy in the cloud, or a
+// backup file: a card in both keeps the copy changed last; a card deleted on one side after it
+// last changed on the other stays deleted; the days' records keep the larger counts. Deletions
+// older than half a year are forgotten. `added` and `updated` count what the second copy brought.
+function slMergeAll(here, there, now) {
   const key = (w) => String(w.word || '').toLowerCase();
-  const stamp = (w) => w.last || w.added || 0;
-  const byKey = new Map(words.map((w) => [key(w), w]));
+  const deleted = { ...(here.deleted || {}) };
+  for (const [k, t] of Object.entries(there.deleted || {})) deleted[k] = Math.max(deleted[k] || 0, t);
+  for (const k of Object.keys(deleted)) if (now && now - deleted[k] > 183 * 86400000) delete deleted[k];
+  const byKey = new Map();
+  for (const w of here.words || []) if (w && w.word) byKey.set(key(w), w);
   let added = 0;
   let updated = 0;
-  for (const w of data.words) {
+  for (const w of there.words || []) {
     if (!w || !w.word) continue;
-    const here = byKey.get(key(w));
-    if (!here) {
+    const mine = byKey.get(key(w));
+    if (!mine) {
       byKey.set(key(w), w);
       added += 1;
-    } else if (stamp(w) > stamp(here)) {
+    } else if (slStamp(w) > slStamp(mine)) {
       byKey.set(key(w), w);
       updated += 1;
     }
   }
-  const merged = { ...log };
-  for (const [day, d] of Object.entries(data.reviewLog || {})) {
-    const h = merged[day] || {};
-    merged[day] = {
+  for (const [k, w] of byKey) {
+    if (deleted[k] && deleted[k] >= slStamp(w)) {
+      byKey.delete(k);
+    } else if (deleted[k]) delete deleted[k]; // saved again after it was deleted
+  }
+  const reviewLog = { ...(here.reviewLog || {}) };
+  for (const [day, d] of Object.entries(there.reviewLog || {})) {
+    const h = reviewLog[day] || {};
+    reviewLog[day] = {
       reviews: Math.max(h.reviews || 0, d.reviews || 0),
       correct: Math.max(h.correct || 0, d.correct || 0),
       newSeen: Math.max(h.newSeen || 0, d.newSeen || 0),
     };
   }
-  return { words: [...byKey.values()], log: merged, added, updated };
+  return { words: [...byKey.values()], reviewLog, deleted, added, updated };
+}
+
+// A backup read back in, merged with what is here. Restoring is asked for: a card in the file
+// that was deleted here comes back (and counts as changed now, so that a sync keeps it).
+function slRestore(words, log, data, deleted) {
+  if (!data || data.app !== 'SceneLingo' || !Array.isArray(data.words)) throw new Error('not a SceneLingo backup');
+  const now = Date.now();
+  const gone = { ...(deleted || {}) };
+  const fileGone = data.deleted || {};
+  const back = data.words.map((w) => {
+    const k = String((w && w.word) || '').toLowerCase();
+    if (!gone[k] || fileGone[k]) return w;
+    delete gone[k];
+    return { ...w, updated: now };
+  });
+  const r = slMergeAll({ words, reviewLog: log, deleted: gone }, { ...data, words: back }, now);
+  return { words: r.words, log: r.reviewLog, deleted: r.deleted, added: r.added, updated: r.updated };
 }
 
 // Where a card stands: new, being learnt, learnt (three weeks apart or more), or hard (missed
@@ -272,5 +304,5 @@ function slStatus(item) {
 }
 
 if (typeof module !== 'undefined') {
-  module.exports = { SL_STAGES, slBackup, slRestore, slStatus, slCleanLine, slHintMask, slCardType, slAdvance, slClozeParts, slCheckAnswer, slAccepted, slSentenceScore, slDayKey, slIsNew, slTodayQueue, slLogged, slStats, slDueCount, slAddExample, slMerge, slNormalize };
+  module.exports = { SL_STAGES, slBackup, slStamp, slMergeAll, slRestore, slStatus, slCleanLine, slHintMask, slCardType, slAdvance, slClozeParts, slCheckAnswer, slAccepted, slSentenceScore, slDayKey, slIsNew, slTodayQueue, slLogged, slStats, slDueCount, slAddExample, slMerge, slNormalize };
 }

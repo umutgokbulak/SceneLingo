@@ -41,7 +41,7 @@
   flashcards that come back on a schedule.
 - **Where:** Amazon Prime Video, YouTube, and any site whose subtitles can be found from outside the page
   (TED, Vimeo's player and Wikimedia Commons were checked) — or any video at all, with a subtitle file of your own.
-- **How it is built:** Manifest V3, plain JavaScript, no dependencies and no build step; 74 unit tests, a
+- **How it is built:** Manifest V3, plain JavaScript, no dependencies and no build step; 77 unit tests, a
   stand-in player for everything that can be tested without a site, and a script that loads the real extension
   into a real browser for what cannot.
 
@@ -234,6 +234,42 @@ TTML, SubStation and YouTube's JSON captions alike.
    switches the extension off for the site in the current tab.
 
 The interface is in English or Turkish (it follows the browser, or the choice in the toolbar popup). The language you learn and your own are set there too.
+
+## On your phone, and on every computer
+
+Connect Google on the **My words** page and the cards are kept in your own Google Drive, in a folder only
+SceneLingo can see (Drive's app data folder). Every browser with the extension syncs with it: every half hour,
+a minute after the cards change, and when the day's review is done. Two copies are merged card by card; a card
+changed later wins, and a deletion is remembered so that an older copy does not bring the card back.
+
+On a phone, the same review and word pages run as a web page:
+[umutgokbulak.github.io/SceneLingo/extension/words.html](https://umutgokbulak.github.io/SceneLingo/extension/words.html).
+Sign in with the same Google account; on an iPhone, Safari's **Share → Add to Home Screen** makes it an app.
+Words are spoken by the phone's own voices. Watching with dual subtitles stays on the computer: phone browsers
+do not run this extension, and streaming apps cannot be extended.
+
+There is no server of ours. The sign-in is Google's own page, and the token it gives lets SceneLingo read and
+write that one folder for an hour. The extension has a fixed ID (the `key` in the manifest), because the sign-in
+returns to an address made from it.
+
+### Setting up the Google sign-in
+
+Done once, by whoever publishes the extension; it is free.
+
+1. At [console.cloud.google.com](https://console.cloud.google.com), create a project and enable the
+   **Google Drive API** for it.
+2. Under **Google Auth Platform**, set up the consent screen: app name, support e-mail, audience **External**.
+   While the app is in testing, add the Google accounts that will use it as **test users** (up to 100).
+   Under **Data access**, add the scopes `.../auth/drive.appdata` and `email`.
+3. Under **Clients**, create an **OAuth client** of type **Web application** with
+   - authorised JavaScript origin `https://umutgokbulak.github.io`
+   - authorised redirect URIs `https://llafhipfpgghcnijbfhinpndphnfmaba.chromiumapp.org/`,
+     `https://umutgokbulak.github.io/SceneLingo/extension/words.html` and
+     `https://umutgokbulak.github.io/SceneLingo/extension/review.html`.
+4. Put its client ID in `SL_CLOUD.clientId` in [`extension/cloud.js`](extension/cloud.js). The client ID is
+   public by design: it names the app to Google and gives nothing without the user's own sign-in.
+
+Until the app is verified by Google, the sign-in shows a warning that the app is unverified; test users can go on.
 
 ## Shortcuts
 

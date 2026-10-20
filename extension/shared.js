@@ -36,6 +36,17 @@ const SL_DEFAULTS = {
   bottomOffset: 14, // percent of the video height
 };
 
+// A card deleted here is remembered as deleted, with the time, so that a copy of the cards kept
+// elsewhere (in the cloud, in a backup file) does not bring it back.
+function slForget(keys) {
+  const list = [].concat(keys).map((k) => String(k).toLowerCase());
+  if (!list.length || typeof chrome === 'undefined' || !chrome.storage) return;
+  chrome.storage.local.get({ deleted: {} }, ({ deleted }) => {
+    for (const k of list) deleted[k] = Date.now();
+    chrome.storage.local.set({ deleted });
+  });
+}
+
 // Review scheduling for saved items (a small SM-2 variant). `due` is a timestamp in ms;
 // an item that has never been reviewed is due at once.
 const SL_DAY = 86400000;

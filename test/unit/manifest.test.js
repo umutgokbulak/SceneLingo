@@ -20,7 +20,7 @@ test('every file the manifest names exists', () => {
 test('pages load the scripts they depend on, in order', () => {
   for (const page of ['popup.html', 'review.html', 'words.html']) {
     const scripts = [...fs.readFileSync(path.join(dir, page), 'utf8').matchAll(/<script src="([^"]+)"/g)].map((m) => m[1]);
-    assert.deepEqual(scripts.slice(0, 2), ['messages.js', 'shared.js'], page);
+    assert.deepEqual(scripts.filter((s) => s !== 'web.js').slice(0, 2), ['messages.js', 'shared.js'], page);
     for (const s of scripts) assert.ok(exists(s), s + ' is missing');
   }
   const isolated = manifest.content_scripts.find((c) => c.world !== 'MAIN').js;
@@ -35,8 +35,8 @@ test('the page-world hooks and the content script run on the same pages', () => 
 });
 
 test('it asks for little, and for other sites only when the user says so', () => {
-  assert.deepEqual(manifest.permissions, ['storage', 'scripting', 'tabCapture', 'offscreen', 'activeTab', 'contextMenus', 'alarms']);
-  assert.deepEqual(manifest.host_permissions, ['https://translate.googleapis.com/*', 'https://generativelanguage.googleapis.com/*']);
+  assert.deepEqual(manifest.permissions, ['storage', 'scripting', 'tabCapture', 'offscreen', 'activeTab', 'contextMenus', 'alarms', 'identity']);
+  assert.deepEqual(manifest.host_permissions, ['https://translate.googleapis.com/*', 'https://generativelanguage.googleapis.com/*', 'https://www.googleapis.com/*']);
   assert.deepEqual(manifest.optional_host_permissions, ['*://*/*']);
   assert.match(manifest.version, /^\d+\.\d+\.\d+$/);
 });
