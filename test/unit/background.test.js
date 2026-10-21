@@ -54,7 +54,7 @@ test('the content script is registered for other sites only while the user allow
   assert.deepEqual(site.calls, ['register']); // once, however often it is asked
   const [script] = site.registered;
   assert.deepEqual(script.matches, ['*://*/*']);
-  assert.deepEqual(script.js, ['messages.js', 'shared.js', 'study.js', 'core.js', 'subtitles.js', 'overlay-base.js', 'overlay-tracks.js', 'overlay-lines.js', 'overlay-words.js', 'overlay-practice.js', 'overlay-ui.js', 'content.js', 'select.js']);
+  assert.deepEqual(script.js, ['messages.js', 'shared.js', 'study.js', 'core.js', 'subtitles.js', 'episode.js', 'overlay-base.js', 'overlay-tracks.js', 'overlay-lines.js', 'overlay-words.js', 'overlay-practice.js', 'overlay-ui.js', 'overlay-episode.js', 'content.js', 'select.js']);
   assert.equal(script.runAt, 'document_start');
   assert.equal(script.allFrames, true);
   // The sites the manifest covers are left to the manifest, so nothing runs twice there.
@@ -349,6 +349,31 @@ test('writing: an IELTS text scored on its own four criteria, and an everyday on
   const e = (await ask({ type: 'everyday-writing', task: 'Write to your landlord.', points: ['what is wrong', 'when to come'], level: 'B1', text: 'Hallo, die Heizung ist kaputt.', sl: 'de', tl: 'tr' })).result;
   assert.equal(e.level, 'B1');
   assert.deepEqual(e.points, [{ point: 'what is wrong', done: true }, { point: 'when to come', done: false }]);
+  site.geminiKey = '';
+});
+
+test("an episode's words come from the list of its language, and Gemini gives their meaning there and asks about it", async () => {
+  Object.assign(globalThis, require('../../extension/study.js'));
+  const lines = ['The umbrella is in the car.', "Don't forget your umbrella.", 'They swoop in at night.'];
+  const found = (await ask({ type: 'episode-words', lines, lang: 'en-GB', level: 'B1', known: [] })).result;
+  assert.deepEqual(found.words.map((w) => w.word), ['umbrella', 'swoop']);
+  assert.equal((await ask({ type: 'episode-words', lines, lang: 'ja', level: 'B1' })).result.noList, true, 'no list for Japanese');
+
+  site.geminiKey = 'test-key';
+  const answer = (o) => ({ json: { candidates: [{ content: { parts: [{ text: JSON.stringify(o) }] } }] } });
+  reset(() => answer({ words: [{ word: 'Umbrella', base: '', meaning: 'şemsiye' }, { word: 'swoop', meaning: '' }], phrases: [{ text: 'swoop in', base: 'swoop in', meaning: 'baskın yapmak', line: '2' }, { text: 'no meaning' }] }));
+  const numberedLines = lines.map((text, i) => ({ i, text }));
+  const g = (await ask({ type: 'episode-gloss', words: found.words, lines: numberedLines, sl: 'en', tl: 'tr', level: 'B1' })).result;
+  assert.deepEqual(g.words, [{ word: 'umbrella', base: '', meaning: 'şemsiye' }]);
+  assert.deepEqual(g.phrases, [{ text: 'swoop in', base: 'swoop in', meaning: 'baskın yapmak', line: 2 }]);
+  assert.match(calls[0].init.body, /2\| They swoop in at night\./, 'the lines go numbered');
+
+  reset(() => answer({ questions: [{ q: 'Where is the umbrella?', options: ['In the car', 'At home', 'Lost', 'Broken'], answer: 0, why: 'İlk satır.', line: 0 }, { q: 'bad', options: ['one'], answer: 3 }] }));
+  const quiz = (await ask({ type: 'episode-quiz', lines: numberedLines, sl: 'en', tl: 'tr', level: 'B1', count: 5 })).result;
+  assert.equal(quiz.length, 1, 'a question without four options is left out');
+  assert.equal(quiz[0].options[quiz[0].answer], 'In the car', 'the right answer is still the right one, wherever it went');
+  reset(() => answer({ questions: [] }));
+  assert.match((await ask({ type: 'episode-quiz', lines: numberedLines, sl: 'en', tl: 'tr' })).error, /no questions/);
   site.geminiKey = '';
 });
 

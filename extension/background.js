@@ -297,6 +297,9 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   else if (msg && msg.type === 'gloss') job = gloss(msg);
   else if (msg && msg.type === 'speak-feedback') job = speakingFeedback(msg);
   else if (msg && msg.type === 'roleplay') job = roleplay(msg);
+  else if (msg && msg.type === 'episode-words') job = episodeWords(msg);
+  else if (msg && msg.type === 'episode-gloss') job = episodeGloss(msg);
+  else if (msg && msg.type === 'episode-quiz') job = episodeQuiz(msg);
   else if (msg && msg.type === 'ielts-writing') job = ieltsWriting(msg);
   else if (msg && msg.type === 'everyday-writing') job = everydayWriting(msg);
   else if (msg && msg.type === 'explain') job = explain(msg.text, msg.sentence, msg.sl, msg.tl, msg.always);
@@ -329,6 +332,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 // The number on the toolbar icon: the cards today's review holds. Worked out again when the
 // saved words or the day's record change, and every half hour, as cards come due.
 if (typeof importScripts === 'function') importScripts('shared.js', 'study.js', 'cloud.js');
+else for (const file of ['./shared.js', './study.js', './cloud.js']) Object.assign(globalThis, require(file));
 async function paintBadge() {
   if (typeof slDueCount !== 'function' || !chrome.action) return;
   const { words, reviewLog } = await chrome.storage.local.get({ words: [], reviewLog: {} });
@@ -355,6 +359,34 @@ if (chrome.storage && chrome.storage.onChanged) {
   });
 }
 paintBadge().catch(() => {});
+
+// An episode's own words: those of its lines a learner at a level is not likely to know yet, by
+// how common each is in film subtitles (freq/, read once). A language without a list has none.
+if (typeof importScripts === 'function') importScripts('episode.js');
+else Object.assign(globalThis, require('./episode.js'));
+const rankLists = new Map(); // language -> its list, as word -> rank
+function ranksFor(lang) {
+  if (!rankLists.has(lang)) {
+    const text =
+      typeof importScripts === 'function'
+        ? fetch(chrome.runtime.getURL('freq/' + lang + '.txt')).then((r) => (r.ok ? r.text() : ''), () => '')
+        : Promise.resolve().then(() => {
+            try {
+              return require('fs').readFileSync(require('path').join(__dirname, 'freq', lang + '.txt'), 'utf8');
+            } catch (e) {
+              return '';
+            }
+          });
+    rankLists.set(lang, text.then(slRanks));
+  }
+  return rankLists.get(lang);
+}
+async function episodeWords({ lines, lang, level, known }) {
+  const code = String(lang || '').toLowerCase().split(/[-_]/)[0];
+  const ranks = await ranksFor(code);
+  if (!ranks.size) return { words: [], noList: true };
+  return { words: slEpisodeWords({ lines: (lines || []).map(String), ranks, lang: code, level, known: new Set(known || []) }) };
+}
 
 // A reminder once a day, at the hour the user chose, when today's plan is not done yet: what is
 // left of it, and a click to the next step.

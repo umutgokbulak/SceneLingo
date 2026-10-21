@@ -188,7 +188,7 @@ function slNextAt(now, hhmm) {
 }
 
 // A day with any study in it.
-const slActive = (day) => !!(day && (day.reviews || day.listen || day.speak || day.write));
+const slActive = (day) => !!(day && (day.reviews || day.listen || day.speak || day.write || day.quiz));
 
 // What a day asks for, every day: the cards that are due, some sentences listened to, and some
 // conversations or spoken answers; and, in the week, some texts written. How many is the user's

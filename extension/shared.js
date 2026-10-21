@@ -22,6 +22,7 @@ const SL_DEFAULTS = {
   hideNative: true,
   hoverPause: true,
   newPerDay: 15, // new cards a day in review
+  wordLevel: 'B1', // the level an episode's words to learn are chosen for
   goalListen: 5, // today's plan: sentences listened to a day,
   goalSpeak: 1, // conversations or spoken answers a day,
   goalWrite: 2, // and texts written a week; 0 leaves the step out

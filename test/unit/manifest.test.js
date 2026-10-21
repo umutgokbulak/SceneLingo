@@ -24,7 +24,7 @@ test('pages load the scripts they depend on, in order', () => {
     for (const s of scripts) assert.ok(exists(s), s + ' is missing');
   }
   const isolated = manifest.content_scripts.find((c) => c.world !== 'MAIN').js;
-  assert.deepEqual(isolated, ['messages.js', 'shared.js', 'study.js', 'core.js', 'subtitles.js', 'overlay-base.js', 'overlay-tracks.js', 'overlay-lines.js', 'overlay-words.js', 'overlay-practice.js', 'overlay-ui.js', 'content.js', 'select.js']);
+  assert.deepEqual(isolated, ['messages.js', 'shared.js', 'study.js', 'core.js', 'subtitles.js', 'episode.js', 'overlay-base.js', 'overlay-tracks.js', 'overlay-lines.js', 'overlay-words.js', 'overlay-practice.js', 'overlay-ui.js', 'overlay-episode.js', 'content.js', 'select.js']);
 });
 
 test('the page-world hooks and the content script run on the same pages', () => {

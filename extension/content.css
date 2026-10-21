@@ -649,6 +649,183 @@ html.sl-hide-native video::-webkit-media-text-track-container {
   flex: 1;
   overflow-y: auto;
 }
+#scenelingo-root .sl-tabs {
+  display: flex;
+  gap: 2px;
+}
+#scenelingo-root .sl-tab {
+  padding: 4px 9px;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  color: #8fa3b5;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+#scenelingo-root .sl-tab:hover {
+  color: #fff;
+}
+#scenelingo-root .sl-tab.sl-on {
+  color: #fff;
+  background: rgba(26, 152, 255, 0.28);
+}
+#scenelingo-root .sl-pnote {
+  padding: 10px 12px;
+  font-size: 13px;
+  color: #8fa3b5;
+}
+#scenelingo-root .sl-ehead {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  font-size: 12.5px;
+  color: #c9d1d9;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+#scenelingo-root .sl-ehead select {
+  flex: none;
+  padding: 2px 4px;
+  border-radius: 6px;
+  border: 1px solid #3a4756;
+  background: #1c2530;
+  color: #e6edf3;
+  font: inherit;
+}
+#scenelingo-root .sl-erow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0 6px;
+  padding: 6px 8px 6px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+#scenelingo-root .sl-eword b {
+  font-weight: 700;
+}
+#scenelingo-root .sl-eword small {
+  margin-left: 6px;
+  font-size: 12px;
+  color: #8fa3b5;
+}
+#scenelingo-root .sl-ecount {
+  margin-left: 6px;
+  font-size: 11.5px;
+  color: #8fa3b5;
+}
+#scenelingo-root .sl-emean {
+  grid-column: 1 / -1;
+  font-size: 13px;
+  color: #ffe08a;
+}
+#scenelingo-root .sl-etools {
+  display: flex;
+  gap: 2px;
+}
+#scenelingo-root .sl-esmall {
+  width: 26px;
+  height: 26px;
+  font-size: 14px;
+}
+#scenelingo-root .sl-esmall.sl-on {
+  color: #ffd866;
+}
+#scenelingo-root .sl-esub {
+  padding: 10px 12px 4px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #8fa3b5;
+}
+#scenelingo-root .sl-esource {
+  padding: 6px 12px;
+  font-size: 11.5px;
+  color: #6b7a8a;
+}
+#scenelingo-root .sl-ebtn {
+  display: block;
+  margin: 10px 12px;
+  padding: 7px 12px;
+  border: 1px solid #1a98ff;
+  border-radius: 8px;
+  background: rgba(26, 152, 255, 0.18);
+  color: #e6edf3;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+#scenelingo-root .sl-ebtn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+#scenelingo-root .sl-quiz {
+  padding: 4px 12px 10px;
+  font-size: 13.5px;
+}
+#scenelingo-root .sl-quiz > p {
+  margin: 8px 0;
+  color: #c9d1d9;
+}
+#scenelingo-root .sl-quiz .sl-ebtn {
+  margin: 10px 0;
+}
+#scenelingo-root .sl-qitem {
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+#scenelingo-root .sl-qtext {
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+#scenelingo-root .sl-opt {
+  display: block;
+  width: 100%;
+  margin: 3px 0;
+  padding: 5px 9px;
+  border: 1px solid #3a4756;
+  border-radius: 7px;
+  background: #1c2530;
+  color: #e6edf3;
+  font: inherit;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+}
+#scenelingo-root .sl-opt:hover:not(:disabled) {
+  border-color: #1a98ff;
+}
+#scenelingo-root .sl-opt:disabled {
+  cursor: default;
+}
+#scenelingo-root .sl-opt.sl-right {
+  border-color: #3fb950;
+  background: rgba(63, 185, 80, 0.2);
+}
+#scenelingo-root .sl-opt.sl-wrong {
+  border-color: #f85149;
+  background: rgba(248, 81, 73, 0.18);
+}
+#scenelingo-root .sl-why {
+  margin-top: 5px;
+  font-size: 12.5px;
+  color: #c9d1d9;
+}
+#scenelingo-root .sl-link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #6cb6ff;
+  font: inherit;
+  cursor: pointer;
+}
+#scenelingo-root .sl-qscore {
+  margin-top: 10px;
+  font-size: 15px;
+  font-weight: 700;
+}
 #scenelingo-root .sl-row {
   display: flex;
   gap: 10px;

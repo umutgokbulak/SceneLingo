@@ -68,6 +68,12 @@ const frameDir = path.join(__dirname, '..', '.frames');
       await browser.move(500, 600);
       await wait(500);
       await save('transcript.jpg');
+      // Its tab of the episode's words: the ones to learn, with their meanings.
+      await page(`(root.querySelector('.sl-tab[data-tab="words"]').click(), true)`);
+      await until(`root.querySelectorAll('.sl-erow').length > 2 && ![...root.querySelectorAll('.sl-emean')].some((m) => m.textContent === '…')`, 150);
+      await wait(400);
+      await save('episode-words.jpg');
+      await page(`(root.querySelector('.sl-tab[data-tab="lines"]').click(), true)`);
       await browser.press('KeyL', 'l');
       await browser.move(1100, 120);
 

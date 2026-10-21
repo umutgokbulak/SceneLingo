@@ -5,6 +5,11 @@
 
 function buildPanel() {
   ui.list.textContent = '';
+  panelRows = null;
+  paintTabs();
+  // The episode's words and the questions on it: see overlay-episode.js.
+  if (panelTab === 'words') return buildWords();
+  if (panelTab === 'quiz') return buildQuiz();
   panelRows = [];
   if (!primary) return;
   const frag = document.createDocumentFragment();
@@ -276,7 +281,17 @@ function buildUI() {
   const panel = el('div', 'sl-panel');
   panel.hidden = true;
   const panelHead = el('div', 'sl-panel-head');
-  panelHead.append(el('span', null, slT('allLines')), button('sl-ibtn', 'close', null, slT('close'), togglePanel));
+  const tabs = el('div', 'sl-tabs');
+  for (const [tab, label] of [['lines', 'tabLines'], ['words', 'tabWords'], ['quiz', 'tabQuiz']]) {
+    const t = el('button', 'sl-tab', slT(label));
+    t.dataset.tab = tab;
+    t.addEventListener('click', () => {
+      panelTab = tab;
+      buildPanel();
+    });
+    tabs.append(t);
+  }
+  panelHead.append(tabs, button('sl-ibtn', 'close', null, slT('close'), togglePanel));
   const list = el('div', 'sl-list');
   panel.append(panelHead, list);
 
@@ -430,7 +445,7 @@ function buildUI() {
   ui = {
     root, subs, box, pri, sec, bar, barWrap, strip, stripWrap, answer, heard, heardText, score, actions,
     checkBtn, doneBtn, sayBtn, voiceBtn, goBtn, modeBtns, pauseBtn, starBtn, listBtn, gearBtn,
-    popup, toast: toastEl, menu, panel, list, checks, priSel, secSel, accentSel, accentRow,
+    popup, toast: toastEl, menu, panel, tabs, list, checks, priSel, secSel, accentSel, accentRow,
     volRange, volVal, size, pos, sync, status: statusEl, engineNote,
     boostRange, boostVal, geminiNote,
   };

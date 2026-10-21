@@ -354,6 +354,71 @@ async function everydayWriting({ task, points, level, text, words, sl, tl }) {
   };
 }
 
+// An episode's lines for Gemini: numbered, so that it can say where something is, and no longer
+// than `max` characters (the first lines kept, or with `last`, the last ones).
+function numbered(lines, max, last) {
+  const all = lines.map((l) => l.i + '| ' + String(l.text).replace(/\s+/g, ' ').trim());
+  const out = [];
+  let size = 0;
+  for (const line of last ? [...all].reverse() : all) {
+    if (size + line.length > max) break;
+    out.push(line);
+    size += line.length + 1;
+  }
+  return (last ? out.reverse() : out).join('\n');
+}
+const lineNo = (v) => (Number.isInteger(+v) && +v >= 0 ? +v : null);
+
+// An episode's words, with what they mean in it (the words were found by how rare they are, each
+// with the line it is first in), and the idioms, phrasal verbs and fixed expressions of its lines
+// worth learning at the learner's level.
+async function episodeGloss({ words, lines, sl, tl, level }) {
+  const apiKey = await savedKey();
+  const asked = (words || []).slice(0, 40).map((w) => ({ word: String(w.word), line: w.first }));
+  const json = await geminiJSON(
+    apiKey,
+    `A learner of ${langName(sl)} at level ${level || 'B1'}, whose own language is ${langName(tl)}, is watching an episode whose subtitles are below, one line each, numbered.\n\n` +
+      numbered(lines || [], 40000) +
+      `\n\nAnswer in JSON with these keys:\n` +
+      `"words": for each of these words, in the same order, ${JSON.stringify(asked)}: {"word": the word, "base": its dictionary form if that is different, else "", "meaning": what it means in that line, in ${langName(tl)}, in a few words};\n` +
+      `"phrases": up to 12 idioms, phrasal verbs and fixed expressions from the subtitles that a learner at ${level || 'B1'} would likely not know and should learn, the most useful first; each {"text": exactly as it is in the line, "base": its dictionary form, "meaning": what it means there, in ${langName(tl)}, "line": the number of the line}.`,
+    8192,
+    true
+  );
+  const list = (v) => (Array.isArray(v) ? v : []);
+  return {
+    words: list(json.words).map((w) => ({ word: String(w.word || '').trim().toLowerCase(), base: String(w.base || '').trim(), meaning: String(w.meaning || '').trim() })).filter((w) => w.word && w.meaning),
+    phrases: list(json.phrases).slice(0, 12).map((p) => ({ text: String(p.text || '').trim(), base: String(p.base || '').trim(), meaning: String(p.meaning || '').trim(), line: lineNo(p.line) })).filter((p) => p.text && p.meaning),
+  };
+}
+
+// Questions on the part of an episode just watched: whether it was understood, asked in simple
+// words of the language being learnt, about those lines only (nothing that comes later is given
+// away). The right answer is put in a place of its own, so that it is not always the first.
+async function episodeQuiz({ lines, sl, tl, level, count }, shuffle = Math.random) {
+  const apiKey = await savedKey();
+  const n = Math.min(8, Math.max(3, +count || 5));
+  const json = await geminiJSON(
+    apiKey,
+    `Here are the subtitles of the part of an episode that a learner of ${langName(sl)} (level ${level || 'B1'}, own language ${langName(tl)}) has just watched, one line each, numbered:\n\n` +
+      numbered(lines || [], 30000, true) +
+      `\n\nWrite ${n} questions that check whether they understood what happened and what was said: the story, what people want, feel or decide, and what they mean by what they say; not names, numbers or details nobody would remember. Ask only about these lines. Write the questions and the answers in simple ${langName(sl)}, at level ${level || 'B1'}.\n` +
+      `Answer in JSON with the key "questions": a list of {"q": the question, "options": four short answers of which one is right, "answer": the index (0 to 3) of the right one, "why": one sentence in ${langName(tl)} that says where in the story the answer comes from, "line": the number of the line that answers it}.`,
+    8192,
+    true
+  );
+  const out = [];
+  for (const q of Array.isArray(json.questions) ? json.questions : []) {
+    const options = (Array.isArray(q.options) ? q.options : []).map((o) => String(o || '').trim()).filter(Boolean);
+    const right = +q.answer;
+    if (!q.q || options.length < 2 || !(right >= 0 && right < options.length)) continue;
+    const order = options.map((o, i) => ({ o, i, k: shuffle() })).sort((a, b) => a.k - b.k);
+    out.push({ q: String(q.q).trim(), options: order.map((x) => x.o), answer: order.findIndex((x) => x.i === right), why: String(q.why || '').trim(), line: lineNo(q.line) });
+  }
+  if (!out.length) throw new Error('Gemini: no questions in the answer');
+  return out.slice(0, n);
+}
+
 // A sentence of the learner's own, with the word in it: corrected, and said more naturally.
 async function checkSentence({ word, sentence, sl, tl }) {
   const apiKey = await savedKey();
@@ -371,5 +436,5 @@ async function checkSentence({ word, sentence, sl, tl }) {
 }
 
 if (typeof module !== 'undefined') {
-  module.exports = { countGemini, slGeminiResting, geminiKeyShown, langName, geminiJSON, savedKey, askGemini, explain, enrich, gloss, speakingFeedback, roleplay, ieltsWriting, everydayWriting, checkSentence };
+  module.exports = { countGemini, slGeminiResting, geminiKeyShown, langName, geminiJSON, savedKey, askGemini, explain, enrich, gloss, speakingFeedback, roleplay, ieltsWriting, everydayWriting, episodeGloss, episodeQuiz, checkSentence };
 }

@@ -25,7 +25,63 @@ require('./server.js'); // serves test/netflix.html
     const seeks = await page('window.__seeks');
     assert.equal(seeks.length, 1, 'one seek through the player');
     assert.ok(Math.abs(seeks[0] - 6010) < 50, 'to the start of the next line: ' + seeks[0]);
-    console.log('Netflix (stood in for) works');
+    // the list of lines, on its tab of the episode's words: the rare ones of these lines, each with
+    // its meaning, the line it is in, and a star that saves it with that line
+    await page(`(document.querySelector('#scenelingo-root .sl-ibtn[aria-label]') && [...document.querySelectorAll('#scenelingo-root button')].find((b) => b.querySelector('path[d^="M8 6h13"]')).click(), true)`);
+    await wait(300);
+    await page(`($('#scenelingo-root .sl-tab[data-tab="words"]').click(), true)`);
+    await wait(1500);
+    const rows = await page(`[...document.querySelectorAll('#scenelingo-root .sl-erow')].map((r) => r.querySelector('b').textContent + '=' + r.querySelector('.sl-emean').textContent)`);
+    assert.deepEqual(rows, ['theatre=[tr] theatre', 'umbrella=[tr] umbrella'], 'the B1 words of the sample lines: ' + JSON.stringify(rows));
+    await page(`([...document.querySelectorAll('#scenelingo-root .sl-erow')][1].querySelector('.sl-etools button:last-child').click(), true)`);
+    await wait(400);
+    const saved = await page(`JSON.stringify(chrome.storage.local._data.words.find((w) => w.word === 'umbrella'))`);
+    assert.match(saved, /"context":"Don't forget your umbrella\."/, 'saved with its line: ' + saved);
+    const before = (await page('window.__seeks')).length;
+    await page(`([...document.querySelectorAll('#scenelingo-root .sl-erow')][0].querySelector('.sl-etools button').click(), true)`);
+    await wait(400);
+    const jumps = await page('window.__seeks');
+    assert.equal(jumps.length, before + 1, 'a jump to the line of "theatre", through the player');
+    assert.ok(Math.abs(jumps[jumps.length - 1] - 14010) < 50, 'to its line: ' + jumps[jumps.length - 1]);
+    // the questions need a Gemini key, and say so
+    await page(`($('#scenelingo-root .sl-tab[data-tab="quiz"]').click(), true)`);
+    await wait(800);
+    assert.match(await page(`$('#scenelingo-root .sl-list').textContent`), /Gemini/);
+    // with a Gemini key (its answers stood in for): the meanings in their lines, the idioms, and questions
+    await page(`(() => {
+      const real = chrome.runtime.sendMessage;
+      const canned = {
+        'gemini-key': { ok: true, result: 'AIza…test' },
+        'episode-gloss': { ok: true, result: { words: [{ word: 'theatre', base: '', meaning: 'tiyatro' }, { word: 'umbrella', base: '', meaning: 'şemsiye' }], phrases: [{ text: "let's go", base: "let's go", meaning: 'hadi gidelim', line: 9 }] } },
+        'episode-quiz': { ok: true, result: [{ q: 'Where are they going tonight?', options: ['To the theatre', 'Home', 'To work', 'To the sea'], answer: 0, why: 'Dördüncü satırda söylüyor.', line: 3 }, { q: 'What might happen later?', options: ['It might snow', 'It might rain', 'They might sleep', 'Nothing'], answer: 1, why: 'Yağmur yağabilir.', line: 6 }] },
+      };
+      chrome.runtime.sendMessage = (msg, cb) => (canned[msg.type] ? setTimeout(() => cb(canned[msg.type]), 20) : real(msg, cb));
+      episode = null;
+      return true;
+    })()`);
+    await page(`($('#scenelingo-root .sl-tab[data-tab="lines"]').click(), $('#scenelingo-root .sl-tab[data-tab="words"]').click(), true)`);
+    await wait(1200);
+    await page(`($('#scenelingo-root .sl-ebtn').click(), true)`);
+    await wait(800);
+    const glossed = await page(`[...document.querySelectorAll('#scenelingo-root .sl-erow')].map((r) => r.querySelector('b').textContent + '=' + r.querySelector('.sl-emean').textContent)`);
+    assert.deepEqual(glossed, ['theatre=tiyatro', "let's go=hadi gidelim"], 'the meanings in their lines, and the phrase; umbrella, saved above, is not offered again: ' + JSON.stringify(glossed));
+    assert.ok(await page(`!document.querySelector('#scenelingo-root .sl-ebtn')`), 'Gemini is asked once');
+    await page(`($('video').currentTime = 40, true)`);
+    await wait(600);
+    await page(`($('#scenelingo-root .sl-tab[data-tab="quiz"]').click(), true)`);
+    await wait(500);
+    await page(`($('#scenelingo-root .sl-quiz .sl-ebtn').click(), true)`);
+    await wait(600);
+    assert.equal(await page(`document.querySelectorAll('#scenelingo-root .sl-qitem').length`), 2);
+    await page(`(document.querySelectorAll('#scenelingo-root .sl-qitem')[0].querySelectorAll('.sl-opt')[0].click(), true)`);
+    await wait(200);
+    await page(`(document.querySelectorAll('#scenelingo-root .sl-qitem')[1].querySelectorAll('.sl-opt')[0].click(), true)`);
+    await wait(300);
+    assert.match(await page(`$('#scenelingo-root .sl-qscore').textContent`), /1/);
+    assert.ok(await page(`!!document.querySelectorAll('#scenelingo-root .sl-qitem')[1].querySelector('.sl-opt.sl-wrong') && !!document.querySelectorAll('#scenelingo-root .sl-qitem')[1].querySelector('.sl-opt.sl-right')`), 'the wrong answer and the right one, marked');
+    const day = await page(`JSON.stringify(Object.values(chrome.storage.local._data.reviewLog || {})[0])`);
+    assert.match(day, /"quiz":1,"quizScore":50/, 'the questions are in the record of the day: ' + day);
+    console.log('Netflix (stood in for) works, and so do the words of the episode');
   } finally {
     await b.close();
   }

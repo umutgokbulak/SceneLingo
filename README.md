@@ -41,7 +41,7 @@
   flashcards that come back on a schedule.
 - **Where:** Amazon Prime Video, Netflix, YouTube, and any site whose subtitles can be found from outside the page
   (TED, Vimeo's player and Wikimedia Commons were checked) — or any video at all, with a subtitle file of your own.
-- **How it is built:** Manifest V3, plain JavaScript, no dependencies and no build step; 102 unit tests, a
+- **How it is built:** Manifest V3, plain JavaScript, no dependencies and no build step; 108 unit tests, a
   stand-in player for everything that can be tested without a site, and a script that loads the real extension
   into a real browser for what cannot.
 
@@ -131,6 +131,13 @@ them), plyr.io, Vimeo's player, Wikimedia Commons and a YouTube player embedded 
   with the sentence it was in, what it means there; without one, Gemini gives it a sentence and examples.
 - **Backups.** The words live only in the browser, so the list makes a backup file and reads one back in,
   merging it with what is there; once a week it reminds you to make one.
+- **An episode's own words, and questions on it.** The list of lines has two more tabs. *Words*: the words of
+  this episode a learner at your level is not likely to know yet, found by how common each is in film subtitles
+  (lists of the 20,000 commonest English and German words, from OpenSubtitles), with how often they come, their
+  meaning, a jump to their line and a star to save them with it; names and sounds are left out, and so are the
+  words you have saved. With Gemini, their meaning in their lines and the episode's idioms and phrasal verbs, asked
+  once and kept. *Questions*: five questions on what you have watched so far, never on what comes later, each
+  with where in the story the answer is.
 - **Sentence navigation.** Jump to the previous or next line, repeat the current one, pause automatically after
   every line, or pick a line from the transcript.
 
@@ -145,6 +152,10 @@ them), plyr.io, Vimeo's player, Wikimedia Commons and a YouTube player embedded 
 | IELTS Speaking | Everyday conversation |
 | --- | --- |
 | ![An IELTS Part 1 answer with its estimated band, 6.5, and the four criteria; under them a mistake put right and a band 8 answer](docs/screenshots/ielts-speaking.jpg) | ![A conversation at a café: the waiter's turns with a button to hear them and their meaning, the learner's turn, and under it the same said better, with a star to save it](docs/screenshots/conversation.jpg) |
+
+| An episode's words | |
+| --- | --- |
+| ![The list beside the film on its Words tab: the words of the film a B1 learner may not know yet, each with how often it comes, its Turkish meaning, a button to its line and a star](docs/screenshots/episode-words.jpg) | |
 
 | Progress | IELTS Writing |
 | --- | --- |
@@ -337,7 +348,8 @@ npm run pictures:pages  # the pictures of the review page and the list of words
 | --- | --- |
 | `extension/inject.js`, `youtube.js`, `netflix.js` | Page-world scripts that find the subtitle tracks on Prime Video, YouTube and Netflix |
 | `extension/subtitles.js` | Reading subtitle files; finding the subtitles of a video on a site that is not known |
-| `extension/overlay-*.js`, `content.js` | The overlay, one content script in seven files loaded in order: its state (`overlay-base`), the tracks and their translation (`-tracks`), the lines kept in step with the picture and playback (`-lines`), the word card (`-words`), writing and speaking practice (`-practice`), the bar, its menu and the list of lines (`-ui`); `content.js` listens and starts it |
+| `extension/episode.js`, `freq/` | An episode's words to learn: how common each word is in film subtitles (lists under CC BY-SA 4.0, see `freq/README.md`) |
+| `extension/overlay-*.js`, `content.js` | The overlay, one content script in eight files loaded in order: its state (`overlay-base`), the tracks and their translation (`-tracks`), the lines kept in step with the picture and playback (`-lines`), the word card (`-words`), writing and speaking practice (`-practice`), the bar, its menu and the list of lines (`-ui`), the list's tabs of the episode's words and questions (`-episode`); `content.js` listens and starts it |
 | `extension/core.js` | Pure logic: subtitle and playlist formats, cue search and alignment, word matching, time-stretch |
 | `extension/background.js` | Service worker: translation, lookup and speech requests; access to other sites |
 | `extension/review.*`, `words.*`, `popup.*` | Review page, list of all words, toolbar popup |

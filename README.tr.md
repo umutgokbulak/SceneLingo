@@ -73,6 +73,12 @@ yazdım, çalışırken ihtiyaç duyduklarımı ekledim, sonra onu izlediğim di
   Eklenti penceresi neyin kaldığını gösterir ve sıradakini açar; İlerleme sayfası son yedi günü gün gün, toplamları
   ve IELTS bandlarının gidişini gösterir. Hangi alıştırmayı yaparsan yap seri devam eder. Seçtiğin saatte
   gelen bir bildirim neyin beklediğini söyler; hedefleri kendine göre değiştirebilirsin.
+- **Bölümün kelimeleri ve soruları.** Satır listesinin iki yeni sekmesi var. *Kelimeler*: bu bölümde, seviyene göre
+  muhtemelen bilmediğin kelimeler (film altyazılarındaki en yaygın 20.000 İngilizce ve Almanca kelimeye göre);
+  kaç kez geçtiği, anlamı, satırına git düğmesi ve o satırla kaydetmek için yıldız. İsimler, ünlemler ve kayıtlı
+  kelimelerin çıkmaz. Gemini ile: satırlarındaki anlamları ve bölümün deyimleri (bir kez sorulur, saklanır).
+  *Sorular*: şimdiye kadar izlediğin kısımdan 5 anlama sorusu; sonrasını ele vermez, cevabın hangi satırda
+  olduğunu gösterir.
 - **Günlerin kaydı:** seri, öğrenilen kelime, hatırlama oranı.
 - **Bütün kelimelerin tek yerde.** Kaydettiğin her kelime, kalıp ve cümle; kelimeye, anlamlarına ya da cümlesine
   göre aranır, türe, kaynağa ve durumuna göre (yeni, öğreniliyor, öğrenilen, zor) süzülür. Her satır açılınca
@@ -93,6 +99,10 @@ yazdım, çalışırken ihtiyaç duyduklarımı ekledim, sonra onu izlediğim di
 | IELTS Speaking | Günlük konuşma |
 | --- | --- |
 | ![IELTS cevabı, tahmini band ve dört ölçüt, düzeltmeler ve band 8 cevap](docs/screenshots/ielts-speaking.jpg) | ![Kafede konuşma: garsonun cümleleri, senin cevabın ve altında daha iyi hâli](docs/screenshots/conversation.jpg) |
+
+| Bölümün kelimeleri | |
+| --- | --- |
+| ![Filmin yanındaki listenin Kelimeler sekmesi: B1 seviyesinde bilinmeyebilecek kelimeler, anlamları, satıra git ve yıldız](docs/screenshots/episode-words.jpg) | |
 
 | İlerleme | IELTS Writing |
 | --- | --- |
@@ -158,7 +168,7 @@ saat okuyup yazmasına yeter. Kurulum adımları [İngilizce README](README.md#s
 
 ## Nasıl yapıldı
 
-Manifest V3, yalın JavaScript; bağımlılık ve derleme adımı yok. 102 birim testi, site olmadan denenebilen her şey
+Manifest V3, yalın JavaScript; bağımlılık ve derleme adımı yok. 108 birim testi, site olmadan denenebilen her şey
 için oynatıcıyı taklit eden bir test sayfası ve gerisi için eklentiyi gerçek bir tarayıcıya yükleyip yöneten bir
 betik var. Altyazıların sitelerde nasıl bulunduğu, iki altyazı izinin nasıl eşleştirildiği ve yolda çıkan
 sorunlar [İngilizce README](README.md#engineering-notes)'de anlatılıyor.
