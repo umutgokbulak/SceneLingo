@@ -81,7 +81,17 @@ require('./server.js'); // serves test/netflix.html
     assert.ok(await page(`!!document.querySelectorAll('#scenelingo-root .sl-qitem')[1].querySelector('.sl-opt.sl-wrong') && !!document.querySelectorAll('#scenelingo-root .sl-qitem')[1].querySelector('.sl-opt.sl-right')`), 'the wrong answer and the right one, marked');
     const day = await page(`JSON.stringify(Object.values(chrome.storage.local._data.reviewLog || {})[0])`);
     assert.match(day, /"quiz":1,"quizScore":50/, 'the questions are in the record of the day: ' + day);
-    console.log('Netflix (stood in for) works, and so do the words of the episode');
+    // the settings: above the bar over their button, in tabs, closed with Escape
+    await page(`(ui.gearBtn.click(), true)`);
+    await wait(300);
+    const placed = await page(`(() => { const m = ui.menu.getBoundingClientRect(); const g = ui.gearBtn.getBoundingClientRect(); const bar = ui.bar.getBoundingClientRect(); return { open: !ui.menu.hidden, on: ui.gearBtn.classList.contains('sl-on'), over: m.bottom <= bar.top, nearGear: Math.abs(m.right - (g.right + 8)) < 12 || m.right > g.left }; })()`);
+    assert.deepEqual(placed, { open: true, on: true, over: true, nearGear: true }, 'the menu over its button: ' + JSON.stringify(placed));
+    await page(`(ui.menu.querySelector('.sl-mtab[data-tab="sound"]').click(), true)`);
+    assert.deepEqual(await page(`[...ui.menu.querySelectorAll('.sl-mpage')].filter((p) => !p.hidden).map((p) => p.dataset.tab)`), ['sound']);
+    await page(`(document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', code: 'Escape', bubbles: true })), true)`);
+    await wait(200);
+    assert.ok(await page(`ui.menu.hidden && !ui.gearBtn.classList.contains('sl-on')`), 'Escape closes it');
+    console.log('Netflix (stood in for) works, and so do the words of the episode and the settings');
   } finally {
     await b.close();
   }

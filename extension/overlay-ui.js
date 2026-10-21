@@ -154,6 +154,7 @@ const ICONS = {
   pen: 'M12 20h9 M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z',
   mic: 'M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z M19 10v2a7 7 0 0 1-14 0v-2 M12 19v4 M8 23h8',
   pause: 'M6 4h4v16H6z M14 4h4v16h-4z',
+  pauseLine: 'M9 3v8 M15 3v8 M4 16h16 M7 20h10',
   volume: 'M11 5L6 9H2v6h4l5 4V5z M19.07 4.93a10 10 0 0 1 0 14.14 M15.54 8.46a5 5 0 0 1 0 7.07',
   star: 'M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z',
   list: 'M8 6h13 M8 12h13 M8 18h13 M3 6h.01 M3 12h.01 M3 18h.01',
@@ -209,10 +210,10 @@ function buildUI() {
   };
   const seg = el('div', 'sl-seg');
   seg.append(modeBtns.watch, modeBtns.write, modeBtns.speak);
-  const pauseBtn = button('sl-ibtn', 'pause', null, slT('pauseEach'), () => setSetting('autoPause', !settings.autoPause));
+  const pauseBtn = button('sl-ibtn', 'pauseLine', null, slT('pauseEach'), () => setSetting('autoPause', !settings.autoPause));
   const starBtn = button('sl-ibtn', 'star', null, slT('saveSentence'), saveSentence);
   const listBtn = button('sl-ibtn', 'list', null, slT('list'), togglePanel);
-  const gearBtn = button('sl-ibtn', 'sliders', null, slT('settings'), () => (ui.menu.hidden ? openMenu() : (ui.menu.hidden = true)));
+  const gearBtn = button('sl-ibtn', 'sliders', null, slT('settings'), () => (ui.menu.hidden ? openMenu() : closeMenu()));
   bar.append(
     button('sl-ibtn', 'prev', null, slT('prev'), () => primary && nav(-1)),
     button('sl-ibtn', 'repeat', null, slT('repeat'), () => primary && nav(0)),
@@ -302,6 +303,13 @@ function buildUI() {
     r.append(el('span', 'sl-mlabel', label), control);
     return r;
   };
+  // A list with an arrow of its own, drawn by the style sheet: a picture there could be refused by
+  // the site.
+  const selectBox = (s) => {
+    const w = el('span', 'sl-select');
+    w.append(s);
+    return w;
+  };
   const check = (key) => {
     const c = el('input');
     c.type = 'checkbox';
@@ -351,7 +359,7 @@ function buildUI() {
     setSetting('accent', accentSel.value);
     speakSample();
   });
-  const accentRow = row(slT('accent'), accentSel);
+  const accentRow = row(slT('accent'), selectBox(accentSel));
   const vol = el('span', 'sl-range');
   const volRange = el('input');
   volRange.type = 'range';
@@ -363,6 +371,7 @@ function buildUI() {
   volRange.addEventListener('input', () => {
     settings.speechVolume = +volRange.value;
     volVal.textContent = volRange.value + '%';
+    paintRange(volRange);
   });
   volRange.addEventListener('change', () => {
     setSetting('speechVolume', +volRange.value);
@@ -383,6 +392,7 @@ function buildUI() {
   let boostTimer = 0;
   boostRange.addEventListener('input', () => {
     boostVal.textContent = boostRange.value + '%';
+    paintRange(boostRange);
     clearTimeout(boostTimer);
     boostTimer = setTimeout(async () => {
       const res = await setBoost(+boostRange.value);
@@ -399,7 +409,7 @@ function buildUI() {
   const engineNote = el('div', 'sl-hint sl-engine');
   engineNote.hidden = true;
   const reviewBtn = el('button', 'sl-wide-btn', slT('openReview'));
-  const fileBtn = el('button', 'sl-wide-btn sl-file-btn', slT('openFile'));
+  const fileBtn = el('button', 'sl-small-btn', slT('openFileShort'));
   fileBtn.title = slT('openFileTip');
   fileBtn.addEventListener('click', () => {
     const input = el('input');
@@ -412,34 +422,43 @@ function buildUI() {
   traceBtn.title = slT('copyDiagTip');
   const statusEl = el('div', 'sl-status');
   statusEl.hidden = true;
-  const advanced = el('details', 'sl-more');
-  advanced.append(el('summary', null, slT('advanced')), row(slT('delay'), sync.wrap), traceBtn);
-  menu.append(
-    statusEl,
-    el('div', 'sl-mhead', slT('headSubtitles')),
+  // The menu: its title, four tabs (each short enough to need no scrolling), and a foot with the
+  // review page and the diagnostics.
+  const menuTop = el('div', 'sl-mtop');
+  menuTop.append(el('span', 'sl-mtitle', slT('settings')), button('sl-ibtn sl-mclose', 'close', null, slT('close'), closeMenu));
+  const menuTabs = el('div', 'sl-mtabs');
+  const pages = {};
+  for (const [tab, label] of [['subs', 'tabSubs'], ['card', 'tabWord'], ['sound', 'tabSound'], ['look', 'tabLook']]) {
+    const t = el('button', 'sl-mtab', slT(label));
+    t.dataset.tab = tab;
+    t.addEventListener('click', () => showMenuTab(tab));
+    menuTabs.append(t);
+    pages[tab] = el('div', 'sl-mpage');
+    pages[tab].dataset.tab = tab;
+  }
+  // The keys as keys: "A previous" with the A on a key cap.
+  const keys = el('div', 'sl-keys');
+  for (const part of slT('keysHint').split(' · ')) {
+    const [cap, ...what] = part.split(' ');
+    const k = el('span');
+    k.append(el('kbd', null, cap), ' ' + what.join(' '));
+    keys.append(k);
+  }
+  pages.subs.append(
     row(slT('dual'), check('enabled'), 'label'),
-    row(slT('upper'), priSel),
-    row(slT('lower'), secSel),
+    row(slT('upper'), selectBox(priSel)),
+    row(slT('lower'), selectBox(secSel)),
     engineNote,
     row(slT('hideNative'), check('hideNative'), 'label'),
-    fileBtn,
-    el('div', 'sl-mhead', slT('headCard')),
-    row(slT('hoverPause'), check('hoverPause'), 'label'),
-    row(slT('hoverLookup'), check('hoverLookup'), 'label'),
-    row(slT('autoSpeak'), check('autoSpeak'), 'label'),
-    accentRow,
-    row(slT('volume'), vol),
-    boostRow,
-    boostNote,
-    geminiRow,
-    geminiNote,
-    el('div', 'sl-mhead', slT('headLook')),
-    row(slT('fontSize'), size.wrap),
-    row(slT('position'), pos.wrap),
-    reviewBtn,
-    advanced,
-    el('div', 'sl-hint', slT('keysHint'))
+    row(slT('delay'), sync.wrap),
+    row(slT('ownFile'), fileBtn)
   );
+  pages.card.append(row(slT('hoverPause'), check('hoverPause'), 'label'), row(slT('hoverLookup'), check('hoverLookup'), 'label'), row(slT('autoSpeak'), check('autoSpeak'), 'label'), geminiRow, geminiNote);
+  pages.sound.append(accentRow, row(slT('volume'), vol), boostRow, boostNote);
+  pages.look.append(row(slT('fontSize'), size.wrap), row(slT('position'), pos.wrap), el('div', 'sl-mhead', slT('keysTitle')), keys);
+  const menuFoot = el('div', 'sl-mfoot');
+  menuFoot.append(reviewBtn, traceBtn);
+  menu.append(menuTop, statusEl, menuTabs, ...Object.values(pages), menuFoot);
 
   root.append(subs, popup, toastEl, menu, panel);
   ui = {
@@ -521,13 +540,42 @@ function buildUI() {
   requestAnimationFrame(frame);
 }
 
+// The menu opens above the bar, over the settings button rather than over the middle of the
+// picture, with a point to the button; on the tab it was left on.
+let menuTab = 'subs';
 function openMenu() {
   refreshMenu();
+  showMenuTab(menuTab);
   ui.menu.hidden = false;
   const rr = ui.root.getBoundingClientRect();
-  const top = ui.barWrap.getBoundingClientRect().top;
-  ui.menu.style.bottom = Math.max(8, rr.bottom - top + 4) + 'px';
-  ui.menu.style.maxHeight = Math.max(160, top - rr.top - 16) + 'px';
+  const bar = ui.bar.getBoundingClientRect();
+  const gear = ui.gearBtn.getBoundingClientRect();
+  const width = ui.menu.offsetWidth;
+  const left = Math.max(8, Math.min(gear.right + 8 - width, rr.right - 8 - width) - rr.left);
+  ui.menu.style.left = left + 'px';
+  ui.menu.style.bottom = Math.max(8, rr.bottom - bar.top + 10) + 'px';
+  ui.menu.style.maxHeight = Math.max(160, bar.top - rr.top - 18) + 'px';
+  ui.menu.style.setProperty('--sl-point', Math.max(16, Math.min(width - 16, gear.left + gear.width / 2 - rr.left - left)) + 'px');
+  ui.gearBtn.classList.add('sl-on');
+}
+
+function closeMenu() {
+  if (!ui) return;
+  ui.menu.hidden = true;
+  ui.gearBtn.classList.remove('sl-on');
+}
+
+function showMenuTab(tab) {
+  menuTab = tab;
+  for (const t of ui.menu.querySelectorAll('.sl-mtab')) t.classList.toggle('sl-on', t.dataset.tab === tab);
+  for (const p of ui.menu.querySelectorAll('.sl-mpage')) p.hidden = p.dataset.tab !== tab;
+}
+
+// A slider filled up to its value, in the colour of what is on.
+function paintRange(range) {
+  const min = +range.min || 0;
+  const max = +range.max || 100;
+  range.style.setProperty('--sl-fill', Math.round(((+range.value - min) / (max - min)) * 100) + '%');
 }
 
 // ---------- the film's sound ----------
@@ -621,6 +669,8 @@ function refreshMenu() {
   ui.volVal.textContent = settings.speechVolume + '%';
   ui.boostRange.value = boostLevel;
   ui.boostVal.textContent = boostLevel + '%';
+  paintRange(ui.volRange);
+  paintRange(ui.boostRange);
   ui.size.val.textContent = settings.fontSize + '%';
   ui.pos.val.textContent = settings.bottomOffset + '%';
   ui.sync.val.textContent = slT('seconds', (offset > 0 ? '+' : '') + offset.toFixed(2));

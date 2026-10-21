@@ -79,7 +79,7 @@ function onKey(e) {
   let handled = true;
   if (e.code === 'Escape') {
     handled = !!ui && (closePopup(true) || !ui.menu.hidden);
-    if (handled) ui.menu.hidden = true;
+    if (handled) closeMenu();
   } else if (!settings.enabled || !video || !primary || !ui || ui.root.hidden) {
     handled = false;
   } else if (e.code === 'KeyA') nav(-1);
@@ -198,7 +198,7 @@ function start() {
     if (!ui) return;
     const target = e.target.nodeType === 1 ? e.target : e.target.parentElement;
     if (!ui.popup.hidden && !ui.popup.contains(target) && !(target && target.closest('.sl-word'))) closePopup(true);
-    if (!ui.menu.hidden && !ui.menu.contains(target) && !ui.gearBtn.contains(target)) ui.menu.hidden = true;
+    if (!ui.menu.hidden && !ui.menu.contains(target) && !ui.gearBtn.contains(target)) closeMenu();
     // A press on our own controls is ours alone. A player that cancels mouse presses to keep its
     // picture from being selected would otherwise also stop subtitle words from being selected.
     if (ui.root.contains(target)) e.stopImmediatePropagation();
