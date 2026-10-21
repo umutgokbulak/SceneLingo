@@ -54,7 +54,7 @@ test('the content script is registered for other sites only while the user allow
   assert.deepEqual(site.calls, ['register']); // once, however often it is asked
   const [script] = site.registered;
   assert.deepEqual(script.matches, ['*://*/*']);
-  assert.deepEqual(script.js, ['messages.js', 'shared.js', 'study.js', 'core.js', 'subtitles.js', 'content.js', 'select.js']);
+  assert.deepEqual(script.js, ['messages.js', 'shared.js', 'study.js', 'core.js', 'subtitles.js', 'overlay-base.js', 'overlay-tracks.js', 'overlay-lines.js', 'overlay-words.js', 'overlay-practice.js', 'overlay-ui.js', 'content.js', 'select.js']);
   assert.equal(script.runAt, 'document_start');
   assert.equal(script.allFrames, true);
   // The sites the manifest covers are left to the manifest, so nothing runs twice there.

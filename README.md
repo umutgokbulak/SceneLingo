@@ -169,7 +169,7 @@ flowchart LR
   subgraph Page["Player page"]
     P[Video player] -- "asks for playback resources" --> N((network))
     H["inject.js<br>(page JS world)"] -. "observes the answer" .-> N
-    C["content.js<br>(isolated world)"]
+    C["overlay-*.js, content.js<br>(isolated world)"]
     O[Overlay on the video]
     H -- "subtitle track list<br>(postMessage)" --> C
     C -- "fetches and parses TTML" --> N
@@ -335,9 +335,9 @@ npm run pictures:pages  # the pictures of the review page and the list of words
 
 | Path | What is there |
 | --- | --- |
-| `extension/inject.js`, `youtube.js` | Page-world scripts that find the subtitle tracks on Prime Video and on YouTube |
+| `extension/inject.js`, `youtube.js`, `netflix.js` | Page-world scripts that find the subtitle tracks on Prime Video, YouTube and Netflix |
 | `extension/subtitles.js` | Reading subtitle files; finding the subtitles of a video on a site that is not known |
-| `extension/content.js` | Overlay, playback control, word card, study bar, practice modes, what differs per site |
+| `extension/overlay-*.js`, `content.js` | The overlay, one content script in seven files loaded in order: its state (`overlay-base`), the tracks and their translation (`-tracks`), the lines kept in step with the picture and playback (`-lines`), the word card (`-words`), writing and speaking practice (`-practice`), the bar, its menu and the list of lines (`-ui`); `content.js` listens and starts it |
 | `extension/core.js` | Pure logic: subtitle and playlist formats, cue search and alignment, word matching, time-stretch |
 | `extension/background.js` | Service worker: translation, lookup and speech requests; access to other sites |
 | `extension/review.*`, `words.*`, `popup.*` | Review page, list of all words, toolbar popup |
