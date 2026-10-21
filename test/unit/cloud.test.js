@@ -67,6 +67,19 @@ test('the first sync puts the cards in the cloud; the next brings in what anothe
   assert.ok(!d.calls.some((c) => c.startsWith('PATCH')), 'the cloud already had all of it: not written again');
 });
 
+test('the scores of speaking and writing go to the other device with the cards', async () => {
+  drive();
+  const score = { at: 5000, part: 1, bands: { fluency: 6, lexical: 6, grammar: 6, pronunciation: 6 } };
+  const laptop = store({ words: [{ word: 'keen', added: 1 }], speakLog: [score], listenRest: { 'a sentence': 9e12 } });
+  await slCloudSync('tok', laptop, 6000);
+  const phone = store({ writeLog: [{ at: 5500, task: 'task2', bands: { task: 6, coherence: 6, lexical: 6, grammar: 6 } }] });
+  await slCloudSync('tok', phone, 7000);
+  assert.deepEqual(phone.data.speakLog, [score]);
+  assert.deepEqual(phone.data.listenRest, { 'a sentence': 9e12 });
+  await slCloudSync('tok', laptop, 8000);
+  assert.equal(laptop.data.writeLog.length, 1, "the phone's essay is on the laptop now");
+});
+
 test('the sign-in address asks for this folder only, and the token comes back in the fragment', () => {
   SL_CLOUD.clientId = 'id.apps.googleusercontent.com';
   const url = new URL(slAuthUrl('https://example.chromiumapp.org/', false, 'a@b.c'));

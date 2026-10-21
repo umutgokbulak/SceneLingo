@@ -2419,6 +2419,9 @@
       emptyNote = e.data.ready ? slT('noCaptions') : '';
       setTracks(e.data.ready ? e.data.tracks : [], true);
       if (!primary && !tracks.length) setStatus(emptyNote || waiting());
+    } else if (e.data.type === 'nf-noplayer') {
+      // Netflix did not let its player be asked to seek: said, rather than nothing happening.
+      toast(slT('nfNoSeek'), 3500);
     } else if (e.data.type === 'sub-seen' && !tracks.length && typeof e.data.url === 'string' && e.data.url !== seenUrl) {
       seenUrl = e.data.url;
       reload();

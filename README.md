@@ -41,7 +41,7 @@
   flashcards that come back on a schedule.
 - **Where:** Amazon Prime Video, Netflix, YouTube, and any site whose subtitles can be found from outside the page
   (TED, Vimeo's player and Wikimedia Commons were checked) — or any video at all, with a subtitle file of your own.
-- **How it is built:** Manifest V3, plain JavaScript, no dependencies and no build step; 95 unit tests, a
+- **How it is built:** Manifest V3, plain JavaScript, no dependencies and no build step; 102 unit tests, a
   stand-in player for everything that can be tested without a site, and a script that loads the real extension
   into a real browser for what cannot.
 
@@ -360,9 +360,10 @@ above were taken on.
 ## Limitations and roadmap
 
 - Prime Video, Netflix and YouTube are supported by name; other sites as far as their subtitles can be found from
-  outside the page. They cannot when a stream packs them inside MP4 fragments, or when the address of a file does not look like a subtitle file's; a file of your own
-  still works there, and a service of the first kind needs an adapter like the three that exist. Subtitles of a
-  live broadcast are followed only through the video's own text tracks.
+  outside the page. They cannot when a stream packs them inside MP4 fragments, or when the address of a file
+  does not look like a subtitle file's; a file of your own still works there. A service that keeps its
+  subtitles to itself needs an adapter like the three that exist. Subtitles of a live broadcast are followed
+  only through the video's own text tracks.
 - Prime Video and Netflix need an account and are checked by hand; Netflix's part is also checked against a
   stand-in of its player ([`test/netflix.html`](test/netflix.html), `npm run check:netflix`). Netflix changes its
   player without notice; when its subtitles stop coming, its adapter (`extension/netflix.js`) is the place to
@@ -377,8 +378,11 @@ above were taken on.
   you whether you were understood, word by word; it does not grade individual sounds, and it is forgiving of an
   accent.
 - Definitions and synonyms are available for single English words; phrases get a translation only.
-- Planned: interface in English, word-level tags for academic and business vocabulary, fill-in-the-blank review
-  cards, Anki export.
+- What Gemini does (a word's meaning in its sentence, the IELTS bands, the conversations, putting a text right)
+  needs your own free key, and is held to the free tier's daily and per-minute limits, which the popup's counter
+  helps to watch. The bands are an estimate from what was written or recognised, not an examiner's score.
+- The phone gets no reminders: a web page can only be woken by a push server, which this project does not run.
+- Planned: Anki export, and a listing in the Chrome Web Store so that updates arrive by themselves.
 
 ## Disclaimer
 

@@ -300,8 +300,37 @@ function slMerge(keep, other) {
 // Everything learnt, in one file: the cards with their schedules, sentences and scenes, the
 // record of the days, and which cards were deleted when (so that a copy elsewhere does not bring
 // them back). Not the Gemini key: that stays in the browser it was given to.
-function slBackup(words, log, now, version, deleted) {
-  return { app: 'SceneLingo', kind: 'backup', version: version || '', exported: new Date(now).toISOString(), words, reviewLog: log, deleted: deleted || {} };
+function slBackup(words, log, now, version, deleted, records) {
+  const r = records || {};
+  return {
+    app: 'SceneLingo',
+    kind: 'backup',
+    version: version || '',
+    exported: new Date(now).toISOString(),
+    words,
+    reviewLog: log,
+    deleted: deleted || {},
+    speakLog: r.speakLog || [],
+    writeLog: r.writeLog || [],
+    listenRest: r.listenRest || {},
+  };
+}
+
+// The practice kept beside the cards: the scores of spoken answers and of written texts (lists of
+// { at, bands, ... }, the latest hundred), and until when each sentence of the listening practice
+// rests. They go into backups and to the cloud with the cards.
+const SL_RECORDS = ['speakLog', 'writeLog', 'listenRest'];
+const SL_LOG_KEPT = 100;
+function slMergeRecords(here, there, now) {
+  const logOf = (a, b) => {
+    const byTime = new Map();
+    for (const r of [...(a || []), ...(b || [])]) if (r && r.at) byTime.set(r.at + '|' + (r.part || r.task || ''), r);
+    return [...byTime.values()].sort((x, y) => x.at - y.at).slice(-SL_LOG_KEPT);
+  };
+  const rest = { ...(here.listenRest || {}) };
+  for (const [k, until] of Object.entries(there.listenRest || {})) rest[k] = Math.max(rest[k] || 0, until);
+  for (const k of Object.keys(rest)) if (now && rest[k] < now) delete rest[k];
+  return { speakLog: logOf(here.speakLog, there.speakLog), writeLog: logOf(here.writeLog, there.writeLog), listenRest: rest };
 }
 
 // When a card last changed: saved, studied or edited.
@@ -350,8 +379,9 @@ function slMergeCard(a, b) {
 
 // Two copies of everything made one, as when this browser meets its copy in the cloud, or a
 // backup file: a card in both keeps the copy changed last; a card deleted on one side after it
-// last changed on the other stays deleted; the days' records keep the larger counts. Deletions
-// older than half a year are forgotten. `added` and `updated` count what the second copy brought.
+// last changed on the other stays deleted; the days' records keep the larger counts; the scores of
+// the practice are put together. Deletions older than half a year are forgotten. `added` and
+// `updated` count what the second copy brought.
 function slMergeAll(here, there, now) {
   const key = (w) => String(w.word || '').toLowerCase();
   const deleted = { ...(here.deleted || {}) };
@@ -388,12 +418,12 @@ function slMergeAll(here, there, now) {
     reviewLog[day] = { ...h };
     for (const [k, v] of Object.entries(d)) if (typeof v === 'number') reviewLog[day][k] = Math.max(h[k] || 0, v);
   }
-  return { words: [...byKey.values()], reviewLog, deleted, added, updated };
+  return { words: [...byKey.values()], reviewLog, deleted, added, updated, ...slMergeRecords(here, there, now) };
 }
 
 // A backup read back in, merged with what is here. Restoring is asked for: a card in the file
 // that was deleted here comes back (and counts as changed now, so that a sync keeps it).
-function slRestore(words, log, data, deleted) {
+function slRestore(words, log, data, deleted, records) {
   if (!data || data.app !== 'SceneLingo' || !Array.isArray(data.words)) throw new Error('not a SceneLingo backup');
   const now = Date.now();
   const gone = { ...(deleted || {}) };
@@ -404,8 +434,8 @@ function slRestore(words, log, data, deleted) {
     delete gone[k];
     return { ...w, updated: now };
   });
-  const r = slMergeAll({ words, reviewLog: log, deleted: gone }, { ...data, words: back }, now);
-  return { words: r.words, log: r.reviewLog, deleted: r.deleted, added: r.added, updated: r.updated };
+  const r = slMergeAll({ ...(records || {}), words, reviewLog: log, deleted: gone }, { ...data, words: back }, now);
+  return { words: r.words, log: r.reviewLog, deleted: r.deleted, added: r.added, updated: r.updated, speakLog: r.speakLog, writeLog: r.writeLog, listenRest: r.listenRest };
 }
 
 // The word list an earlier version saved as CSV ("Download CSV"), read back as cards: the word,
@@ -562,5 +592,5 @@ function slDictationPool(words, lang, rest, now, size, rand = Math.random) {
 }
 
 if (typeof module !== 'undefined') {
-  module.exports = { SL_PLAN, slGoals, slNextAt, slLogActivity, slActive, slTodayPlan, slWeek, SL_STAGES, slDictation, slDictationPool, slCanon, slFromCsv, slBackup, slStamp, slMergeCard, slMergeAll, slRestore, slStatus, slCleanLine, slHintMask, slCardType, slAdvance, slClozeParts, slCheckAnswer, slAccepted, slSentenceScore, slDayKey, slIsNew, slTodayQueue, slLogged, slStats, slDueCount, slAddExample, slMerge, slNormalize };
+  module.exports = { SL_RECORDS, SL_LOG_KEPT, slMergeRecords, SL_PLAN, slGoals, slNextAt, slLogActivity, slActive, slTodayPlan, slWeek, SL_STAGES, slDictation, slDictationPool, slCanon, slFromCsv, slBackup, slStamp, slMergeCard, slMergeAll, slRestore, slStatus, slCleanLine, slHintMask, slCardType, slAdvance, slClozeParts, slCheckAnswer, slAccepted, slSentenceScore, slDayKey, slIsNew, slTodayQueue, slLogged, slStats, slDueCount, slAddExample, slMerge, slNormalize };
 }

@@ -308,6 +308,11 @@ function days() {
     await page(`($('#endBody .btn.primary').click(), document.querySelectorAll('#parts .tile')[1].click(), true)`);
     await wait(300);
     assert.ok(await page(`!$('#clock').hidden && !$('#points').hidden && $('#examMic').disabled`));
+    // "I am ready", clicked while the minute counts down: the talking starts
+    await wait(1100);
+    await page(`($('#clock button').click(), true)`);
+    await wait(300);
+    assert.ok(await page(`!$('#examMic').disabled && !$('#clock button')`), 'talking: the microphone is free, and the clock has no button');
 
     // ---- writing ----
     await seed();

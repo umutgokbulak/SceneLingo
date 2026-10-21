@@ -5,7 +5,6 @@ const PART1_QUESTIONS = 4;
 const FULL_PART1 = 3;
 const PREP_SECONDS = 60;
 const TALK_SECONDS = 120;
-const LOG_KEPT = 100;
 
 let settings = { ...SL_DEFAULTS };
 let geminiKey = '';
@@ -200,9 +199,10 @@ function examPlan(part) {
   return plan;
 }
 
-const exam = { plan: [], at: 0, results: [], phase: 'answer', timer: null, ends: 0, sent: false, tries: [] };
+const exam = { plan: [], at: 0, results: [], phase: 'answer', timer: null, ends: 0, sent: false, tries: [], run: 0 };
 
 function startExam(plan) {
+  exam.run++;
   exam.plan = plan;
   exam.at = 0;
   exam.results = [];
@@ -249,15 +249,19 @@ function showQuestion() {
   say(item.question);
 }
 
+// The clock is drawn once and only its time changes: a button drawn anew twice a second could
+// lose the click made on it.
 function countdown(seconds, label, skipLabel, then) {
   exam.ends = Date.now() + seconds * 1000;
   const box = $('clock');
   box.hidden = false;
+  box.textContent = '';
+  const time = el('b');
+  box.append(el('span', null, label), time, el('span', 'spacer'));
+  if (skipLabel) box.append(btn(skipLabel, then, 'btn small'));
   const paint = () => {
     const left = Math.max(0, Math.round((exam.ends - Date.now()) / 1000));
-    box.textContent = '';
-    box.append(el('span', null, label), el('b', null, clock(left)), el('span', 'spacer'));
-    if (skipLabel) box.append(btn(skipLabel, then, 'btn small'));
+    time.textContent = clock(left);
     if (!left) {
       clearInterval(exam.timer);
       then();
@@ -304,7 +308,12 @@ async function sendAnswer() {
   fb.hidden = false;
   fb.textContent = '';
   fb.append(el('div', 'muted', slT('speakScoring')));
+  const run = exam.run;
   const res = await ask({ type: 'speak-feedback', part: item.part, question: item.question, points: item.points, answer, words: exam.tries, sl: 'en', tl: settings.nativeLang });
+  if (res.ok) keepScore(item, res.result);
+  // The test was left, or another begun, while the answer was being scored: the score is kept,
+  // and nothing is drawn over what is on the page now.
+  if (run !== exam.run || $('exam').hidden || exam.plan[exam.at] !== item) return;
   fb.textContent = '';
   if (!res.ok) {
     // Not lost: it can be sent again.
@@ -319,14 +328,18 @@ async function sendAnswer() {
   const r = res.result;
   const overall = slIeltsOverall(r.bands);
   exam.results.push({ part: item.part, question: item.question, bands: r.bands, overall });
+  paintFeedback(fb, r, overall, item);
+  paintExamGo();
+}
+
+// A scored answer, in the record of days, the list of scores, and the cards of the words used.
+function keepScore(item, r) {
   slLogPractice('speak');
   chrome.storage.local.get({ speakLog: [] }, (data) => {
-    const log = [...(data.speakLog || []), { at: Date.now(), part: item.part, bands: r.bands }].slice(-LOG_KEPT);
+    const log = [...(data.speakLog || []), { at: Date.now(), part: item.part, bands: r.bands }].slice(-SL_LOG_KEPT);
     chrome.storage.local.set({ speakLog: log });
   });
-  paintFeedback(fb, r, overall, item);
   rememberUsed(r.used, slT('speakTitle'));
-  paintExamGo();
 }
 
 const CRITERIA = [
@@ -398,9 +411,10 @@ $('askAgain').addEventListener('click', () => say($('question').textContent));
 
 // ---------- a conversation ----------
 
-const talk = { scene: null, history: [], busy: false, done: false, fixes: [], tries: [] };
+const talk = { scene: null, history: [], busy: false, done: false, fixes: [], tries: [], id: 0 };
 
 function startTalk(scene) {
+  talk.id++;
   talk.scene = scene;
   talk.history = [];
   talk.done = false;
@@ -435,9 +449,12 @@ async function turn() {
   paintTalkGo();
   const typing = el('div', 'typing', slT('speakThinking'));
   $('chat').append(typing);
+  const id = talk.id;
   const res = await ask({ type: 'roleplay', scene: talk.scene, level, history: talk.history, words: talk.tries, sl: learnt(), tl: settings.nativeLang });
+  if (id !== talk.id) return; // another conversation began meanwhile
   typing.remove();
   talk.busy = false;
+  if ($('talk').hidden) return; // left for the list of situations: nothing is said over it
   if (!res.ok) {
     const retry = el('div', 'notice', failed(res.error) + ' ');
     retry.append(btn(slT('speakRetry'), () => (retry.remove(), turn()), 'link'));

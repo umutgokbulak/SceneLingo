@@ -79,6 +79,23 @@ test('a backup holds the cards and the days, and merges back in without losing e
   assert.ok(revived.words.some((w) => w.word === 'through') && !revived.deleted.through, 'a deleted card in the restored file comes back');
 });
 
+test('the practice records go into a backup and come back merged: no score twice, none lost', () => {
+  const a = { at: NOW - 3 * DAY, part: 1, bands: { fluency: 6, lexical: 6, grammar: 5.5, pronunciation: 6.5 } };
+  const b = { at: NOW - DAY, part: 2, bands: { fluency: 6.5, lexical: 6, grammar: 6, pronunciation: 6.5 } };
+  const essay = { at: NOW - 2 * DAY, task: 'task2', bands: { task: 6, coherence: 6, lexical: 6.5, grammar: 6 } };
+  const file = JSON.parse(JSON.stringify(S.slBackup([], {}, NOW, '0.27.0', {}, { speakLog: [a, b], writeLog: [essay], listenRest: { 'its my fault': Date.now() + DAY, 'old one': Date.now() - DAY } })));
+  assert.equal(file.speakLog.length, 2);
+  // (a restore happens now: rests are measured from the clock, not from the tests' day)
+  const later = Date.now() + 3 * DAY;
+  const here = { speakLog: [a, { at: NOW, part: 3, bands: b.bands }], writeLog: [], listenRest: { 'its my fault': later } };
+  const r = S.slRestore([], {}, file, {}, here);
+  assert.deepEqual(r.speakLog.map((x) => x.part), [1, 2, 3], 'in the order they were given, the one in both once');
+  assert.deepEqual(r.writeLog, [essay]);
+  assert.deepEqual(r.listenRest, { 'its my fault': later }, 'the later of the two; a rest that is over is dropped');
+  const many = Array.from({ length: 150 }, (_, i) => ({ at: i + 1, part: 1, bands: a.bands }));
+  assert.equal(S.slMergeRecords({ speakLog: many }, {}, NOW).speakLog.length, 100, 'the latest hundred');
+});
+
 test('two copies made one: the later change wins, and a deletion is not undone by an older copy', () => {
   const T = 1000000;
   const here = {

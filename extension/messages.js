@@ -3,6 +3,7 @@
 const SL_TEXTS = {
   en: {
     // ---- the overlay: status
+    nfNoSeek: 'Netflix did not let SceneLingo move the film this time: use its own buttons, or reload the page.',
     waitNetflix: 'Waiting for subtitles… Start the episode; if none come, reload the page once with the episode open.',
     waitPrime: 'Waiting for subtitles… Start the video; if none come, turn subtitles on once in the Prime player.',
     waitYoutube: 'Waiting for subtitles… If none come, turn captions (CC) on once in the YouTube player.',
@@ -484,6 +485,7 @@ const SL_TEXTS = {
   },
 
   tr: {
+    nfNoSeek: 'Netflix bu sefer filmi ileri geri almaya izin vermedi: kendi düğmelerini kullan ya da sayfayı yenile.',
     waitNetflix: 'Altyazı bekleniyor… Bölümü başlat; gelmezse bölüm açıkken sayfayı bir kez yenile.',
     waitPrime: 'Altyazı bekleniyor… Videoyu başlat; gelmezse Prime oynatıcısında altyazıyı bir kez aç.',
     waitYoutube: 'Altyazı bekleniyor… Gelmezse YouTube oynatıcısında altyazıyı (CC) bir kez aç.',

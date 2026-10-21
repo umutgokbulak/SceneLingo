@@ -70,23 +70,26 @@ async function slWho(token) {
 // One sync: this copy and the cloud's made one, and both given the result. Each side is written
 // only if it changed, so a sync with nothing new costs one read.
 async function slCloudSync(token, storage, now) {
-  const here = await storage.get({ words: [], reviewLog: {}, deleted: {} });
+  // The cards, and what is kept beside them: the days, the deletions and the practice records.
+  const BESIDE = ['reviewLog', 'deleted', ...SL_RECORDS];
+  const wanted = { words: [], reviewLog: {}, deleted: {}, speakLog: [], writeLog: [], listenRest: {} };
+  const here = await storage.get(wanted);
   const remote = await slCloudRead(token);
   const there = remote.data || {};
   const merged = slMergeAll(here, there, now);
   const same = (a, b) => slCanon(a || {}) === slCanon(b || {});
   const sameCards = (a, b) => same([...(a || [])].sort((x, y) => (x.word < y.word ? -1 : 1)), [...(b || [])].sort((x, y) => (x.word < y.word ? -1 : 1)));
-  if (!remote.id || !sameCards(merged.words, there.words) || !same(merged.reviewLog, there.reviewLog) || !same(merged.deleted, there.deleted)) {
-    await slCloudWrite(token, remote.id, slBackup(merged.words, merged.reviewLog, now, 'cloud', merged.deleted));
+  const sameAll = (a, b) => sameCards(a.words, b.words) && BESIDE.every((k) => same(a[k], b[k]));
+  if (!remote.id || !sameAll(merged, there)) {
+    await slCloudWrite(token, remote.id, slBackup(merged.words, merged.reviewLog, now, 'cloud', merged.deleted, merged));
   }
   // A card graded or saved here while the cloud was being asked is not lost: what is here now is
   // merged with the result once more before it is written.
-  const latest = await storage.get({ words: [], reviewLog: {}, deleted: {} });
-  const final = sameCards(latest.words, here.words) && same(latest.reviewLog, here.reviewLog) && same(latest.deleted, here.deleted) ? merged : slMergeAll(latest, merged, now);
+  const latest = await storage.get(wanted);
+  const final = sameAll(latest, here) ? merged : slMergeAll(latest, merged, now);
   const changes = { lastSync: now, lastBackup: now };
   if (!sameCards(final.words, latest.words)) changes.words = final.words;
-  if (!same(final.reviewLog, latest.reviewLog)) changes.reviewLog = final.reviewLog;
-  if (!same(final.deleted, latest.deleted)) changes.deleted = final.deleted;
+  for (const k of BESIDE) if (!same(final[k], latest[k])) changes[k] = final[k];
   await storage.set(changes);
   return { added: merged.added, updated: merged.updated, count: merged.words.length, changed: 'words' in changes };
 }

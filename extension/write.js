@@ -2,7 +2,6 @@
 // and, in English, the IELTS Writing tasks. Each text is put right by Gemini, with a better version
 // to learn from and, for IELTS, an estimated band on the four criteria. What is being written is
 // kept as it is typed, so that nothing is lost when the page is closed.
-const LOG_KEPT = 100;
 const IELTS = {
   task1a: { name: 'Task 1 · Academic', minutes: 20, words: 150, sub: 'writeAcademicSub' },
   task1g: { name: 'Task 1 · General Training', minutes: 20, words: 150, sub: 'writeGeneralSub' },
@@ -233,11 +232,16 @@ async function check() {
   fb.textContent = '';
   fb.append(el('div', 'muted', slT(current.kind === 'ielts' ? 'writeCheckingIelts' : 'writeChecking')));
   fb.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-  const w = current.kind === 'daily' && SL_WRITES.find((x) => x.id === current.id);
+  const task = current;
+  const w = task.kind === 'daily' && SL_WRITES.find((x) => x.id === task.id);
   const res =
-    current.kind === 'ielts'
-      ? await ask({ type: 'ielts-writing', task: current.task, prompt: current.prompt, points: current.points, table: current.table, text, words: current.tries, tl: settings.nativeLang })
-      : await ask({ type: 'everyday-writing', task: w.task.en, points: w.points.en, level: current.level, text, words: current.tries, sl: current.lang, tl: settings.nativeLang });
+    task.kind === 'ielts'
+      ? await ask({ type: 'ielts-writing', task: task.task, prompt: task.prompt, points: task.points, table: task.table, text, words: task.tries, tl: settings.nativeLang })
+      : await ask({ type: 'everyday-writing', task: w.task.en, points: w.points.en, level: task.level, text, words: task.tries, sl: task.lang, tl: settings.nativeLang });
+  if (res.ok) keepText(task, res.result);
+  // Another task was begun while this text was being read: its score is kept, and the page (and
+  // the draft of the new text) are left as they are.
+  if (current !== task) return;
   fb.textContent = '';
   if (!res.ok) {
     // Not lost: still there, to be sent again.
@@ -248,11 +252,21 @@ async function check() {
     paintGo();
     return;
   }
-  chrome.storage.local.set({ writeDraft: null });
   paintFeedback(fb, res.result, w);
-  rememberUsed(res.result.used, slT('writeTitle'));
-  slLogPractice('write');
   paintGo();
+}
+
+// A text read by Gemini: in the record of days and, for IELTS, the list of scores; the words used
+// on their cards; and its draft, done with.
+function keepText(task, r) {
+  slLogPractice('write');
+  rememberUsed(r.used, slT('writeTitle'));
+  chrome.storage.local.get({ writeLog: [], writeDraft: null }, (data) => {
+    const changes = {};
+    if (task.kind === 'ielts') changes.writeLog = [...(data.writeLog || []), { at: Date.now(), task: task.task, bands: r.bands }].slice(-SL_LOG_KEPT);
+    if (data.writeDraft && data.writeDraft.task && data.writeDraft.task.started === task.started) changes.writeDraft = null;
+    chrome.storage.local.set(changes);
+  });
 }
 
 function paintFeedback(fb, r, w) {
@@ -261,9 +275,6 @@ function paintFeedback(fb, r, w) {
   if (ielts) {
     const overall = slIeltsOverall(r.bands, SL_WRITING_KEYS);
     add(bandsBox(r.bands, overall, criteriaOf(current.task)));
-    chrome.storage.local.get({ writeLog: [] }, (data) => {
-      chrome.storage.local.set({ writeLog: [...(data.writeLog || []), { at: Date.now(), task: current.task, bands: r.bands }].slice(-LOG_KEPT) });
-    });
   } else {
     const lv = el('div', 'level');
     lv.append(el('small', null, slT('writeLevel')), el('b', null, r.level || '—'), el('small', null, slT('writeLevelGoal', current.level)));

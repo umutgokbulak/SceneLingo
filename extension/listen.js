@@ -6,7 +6,6 @@ const DAY = 86400000;
 const GLOSS_KEPT = 300; // sentences whose parts are kept, so that Gemini is asked once for each
 
 let settings = { ...SL_DEFAULTS };
-let rest = {}; // sentence -> until when it is not asked again
 let round = [];
 let at = 0;
 let results = []; // { text, score }
@@ -121,8 +120,7 @@ function check() {
   results.push({ text: s.text, score: counted });
   slLogPractice('listen', Math.round(counted * 100));
   // Heard right, it rests a week; nearly, three days; missed, it comes back tomorrow.
-  rest[s.key] = Date.now() + (counted >= 0.9 ? 7 : counted >= 0.6 ? 3 : 1) * DAY;
-  saveRest();
+  restUntil(s.key, Date.now() + (counted >= 0.9 ? 7 : counted >= 0.6 ? 3 : 1) * DAY);
   $('typed').disabled = true;
   $('mask').hidden = true;
   $('hint').hidden = true;
@@ -296,10 +294,15 @@ function next() {
   show();
 }
 
-function saveRest() {
-  const now = Date.now();
-  for (const k of Object.keys(rest)) if (rest[k] < now) delete rest[k];
-  chrome.storage.local.set({ listenRest: rest });
+// A sentence rests until then: written into what is kept now (another device's rests may have come
+// with the cloud meanwhile), and the rests that are over are dropped.
+function restUntil(key, until) {
+  chrome.storage.local.get({ listenRest: {} }, (data) => {
+    const all = { ...(data.listenRest || {}), [key]: until };
+    const now = Date.now();
+    for (const k of Object.keys(all)) if (all[k] < now) delete all[k];
+    chrome.storage.local.set({ listenRest: all });
+  });
 }
 
 // ---------- the round ----------
@@ -332,9 +335,8 @@ function showEnd() {
 
 function startRound() {
   chrome.storage.local.get({ words: [], listenRest: {} }, (data) => {
-    rest = data.listenRest || {};
     saved = new Set(data.words.map((w) => w.word.toLowerCase()));
-    round = slDictationPool(data.words, settings.learnLang, rest, Date.now(), ROUND);
+    round = slDictationPool(data.words, settings.learnLang, data.listenRest || {}, Date.now(), ROUND);
     at = 0;
     results = [];
     show();
