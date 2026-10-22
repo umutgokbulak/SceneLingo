@@ -189,7 +189,7 @@ function slNextAt(now, hhmm) {
 }
 
 // A day with any study in it.
-const slActive = (day) => !!(day && (day.reviews || day.listen || day.speak || day.write || day.read || day.quiz));
+const slActive = (day) => !!(day && (day.reviews || day.listen || day.speak || day.write || day.read || day.quiz || day.level));
 
 // What a day asks for, every day: the cards that are due, some sentences listened to, and some
 // conversations or spoken answers; and, in the week, some texts written and some read. How many
@@ -324,9 +324,9 @@ function slBackup(words, log, now, version, deleted, records) {
 // The practice kept beside the cards: the scores of spoken answers, written texts and reading
 // tests (lists of { at, ... }, the latest hundred), and until when each sentence of the listening
 // practice rests. They go into backups and to the cloud with the cards.
-const SL_RECORDS = ['speakLog', 'writeLog', 'readLog', 'listenRest'];
+const SL_RECORDS = ['speakLog', 'writeLog', 'readLog', 'levelLog', 'listenRest'];
 const SL_LOG_KEPT = 100;
-const slNoRecords = () => ({ speakLog: [], writeLog: [], readLog: [], listenRest: {} });
+const slNoRecords = () => ({ speakLog: [], writeLog: [], readLog: [], levelLog: [], listenRest: {} });
 function slMergeRecords(here, there, now) {
   const logOf = (a, b) => {
     const byTime = new Map();
@@ -336,7 +336,7 @@ function slMergeRecords(here, there, now) {
   const rest = { ...(here.listenRest || {}) };
   for (const [k, until] of Object.entries(there.listenRest || {})) rest[k] = Math.max(rest[k] || 0, until);
   for (const k of Object.keys(rest)) if (now && rest[k] < now) delete rest[k];
-  return { speakLog: logOf(here.speakLog, there.speakLog), writeLog: logOf(here.writeLog, there.writeLog), readLog: logOf(here.readLog, there.readLog), listenRest: rest };
+  return { speakLog: logOf(here.speakLog, there.speakLog), writeLog: logOf(here.writeLog, there.writeLog), readLog: logOf(here.readLog, there.readLog), levelLog: logOf(here.levelLog, there.levelLog), listenRest: rest };
 }
 
 // When a card last changed: saved, studied or edited.

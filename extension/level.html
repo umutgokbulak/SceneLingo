@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SceneLingo</title>
+<link rel="icon" href="icons/32.png">
+<link rel="stylesheet" href="ui.css?v=0.30.0">
+<link rel="stylesheet" href="practice.css?v=0.30.0">
+<link rel="manifest" href="app.webmanifest">
+<link rel="apple-touch-icon" href="icons/180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SceneLingo">
+<meta name="theme-color" content="#0d1117">
+<style>
+  .app { max-width: 860px; }
+  .lead { margin: 0 0 18px; color: var(--text-2); font-size: 15px; line-height: 1.55; }
+  .facts { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+  .facts span { padding: 4px 11px; border-radius: 999px; background: var(--raised); color: var(--text-2); font-size: 13px; }
+  .past { margin-top: 22px; display: grid; gap: 6px; font-size: 14px; color: var(--text-2); }
+  .past div { display: flex; gap: 10px; }
+  .past b { color: var(--text); font-variant-numeric: tabular-nums; }
+
+  /* asking */
+  .progress { height: 6px; border-radius: 6px; background: var(--raised); overflow: hidden; }
+  .progress > div { height: 100%; width: 0; background: var(--accent); border-radius: 6px; transition: width 0.25s; }
+  .count { margin-top: 10px; font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .word { margin: 34px 0 30px; text-align: center; font-size: clamp(34px, 5vw, 46px); font-weight: 700; letter-spacing: -0.02em; overflow-wrap: anywhere; }
+  .options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .options button { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 12px; border: 1px solid var(--border-strong); background: var(--surface-2); color: var(--text); cursor: pointer; font-size: 16px; text-align: left; transition: border-color 0.12s, background 0.12s; }
+  .options button:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .options kbd { flex: none; }
+  .idk { display: flex; justify-content: center; margin-top: 16px; }
+
+  /* the result */
+  .size { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+  .size .big { font-size: 52px; font-weight: 750; letter-spacing: -0.03em; color: var(--accent-text); font-variant-numeric: tabular-nums; }
+  .size .lv { padding: 4px 12px; border-radius: 10px; background: var(--accent-soft); color: var(--accent-text); font-size: 20px; font-weight: 700; }
+  .bars { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 6px; align-items: end; height: 96px; margin-top: 22px; }
+  .bars i { display: block; border-radius: 6px 6px 2px 2px; background: var(--accent); min-height: 3px; }
+  .bars i.none { background: var(--raised); }
+  .ranks { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 6px; margin-top: 6px; font-size: 11px; color: var(--muted); text-align: center; font-variant-numeric: tabular-nums; }
+  .apply { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 22px; padding: 12px 14px; border-radius: 12px; background: var(--surface-2); border: 1px solid var(--border); font-size: 14px; color: var(--text-2); }
+  .apply span { flex: 1; min-width: 200px; }
+  .missed { margin-top: 22px; }
+  .missed .mrow { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr) auto; gap: 12px; align-items: center; padding: 6px 0; border-top: 1px solid var(--border); font-size: 15px; }
+  .missed .mrow span { color: var(--gold); }
+  .after { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 22px; }
+
+  @media (max-width: 640px) {
+    .options { grid-template-columns: minmax(0, 1fr); }
+    .options kbd { display: none; }
+    .size .big { font-size: 42px; }
+    .ranks { font-size: 9.5px; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brand"><h1 data-t="levelTitle"></h1></div>
+  </header>
+
+  <!-- before -->
+  <section id="start" class="card" hidden><div class="inner">
+    <h2 data-t="levelHead"></h2>
+    <p class="lead" id="lead"></p>
+    <div class="facts"><span data-t="levelFactCount"></span><span data-t="levelFactTime"></span><span data-t="levelFactFree"></span></div>
+    <div id="noList" class="notice" hidden></div>
+    <button id="begin" class="btn primary"></button>
+    <div class="past" id="past"></div>
+  </div></section>
+
+  <!-- the words being got ready -->
+  <section id="making" class="card" hidden><div class="inner"><p class="lead" id="makingText" style="margin: 0;"></p></div></section>
+
+  <!-- asking -->
+  <section id="asking" class="card" hidden><div class="inner">
+    <div class="progress"><div id="bar"></div></div>
+    <div class="count" id="count"></div>
+    <div class="word" id="word"></div>
+    <div class="options" id="options"></div>
+    <div class="idk"><button id="idk" class="btn ghost"></button></div>
+  </div></section>
+
+  <!-- the result -->
+  <section id="result" class="card" hidden><div class="inner">
+    <div class="label" data-t="levelYours"></div>
+    <div class="size"><span class="big" id="size"></span><span id="sizeText"></span><span class="lv" id="lv"></span></div>
+    <p class="lead" id="explain" style="margin-top: 10px;"></p>
+    <div class="bars" id="bars"></div>
+    <div class="ranks" id="ranks"></div>
+    <div class="apply" id="apply"></div>
+    <div class="missed" id="missed"></div>
+    <div class="after"><button id="again" class="btn"></button><a class="btn primary" href="progress.html" data-t="levelDone"></a></div>
+  </div></section>
+</div>
+
+<!-- On the phone, where there is no extension, this stands in for it. -->
+<script src="web.js?v=0.30.0"></script>
+<script src="messages.js?v=0.30.0"></script>
+<script src="shared.js?v=0.30.0"></script>
+<script src="study.js?v=0.30.0"></script>
+<script src="nouns.js?v=0.30.0"></script>
+<script src="cloud.js?v=0.30.0"></script>
+<script src="gemini.js?v=0.30.0"></script>
+<script src="translate.js?v=0.30.0"></script>
+<script src="ui.js?v=0.30.0"></script>
+<script src="practice-data.js?v=0.30.0"></script>
+<script src="practice.js?v=0.30.0"></script>
+<script src="vocab.js?v=0.30.0"></script>
+<script src="level.js?v=0.30.0"></script>
+</body>
+</html>

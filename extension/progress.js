@@ -18,7 +18,7 @@ const GOALS = [
 const SHOWN = 10; // the latest scores shown as bars
 
 let settings = { ...SL_DEFAULTS };
-const load = () => chrome.storage.local.get({ words: [], reviewLog: {}, speakLog: [], writeLog: [], readLog: [], geminiKey: '', geminiUsage: null }, paint);
+const load = () => chrome.storage.local.get({ words: [], reviewLog: {}, speakLog: [], writeLog: [], readLog: [], levelLog: [], geminiKey: '', geminiUsage: null }, paint);
 
 function paint(data) {
   const now = Date.now();
@@ -96,6 +96,22 @@ function paint(data) {
     box.append(b, trend);
     return box;
   };
+  // The vocabulary: the latest level test of the language being learnt, and the ones before it.
+  const tests = (data.levelLog || []).filter((r) => r.lang === settings.learnLang);
+  const last = tests[tests.length - 1];
+  $('vocabText').textContent = '';
+  if (last) $('vocabText').append(el('span', 'vocabbig', '~' + last.size.toLocaleString(slUiLang)), slT('progressLevelLast', last.level, slAgo(last.at)));
+  else $('vocabText').textContent = slT('progressLevelNone');
+  $('vocabTrend').textContent = '';
+  if (tests.length > 1) {
+    for (const r of tests.slice(-12)) {
+      const bar = el('i');
+      bar.style.height = Math.max(8, Math.round((r.size / 20000) * 100)) + '%';
+      bar.title = new Date(r.at).toLocaleDateString(slUiLang) + ': ' + r.size;
+      $('vocabTrend').append(bar);
+    }
+  }
+
   const speaking = data.speakLog || [];
   const writing = data.writeLog || [];
   const reading = (data.readLog || []).filter((r) => r.band != null);
@@ -116,6 +132,7 @@ chrome.storage.sync.get(SL_DEFAULTS, (stored) => {
   document.documentElement.lang = slSetUiLang(settings.uiLang);
   slApply(document);
   slNav('today');
+  $('toLevel').append(slIcon('chart'), el('span', null, slT('levelTitle')));
   document.title = slT('progressTitle') + ' — SceneLingo';
   // The goals of today's plan, each a choice; the plan follows at once.
   const box = $('goals');

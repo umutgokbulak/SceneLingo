@@ -77,6 +77,12 @@ yazdım, çalışırken ihtiyaç duyduklarımı ekledim, sonra onu izlediğim di
 - **Her sayfaya tek çubuktan geçiş:** Bugün, tekrar, kelimeler ve dört alıştırma, her sayfanın üstünde birer
   sekme (telefonda ekranın altında); tekrar sekmesi bekleyen kart sayısını, bugünkü payı biten alıştırma yeşil
   bir noktayı gösterir.
+- **Seviye testi.** Film ve dizilerde en sık geçenlerden nadir olanlara doğru yaklaşık kırk kelime; her birinin
+  anlamını dört seçenekten seç ya da "Bilmiyorum" de. 3-4 dakika, anahtar gerekmez. Sonuç: kaç kelime bildiğin
+  (örneğin ~8.000) ve bunun seviyesi; istersen bölüm kelimelerinde ve alıştırmalarda hemen kullanılır. Bilmediğin
+  yaygın kelimeleri kaydedebilirsin. Tahminler düşülür; isimler ve anlamına benzeyen kelimeler sorulmaz (her
+  anlam geri çevrilir ve kelimeyi geri vermelidir). İlerleme sayfası sonuçları saklar, artışı görürsün.
+  İngilizce ve Almanca.
 - **Almanca isimler der, die, das ile.** Almanca altyazıda isimlerin altı artikelinin rengiyle çizilir (der mavi,
   die kırmızı, das yeşil). Kelime kartı artikeli ve çoğulu gösterir, kelimenin hangi hâli olursa olsun
   ("Häusern" → das Haus); listede olmayan bileşik isim son parçasının artikelini alır. Kaydedilen isimler
@@ -122,9 +128,9 @@ yazdım, çalışırken ihtiyaç duyduklarımı ekledim, sonra onu izlediğim di
 | --- | --- |
 | ![Bugünün planı ve son yedi gün](docs/screenshots/progress.jpg) | ![IELTS Task 2 denemesi: kelime sayısı, kalan süre ve tahmini band](docs/screenshots/ielts-writing.jpg) |
 
-| IELTS Reading | |
+| IELTS Reading | Seviye testi |
 | --- | --- |
-| ![Solda harflenmiş paragraflarıyla bir IELTS Academic parçası ve bir cevabın geçtiği yer işaretli; sağda 13 sorudan 11 doğru, tahmini band 7.5, başlık listesi ve her cevabın nedeni](docs/screenshots/ielts-reading.jpg) | |
+| ![Solda harflenmiş paragraflarıyla bir IELTS Academic parçası ve bir cevabın geçtiği yer işaretli; sağda 13 sorudan 11 doğru, tahmini band 7.5, başlık listesi ve her cevabın nedeni](docs/screenshots/ielts-reading.jpg) | ![Seviye testinin sonucu: yaklaşık 8.000 kelime, B2; listenin her 2.000 kelimelik dilimi için bir çubuk, bilinmeyen yaygın kelimeler ve yıldız](docs/screenshots/level.jpg) |
 
 | Dinleme alıştırması | |
 | --- | --- |
@@ -186,7 +192,7 @@ saat okuyup yazmasına yeter. Kurulum adımları [İngilizce README](README.md#s
 
 ## Nasıl yapıldı
 
-Manifest V3, yalın JavaScript; bağımlılık ve derleme adımı yok. 118 birim testi, site olmadan denenebilen her şey
+Manifest V3, yalın JavaScript; bağımlılık ve derleme adımı yok. 122 birim testi, site olmadan denenebilen her şey
 için oynatıcıyı taklit eden bir test sayfası ve gerisi için eklentiyi gerçek bir tarayıcıya yükleyip yöneten bir
 betik var. Altyazıların sitelerde nasıl bulunduğu, iki altyazı izinin nasıl eşleştirildiği ve yolda çıkan
 sorunlar [İngilizce README](README.md#engineering-notes)'de anlatılıyor.

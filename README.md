@@ -41,7 +41,7 @@
   flashcards that come back on a schedule.
 - **Where:** Amazon Prime Video, Netflix, YouTube, and any site whose subtitles can be found from outside the page
   (TED, Vimeo's player and Wikimedia Commons were checked) — or any video at all, with a subtitle file of your own.
-- **How it is built:** Manifest V3, plain JavaScript, no dependencies and no build step; 118 unit tests, a
+- **How it is built:** Manifest V3, plain JavaScript, no dependencies and no build step; 122 unit tests, a
   stand-in player for everything that can be tested without a site, and a script that loads the real extension
   into a real browser for what cannot.
 
@@ -126,6 +126,12 @@ them), plyr.io, Vimeo's player, Wikimedia Commons and a YouTube player embedded 
 - **One bar to every page:** today, the review, the words and the four kinds of practice, one tab each, at the
   top of every page (on a phone, at the foot of the screen); the review's tab says how many cards are waiting,
   and a practice done for today has a green dot.
+- **A level test.** About forty words, from the commonest in films and series to the rare ones, each matched with
+  its meaning out of four or "I don't know"; three or four minutes, no key needed. From them, how many words of
+  the language you know (about 8,000, say) and the level that makes, used at once for an episode's words and the
+  practice if you like; the common words you did not know, to save. Guesses are taken off; a name or a word that
+  looks like its meaning is never asked (each meaning is translated back, and must give the word again). The
+  progress page keeps the results, to see the number grow. English and German.
 - **German nouns with der, die, das.** In German subtitles, nouns are underlined in the colour of their gender
   (der blue, die red, das green). A noun's card shows its article and plural, from any of its forms ("Häusern"
   is das Haus); a compound not in the list takes the gender of its last part. Saved nouns are listed and
@@ -175,9 +181,9 @@ them), plyr.io, Vimeo's player, Wikimedia Commons and a YouTube player embedded 
 | --- | --- |
 | ![Today's plan with the cards, listening, speaking and the week's writing; beside it the last seven days day by day, the week's numbers, and the IELTS bands as bars](docs/screenshots/progress.jpg) | ![An IELTS Task 2 essay being written, with the words counted against 250 and the time left; under it, its estimated band and the four criteria](docs/screenshots/ielts-writing.jpg) |
 
-| IELTS Reading | |
+| IELTS Reading | Level test |
 | --- | --- |
-| ![An IELTS Academic passage on the left with its paragraphs lettered and the words of one answer marked; on the right 11 of 13 right, an estimated band of 7.5, the list of headings and each answer with why](docs/screenshots/ielts-reading.jpg) | |
+| ![An IELTS Academic passage on the left with its paragraphs lettered and the words of one answer marked; on the right 11 of 13 right, an estimated band of 7.5, the list of headings and each answer with why](docs/screenshots/ielts-reading.jpg) | ![The level test's result: about 8,000 words, B2; a bar for each stretch of 2,000 words of the list, the first four full; a button to use B2 everywhere; the common words not known, with their meaning and a star](docs/screenshots/level.jpg) |
 
 | Listening practice | |
 | --- | --- |
@@ -367,6 +373,7 @@ npm run pictures:pages  # the pictures of the review page and the list of words
 | `extension/inject.js`, `youtube.js`, `netflix.js` | Page-world scripts that find the subtitle tracks on Prime Video, YouTube and Netflix |
 | `extension/subtitles.js` | Reading subtitle files; finding the subtitles of a video on a site that is not known |
 | `extension/episode.js`, `freq/` | An episode's words to learn: how common each word is in film subtitles (lists under CC BY-SA 4.0, see `freq/README.md`) |
+| `extension/level.*`, `vocab.js` | The level test: the words drawn from the list, made into fair questions, and the estimate |
 | `extension/nouns.js`, `freq/de-nouns.txt` | German nouns: gender and plural, of a word in any of its forms or of a compound (`test/nouns.py` makes the list) |
 | `extension/overlay-*.js`, `content.js` | The overlay, one content script in eight files loaded in order: its state (`overlay-base`), the tracks and their translation (`-tracks`), the lines kept in step with the picture and playback (`-lines`), the word card (`-words`), writing and speaking practice (`-practice`), the bar, its menu and the list of lines (`-ui`), the list's tabs of the episode's words and questions (`-episode`); `content.js` listens and starts it |
 | `extension/read.*`, `reading.js` | Reading practice: the page, and the test Gemini writes put in order, marked and turned into a band |

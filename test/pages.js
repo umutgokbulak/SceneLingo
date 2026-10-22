@@ -457,6 +457,32 @@ function days() {
     await wait(300);
     assert.ok(await page(`!!document.querySelector('scenelingo-select')`));
 
+    // ---- the level test ----
+    // (the translation stood in for: each word's meaning its letters backwards, which come back as the word)
+    await b.open(b.extensionPage('level.html'));
+    await wait(800);
+    await page(`(() => {
+      const real = chrome.runtime.sendMessage;
+      const flip = (s) => [...s].reverse().join('');
+      chrome.runtime.sendMessage = (msg, cb) => msg.type === 'translate' ? setTimeout(() => cb({ ok: true, result: msg.texts.map((t) => (msg.sl === 'en' ? flip(t) + 'q' : flip(t.slice(0, -1)))) }), 10) : real(msg, cb);
+      $('#begin').click();
+      return true;
+    })()`);
+    await wait(1500);
+    assert.equal(await page(`items.length`), 40, 'four words from each of the ten stretches');
+    assert.match(await page(`$('#count').textContent`), /^1 \/ 40/);
+    // a learner who knows the first 6,000 words and says so for the rest
+    for (let i = 0; i < 40 && !(await page(`$('#asking').hidden`)); i++) await page(`(answer(items[at].band < 3 ? items[at].answer : -1), true)`);
+    assert.equal(await page(`at`), 20, 'stopped after two stretches with nothing known');
+    assert.equal(await page(`$('#size').textContent`), '~6.000');
+    assert.equal(await page(`$('#lv').textContent`), 'B2');
+    await page(`($('#apply button').click(), document.querySelector('#missed .star').click(), true)`);
+    await wait(500);
+    assert.equal(await b.worker(`chrome.storage.sync.get('wordLevel').then((d) => d.wordLevel)`), 'B2');
+    const tested = JSON.parse(await b.worker(`chrome.storage.local.get(['levelLog', 'readLevel', 'words']).then((d) => JSON.stringify(d))`));
+    assert.deepEqual([tested.levelLog.length, tested.levelLog[0].size, tested.levelLog[0].level, tested.readLevel], [1, 6000, 'B2', 'B2']);
+    assert.ok(tested.words.some((w) => w.title === 'Seviye testi'), 'a word not known, saved to learn');
+
     // ---- today's plan, and the week ----
     // what the writing above did is in the record of days, beside the cards of the four days before
     await b.open(b.extensionPage('progress.html'));
