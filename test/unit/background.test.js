@@ -352,6 +352,45 @@ test('writing: an IELTS text scored on its own four criteria, and an everyday on
   site.geminiKey = '';
 });
 
+test('reading: Gemini writes an IELTS passage and its questions on the subject given, and they come back in order', async () => {
+  site.geminiKey = 'test-key';
+  const answer = (o) => ({ json: { candidates: [{ content: { parts: [{ text: JSON.stringify(o) }] } }] } });
+  reset(() =>
+    answer({
+      title: 'Bees and their homes',
+      paragraphs: ['Scouts look for a hollow tree.', 'They dance to say where it is.', 'The swarm follows the best dancer.'],
+      tfng: [
+        { statement: 'Scouts search for a place to live.', answer: 'TRUE', why: 'Ağaç arıyorlar.', quote: 'Scouts look for a hollow tree.' },
+        { statement: 'The queen chooses.', answer: 'NOT GIVEN', why: 'Söylenmiyor.' },
+      ],
+      choice: [{ q: 'How do scouts tell the others?', options: ['They sing', 'They dance', 'They fly away', 'They wait'], answer: 1, why: 'Dans.', quote: 'They dance' }],
+      gaps: [{ sentence: 'The swarm follows the best ____.', answers: ['dancer'], why: 'Dansçı.', quote: 'follows the best dancer' }],
+    })
+  );
+  const r = await ask({ type: 'reading-test', kind: 'academic', topic: 'how bees choose a new nest', sl: 'en', tl: 'tr', avoid: ['A history of glass'] });
+  assert.ok(r.ok, r.error);
+  assert.equal(r.result.kind, 'academic');
+  assert.equal(r.result.lang, 'en');
+  assert.equal(r.result.total, 4);
+  assert.deepEqual(r.result.groups.map((g) => g.type), ['tfng', 'choice', 'gaps']);
+  assert.equal(r.result.groups[0].items[0].para, 'A');
+  const prompt = JSON.parse(calls[0].init.body).contents[0].parts[0].text;
+  assert.match(prompt, /IELTS Academic Reading/);
+  assert.match(prompt, /how bees choose a new nest/);
+  assert.match(prompt, /A history of glass/, 'not the same as earlier texts');
+  assert.match(prompt, /NO MORE THAN TWO WORDS/);
+  // every day: a text in the language learnt, at a level, with no headings or gaps asked for
+  reset(() => answer({ title: 'Ein Tag am Meer', paragraphs: ['Anna fährt ans Meer.', 'Es regnet.'], tfng: [{ statement: 'Anna fährt in die Berge.', answer: 'FALSE', why: 'Deniz.', quote: 'Anna fährt ans Meer.' }], choice: [1, 2, 3].map(() => ({ q: 'Wie ist das Wetter?', options: ['Sonnig', 'Regnerisch', 'Kalt', 'Windig'], answer: 1, why: 'Yağmur.', quote: 'Es regnet.' })) }));
+  const d = (await ask({ type: 'reading-test', kind: 'daily', topic: 'a short story', level: 'A2', sl: 'de', tl: 'tr' })).result;
+  assert.equal(d.lang, 'de');
+  assert.equal(d.level, 'A2');
+  const asked = JSON.parse(calls[0].init.body).contents[0].parts[0].text;
+  assert.match(asked, /learner of German at level A2/);
+  assert.match(asked, /each TRUE or FALSE/, 'no NOT GIVEN at A2');
+  assert.doesNotMatch(asked, /headings|"gaps"/);
+  site.geminiKey = '';
+});
+
 test("an episode's words come from the list of its language, and Gemini gives their meaning there and asks about it", async () => {
   Object.assign(globalThis, require('../../extension/study.js'));
   const lines = ['The umbrella is in the car.', "Don't forget your umbrella.", 'They swoop in at night.'];

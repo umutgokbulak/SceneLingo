@@ -539,7 +539,7 @@ function download(name, blob) {
 }
 
 function backup() {
-  chrome.storage.local.get({ words: [], reviewLog: {}, deleted: {}, speakLog: [], writeLog: [], listenRest: {} }, (data) => {
+  chrome.storage.local.get({ words: [], reviewLog: {}, deleted: {}, ...slNoRecords() }, (data) => {
     const now = Date.now();
     const file = slBackup(data.words, data.reviewLog, now, chrome.runtime.getManifest().version, data.deleted, data);
     const name = slT('backupName', slDayKey(now));
@@ -561,14 +561,15 @@ function restore(fileObj) {
       } catch (e) {
         return notice(slT('restoreFailed', e.message), true);
       }
-      chrome.storage.local.get({ words: [], reviewLog: {}, deleted: {}, speakLog: [], writeLog: [], listenRest: {} }, (here) => {
+      chrome.storage.local.get({ words: [], reviewLog: {}, deleted: {}, ...slNoRecords() }, (here) => {
         let r;
         try {
           r = slRestore(here.words, here.reviewLog, data, here.deleted, here);
         } catch (e) {
           return notice(slT('restoreFailed', e.message), true);
         }
-        chrome.storage.local.set({ words: r.words, reviewLog: r.log, deleted: r.deleted, speakLog: r.speakLog, writeLog: r.writeLog, listenRest: r.listenRest }, () => {
+        const records = Object.fromEntries(SL_RECORDS.map((k) => [k, r[k]]));
+        chrome.storage.local.set({ words: r.words, reviewLog: r.log, deleted: r.deleted, ...records }, () => {
           words = r.words;
           log = r.log;
           notice(slT('restored', r.added, r.updated));

@@ -354,6 +354,49 @@ async function everydayWriting({ task, points, level, text, words, sl, tl }) {
   };
 }
 
+// Reading practice: a text and its questions. For IELTS (`academic`, `general`) one passage of
+// the test with the kinds of questions it asks, in English; every day (`daily`), a text of the
+// kind chosen in the language being learnt, at a level. The questions are put in order by
+// slReadingParts (reading.js).
+async function readingTest({ kind, topic, level, sl, tl, avoid }, shuffle = Math.random) {
+  const apiKey = await savedKey();
+  const k = SL_READ_KINDS[kind] ? kind : 'daily';
+  const shape = SL_READ_KINDS[k];
+  const lv = level || 'B1';
+  const ielts = k !== 'daily';
+  const lang = ielts ? 'English' : langName(sl);
+  const why = `"why": one or two sentences in ${langName(tl)} that say why, pointing to the place in the text`;
+  const quote = `"quote": the words of the text that show the answer, copied exactly (a sentence or a part of one)`;
+  const easy = !ielts && /^A/.test(lv);
+  const json = await geminiJSON(
+    apiKey,
+    (ielts
+      ? `Write one passage of an IELTS ${k === 'academic' ? 'Academic' : 'General Training'} Reading test, about ${topic}, with its questions, as hard as in the real test. ` +
+        (k === 'academic'
+          ? `The passage is written like an article in a serious magazine for a general reader: facts, and claims and views of named researchers, so that some statements can be checked and some cannot.`
+          : `The passage is the kind of text the General Training test uses: practical and factual, as at work or in daily life.`) +
+        ` About ${SL_READ_WORDS[k]} words, in ${shape.paragraphs} paragraphs.`
+      : `Write a reading text for a learner of ${lang} at level ${lv} (CEFR), whose own language is ${langName(tl)}: ${topic}. ` +
+        `About ${SL_READ_WORDS[lv] || 280} words, in ${shape.paragraphs} paragraphs, in ${lang}, with the words and the grammar of level ${lv}: natural, not childish, and interesting to read. Then questions on it, in simple ${lang}.`) +
+      ((avoid || []).length ? `\nDo not write about the same things as these earlier texts: ${avoid.slice(0, 10).map((t) => '"' + String(t).slice(0, 80) + '"').join(', ')}.` : '') +
+      `\n\nAnswer in JSON with these keys:\n` +
+      `"title": a title in ${lang};\n` +
+      `"paragraphs": the ${shape.paragraphs} paragraphs, each a string, without letters or numbers;\n` +
+      (ielts
+        ? `"headings": ${shape.paragraphs + 2} headings in English, one that fits each paragraph and two more that fit none though they seem to, in a mixed order; they say what a paragraph is mainly about in other words than its own;\n` +
+          `"headingAnswers": for each paragraph, in order, {"heading": the index (0 to ${shape.paragraphs + 1}) of its heading, ${why}};\n`
+        : '') +
+      `"tfng": ${shape.tfng} statements about the text, in ${lang}, in the order of the text, ${easy ? 'each TRUE or FALSE' : 'at least one TRUE, one FALSE and one NOT GIVEN'}; a statement says it in other words than the text; NOT GIVEN only when the text truly does not say; each {"statement", "answer": "TRUE", "FALSE" or "NOT GIVEN", ${why}, ${quote} ("" for NOT GIVEN)};\n` +
+      `"choice": ${shape.choice} questions with four options, of which one is right and the others are plausible to someone who read carelessly, in ${lang}, each {"q", "options": the four, "answer": the index (0 to 3) of the right one, ${why}, ${quote}}` +
+      (shape.gaps
+        ? `;\n"gaps": ${shape.gaps} sentences that say a point of the text in other words, each with "____" where words are missing, which the candidate fills with NO MORE THAN TWO WORDS taken from the text; each {"sentence", "answers": the words from the text that fill it, and any other form that would be marked right, ${why}, ${quote}}.`
+        : '.'),
+    16384,
+    true // a test with a wrong answer in it teaches the wrong thing: worth the wait
+  );
+  return { ...slReadingParts(json, k, shuffle), lang: ielts ? 'en' : sl, level: ielts ? '' : lv, topic: String(topic || '') };
+}
+
 // An episode's lines for Gemini: numbered, so that it can say where something is, and no longer
 // than `max` characters (the first lines kept, or with `last`, the last ones).
 function numbered(lines, max, last) {
@@ -436,5 +479,5 @@ async function checkSentence({ word, sentence, sl, tl }) {
 }
 
 if (typeof module !== 'undefined') {
-  module.exports = { countGemini, slGeminiResting, geminiKeyShown, langName, geminiJSON, savedKey, askGemini, explain, enrich, gloss, speakingFeedback, roleplay, ieltsWriting, everydayWriting, episodeGloss, episodeQuiz, checkSentence };
+  module.exports = { countGemini, slGeminiResting, geminiKeyShown, langName, geminiJSON, savedKey, askGemini, explain, enrich, gloss, speakingFeedback, roleplay, ieltsWriting, everydayWriting, readingTest, episodeGloss, episodeQuiz, checkSentence };
 }

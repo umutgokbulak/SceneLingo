@@ -1,6 +1,6 @@
 // The extension's own pages, the review and the list of words, in a real browser.
 //   node test/pages.js            checks them: the kinds of cards, typed answers, hints, grading,
-//                                 listening, speaking, writing, the list's filters, editing, deleting, backup and restore
+//                                 listening, speaking, writing, reading, the list's filters, editing, deleting, backup and restore
 //   node test/pages.js pictures   takes the README's pictures of them
 // Sample cards come from Elephants Dream, the film the other pictures show. Needs Google Chrome
 // (or Edge), not the network: what the background would fetch is already on the cards.
@@ -52,6 +52,33 @@ const GEMINI_STUB = `(() => {
       if (!turns) return answer({ reply: 'Good morning! What can I get you?', translation: 'Günaydın! Ne alırsınız?', correction: null, done: false });
       return answer({ reply: 'A cappuccino, coming right up. Anything to eat?', translation: 'Bir kapuçino, hemen geliyor. Yiyecek bir şey?', correction: { ok: false, better: 'I would like a cappuccino, please.', meaning: 'Bir kapuçino rica ediyorum.', note: 'I want yerine kibar I would like.' }, done: turns >= 2 });
     }
+    if (prompt.includes('IELTS Academic Reading'))
+      return answer({
+        title: 'How honeybees choose a new home',
+        paragraphs: [
+          'Every spring, a strong honeybee colony divides in two. The old queen leaves with around ten thousand workers, and the swarm hangs from a branch while it decides where to live. It may stay there for only a few hours, or for as long as three days.',
+          'The decision is made not by the queen but by a few hundred older bees known as scouts. They fly off in all directions and inspect hollow trees, holes in walls and even empty boxes. A good site, the biologist Thomas Seeley found, has a small entrance, a volume of about forty litres and a floor well above the ground.',
+          'When a scout returns, she reports on what she has found by dancing on the surface of the swarm. The angle of the dance shows the direction of the site, and its length shows the distance. The better the site, the more energetically she dances, so that more bees are persuaded to go and look for themselves.',
+          'Gradually, support grows for one site and fades for the others. Seeley calls this a kind of democracy: no single bee compares all the options, yet the group almost always chooses the best one. Once about fifteen scouts are gathered at the same site at once, the swarm takes this as a sign that agreement has been reached.',
+          'Researchers believe that human committees could learn from the bees. Seeley himself has used their method in faculty meetings, encouraging colleagues to explore options independently before any vote. Whether the approach works as well for people, who are rarely as patient as bees, has not yet been tested.',
+        ],
+        headings: ['A signal that the debate is over', 'A temporary resting place', 'What the queen decides', 'Advertising a discovery', 'Lessons for people', 'Searching and judging', 'Why swarms are dangerous'],
+        headingAnswers: [1, 5, 3, 0, 4].map((heading) => ({ heading, why: 'Paragrafın ana fikri bu.' })),
+        tfng: [
+          { statement: 'The queen chooses where the swarm will live.', answer: 'FALSE', why: 'Kararı kraliçe değil, kâşif arılar verir.', quote: 'The decision is made not by the queen but by a few hundred older bees known as scouts.' },
+          { statement: 'Scouts prefer sites that are high off the ground.', answer: 'TRUE', why: 'İyi bir yerin tabanı yerden yüksektir.', quote: 'a floor well above the ground' },
+          { statement: 'Most swarms find a new home within a day.', answer: 'NOT GIVEN', why: 'Metin çoğu sürünün ne kadar sürede karar verdiğini söylemiyor.', quote: '' },
+          { statement: 'Seeley has tried the bees’ method with people.', answer: 'TRUE', why: 'Fakülte toplantılarında denemiş.', quote: 'Seeley himself has used their method in faculty meetings' },
+        ],
+        choice: [
+          { q: 'What tells the swarm that a decision has been made?', options: ['The queen leaves the branch', 'About fifteen scouts meet at one site', 'All the scouts dance together', 'The scouts stop flying'], answer: 1, why: 'On beş kadar kâşif aynı yerde toplanınca karar verilmiş sayılır.', quote: 'Once about fifteen scouts are gathered at the same site at once' },
+          { q: 'According to the passage, what is not yet known?', options: ['How scouts measure a site', 'Why colonies divide', 'Whether the method suits human groups', 'How long swarms can wait'], answer: 2, why: 'İnsanlarda işe yarayıp yaramadığı henüz denenmedi.', quote: 'has not yet been tested' },
+        ],
+        gaps: [
+          { sentence: 'The direction of a site is shown by the ____ of the dance.', answers: ['angle'], why: 'Dansın açısı yönü gösterir.', quote: 'The angle of the dance shows the direction of the site' },
+          { sentence: 'An ideal home has a volume of roughly ____.', answers: ['forty litres', '40 litres'], why: 'Yaklaşık kırk litre.', quote: 'a volume of about forty litres' },
+        ],
+      });
     return answer({ parts: [] });
   };
   return true;
@@ -135,13 +162,32 @@ function days() {
       await wait(1000);
       await page(`(scrollTo(0, 0), true)`);
       fs.writeFileSync(path.join(dir, 'ielts-writing.jpg'), await b.picture(88));
+      await b.open(b.extensionPage('read.html'));
+      await wait(1000);
+      await page(`(document.querySelector('#parts .tile').click(), true)`);
+      await wait(800);
+      await page(`(() => {
+        const g = current.test.groups[0];
+        const right = ['A temporary resting place', 'Searching and judging', 'Advertising a discovery', 'A signal that the debate is over', 'Lessons for people'];
+        g.items.forEach((item, i) => (current.answers[item.id] = g.list.indexOf(right[i])));
+        current.answers.q6 = 'F'; current.answers.q7 = 'T'; current.answers.q8 = 'F'; current.answers.q9 = 'T';
+        current.answers.q10 = 1; current.answers.q11 = 0; current.answers.q12 = 'angle'; current.answers.q13 = 'forty litres';
+        current.started = Date.now() - (17 * 60 + 42) * 1000; // as if read in 17 minutes
+        check();
+        document.querySelector('.q[data-id="q6"] .why .link').click();
+        return true;
+      })()`);
+      await wait(900);
+      await page(`(scrollTo(0, 0), $('#qScroll').scrollTop = 0, true)`);
+      fs.writeFileSync(path.join(dir, 'ielts-reading.jpg'), await b.picture(88));
       const week = days();
       const dk = (t) => { const d = new Date(t); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
       week[dk(NOW)] = { reviews: 9, correct: 8, newSeen: 2, listen: 5, listenScore: 410 };
       Object.assign(week[dk(NOW - DAY)], { listen: 3, listenScore: 250, speak: 1 });
       Object.assign(week[dk(NOW - 3 * DAY)], { speak: 2, write: 1 });
+      Object.assign(week[dk(NOW - 2 * DAY)], { read: 1, readScore: 77 });
       const bands = (o, n) => Array.from({ length: n }, (_, i) => ({ at: NOW - (n - i) * DAY, bands: Object.fromEntries(Object.entries(o).map(([k, v]) => [k, Math.min(9, v + Math.floor(i / 3) * 0.5)])) }));
-      await seed({ reviewLog: week, speakLog: bands({ fluency: 5.5, lexical: 6, grammar: 5.5, pronunciation: 6.5 }, 8), writeLog: bands({ task: 5.5, coherence: 6, lexical: 6, grammar: 5.5 }, 5) });
+      await seed({ reviewLog: week, speakLog: bands({ fluency: 5.5, lexical: 6, grammar: 5.5, pronunciation: 6.5 }, 8), writeLog: bands({ task: 5.5, coherence: 6, lexical: 6, grammar: 5.5 }, 5), readLog: [6, 6.5, 6.5, 7].map((band, i) => ({ at: NOW - (8 - 2 * i) * DAY, task: 'academic', score: 9, total: 13, band })) });
       await b.open(b.extensionPage('progress.html'));
       await wait(1000);
       fs.writeFileSync(path.join(dir, 'progress.jpg'), await b.picture(88));
@@ -350,19 +396,77 @@ function days() {
     assert.match(await page(`$('#fb .level').textContent`), /A2/);
     assert.equal(await page(`document.querySelectorAll('#fb .checks .yes').length + '/' + document.querySelectorAll('#fb .checks .no').length`), '2/1');
 
+    // ---- reading ----
+    // (on top of the writing above: the week's plan below counts both)
+    await b.worker(GEMINI_STUB);
+    await b.open(b.extensionPage('read.html'));
+    await wait(1000);
+    assert.equal(await page(`document.querySelectorAll('#kinds .tile:not([disabled])').length`), 8);
+    assert.equal(await page(`document.querySelectorAll('#parts .tile').length`), 2);
+    await page(`(document.querySelector('#parts .tile').click(), true)`);
+    await wait(1000);
+    assert.ok(await page(`!$('#desk').hidden`));
+    assert.equal(await page(`document.querySelectorAll('#qs .q').length`), 13);
+    assert.equal(await page(`[...document.querySelectorAll('#text p .pl')].map((x) => x.textContent).join('')`), 'ABCDE');
+    assert.match(await page(`$('#timer').textContent`), /^(19|20):/);
+    assert.ok(await page(`$('#go').disabled`), 'nothing answered yet');
+    assert.ok(!(await page(`!!document.querySelector('#text [data-w]')`)), 'no word to tap during the test');
+    // the headings, right; four statements, one wrong; one option; the gaps, one right
+    await page(`(() => {
+      const right = ['A temporary resting place', 'Searching and judging', 'Advertising a discovery', 'A signal that the debate is over', 'Lessons for people'];
+      const g = current.test.groups[0];
+      document.querySelectorAll('.hsel select').forEach((sel, i) => { sel.value = String(g.list.indexOf(right[i])); sel.dispatchEvent(new Event('change')); });
+      const seg = document.querySelectorAll('.seg');
+      ['FALSE', 'TRUE', 'NOT GIVEN', 'FALSE'].forEach((v, i) => [...seg[i].children].find((x) => x.textContent === v).click());
+      [...document.querySelectorAll('.opts')][0].querySelectorAll('button').forEach((x) => /fifteen/.test(x.textContent) && x.click());
+      const gaps = document.querySelectorAll('.gap');
+      gaps[0].value = 'Angle'; gaps[0].dispatchEvent(new Event('input'));
+      gaps[1].value = 'forty'; gaps[1].dispatchEvent(new Event('input'));
+      return true;
+    })()`);
+    assert.equal(await page(`$('#answered').textContent`), '12 / 13 cevaplandı');
+    // left and come back to: the answers are kept
+    await wait(600);
+    await b.open(b.extensionPage('read.html'));
+    await wait(1000);
+    assert.match(await page(`$('#resume').textContent`), /honeybees.*13 sorudan 12/);
+    await page(`([...document.querySelectorAll('#resume button')].pop().click(), true)`);
+    await wait(300);
+    assert.equal(await page(`[...document.querySelectorAll('.seg button.on')].map((x) => x.textContent).join()`), 'FALSE,TRUE,NOT GIVEN,FALSE');
+    await b.named('Enter', 13, 2); // with Ctrl
+    await wait(500);
+    // 5 headings + 3 statements + 1 option + 1 gap: 10 of 13, 31 of 40, band 7
+    assert.equal(await page(`$('#result .big').textContent`), '10 / 13');
+    assert.equal(await page(`$('#result .band b').textContent`), '≈ 7.0');
+    assert.equal(await page(`document.querySelectorAll('#qs .q.wrong').length`), 3);
+    assert.match(await page(`document.querySelectorAll('#qs .q.wrong .why .ans')[0].textContent`), /TRUE/);
+    const read = JSON.parse(await b.worker(`chrome.storage.local.get(['readLog', 'readDraft', 'reviewLog']).then((d) => JSON.stringify(d))`));
+    assert.deepEqual([read.readLog.length, read.readLog[0].band, read.readLog[0].score, read.readLog[0].task], [1, 7, 10, 'academic']);
+    assert.equal(read.readDraft, null, 'checked: the draft is not kept');
+    // where in the text an answer is: marked, in its paragraph
+    await page(`(document.querySelector('.q[data-id="q6"] .why .link').click(), true)`);
+    await wait(300);
+    assert.match(await page(`$('#text mark').textContent`), /not by the queen/);
+    assert.equal(await page(`$('#text mark').closest('p').dataset.para`), 'B');
+    // checked: every word opens its meaning
+    await page(`(document.querySelector('#text [data-w]').click(), true)`);
+    await wait(300);
+    assert.ok(await page(`!!document.querySelector('scenelingo-select')`));
+
     // ---- today's plan, and the week ----
     // what the writing above did is in the record of days, beside the cards of the four days before
     await b.open(b.extensionPage('progress.html'));
     await wait(1000);
     assert.equal(await page(`$('#streak').textContent`), '5', 'writing today, cards on the four days before');
-    assert.deepEqual(JSON.parse(await page(`JSON.stringify([...document.querySelectorAll('#plan .sl-step')].map((s) => s.classList.contains('done')))`)), [false, false, false, true], 'two texts this week: the week is done');
+    assert.deepEqual(JSON.parse(await page(`JSON.stringify([...document.querySelectorAll('#plan .sl-step')].map((s) => s.classList.contains('done')))`)), [false, false, false, true, false], 'two texts written this week: done; one read of two');
     assert.match(await page(`$('#plan .sl-next').textContent`), /Kart|Cards/);
-    assert.equal(await page(`[...document.querySelectorAll('#grid .cell')].slice(-1)[0].textContent`), '2', 'two texts today, in the last column');
-    assert.match(await page(`$('#bands').textContent`), /Writing.*Band 6\.0/);
+    assert.equal(await page(`[...document.querySelectorAll('#grid .cell')].slice(-8)[0].textContent`), '2', 'two texts written today, in the last column');
+    assert.equal(await page(`[...document.querySelectorAll('#grid .cell')].slice(-1)[0].textContent`), '1', 'and one read');
+    assert.match(await page(`$('#bands').textContent`), /Writing.*Band 6\.0.*Reading.*Band 7\.0/);
     // a goal of one's own: no listening, and the plan has a step less
     await page(`(() => { const sel = document.querySelector('#goals select'); sel.value = '0'; sel.dispatchEvent(new Event('change')); return true; })()`);
     await wait(500);
-    assert.equal(await page(`document.querySelectorAll('#plan .sl-step').length`), 3);
+    assert.equal(await page(`document.querySelectorAll('#plan .sl-step').length`), 4);
     assert.equal(await b.worker(`chrome.storage.sync.get('goalListen').then((d) => d.goalListen)`), 0);
     // the daily reminder, set on the page: an alarm at that hour, and a notification of what is left
     await page(`($('#remindAt').value = '07:30', $('#remindAt').dispatchEvent(new Event('change')), $('#remindOn').click(), true)`);

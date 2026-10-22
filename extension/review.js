@@ -818,6 +818,7 @@ $('removeBtn').addEventListener('click', removeClicked);
 $('allWords').append(icon('cards'));
 $('toListen').append(icon('headphones'));
 $('toSpeak').append(icon('mic'));
+$('toRead').append(icon('book'));
 $('toWrite').append(icon('edit'));
 $('toProgress').append(icon('chart'));
 $('gear').append(icon('sliders'));

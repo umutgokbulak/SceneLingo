@@ -155,6 +155,8 @@
         return speakingFeedback(msg).then((result) => ({ ok: true, result }), (e) => ({ ok: false, error: e.message }));
       case 'ielts-writing':
         return ieltsWriting(msg).then((result) => ({ ok: true, result }), (e) => ({ ok: false, error: e.message }));
+      case 'reading-test':
+        return readingTest(msg).then((result) => ({ ok: true, result }), (e) => ({ ok: false, error: e.message }));
       case 'everyday-writing':
         return everydayWriting(msg).then((result) => ({ ok: true, result }), (e) => ({ ok: false, error: e.message }));
       case 'roleplay':

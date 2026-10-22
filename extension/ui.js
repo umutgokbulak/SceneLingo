@@ -20,6 +20,7 @@ const SL_ICONS = {
   chart: '<path d="M4 20V11M10 20V5M16 20v-6M2 20h20"/>',
   stop: '<rect x="7" y="7" width="10" height="10" rx="2"/>',
   back: '<path d="M15 6l-6 6 6 6"/>',
+  book: '<path d="M12 6.5C10 5 7 4.5 4 5v13c3-.5 6 0 8 1.5 2-1.5 5-2 8-1.5V5c-3-.5-6 0-8 1.5z"/><path d="M12 6.5v13"/>',
   flame: '<path d="M12 3c1 3.5 5 5.5 5 10a5 5 0 0 1-10 0c0-2.2 1.2-3.6 2.4-4.6.3 1.6 1.1 2.6 2.1 3.1C11 9 11.2 5.8 12 3z"/>',
 };
 function slIcon(name) {
@@ -52,14 +53,14 @@ function slLogPractice(kind, score) {
   chrome.storage.local.get({ reviewLog: {} }, (data) => chrome.storage.local.set({ reviewLog: slLogActivity(data.reviewLog || {}, Date.now(), kind, score) }));
 }
 
-const SL_PLAN_PAGES = { review: 'review.html', listen: 'listen.html', speak: 'speak.html', write: 'write.html' };
-const SL_PLAN_NAMES = { review: 'planReview', listen: 'planListen', speak: 'planSpeak', write: 'planWrite' };
+const SL_PLAN_PAGES = { review: 'review.html', listen: 'listen.html', speak: 'speak.html', write: 'write.html', read: 'read.html' };
+const SL_PLAN_NAMES = { review: 'planReview', listen: 'planListen', speak: 'planSpeak', write: 'planWrite', read: 'planRead' };
 
 // The day's steps (and the week's writing), each a row that opens its page.
 function slPlanBox(plan, open) {
   const box = document.createElement('div');
   box.className = 'sl-plan';
-  for (const step of [...plan.steps, plan.week].filter(Boolean)) {
+  for (const step of [...plan.steps, ...plan.week]) {
     const row = document.createElement('button');
     row.className = 'sl-step' + (step.done ? ' done' : '') + (step.id === plan.next ? ' next' : '');
     const tick = document.createElement('span');

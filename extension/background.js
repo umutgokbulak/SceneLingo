@@ -16,8 +16,8 @@ else Object.assign(globalThis, require('./translate.js'));
 // translation is the word's meaning there.
 const senses = new Map();
 // Gemini's part is shared with the pages when they run on the phone.
-if (typeof importScripts === 'function') importScripts('gemini.js');
-else Object.assign(globalThis, require('./gemini.js'));
+if (typeof importScripts === 'function') importScripts('reading.js', 'gemini.js');
+else for (const file of ['./reading.js', './gemini.js']) Object.assign(globalThis, require(file));
 
 async function sense(word, sentence, sl, tl, always) {
   word = String(word || '').trim();
@@ -302,6 +302,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   else if (msg && msg.type === 'episode-quiz') job = episodeQuiz(msg);
   else if (msg && msg.type === 'ielts-writing') job = ieltsWriting(msg);
   else if (msg && msg.type === 'everyday-writing') job = everydayWriting(msg);
+  else if (msg && msg.type === 'reading-test') job = readingTest(msg);
   else if (msg && msg.type === 'explain') job = explain(msg.text, msg.sentence, msg.sl, msg.tl, msg.always);
   else if (msg && msg.type === 'check-sentence') job = checkSentence(msg);
   else if (msg && msg.type === 'open-scene') job = openScene(msg.url, msg.time);
@@ -391,8 +392,8 @@ async function episodeWords({ lines, lang, level, known }) {
 // A reminder once a day, at the hour the user chose, when today's plan is not done yet: what is
 // left of it, and a click to the next step.
 if (typeof importScripts === 'function') importScripts('messages.js');
-const PLAN_PAGES = { review: 'review.html', listen: 'listen.html', speak: 'speak.html', write: 'write.html' };
-const PLAN_NAMES = { review: 'planReview', listen: 'planListen', speak: 'planSpeak', write: 'planWrite' };
+const PLAN_PAGES = { review: 'review.html', listen: 'listen.html', speak: 'speak.html', write: 'write.html', read: 'read.html' };
+const PLAN_NAMES = { review: 'planReview', listen: 'planListen', speak: 'planSpeak', write: 'planWrite', read: 'planRead' };
 
 async function planReminder() {
   if (!chrome.alarms || typeof slNextAt !== 'function') return;

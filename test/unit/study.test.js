@@ -83,14 +83,18 @@ test('the practice records go into a backup and come back merged: no score twice
   const a = { at: NOW - 3 * DAY, part: 1, bands: { fluency: 6, lexical: 6, grammar: 5.5, pronunciation: 6.5 } };
   const b = { at: NOW - DAY, part: 2, bands: { fluency: 6.5, lexical: 6, grammar: 6, pronunciation: 6.5 } };
   const essay = { at: NOW - 2 * DAY, task: 'task2', bands: { task: 6, coherence: 6, lexical: 6.5, grammar: 6 } };
-  const file = JSON.parse(JSON.stringify(S.slBackup([], {}, NOW, '0.27.0', {}, { speakLog: [a, b], writeLog: [essay], listenRest: { 'its my fault': Date.now() + DAY, 'old one': Date.now() - DAY } })));
+  const test1 = { at: NOW - DAY, task: 'academic', score: 10, total: 13, band: 7, title: 'A history of glass' };
+  const file = JSON.parse(JSON.stringify(S.slBackup([], {}, NOW, '0.27.0', {}, { speakLog: [a, b], writeLog: [essay], readLog: [test1], listenRest: { 'its my fault': Date.now() + DAY, 'old one': Date.now() - DAY } })));
   assert.equal(file.speakLog.length, 2);
+  assert.deepEqual(S.slBackup([], {}, NOW, '0.26.0').readLog, [], 'a backup always has every record, empty or not');
   // (a restore happens now: rests are measured from the clock, not from the tests' day)
   const later = Date.now() + 3 * DAY;
   const here = { speakLog: [a, { at: NOW, part: 3, bands: b.bands }], writeLog: [], listenRest: { 'its my fault': later } };
   const r = S.slRestore([], {}, file, {}, here);
   assert.deepEqual(r.speakLog.map((x) => x.part), [1, 2, 3], 'in the order they were given, the one in both once');
   assert.deepEqual(r.writeLog, [essay]);
+  assert.deepEqual(r.readLog, [test1]);
+  assert.deepEqual(S.slRestore([], {}, { ...file, readLog: undefined }, {}, { readLog: [test1] }).readLog, [test1], 'an older backup takes no test away');
   assert.deepEqual(r.listenRest, { 'its my fault': later }, 'the later of the two; a rest that is over is dropped');
   const many = Array.from({ length: 150 }, (_, i) => ({ at: i + 1, part: 1, bands: a.bands }));
   assert.equal(S.slMergeRecords({ speakLog: many }, {}, NOW).speakLog.length, 100, 'the latest hundred');
@@ -243,7 +247,7 @@ test('the record of days keeps the other practice too, and a day of it counts to
   assert.deepEqual(merged, { listen: 2, listenScore: 180, write: 1 });
 });
 
-test("today's plan: the cards, five sentences, one conversation; two texts a week", () => {
+test("today's plan: the cards, five sentences, one conversation; two texts written and two read a week", () => {
   const words = [{ word: 'keen', due: NOW - 1000, reps: 1, interval: 1, last: NOW - DAY }];
   let log = {};
   let plan = S.slTodayPlan(words, log, NOW, 15);
@@ -259,14 +263,20 @@ test("today's plan: the cards, five sentences, one conversation; two texts a wee
   assert.equal(plan.next, 'write', 'the day is done; the week still wants its texts');
   log = S.slLogActivity(log, NOW - 3 * DAY, 'write');
   log = S.slLogActivity(log, NOW, 'write');
-  assert.equal(S.slTodayPlan(studied, log, NOW, 15).next, null);
+  assert.equal(S.slTodayPlan(studied, log, NOW, 15).next, 'read', 'written; the week still wants its reading');
+  log = S.slLogActivity(log, NOW - 2 * DAY, 'read', 80);
+  log = S.slLogActivity(log, NOW, 'read', 60);
+  plan = S.slTodayPlan(studied, log, NOW, 15);
+  assert.equal(plan.next, null);
+  assert.deepEqual(plan.week.map((s) => [s.id, s.have, s.done]), [['write', 2, true], ['read', 2, true]]);
   // goals of one's own: more listening, no writing
-  const goals = S.slGoals({ goalListen: 10, goalSpeak: 1, goalWrite: 0 });
+  const goals = S.slGoals({ goalListen: 10, goalSpeak: 1, goalWrite: 0, goalRead: 3 });
   plan = S.slTodayPlan(studied, log, NOW, 15, goals);
   assert.equal(plan.next, 'listen', 'five sentences are not ten');
-  assert.equal(plan.week, null);
+  assert.deepEqual(plan.week.map((s) => s.id), ['read'], 'no writing; three texts to read');
   assert.deepEqual(plan.steps.map((s) => s.id), ['review', 'listen', 'speak']);
   assert.deepEqual(S.slTodayPlan(studied, log, NOW, 15, S.slGoals({ goalListen: 0, goalSpeak: 0, goalWrite: 0 })).steps.map((s) => s.id), ['review']);
+  assert.deepEqual(S.slTodayPlan(studied, log, NOW, 15, S.slGoals({ goalWrite: 0, goalRead: 0 })).week, []);
   assert.deepEqual(S.slGoals({}), S.SL_PLAN, 'nothing chosen: the usual goals');
 });
 
@@ -284,10 +294,14 @@ test('the week: what was done in each of the last seven days, and in all of them
   log = S.slLogActivity(log, NOW - DAY, 'listen', 60);
   log = S.slLogActivity(log, NOW - DAY, 'listen', 100);
   log = S.slLogActivity(log, NOW - 9 * DAY, 'write');
+  log = S.slLogActivity(log, NOW, 'read', 70);
+  log = S.slLogActivity(log, NOW - 2 * DAY, 'read', 90);
   const w = S.slWeek([{ word: 'a', added: NOW - DAY }, { word: 'b', added: NOW - 20 * DAY }], log, NOW);
   assert.equal(w.days.length, 7);
   assert.equal(w.days[6].key, S.slDayKey(NOW));
-  assert.equal(w.active, 2);
+  assert.equal(w.active, 3);
+  assert.equal(w.read, 2);
+  assert.equal(w.understood, 80);
   assert.equal(w.retention, 50);
   assert.equal(w.heard, 80);
   assert.equal(w.written, 0, 'nine days ago is not this week');

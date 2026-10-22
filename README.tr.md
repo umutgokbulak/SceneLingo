@@ -68,8 +68,14 @@ yazdım, çalışırken ihtiyaç duyduklarımı ekledim, sonra onu izlediğim di
   seviyende: Gemini yazının hangi seviyede olduğunu ve isteneni yapıp yapmadığını söyler, hataları düzeltir ve
   doğal hâlini verir. İngilizcede süreli IELTS Writing görevleri (Task 1 mektup ya da tablo raporu, Task 2
   deneme): dört ölçüte göre tahmini band, hatalar ve yazının band 8 hâli. Yazdıkların yazarken saklanır.
+- **Okuma alıştırması.** Her gün, seçtiğin türde (hikâye, haber, seyahat, iş, bilim...) öğrendiğin dilde ve senin
+  seviyende bir metin ve soruları. İngilizcede IELTS Reading'den süreli bir parça, Academic ya da General
+  Training: başlık eşleştirme, TRUE / FALSE / NOT GIVEN, çoktan seçmeli ve cümle tamamlama; testin üçte biri gibi
+  13 soru. Kontrolden sonra her cevabın nedeni yazar ve bir düğme metinde cevabın geçtiği yeri işaretler; IELTS
+  için sınavın kendi tablosuna göre tahmini band verilir. Sonra metindeki her kelimeye dokunup anlamına bakabilir,
+  cümlesiyle kaydedebilirsin. Yarım kalan test saklanır.
 - **Gemini kullanımı:** bugünkü istek ve token sayısı ile son bir hafta, anahtarın yanında.
-- **Bugünün planı ve hafta.** Her gün: bekleyen kartlar, 5 dinleme cümlesi ve bir konuşma; haftada iki yazı.
+- **Bugünün planı ve hafta.** Her gün: bekleyen kartlar, 5 dinleme cümlesi ve bir konuşma; haftada iki yazı ve iki okuma.
   Eklenti penceresi neyin kaldığını gösterir ve sıradakini açar; İlerleme sayfası son yedi günü gün gün, toplamları
   ve IELTS bandlarının gidişini gösterir. Hangi alıştırmayı yaparsan yap seri devam eder. Seçtiğin saatte
   gelen bir bildirim neyin beklediğini söyler; hedefleri kendine göre değiştirebilirsin.
@@ -107,6 +113,10 @@ yazdım, çalışırken ihtiyaç duyduklarımı ekledim, sonra onu izlediğim di
 | İlerleme | IELTS Writing |
 | --- | --- |
 | ![Bugünün planı ve son yedi gün](docs/screenshots/progress.jpg) | ![IELTS Task 2 denemesi: kelime sayısı, kalan süre ve tahmini band](docs/screenshots/ielts-writing.jpg) |
+
+| IELTS Reading | |
+| --- | --- |
+| ![Solda harflenmiş paragraflarıyla bir IELTS Academic parçası ve bir cevabın geçtiği yer işaretli; sağda 13 sorudan 11 doğru, tahmini band 7.5, başlık listesi ve her cevabın nedeni](docs/screenshots/ielts-reading.jpg) | |
 
 | Dinleme alıştırması | |
 | --- | --- |
@@ -168,7 +178,7 @@ saat okuyup yazmasına yeter. Kurulum adımları [İngilizce README](README.md#s
 
 ## Nasıl yapıldı
 
-Manifest V3, yalın JavaScript; bağımlılık ve derleme adımı yok. 108 birim testi, site olmadan denenebilen her şey
+Manifest V3, yalın JavaScript; bağımlılık ve derleme adımı yok. 115 birim testi, site olmadan denenebilen her şey
 için oynatıcıyı taklit eden bir test sayfası ve gerisi için eklentiyi gerçek bir tarayıcıya yükleyip yöneten bir
 betik var. Altyazıların sitelerde nasıl bulunduğu, iki altyazı izinin nasıl eşleştirildiği ve yolda çıkan
 sorunlar [İngilizce README](README.md#engineering-notes)'de anlatılıyor.

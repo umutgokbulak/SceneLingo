@@ -41,7 +41,7 @@
   flashcards that come back on a schedule.
 - **Where:** Amazon Prime Video, Netflix, YouTube, and any site whose subtitles can be found from outside the page
   (TED, Vimeo's player and Wikimedia Commons were checked) — or any video at all, with a subtitle file of your own.
-- **How it is built:** Manifest V3, plain JavaScript, no dependencies and no build step; 108 unit tests, a
+- **How it is built:** Manifest V3, plain JavaScript, no dependencies and no build step; 115 unit tests, a
   stand-in player for everything that can be tested without a site, and a script that loads the real extension
   into a real browser for what cannot.
 
@@ -117,9 +117,15 @@ them), plyr.io, Vimeo's player, Wikimedia Commons and a YouTube player embedded 
   its mistakes right and gives it back natural. In English, the IELTS Writing tasks against the clock (Task 1
   as a letter or a report on a table, Task 2 an essay): an estimated band on the four criteria, the mistakes, and
   the text rewritten at band 8. What is being written is kept as it is typed.
+- **Reading practice.** Every day, a text of the kind you choose (a story, the news, travel, work, science...) in
+  the language being learnt, at your level, with questions on it. In English, one passage of the IELTS Reading
+  test, Academic or General Training, against the clock: matching headings, TRUE / FALSE / NOT GIVEN, multiple
+  choice and sentence completion, thirteen questions as in a third of the test. Once checked, each answer says
+  why, and a button marks the words of the text it comes from; IELTS gives an estimated band by the test's own
+  tables. Then every word of the text opens its meaning, to be saved with its sentence. A test begun is kept.
 - **Gemini's use, counted:** today's requests and tokens, and the last week, beside the key.
 - **Today's plan, and the week.** Each day asks for the cards that are due, five sentences listened to and one
-  conversation or spoken answer; the week, two texts. The popup shows what is left and opens what is next; a
+  conversation or spoken answer; the week, two texts written and two read. The popup shows what is left and opens what is next; a
   progress page shows the last seven days day by day, what they added up to, and the IELTS bands as they went.
   Any practice keeps the streak going. A notification at an hour you choose says what is still waiting; the goals are
   yours to change, or to leave out.
@@ -160,6 +166,10 @@ them), plyr.io, Vimeo's player, Wikimedia Commons and a YouTube player embedded 
 | Progress | IELTS Writing |
 | --- | --- |
 | ![Today's plan with the cards, listening, speaking and the week's writing; beside it the last seven days day by day, the week's numbers, and the IELTS bands as bars](docs/screenshots/progress.jpg) | ![An IELTS Task 2 essay being written, with the words counted against 250 and the time left; under it, its estimated band and the four criteria](docs/screenshots/ielts-writing.jpg) |
+
+| IELTS Reading | |
+| --- | --- |
+| ![An IELTS Academic passage on the left with its paragraphs lettered and the words of one answer marked; on the right 11 of 13 right, an estimated band of 7.5, the list of headings and each answer with why](docs/screenshots/ielts-reading.jpg) | |
 
 | Listening practice | |
 | --- | --- |
@@ -350,6 +360,7 @@ npm run pictures:pages  # the pictures of the review page and the list of words
 | `extension/subtitles.js` | Reading subtitle files; finding the subtitles of a video on a site that is not known |
 | `extension/episode.js`, `freq/` | An episode's words to learn: how common each word is in film subtitles (lists under CC BY-SA 4.0, see `freq/README.md`) |
 | `extension/overlay-*.js`, `content.js` | The overlay, one content script in eight files loaded in order: its state (`overlay-base`), the tracks and their translation (`-tracks`), the lines kept in step with the picture and playback (`-lines`), the word card (`-words`), writing and speaking practice (`-practice`), the bar, its menu and the list of lines (`-ui`), the list's tabs of the episode's words and questions (`-episode`); `content.js` listens and starts it |
+| `extension/read.*`, `reading.js` | Reading practice: the page, and the test Gemini writes put in order, marked and turned into a band |
 | `extension/core.js` | Pure logic: subtitle and playlist formats, cue search and alignment, word matching, time-stretch |
 | `extension/background.js` | Service worker: translation, lookup and speech requests; access to other sites |
 | `extension/review.*`, `words.*`, `popup.*` | Review page, list of all words, toolbar popup |
@@ -390,9 +401,12 @@ above were taken on.
   you whether you were understood, word by word; it does not grade individual sounds, and it is forgiving of an
   accent.
 - Definitions and synonyms are available for single English words; phrases get a translation only.
-- What Gemini does (a word's meaning in its sentence, the IELTS bands, the conversations, putting a text right)
+- What Gemini does (a word's meaning in its sentence, the IELTS bands, the conversations, putting a text right,
+  writing a reading test)
   needs your own free key, and is held to the free tier's daily and per-minute limits, which the popup's counter
-  helps to watch. The bands are an estimate from what was written or recognised, not an examiner's score.
+  helps to watch. The bands are an estimate from what was written or recognised, not an examiner's score; a
+  reading band is from one passage, a third of the real test, and a passage Gemini wrote may now and then have a
+  question that can be argued (each answer says why, and where in the text).
 - The phone gets no reminders: a web page can only be woken by a push server, which this project does not run.
 - Planned: Anki export, and a listing in the Chrome Web Store so that updates arrive by themselves.
 

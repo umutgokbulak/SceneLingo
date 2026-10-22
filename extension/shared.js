@@ -25,7 +25,8 @@ const SL_DEFAULTS = {
   wordLevel: 'B1', // the level an episode's words to learn are chosen for
   goalListen: 5, // today's plan: sentences listened to a day,
   goalSpeak: 1, // conversations or spoken answers a day,
-  goalWrite: 2, // and texts written a week; 0 leaves the step out
+  goalWrite: 2, // texts written a week,
+  goalRead: 2, // and texts read a week; 0 leaves the step out
   remindOn: false, // a notification at `remindAt` when today's plan is not done
   remindAt: '20:00',
   useGemini: true, // ask Gemini for a word's meaning in its sentence, when a key has been saved

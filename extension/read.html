@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SceneLingo</title>
+<link rel="icon" href="icons/32.png">
+<link rel="stylesheet" href="ui.css?v=0.28.0">
+<link rel="stylesheet" href="practice.css?v=0.28.0">
+<link rel="manifest" href="app.webmanifest">
+<link rel="apple-touch-icon" href="icons/180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SceneLingo">
+<meta name="theme-color" content="#0d1117">
+<style>
+  /* while reading, the page is wider: the text and the questions side by side, as on the computer test */
+  body.reading .app { max-width: 1280px; }
+  .resume { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .resume span { flex: 1; min-width: 200px; }
+
+  /* Gemini at work */
+  .making { display: flex; align-items: center; gap: 16px; }
+  .making p { flex: 1; margin: 0; color: var(--text-2); }
+  .spin { width: 26px; height: 26px; border-radius: 50%; border: 3px solid var(--accent-soft); border-top-color: var(--accent); animation: spin 0.9s linear infinite; flex: none; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* the bar over the test */
+  .deskbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 12px 18px; font-size: 13px; color: var(--muted); }
+  .deskbar .label { font-weight: 650; color: var(--text-2); }
+  .deskbar .spacer { flex: 1; }
+  .pill { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px; background: var(--raised); color: var(--text-2); font-variant-numeric: tabular-nums; }
+  .pill.short { color: var(--gold); }
+  .pill.enough { color: var(--green); background: var(--green-soft); }
+  .pill.over { color: var(--red); background: var(--red-soft); }
+
+  /* the text and the questions */
+  .reader { display: grid; grid-template-columns: minmax(0, 1.08fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+  .reader > .card { position: sticky; top: 12px; max-height: calc(100vh - 24px); display: flex; flex-direction: column; overflow: hidden; }
+  .reader .scroll { overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: var(--border-strong) transparent; }
+  .passage h2 { font-size: 21px; line-height: 1.3; margin-bottom: 14px; letter-spacing: -0.01em; }
+  .passage p { margin: 0 0 14px; font-size: 16.5px; line-height: 1.7; color: var(--text); border-radius: 8px; transition: background 0.3s; }
+  .passage p .pl { display: inline-grid; place-items: center; width: 22px; height: 22px; margin-right: 8px; border-radius: 6px; background: var(--raised); color: var(--accent-text); font-size: 12.5px; font-weight: 700; vertical-align: 2px; }
+  .passage p.lit { background: var(--accent-soft); box-shadow: 0 0 0 8px var(--accent-soft); }
+  .passage mark { background: var(--mark); color: inherit; border-radius: 4px; padding: 1px 0; box-shadow: 0 0 0 2px var(--mark); }
+  .passage [data-w] { cursor: pointer; border-radius: 3px; }
+  .passage [data-w]:hover { background: var(--accent-soft); color: var(--accent-text); }
+  .tapnote { margin: 4px 0 0; font-size: 13px; color: var(--muted); }
+
+  .qgroup { margin-bottom: 26px; }
+  .qgroup > h3 { margin: 0 0 4px; font-size: 13px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--accent-text); }
+  .qgroup > .how { margin: 0 0 12px; font-size: 13.5px; color: var(--text-2); }
+  .hlist { margin: 0 0 12px; padding: 10px 14px; border-radius: 12px; background: var(--surface-2); border: 1px solid var(--border); display: grid; gap: 4px; font-size: 14.5px; }
+  .hlist div { display: grid; grid-template-columns: 34px 1fr; }
+  .hlist b { color: var(--muted); font-weight: 600; }
+  .q { padding: 12px 0; border-top: 1px solid var(--border); }
+  .q .stem { display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 4px; font-size: 15.5px; line-height: 1.5; }
+  .q .no { display: inline-grid; place-items: center; width: 24px; height: 24px; border-radius: 7px; background: var(--raised); font-size: 12.5px; font-weight: 700; color: var(--text-2); font-variant-numeric: tabular-nums; }
+  .q .body { margin-left: 34px; margin-top: 8px; }
+  .q.right .no { background: var(--green-soft); color: var(--green); }
+  .q.wrong .no { background: var(--red-soft); color: var(--red); }
+  .seg { display: inline-flex; flex-wrap: wrap; gap: 6px; }
+  .seg button, .opts button { border: 1px solid var(--border-strong); background: var(--surface-2); color: var(--text); border-radius: 10px; cursor: pointer; font-size: 14px; transition: border-color 0.15s, background 0.15s; }
+  .seg button { padding: 6px 12px; font-weight: 600; }
+  .seg button:hover:not(:disabled), .opts button:hover:not(:disabled) { border-color: var(--accent); }
+  .seg button.on, .opts button.on { border-color: var(--accent); background: var(--accent-soft); color: var(--accent-text); }
+  .seg button.is, .opts button.is { border-color: var(--green); background: var(--green-soft); color: var(--green); }
+  .seg button.on.not, .opts button.on.not { border-color: var(--red); background: var(--red-soft); color: var(--red); }
+  .seg button:disabled, .opts button:disabled { cursor: default; }
+  .opts { display: grid; gap: 6px; }
+  .opts button { display: grid; grid-template-columns: 24px minmax(0, 1fr); gap: 6px; padding: 8px 12px; text-align: left; line-height: 1.4; }
+  .opts button b { color: var(--muted); }
+  .gap { display: inline-block; width: 150px; max-width: 60%; margin: 0 4px; padding: 3px 8px; font: inherit; font-size: 15px; border-radius: 8px; border: 1.5px solid var(--border-strong); background: var(--surface-2); color: var(--text); outline: none; }
+  .gap:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .q.right .gap { border-color: var(--green); color: var(--green); }
+  .q.wrong .gap { border-color: var(--red); color: var(--red); text-decoration: line-through; }
+  .hsel { display: flex; align-items: center; gap: 10px; }
+  .hsel select { min-width: 96px; }
+  .why { margin: 10px 0 0 34px; padding: 10px 12px; border-radius: 10px; background: var(--surface-2); font-size: 14px; color: var(--text-2); line-height: 1.5; }
+  .why .ans { display: block; margin-bottom: 4px; color: var(--green); font-weight: 650; }
+  .why .link { margin-top: 6px; }
+
+  .result { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; margin-bottom: 22px; padding: 14px 16px; border-radius: 14px; background: var(--accent-soft); }
+  .result .big { font-size: 34px; font-weight: 700; letter-spacing: -0.02em; color: var(--accent-text); font-variant-numeric: tabular-nums; }
+  .result .big small { font-size: 16px; color: var(--text-2); font-weight: 600; }
+  .result .band { padding: 0; border: 0; background: none; }
+  .result .note { flex-basis: 100%; margin: 0; font-size: 12.5px; color: var(--muted); }
+
+  @media (max-width: 900px) {
+    .reader { grid-template-columns: minmax(0, 1fr); }
+    /* one column: the page scrolls, and the button to check stays at the foot of the screen */
+    .reader > .card { position: static; max-height: none; overflow: visible; }
+    .reader .scroll { overflow: visible; }
+    .questions .actions .spacer { display: none; }
+  }
+  @media (max-width: 640px) {
+    #kinds { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .passage p { font-size: 16px; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brand"><img src="icons/48.png" alt=""><h1 data-t="readTitle"></h1></div>
+    <a id="toHome" class="btn small ghost" href="#" hidden></a>
+    <a id="toReview" class="btn small ghost" href="review.html"></a>
+    <a id="toWords" class="btn small ghost" href="words.html"></a>
+  </header>
+
+  <!-- what to read -->
+  <div id="home" class="stack" hidden>
+    <div id="noKey" class="notice" hidden></div>
+    <div id="resume" class="notice resume" hidden></div>
+    <section class="card"><div class="inner">
+      <div class="sechead">
+        <div><h2 data-t="readDaily"></h2><p class="sub" style="margin: 0;" data-t="readDailySub"></p></div>
+        <label><span data-t="practiceLevel"></span><select id="level"></select></label>
+      </div>
+      <div class="tiles" id="kinds"></div>
+    </div></section>
+    <section class="card" id="ieltsBox" hidden><div class="inner">
+      <h2>IELTS Reading</h2>
+      <p class="sub" data-t="readIeltsSub"></p>
+      <div class="tiles parts" id="parts"></div>
+      <div class="last" id="last"></div>
+    </div></section>
+    <div id="usage" class="muted" style="padding: 0 6px;"></div>
+  </div>
+
+  <!-- Gemini writing the test -->
+  <section id="making" class="card" hidden>
+    <div class="inner making"><span class="spin"></span><p id="makingText"></p></div>
+    <div class="actions"><span class="spacer"></span><button id="stopMaking" class="btn ghost" data-t="writeLeave"></button></div>
+  </section>
+
+  <!-- the test -->
+  <div id="desk" class="stack" hidden>
+    <div class="card deskbar"><span class="label" id="deskHead"></span><span class="spacer"></span><span class="pill" id="answered"></span><span class="pill" id="timer" hidden></span></div>
+    <div class="reader">
+      <section class="card passage"><div class="scroll" id="passageScroll"><div class="inner">
+        <h2 id="title"></h2>
+        <div id="text"></div>
+        <p class="tapnote" id="tapNote" data-t="readTapWords" hidden></p>
+      </div></div></section>
+      <section class="card questions">
+        <div class="scroll" id="qScroll"><div class="inner"><div id="result" hidden></div><div id="qs"></div></div></div>
+        <div class="actions">
+          <button id="leave" class="btn ghost" data-t="writeLeave"></button>
+          <span class="spacer"></span>
+          <button id="go" class="btn primary"></button>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<!-- On the phone, where there is no extension, this stands in for it. -->
+<script src="web.js?v=0.28.0"></script>
+<script src="messages.js?v=0.28.0"></script>
+<script src="shared.js?v=0.28.0"></script>
+<script src="study.js?v=0.28.0"></script>
+<script src="cloud.js?v=0.28.0"></script>
+<script src="reading.js?v=0.28.0"></script>
+<script src="gemini.js?v=0.28.0"></script>
+<script src="translate.js?v=0.28.0"></script>
+<script src="ui.js?v=0.28.0"></script>
+<script src="practice-data.js?v=0.28.0"></script>
+<script src="practice.js?v=0.28.0"></script>
+<script src="read.js?v=0.28.0"></script>
+<!-- Text selected on this page is translated too: the content script does not run on the extension's own pages. -->
+<script src="select.js?v=0.28.0"></script>
+</body>
+</html>

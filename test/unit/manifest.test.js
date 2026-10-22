@@ -18,7 +18,7 @@ test('every file the manifest names exists', () => {
 });
 
 test('pages load the scripts they depend on, in order', () => {
-  for (const page of ['popup.html', 'review.html', 'words.html', 'welcome.html', 'listen.html', 'speak.html', 'write.html', 'progress.html']) {
+  for (const page of ['popup.html', 'review.html', 'words.html', 'welcome.html', 'listen.html', 'speak.html', 'write.html', 'read.html', 'progress.html']) {
     const scripts = [...fs.readFileSync(path.join(dir, page), 'utf8').matchAll(/<script src="([^"?]+)/g)].map((m) => m[1]);
     assert.deepEqual(scripts.filter((s) => s !== 'web.js').slice(0, 2), ['messages.js', 'shared.js'], page);
     for (const s of scripts) assert.ok(exists(s), s + ' is missing');

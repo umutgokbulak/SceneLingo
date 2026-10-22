@@ -169,7 +169,8 @@ function slYear(log) {
 }
 
 // The other practice, in the same record of days: a sentence listened to (`listen`, with how much
-// of it was heard, 0-100), a spoken answer or conversation (`speak`), a text written (`write`).
+// of it was heard, 0-100), a spoken answer or conversation (`speak`), a text written (`write`), a
+// text read and its questions answered (`read`, with the share answered right, 0-100).
 function slLogActivity(log, now, kind, score) {
   const key = slDayKey(now);
   const day = { ...(log[key] || {}) };
@@ -188,29 +189,32 @@ function slNextAt(now, hhmm) {
 }
 
 // A day with any study in it.
-const slActive = (day) => !!(day && (day.reviews || day.listen || day.speak || day.write || day.quiz));
+const slActive = (day) => !!(day && (day.reviews || day.listen || day.speak || day.write || day.read || day.quiz));
 
 // What a day asks for, every day: the cards that are due, some sentences listened to, and some
-// conversations or spoken answers; and, in the week, some texts written. How many is the user's
-// to choose (`goals`); a goal of 0 leaves its step out. `next` is the first step not yet done.
-const SL_PLAN = { listen: 5, speak: 1, write: 2 };
-const slGoals = (settings) => ({
-  listen: settings && settings.goalListen != null ? +settings.goalListen : SL_PLAN.listen,
-  speak: settings && settings.goalSpeak != null ? +settings.goalSpeak : SL_PLAN.speak,
-  write: settings && settings.goalWrite != null ? +settings.goalWrite : SL_PLAN.write,
-});
+// conversations or spoken answers; and, in the week, some texts written and some read. How many
+// is the user's to choose (`goals`); a goal of 0 leaves its step out. `next` is the first step
+// not yet done: the day's before the week's.
+const SL_PLAN = { listen: 5, speak: 1, write: 2, read: 2 };
+const slGoals = (settings) => {
+  const goal = (key, kind) => (settings && settings[key] != null ? +settings[key] : SL_PLAN[kind]);
+  return { listen: goal('goalListen', 'listen'), speak: goal('goalSpeak', 'speak'), write: goal('goalWrite', 'write'), read: goal('goalRead', 'read') };
+};
 function slTodayPlan(words, log, now, newPerDay, goals = SL_PLAN) {
   const today = log[slDayKey(now)] || {};
   const due = slDueCount(words, now, log, newPerDay);
-  let written = 0;
-  for (let i = 0; i < 7; i++) written += (log[slDayKey(now - i * SL_DAY)] || {}).write || 0;
+  const inWeek = (kind) => {
+    let n = 0;
+    for (let i = 0; i < 7; i++) n += (log[slDayKey(now - i * SL_DAY)] || {})[kind] || 0;
+    return n;
+  };
   const step = (id, have, goal) => ({ id, have, goal, done: have >= goal });
   const steps = [{ id: 'review', have: today.reviews || 0, left: due, done: due === 0 }];
   if (goals.listen > 0) steps.push(step('listen', today.listen || 0, goals.listen));
   if (goals.speak > 0) steps.push(step('speak', today.speak || 0, goals.speak));
-  const week = goals.write > 0 ? step('write', written, goals.write) : null;
-  const next = steps.find((s) => !s.done);
-  return { steps, week, next: next ? next.id : week && !week.done ? 'write' : null, done: !next };
+  const week = ['write', 'read'].filter((k) => goals[k] > 0).map((k) => step(k, inWeek(k), goals[k]));
+  const next = steps.find((s) => !s.done) || week.find((s) => !s.done);
+  return { steps, week, next: next ? next.id : null, done: steps.every((s) => s.done) };
 }
 
 // The last seven days, oldest first, and what was done in them.
@@ -234,6 +238,8 @@ function slWeek(words, log, now) {
     heard: listened ? Math.round(sum('listenScore') / listened) : null,
     spoken: sum('speak'),
     written: sum('write'),
+    read: sum('read'),
+    understood: sum('read') ? Math.round(sum('readScore') / sum('read')) : null,
   };
 }
 
@@ -310,17 +316,17 @@ function slBackup(words, log, now, version, deleted, records) {
     words,
     reviewLog: log,
     deleted: deleted || {},
-    speakLog: r.speakLog || [],
-    writeLog: r.writeLog || [],
-    listenRest: r.listenRest || {},
+    ...slNoRecords(),
+    ...Object.fromEntries(SL_RECORDS.filter((k) => r[k]).map((k) => [k, r[k]])),
   };
 }
 
-// The practice kept beside the cards: the scores of spoken answers and of written texts (lists of
-// { at, bands, ... }, the latest hundred), and until when each sentence of the listening practice
-// rests. They go into backups and to the cloud with the cards.
-const SL_RECORDS = ['speakLog', 'writeLog', 'listenRest'];
+// The practice kept beside the cards: the scores of spoken answers, written texts and reading
+// tests (lists of { at, ... }, the latest hundred), and until when each sentence of the listening
+// practice rests. They go into backups and to the cloud with the cards.
+const SL_RECORDS = ['speakLog', 'writeLog', 'readLog', 'listenRest'];
 const SL_LOG_KEPT = 100;
+const slNoRecords = () => ({ speakLog: [], writeLog: [], readLog: [], listenRest: {} });
 function slMergeRecords(here, there, now) {
   const logOf = (a, b) => {
     const byTime = new Map();
@@ -330,7 +336,7 @@ function slMergeRecords(here, there, now) {
   const rest = { ...(here.listenRest || {}) };
   for (const [k, until] of Object.entries(there.listenRest || {})) rest[k] = Math.max(rest[k] || 0, until);
   for (const k of Object.keys(rest)) if (now && rest[k] < now) delete rest[k];
-  return { speakLog: logOf(here.speakLog, there.speakLog), writeLog: logOf(here.writeLog, there.writeLog), listenRest: rest };
+  return { speakLog: logOf(here.speakLog, there.speakLog), writeLog: logOf(here.writeLog, there.writeLog), readLog: logOf(here.readLog, there.readLog), listenRest: rest };
 }
 
 // When a card last changed: saved, studied or edited.
@@ -435,7 +441,8 @@ function slRestore(words, log, data, deleted, records) {
     return { ...w, updated: now };
   });
   const r = slMergeAll({ ...(records || {}), words, reviewLog: log, deleted: gone }, { ...data, words: back }, now);
-  return { words: r.words, log: r.reviewLog, deleted: r.deleted, added: r.added, updated: r.updated, speakLog: r.speakLog, writeLog: r.writeLog, listenRest: r.listenRest };
+  const kept = Object.fromEntries(SL_RECORDS.map((k) => [k, r[k]]));
+  return { words: r.words, log: r.reviewLog, deleted: r.deleted, added: r.added, updated: r.updated, ...kept };
 }
 
 // The word list an earlier version saved as CSV ("Download CSV"), read back as cards: the word,
@@ -592,5 +599,5 @@ function slDictationPool(words, lang, rest, now, size, rand = Math.random) {
 }
 
 if (typeof module !== 'undefined') {
-  module.exports = { SL_RECORDS, SL_LOG_KEPT, slMergeRecords, SL_PLAN, slGoals, slNextAt, slLogActivity, slActive, slTodayPlan, slWeek, SL_STAGES, slDictation, slDictationPool, slCanon, slFromCsv, slBackup, slStamp, slMergeCard, slMergeAll, slRestore, slStatus, slCleanLine, slHintMask, slCardType, slAdvance, slClozeParts, slCheckAnswer, slAccepted, slSentenceScore, slDayKey, slIsNew, slTodayQueue, slLogged, slStats, slDueCount, slAddExample, slMerge, slNormalize };
+  module.exports = { SL_RECORDS, SL_LOG_KEPT, slNoRecords, slMergeRecords, SL_PLAN, slGoals, slNextAt, slLogActivity, slActive, slTodayPlan, slWeek, SL_STAGES, slDictation, slDictationPool, slCanon, slFromCsv, slBackup, slStamp, slMergeCard, slMergeAll, slRestore, slStatus, slCleanLine, slHintMask, slCardType, slAdvance, slClozeParts, slCheckAnswer, slAccepted, slSentenceScore, slDayKey, slIsNew, slTodayQueue, slLogged, slStats, slDueCount, slAddExample, slMerge, slNormalize };
 }

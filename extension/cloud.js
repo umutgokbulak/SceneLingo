@@ -72,7 +72,7 @@ async function slWho(token) {
 async function slCloudSync(token, storage, now) {
   // The cards, and what is kept beside them: the days, the deletions and the practice records.
   const BESIDE = ['reviewLog', 'deleted', ...SL_RECORDS];
-  const wanted = { words: [], reviewLog: {}, deleted: {}, speakLog: [], writeLog: [], listenRest: {} };
+  const wanted = { words: [], reviewLog: {}, deleted: {}, ...slNoRecords() };
   const here = await storage.get(wanted);
   const remote = await slCloudRead(token);
   const there = remote.data || {};
