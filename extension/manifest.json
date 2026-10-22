@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAnb6khvlJctdK/WGNq5ozi+ZbakX6i6V0aZ0T8mOMgemjOpHgqm17p9ZFrjZEluGB6ifa7/ItU/bFnEoBvxwqwTmGtQSG+ypbRixmxkDZ6ezbM+LdOJeyPdqUE8dOf2OUrbT6dC4SMg9oKgN58EL7kJyFX3rTrXw9NXNqPBd+MUHLVHzRpFwZEpu16HGAJoLp380E5NflcewpSxTNb1ik+F4pLsfzdZaW4gxOazSoeSoAbC1KdIQyMxngxySNkeReGHIQyecfb/QDQCbVVOLFUoUO9GCcbf7iHmJew2sqFGBbeKiKBrJ8nLawhik+DEJccs1M8DNEjefD+wPD9UXu0QIDAQAB",
   "name": "SceneLingo",
-  "version": "0.30.0",
+  "version": "0.30.1",
   "description": "__MSG_description__",
   "default_locale": "en",
   "icons": {

@@ -469,11 +469,11 @@ function days() {
       return true;
     })()`);
     await wait(1500);
-    assert.equal(await page(`items.length`), 40, 'four words from each of the ten stretches');
-    assert.match(await page(`$('#count').textContent`), /^1 \/ 40/);
+    assert.equal(await page(`items.length`), 60, 'six words from each of the ten stretches');
+    assert.match(await page(`$('#count').textContent`), /^1 \/ 60/);
     // a learner who knows the first 6,000 words and says so for the rest
-    for (let i = 0; i < 40 && !(await page(`$('#asking').hidden`)); i++) await page(`(answer(items[at].band < 3 ? items[at].answer : -1), true)`);
-    assert.equal(await page(`at`), 20, 'stopped after two stretches with nothing known');
+    for (let i = 0; i < 60 && !(await page(`$('#asking').hidden`)); i++) await page(`(answer(items[at].band < 3 ? items[at].answer : -1), true)`);
+    assert.equal(await page(`at`), 30, 'stopped after two stretches with nothing known');
     assert.equal(await page(`$('#size').textContent`), '~6.000');
     assert.equal(await page(`$('#lv').textContent`), 'B2');
     await page(`($('#apply button').click(), document.querySelector('#missed .star').click(), true)`);

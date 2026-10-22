@@ -77,12 +77,13 @@ yazdım, çalışırken ihtiyaç duyduklarımı ekledim, sonra onu izlediğim di
 - **Her sayfaya tek çubuktan geçiş:** Bugün, tekrar, kelimeler ve dört alıştırma, her sayfanın üstünde birer
   sekme (telefonda ekranın altında); tekrar sekmesi bekleyen kart sayısını, bugünkü payı biten alıştırma yeşil
   bir noktayı gösterir.
-- **Seviye testi.** Film ve dizilerde en sık geçenlerden nadir olanlara doğru yaklaşık kırk kelime; her birinin
-  anlamını dört seçenekten seç ya da "Bilmiyorum" de. 3-4 dakika, anahtar gerekmez. Sonuç: kaç kelime bildiğin
-  (örneğin ~8.000) ve bunun seviyesi; istersen bölüm kelimelerinde ve alıştırmalarda hemen kullanılır. Bilmediğin
-  yaygın kelimeleri kaydedebilirsin. Tahminler düşülür; isimler ve anlamına benzeyen kelimeler sorulmaz (her
-  anlam geri çevrilir ve kelimeyi geri vermelidir). İlerleme sayfası sonuçları saklar, artışı görürsün.
-  İngilizce ve Almanca.
+- **Seviye testi.** Film ve dizilerde en sık geçenlerden nadir olanlara doğru yaklaşık altmış kelime; her birinin
+  anlamını dört seçenekten seç ya da "Bilmiyorum" de. 4-5 dakika, anahtar gerekmez. Yanlış seçenekler, kelimeye
+  benzeyen kelimelerin anlamlarıdır ("infantry": infant, industry); böylece yarım bilinen kelime biliniyor
+  sayılmaz. Sonuç: tanıdığın kelime sayısı (örneğin ~8.000) ve seviyesi; istersen bölüm kelimelerinde ve günlük
+  okumada hemen kullanılır. Bilmediğin yaygın kelimeleri kaydedebilirsin. Test kelimeleri tanımayı ölçer,
+  kullanmayı değil: konuşma ve yazmanın kendi bandları var. Tahminler düşülür; isimler ve anlamına benzeyen
+  kelimeler sorulmaz. İlerleme sayfası sonuçları saklar. İngilizce ve Almanca.
 - **Almanca isimler der, die, das ile.** Almanca altyazıda isimlerin altı artikelinin rengiyle çizilir (der mavi,
   die kırmızı, das yeşil). Kelime kartı artikeli ve çoğulu gösterir, kelimenin hangi hâli olursa olsun
   ("Häusern" → das Haus); listede olmayan bileşik isim son parçasının artikelini alır. Kaydedilen isimler

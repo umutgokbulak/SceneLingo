@@ -126,12 +126,15 @@ them), plyr.io, Vimeo's player, Wikimedia Commons and a YouTube player embedded 
 - **One bar to every page:** today, the review, the words and the four kinds of practice, one tab each, at the
   top of every page (on a phone, at the foot of the screen); the review's tab says how many cards are waiting,
   and a practice done for today has a green dot.
-- **A level test.** About forty words, from the commonest in films and series to the rare ones, each matched with
-  its meaning out of four or "I don't know"; three or four minutes, no key needed. From them, how many words of
-  the language you know (about 8,000, say) and the level that makes, used at once for an episode's words and the
-  practice if you like; the common words you did not know, to save. Guesses are taken off; a name or a word that
-  looks like its meaning is never asked (each meaning is translated back, and must give the word again). The
-  progress page keeps the results, to see the number grow. English and German.
+- **A level test.** About sixty words, from the commonest in films and series to the rare ones, each matched with
+  its meaning out of four or "I don't know"; four or five minutes, no key needed. The wrong options are the
+  meanings of words that look like it ("infantry": infant, industry), as in tests made by people, so that a
+  word half known is not taken for one known. From them, how many words of the language you recognise (about
+  8,000, say) and the level that makes, to use at once for an episode's words and everyday reading; the common
+  words you did not know, to save. It measures recognising words, not using them: speaking and writing have
+  their own bands. Guesses are taken off; a name, or a word that looks like its meaning, is never asked (each
+  meaning is translated back and must give the word again). The progress page keeps the results. English and
+  German.
 - **German nouns with der, die, das.** In German subtitles, nouns are underlined in the colour of their gender
   (der blue, die red, das green). A noun's card shows its article and plural, from any of its forms ("Häusern"
   is das Haus); a compound not in the list takes the gender of its last part. Saved nouns are listed and

@@ -53,7 +53,14 @@ async function begin() {
     if (!res.ok) throw new Error(res.error || '?');
     // Each meaning translated back: only a word that comes back is asked.
     const back = await ask({ type: 'translate', texts: res.result.map((m) => m || '-'), sl: settings.nativeLang, tl: lang });
-    items = slVocabItems(bands, res.result, Math.random, back.ok ? back.result : null);
+    const fair = slVocabFair(bands, res.result, back.ok ? back.result : null);
+    // The wrong options: the meanings of words that look like each one, in one more request.
+    const look = new Map(fair.flat().map((w) => [w.word, slVocabLookalikes(w.word, list)]));
+    const alike = [...new Set([...look.values()].flat())];
+    const meant = alike.length ? await ask({ type: 'translate', texts: alike, sl: lang, tl: settings.nativeLang }) : { ok: false };
+    const meaningOf = new Map(meant.ok ? alike.map((w, i) => [w, String(meant.result[i] || '').trim()]) : []);
+    const looks = new Map([...look].map(([w, list]) => [w, list.filter((x) => slFairMeaning(x, meaningOf.get(x))).map((x) => meaningOf.get(x))]));
+    items = slVocabItems(fair, Math.random, looks);
     if (items.length < 20) throw new Error(slT('levelTooFew'));
   } catch (e) {
     $('makingText').textContent = slT('levelFailed', e.message);
@@ -132,7 +139,9 @@ function finish() {
   apply.append(el('span', null, slT('levelApplyText', score.level)));
   const set = btn(slT('levelApply', score.level), () => {
     chrome.storage.sync.set({ wordLevel: score.level });
-    chrome.storage.local.set({ readLevel: score.level, writeLevel: score.level, practiceLevel: score.level });
+    // Recognising words is the measure for which words to learn and what to read; writing and
+    // speaking are asked of them, and keep their own level.
+    chrome.storage.local.set({ readLevel: score.level });
     set.disabled = true;
     set.textContent = '✓ ' + slT('levelApplied');
   }, 'btn small primary');

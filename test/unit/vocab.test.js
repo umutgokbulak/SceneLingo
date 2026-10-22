@@ -24,15 +24,27 @@ test('words are drawn from each of the ten stretches of the list', () => {
 test('a fair question: not a name or a place, nor a word that looks like its meaning', () => {
   assert.ok(V.slAlike('chaos', 'kaos') >= 0.6);
   assert.ok(V.slAlike('umbrella', 'şemsiye') < 0.3);
-  const bands = [['taylor', 'mexico', 'chaos', 'house', 'tree', 'water', 'dog', 'cat'], ['umbrella', 'spoon', 'bridge', 'cloud', 'river']];
-  const meanings = ['taylor', 'Meksika', 'kaos', 'ev', 'ağaç', 'su', 'köpek', 'kedi', 'şemsiye', 'kaşık', 'köprü', 'bulut', 'nehir'];
-  const items = V.slVocabItems(bands, meanings, rand);
-  assert.deepEqual(items.filter((i) => i.band === 0).map((i) => i.word), ['house', 'tree', 'water', 'dog'], 'four of the fair ones');
+  const bands = [['taylor', 'mexico', 'chaos', 'house', 'tree', 'water', 'dog', 'cat', 'sun', 'moon'], ['umbrella', 'spoon', 'bridge', 'cloud', 'river', 'stone', 'bread']];
+  const meanings = ['taylor', 'Meksika', 'kaos', 'ev', 'ağaç', 'su', 'köpek', 'kedi', 'güneş', 'ay', 'şemsiye', 'kaşık', 'köprü', 'bulut', 'nehir', 'taş', 'ekmek'];
+  const fair = V.slVocabFair(bands, meanings);
+  assert.deepEqual(fair[0].map((w) => w.word), ['house', 'tree', 'water', 'dog', 'cat', 'sun'], 'six of the fair ones');
+  // a name read as a word does not come back from its meaning
+  assert.ok(V.slVocabFair([['custer']], ['müşteri'], ['customer'])[0].length === 0, '"custer" is not "customer"');
+  const items = V.slVocabItems(fair, rand);
   for (const item of items) {
     assert.equal(item.options.length, 4);
     assert.equal(new Set(item.options).size, 4);
     assert.equal(item.options[item.answer], item.meaning);
   }
+});
+
+test('the wrong options: the meanings of words that look like it, but not of another form of it', () => {
+  assert.deepEqual(V.slVocabLookalikes('infantry', ['infant', 'industry', 'apple', 'infantry', 'inventory', 'i']).slice(0, 2), ['infant', 'inventory']);
+  assert.deepEqual(V.slVocabLookalikes('includes', ['included', 'including', 'include', 'intrudes']), ['intrudes'], 'not its own other forms');
+  const fair = [[{ word: 'infantry', meaning: 'piyade' }, { word: 'tree', meaning: 'ağaç' }, { word: 'water', meaning: 'su' }, { word: 'dog', meaning: 'köpek' }]];
+  const looks = new Map([['infantry', ['bebek', 'piyadeler', 'endüstri', 'envanter']]]);
+  const item = V.slVocabItems(fair, rand, looks).find((i) => i.word === 'infantry');
+  assert.deepEqual([...item.options].sort(), ['bebek', 'endüstri', 'envanter', 'piyade'], 'look-alikes first; "piyadeler" is the same word');
 });
 
 test('the estimate: the share known in each stretch, less what guessing would get, and its level', () => {
