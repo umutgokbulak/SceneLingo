@@ -123,6 +123,9 @@ them), plyr.io, Vimeo's player, Wikimedia Commons and a YouTube player embedded 
   choice and sentence completion, thirteen questions as in a third of the test. Once checked, each answer says
   why, and a button marks the words of the text it comes from; IELTS gives an estimated band by the test's own
   tables. Then every word of the text opens its meaning, to be saved with its sentence. A test begun is kept.
+- **One bar to every page:** today, the review, the words and the four kinds of practice, one tab each, at the
+  top of every page (on a phone, at the foot of the screen); the review's tab says how many cards are waiting,
+  and a practice done for today has a green dot.
 - **Gemini's use, counted:** today's requests and tokens, and the last week, beside the key.
 - **Today's plan, and the week.** Each day asks for the cards that are due, five sentences listened to and one
   conversation or spoken answer; the week, two texts written and two read. The popup shows what is left and opens what is next; a

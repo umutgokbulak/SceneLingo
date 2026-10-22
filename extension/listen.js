@@ -373,9 +373,8 @@ chrome.storage.sync.get(SL_DEFAULTS, (stored) => {
   settings = { ...SL_DEFAULTS, ...stored };
   document.documentElement.lang = slSetUiLang(settings.uiLang);
   slApply(document);
+  slNav('listen');
   document.title = slT('listenTitle') + ' — SceneLingo';
-  $('toReview').append(slIcon('cards'), el('span', 't', slT('reviewTitle')));
-  $('toWords').append(slIcon('search'), el('span', 't', slT('wordsTitle')));
   $('hint').textContent = '';
   $('hint').append(slIcon('bulb'), slT('listenHint'));
   $('play').title = slT('reviewListen') + ' (Ctrl+Space)';

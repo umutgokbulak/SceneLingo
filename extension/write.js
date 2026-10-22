@@ -319,10 +319,9 @@ chrome.storage.sync.get(SL_DEFAULTS, (stored) => {
   settings = { ...SL_DEFAULTS, ...stored };
   document.documentElement.lang = slSetUiLang(settings.uiLang);
   slApply(document);
+  slNav('write');
   document.title = slT('writeTitle') + ' — SceneLingo';
   $('toHome').append(slIcon('back'), el('span', 't', slT('practiceHome')));
-  $('toReview').append(slIcon('cards'), el('span', 't', slT('reviewTitle')));
-  $('toWords').append(slIcon('search'), el('span', 't', slT('wordsTitle')));
   ask({ type: 'gemini-key' }).then((res) => {
     geminiKey = res.ok ? res.result : '';
     chrome.storage.local.get({ words: [], writeLevel: 'B1' }, (data) => {

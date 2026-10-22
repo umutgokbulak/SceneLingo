@@ -93,3 +93,35 @@ select { padding: 3px 8px; border-radius: 8px; border: 1px solid var(--border-st
 .sl-usage .sl-bars i.now { background: var(--accent); }
 .sl-usage b { flex-basis: 100%; color: var(--gold); font-weight: 600; }
 kbd { display: inline-block; min-width: 22px; padding: 0 6px; border-radius: 6px; border: 1px solid var(--border-strong); border-bottom-width: 2px; background: var(--surface-2); font: 650 11.5px/19px "Segoe UI", system-ui, sans-serif; color: var(--text-2); text-align: center; }
+
+/* ---- the pages' navigation: a row of tabs on top; on a phone, a bar at the foot of the screen ---- */
+.sl-nav { display: flex; align-items: center; gap: 16px; min-width: 0; }
+.sl-logo { display: flex; align-items: center; gap: 9px; flex: none; color: var(--text); font-size: 15px; font-weight: 700; letter-spacing: -0.01em; text-decoration: none; }
+.sl-logo img { width: 26px; height: 26px; border-radius: 7px; }
+.sl-tabs { display: flex; align-items: center; gap: 2px; min-width: 0; padding: 4px; border-radius: 14px; background: var(--surface); border: 1px solid var(--border); overflow-x: auto; scrollbar-width: none; }
+.sl-tab { position: relative; display: inline-flex; align-items: center; gap: 7px; flex: none; height: 34px; padding: 0 12px; border-radius: 10px; color: var(--muted); font-size: 13.5px; font-weight: 600; white-space: nowrap; text-decoration: none; transition: background 0.15s, color 0.15s; }
+.sl-tab:hover { color: var(--text); background: var(--raised); }
+.sl-tab:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.sl-tab.on { color: var(--accent-text); background: var(--accent-soft); }
+.sl-tab svg.i { width: 17px; height: 17px; }
+.sl-tab.done::after { content: ''; position: absolute; top: 7px; left: 23px; width: 7px; height: 7px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 2px var(--surface); }
+.sl-sep { flex: none; width: 1px; height: 20px; margin: 0 4px; background: var(--border); }
+.sl-badge { display: inline-grid; place-items: center; min-width: 18px; height: 18px; padding: 0 5px; box-sizing: border-box; border-radius: 9px; background: var(--accent); color: #fff; font-size: 11px; font-weight: 700; font-variant-numeric: tabular-nums; }
+@media (max-width: 1000px) {
+  .sl-logo { font-size: 0; gap: 0; }
+}
+@media (max-width: 640px) {
+  .sl-logo { display: none; }
+  .sl-nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 50; padding: 4px 4px calc(4px + env(safe-area-inset-bottom)); background: color-mix(in srgb, var(--surface) 90%, transparent); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); border-top: 1px solid var(--border); }
+  .sl-tabs { flex: 1; justify-content: space-between; gap: 0; padding: 0; border: 0; border-radius: 0; background: none; overflow: visible; }
+  .sl-sep { display: none; }
+  .sl-tab { flex: 1 1 0; min-width: 0; flex-direction: column; justify-content: center; gap: 3px; height: 52px; padding: 0 1px; font-size: 10.5px; font-weight: 600; }
+  .sl-tab span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+  .sl-tab svg.i { width: 21px; height: 21px; }
+  .sl-tab.on { background: none; }
+  .sl-tab.on svg.i { filter: drop-shadow(0 0 8px var(--accent-soft)); }
+  .sl-tab .sl-badge { position: absolute; top: 3px; left: calc(50% + 5px); min-width: 16px; height: 16px; padding: 0 4px; font-size: 10px; }
+  .sl-tab.done::after { top: 5px; left: calc(50% + 7px); }
+  body.sl-tabbed { padding-bottom: calc(61px + env(safe-area-inset-bottom)); }
+  body.sl-tabbed .actions { bottom: calc(61px + env(safe-area-inset-bottom)); }
+}

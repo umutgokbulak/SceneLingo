@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>SceneLingo</title>
 <link rel="icon" href="icons/32.png">
-<link rel="stylesheet" href="ui.css?v=0.28.0">
+<link rel="stylesheet" href="ui.css?v=0.28.1">
 <link rel="manifest" href="app.webmanifest">
 <link rel="apple-touch-icon" href="icons/180.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -16,7 +16,7 @@
   html, body { height: 100%; }
 
   /* The page is one screen: a bar on top, the card and its panel under it. */
-  .app { height: 100%; display: grid; grid-template-rows: auto minmax(0, 1fr); max-width: 1360px; margin: 0 auto; padding: 14px 22px 20px; gap: 14px; }
+  .app { height: 100%; display: grid; grid-template-rows: auto auto minmax(0, 1fr); max-width: 1360px; margin: 0 auto; padding: 14px 22px 20px; gap: 14px; }
 
   /* ---- the bar on top ---- */
   .topbar { display: flex; align-items: center; gap: 16px; min-width: 0; }
@@ -224,16 +224,10 @@
 <body>
 <div class="app">
   <header class="topbar">
-    <div class="brand"><img src="icons/48.png" alt=""><h1 data-t="reviewTitle"></h1></div>
+    <div class="brand"><h1 data-t="reviewTitle"></h1></div>
     <div class="bar"><div id="bar"></div></div>
     <span id="left"></span>
     <div id="chips"></div>
-    <a id="toProgress" class="iconbtn" href="progress.html" data-t-title="progressTitle"></a>
-    <a id="toListen" class="iconbtn" href="listen.html" data-t-title="listenOpen"></a>
-    <a id="toSpeak" class="iconbtn" href="speak.html" data-t-title="speakOpen"></a>
-    <a id="toRead" class="iconbtn" href="read.html" data-t-title="readOpen"></a>
-    <a id="toWrite" class="iconbtn" href="write.html" data-t-title="writeOpen"></a>
-    <a id="allWords" class="iconbtn" href="words.html" data-t-title="wordsTitle"></a>
     <div class="gear">
       <button id="gear" class="iconbtn" data-t-title="settings"></button>
       <div id="gearMenu" class="menu" hidden></div>
@@ -281,17 +275,17 @@
 </div>
 
 <!-- On the phone, where there is no extension, this stands in for it. -->
-<script src="web.js?v=0.28.0"></script>
-<script src="messages.js?v=0.28.0"></script>
-<script src="shared.js?v=0.28.0"></script>
-<script src="study.js?v=0.28.0"></script>
-<script src="cloud.js?v=0.28.0"></script>
-<script src="gemini.js?v=0.28.0"></script>
-<script src="translate.js?v=0.28.0"></script>
-<script src="core.js?v=0.28.0"></script>
-<script src="ui.js?v=0.28.0"></script>
-<script src="review.js?v=0.28.0"></script>
+<script src="web.js?v=0.28.1"></script>
+<script src="messages.js?v=0.28.1"></script>
+<script src="shared.js?v=0.28.1"></script>
+<script src="study.js?v=0.28.1"></script>
+<script src="cloud.js?v=0.28.1"></script>
+<script src="gemini.js?v=0.28.1"></script>
+<script src="translate.js?v=0.28.1"></script>
+<script src="core.js?v=0.28.1"></script>
+<script src="ui.js?v=0.28.1"></script>
+<script src="review.js?v=0.28.1"></script>
 <!-- Text selected on this page is translated too: the content script does not run on the extension's own pages. -->
-<script src="select.js?v=0.28.0"></script>
+<script src="select.js?v=0.28.1"></script>
 </body>
 </html>

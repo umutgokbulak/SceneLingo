@@ -74,6 +74,9 @@ yazdım, çalışırken ihtiyaç duyduklarımı ekledim, sonra onu izlediğim di
   13 soru. Kontrolden sonra her cevabın nedeni yazar ve bir düğme metinde cevabın geçtiği yeri işaretler; IELTS
   için sınavın kendi tablosuna göre tahmini band verilir. Sonra metindeki her kelimeye dokunup anlamına bakabilir,
   cümlesiyle kaydedebilirsin. Yarım kalan test saklanır.
+- **Her sayfaya tek çubuktan geçiş:** Bugün, tekrar, kelimeler ve dört alıştırma, her sayfanın üstünde birer
+  sekme (telefonda ekranın altında); tekrar sekmesi bekleyen kart sayısını, bugünkü payı biten alıştırma yeşil
+  bir noktayı gösterir.
 - **Gemini kullanımı:** bugünkü istek ve token sayısı ile son bir hafta, anahtarın yanında.
 - **Bugünün planı ve hafta.** Her gün: bekleyen kartlar, 5 dinleme cümlesi ve bir konuşma; haftada iki yazı ve iki okuma.
   Eklenti penceresi neyin kaldığını gösterir ve sıradakini açar; İlerleme sayfası son yedi günü gün gün, toplamları

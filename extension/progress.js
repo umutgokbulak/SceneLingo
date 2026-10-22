@@ -115,9 +115,8 @@ chrome.storage.sync.get(SL_DEFAULTS, (stored) => {
   settings = { ...SL_DEFAULTS, ...stored };
   document.documentElement.lang = slSetUiLang(settings.uiLang);
   slApply(document);
+  slNav('today');
   document.title = slT('progressTitle') + ' — SceneLingo';
-  $('toReview').append(slIcon('cards'), el('span', 't', slT('reviewTitle')));
-  $('toWords').append(slIcon('search'), el('span', 't', slT('wordsTitle')));
   // The goals of today's plan, each a choice; the plan follows at once.
   const box = $('goals');
   for (const [key, label, options] of GOALS) {

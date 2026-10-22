@@ -603,8 +603,6 @@ $('add').addEventListener('submit', (e) => {
   e.preventDefault();
   addWord();
 });
-$('study').addEventListener('click', () => (location.href = chrome.runtime.getURL('review.html')));
-$('progress').addEventListener('click', () => (location.href = chrome.runtime.getURL('progress.html')));
 $('searchIcon').append(icon('search'));
 $('q').addEventListener('input', () => {
   filter.q = $('q').value.trim();
@@ -631,12 +629,11 @@ chrome.storage.sync.get(SL_DEFAULTS, (stored) => {
   settings = { ...SL_DEFAULTS, ...stored };
   document.documentElement.lang = slSetUiLang(settings.uiLang);
   slApply(document);
+  slNav('words');
   document.title = slT('wordsTitle') + ' — SceneLingo';
   // Words on the page only once the language of the interface is known.
   $('backup').append(icon('download'), slT('backupNow'));
   $('restore').append(icon('upload'), slT('restoreBackup'));
-  $('study').append(icon('cards'), slT('studyNow'));
-  $('progress').append(icon('chart'), slT('planTitle'));
   $('addGo').append(icon('plus'), slT('addButton'));
   ask({ type: 'gemini-key' }).then((res) => ($('addHint').textContent = slT(res.ok && res.result ? 'addHintGemini' : 'addHint', slLangName(settings.learnLang))));
   $('q').placeholder = slT('searchPh');

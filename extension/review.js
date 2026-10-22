@@ -815,12 +815,6 @@ $('countIt').addEventListener('click', () => {
 $('editBtn').append(icon('edit'));
 $('editBtn').addEventListener('click', () => revealed && paintEdit());
 $('removeBtn').addEventListener('click', removeClicked);
-$('allWords').append(icon('cards'));
-$('toListen').append(icon('headphones'));
-$('toSpeak').append(icon('mic'));
-$('toRead').append(icon('book'));
-$('toWrite').append(icon('edit'));
-$('toProgress').append(icon('chart'));
 $('gear').append(icon('sliders'));
 $('gear').addEventListener('click', () => {
   const menu = $('gearMenu');
@@ -847,6 +841,7 @@ chrome.storage.sync.get(SL_DEFAULTS, (stored) => {
   settings = { ...SL_DEFAULTS, ...stored };
   document.documentElement.lang = slSetUiLang(settings.uiLang);
   slApply(document);
+  slNav('review');
   document.title = slT('reviewTitle') + ' — SceneLingo';
   ask({ type: 'gemini-key' }).then((res) => {
     geminiKey = res.ok ? res.result : '';

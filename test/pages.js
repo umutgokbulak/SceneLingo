@@ -216,6 +216,10 @@ function days() {
     await b.open(b.extensionPage('review.html'));
     await wait(1200);
     assert.match(await page(`$('#left').textContent`), /^6 /, 'four cards due, and the two new ones');
+    // every page has the same tabs to the others: here the review's, with the cards waiting
+    assert.equal(await page(`[...document.querySelectorAll('.sl-tab')].map((t) => t.getAttribute('href')).join()`), 'progress.html,review.html,words.html,listen.html,speak.html,read.html,write.html');
+    assert.equal(await page(`$('.sl-tab.on').getAttribute('href')`), 'review.html');
+    assert.equal(await page(`$('.sl-tab.on .sl-badge').textContent`), '6');
     // 1. learn: recognised; the sentence shows without "[Proog]"-like notes, and the answer opens
     assert.match(await page(`$('#top').textContent`), /TANI|Tanı/i);
     await b.named('Space', 32);

@@ -21,6 +21,7 @@ const SL_ICONS = {
   stop: '<rect x="7" y="7" width="10" height="10" rx="2"/>',
   back: '<path d="M15 6l-6 6 6 6"/>',
   book: '<path d="M12 6.5C10 5 7 4.5 4 5v13c3-.5 6 0 8 1.5 2-1.5 5-2 8-1.5V5c-3-.5-6 0-8 1.5z"/><path d="M12 6.5v13"/>',
+  list: '<path d="M9 6h11M9 12h11M9 18h11"/><path d="M4.5 6h.01M4.5 12h.01M4.5 18h.01"/>',
   flame: '<path d="M12 3c1 3.5 5 5.5 5 10a5 5 0 0 1-10 0c0-2.2 1.2-3.6 2.4-4.6.3 1.6 1.1 2.6 2.1 3.1C11 9 11.2 5.8 12 3z"/>',
 };
 function slIcon(name) {
@@ -43,6 +44,77 @@ function slAgo(ts) {
 function slSourceName(title) {
   const m = /^([^:]{2,40}):\s+(.+)$/.exec(title || '');
   return m ? m[2] + ' · ' + m[1] : title || '';
+}
+
+// ---------- the pages' navigation ----------
+
+// Every page of the extension's own, one tab each: on top of the page, and on a phone a bar at its
+// foot. The review's tab says how many cards are waiting; a practice whose part of today's plan is
+// done has a dot.
+const SL_NAV = [
+  ['today', 'progress.html', 'chart', 'navToday'],
+  ['review', 'review.html', 'cards', 'navReview'],
+  ['words', 'words.html', 'list', 'navWords'],
+  null,
+  ['listen', 'listen.html', 'headphones', 'navListen'],
+  ['speak', 'speak.html', 'mic', 'navSpeak'],
+  ['read', 'read.html', 'book', 'navRead'],
+  ['write', 'write.html', 'edit', 'navWrite'],
+];
+function slNav(here) {
+  const nav = document.createElement('nav');
+  nav.className = 'sl-nav';
+  const logo = document.createElement('a');
+  logo.className = 'sl-logo';
+  logo.href = 'progress.html';
+  const img = document.createElement('img');
+  img.src = 'icons/48.png';
+  img.alt = '';
+  logo.append(img, 'SceneLingo');
+  const tabs = document.createElement('div');
+  tabs.className = 'sl-tabs';
+  const byId = {};
+  for (const item of SL_NAV) {
+    if (!item) {
+      tabs.append(Object.assign(document.createElement('span'), { className: 'sl-sep' }));
+      continue;
+    }
+    const [id, page, icon, label] = item;
+    const tab = document.createElement('a');
+    tab.className = 'sl-tab' + (id === here ? ' on' : '');
+    tab.href = page;
+    if (id === here) tab.setAttribute('aria-current', 'page');
+    const name = document.createElement('span');
+    name.textContent = slT(label);
+    tab.append(slIcon(icon), name);
+    byId[id] = tab;
+    tabs.append(tab);
+  }
+  nav.append(logo, tabs);
+  document.querySelector('.app').prepend(nav);
+  document.body.classList.add('sl-tabbed');
+
+  const paint = () =>
+    chrome.storage.sync.get(SL_DEFAULTS, (settings) =>
+      chrome.storage.local.get({ words: [], reviewLog: {} }, (data) => {
+        const plan = slTodayPlan(data.words, data.reviewLog || {}, Date.now(), settings.newPerDay, slGoals(settings));
+        for (const step of [...plan.steps, ...plan.week]) {
+          const tab = byId[step.id];
+          if (!tab) continue;
+          tab.classList.toggle('done', step.done && (step.id !== 'review' || data.words.length > 0));
+          let badge = tab.querySelector('.sl-badge');
+          const n = step.id === 'review' ? step.left : 0;
+          if (!n) badge && badge.remove();
+          else {
+            if (!badge) tab.append((badge = Object.assign(document.createElement('b'), { className: 'sl-badge' })));
+            badge.textContent = n > 99 ? '99+' : String(n);
+          }
+        }
+      })
+    );
+  paint();
+  document.addEventListener('visibilitychange', () => document.visibilityState === 'visible' && paint());
+  if (chrome.storage.onChanged) chrome.storage.onChanged.addListener((changes) => (changes.words || changes.reviewLog) && paint());
 }
 
 // ---------- today's plan ----------

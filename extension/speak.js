@@ -554,10 +554,9 @@ chrome.storage.sync.get(SL_DEFAULTS, (stored) => {
   settings = { ...SL_DEFAULTS, ...stored };
   document.documentElement.lang = slSetUiLang(settings.uiLang);
   slApply(document);
+  slNav('speak');
   document.title = slT('speakTitle') + ' — SceneLingo';
   $('toHome').append(slIcon('back'), el('span', 't', slT('practiceHome')));
-  $('toReview').append(slIcon('cards'), el('span', 't', slT('reviewTitle')));
-  $('toWords').append(slIcon('search'), el('span', 't', slT('wordsTitle')));
   for (const id of ['examMic', 'talkMic']) {
     $(id).append(slIcon('mic'));
     $(id).title = slT('speakStart') + ' (Ctrl+Space)';
