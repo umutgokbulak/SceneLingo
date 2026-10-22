@@ -125,3 +125,8 @@ kbd { display: inline-block; min-width: 22px; padding: 0 6px; border-radius: 6px
   body.sl-tabbed { padding-bottom: calc(61px + env(safe-area-inset-bottom)); }
   body.sl-tabbed .actions { bottom: calc(61px + env(safe-area-inset-bottom)); }
 }
+
+/* German nouns: der, die, das in colours of their own */
+.g-m { color: var(--accent-text); }
+.g-f { color: var(--red); }
+.g-n { color: var(--green); }

@@ -91,7 +91,14 @@ require('./server.js'); // serves test/netflix.html
     await page(`(document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', code: 'Escape', bubbles: true })), true)`);
     await wait(200);
     assert.ok(await page(`ui.menu.hidden && !ui.gearBtn.classList.contains('sl-on')`), 'Escape closes it');
-    console.log('Netflix (stood in for) works, and so do the words of the episode and the settings');
+    // German: nouns in the middle of a sentence underlined in the colour of der, die or das; the
+    // first word of a sentence and words that are not nouns left alone
+    await page(`(fetch('/extension/freq/de-nouns.txt').then((r) => r.text()).then((t) => (deNouns = slNounList(t))), true)`);
+    await wait(500);
+    const marked = await page(`(() => { const d = document.createElement('div'); fillWords(d, 'Haus? Ich habe die Rechnung für das Kinderzimmer, und der Mann schläft.', 'de'); return [...d.querySelectorAll('.sl-word')].filter((w) => /sl-g/.test(w.className)).map((w) => w.textContent + ':' + w.className.match(/sl-g(.)/)[1]); })()`);
+    assert.deepEqual(marked, ['Rechnung:f', 'Kinderzimmer:n', 'Mann:m'], 'German nouns by gender: ' + JSON.stringify(marked));
+    assert.equal(await page(`(() => { settings.nounColors = false; const d = document.createElement('div'); fillWords(d, 'Ich habe die Rechnung.', 'de'); return d.querySelectorAll('[class*="sl-g"]').length; })()`), 0, 'not when switched off');
+    console.log('Netflix (stood in for) works, and so do the words of the episode, the settings and German nouns');
   } finally {
     await b.close();
   }

@@ -298,6 +298,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   else if (msg && msg.type === 'speak-feedback') job = speakingFeedback(msg);
   else if (msg && msg.type === 'roleplay') job = roleplay(msg);
   else if (msg && msg.type === 'episode-words') job = episodeWords(msg);
+  else if (msg && msg.type === 'de-nouns') job = freqText('de-nouns.txt'); // German nouns, for the content script
   else if (msg && msg.type === 'episode-gloss') job = episodeGloss(msg);
   else if (msg && msg.type === 'episode-quiz') job = episodeQuiz(msg);
   else if (msg && msg.type === 'ielts-writing') job = ieltsWriting(msg);
@@ -366,20 +367,19 @@ paintBadge().catch(() => {});
 if (typeof importScripts === 'function') importScripts('episode.js');
 else Object.assign(globalThis, require('./episode.js'));
 const rankLists = new Map(); // language -> its list, as word -> rank
+// A file of freq/, as text ('' if there is none).
+function freqText(name) {
+  if (typeof importScripts === 'function') return fetch(chrome.runtime.getURL('freq/' + name)).then((r) => (r.ok ? r.text() : ''), () => '');
+  return Promise.resolve().then(() => {
+    try {
+      return require('fs').readFileSync(require('path').join(__dirname, 'freq', name), 'utf8');
+    } catch (e) {
+      return '';
+    }
+  });
+}
 function ranksFor(lang) {
-  if (!rankLists.has(lang)) {
-    const text =
-      typeof importScripts === 'function'
-        ? fetch(chrome.runtime.getURL('freq/' + lang + '.txt')).then((r) => (r.ok ? r.text() : ''), () => '')
-        : Promise.resolve().then(() => {
-            try {
-              return require('fs').readFileSync(require('path').join(__dirname, 'freq', lang + '.txt'), 'utf8');
-            } catch (e) {
-              return '';
-            }
-          });
-    rankLists.set(lang, text.then(slRanks));
-  }
+  if (!rankLists.has(lang)) rankLists.set(lang, freqText(lang + '.txt').then(slRanks));
   return rankLists.get(lang);
 }
 async function episodeWords({ lines, lang, level, known }) {

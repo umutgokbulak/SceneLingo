@@ -41,7 +41,7 @@
   flashcards that come back on a schedule.
 - **Where:** Amazon Prime Video, Netflix, YouTube, and any site whose subtitles can be found from outside the page
   (TED, Vimeo's player and Wikimedia Commons were checked) — or any video at all, with a subtitle file of your own.
-- **How it is built:** Manifest V3, plain JavaScript, no dependencies and no build step; 115 unit tests, a
+- **How it is built:** Manifest V3, plain JavaScript, no dependencies and no build step; 118 unit tests, a
   stand-in player for everything that can be tested without a site, and a script that loads the real extension
   into a real browser for what cannot.
 
@@ -126,6 +126,11 @@ them), plyr.io, Vimeo's player, Wikimedia Commons and a YouTube player embedded 
 - **One bar to every page:** today, the review, the words and the four kinds of practice, one tab each, at the
   top of every page (on a phone, at the foot of the screen); the review's tab says how many cards are waiting,
   and a practice done for today has a green dot.
+- **German nouns with der, die, das.** In German subtitles, nouns are underlined in the colour of their gender
+  (der blue, die red, das green). A noun's card shows its article and plural, from any of its forms ("Häusern"
+  is das Haus); a compound not in the list takes the gender of its last part. Saved nouns are listed and
+  reviewed with their article, and the review asks for it first: der, die or das? A typed answer with the
+  wrong article counts as nearly right. No key needed: a list of 6,000 nouns comes with the extension.
 - **Gemini's use, counted:** today's requests and tokens, and the last week, beside the key.
 - **Today's plan, and the week.** Each day asks for the cards that are due, five sentences listened to and one
   conversation or spoken answer; the week, two texts written and two read. The popup shows what is left and opens what is next; a
@@ -162,9 +167,9 @@ them), plyr.io, Vimeo's player, Wikimedia Commons and a YouTube player embedded 
 | --- | --- |
 | ![An IELTS Part 1 answer with its estimated band, 6.5, and the four criteria; under them a mistake put right and a band 8 answer](docs/screenshots/ielts-speaking.jpg) | ![A conversation at a café: the waiter's turns with a button to hear them and their meaning, the learner's turn, and under it the same said better, with a star to save it](docs/screenshots/conversation.jpg) |
 
-| An episode's words | |
+| An episode's words | German nouns |
 | --- | --- |
-| ![The list beside the film on its Words tab: the words of the film a B1 learner may not know yet, each with how often it comes, its Turkish meaning, a button to its line and a star](docs/screenshots/episode-words.jpg) | |
+| ![The list beside the film on its Words tab: the words of the film a B1 learner may not know yet, each with how often it comes, its Turkish meaning, a button to its line and a star](docs/screenshots/episode-words.jpg) | ![A German subtitle with its nouns underlined by gender: Rechnung in red, Kinderzimmer in green, Mann and Bahnhof in blue; the Turkish line under it](docs/screenshots/german-nouns.jpg) |
 
 | Progress | IELTS Writing |
 | --- | --- |
@@ -362,6 +367,7 @@ npm run pictures:pages  # the pictures of the review page and the list of words
 | `extension/inject.js`, `youtube.js`, `netflix.js` | Page-world scripts that find the subtitle tracks on Prime Video, YouTube and Netflix |
 | `extension/subtitles.js` | Reading subtitle files; finding the subtitles of a video on a site that is not known |
 | `extension/episode.js`, `freq/` | An episode's words to learn: how common each word is in film subtitles (lists under CC BY-SA 4.0, see `freq/README.md`) |
+| `extension/nouns.js`, `freq/de-nouns.txt` | German nouns: gender and plural, of a word in any of its forms or of a compound (`test/nouns.py` makes the list) |
 | `extension/overlay-*.js`, `content.js` | The overlay, one content script in eight files loaded in order: its state (`overlay-base`), the tracks and their translation (`-tracks`), the lines kept in step with the picture and playback (`-lines`), the word card (`-words`), writing and speaking practice (`-practice`), the bar, its menu and the list of lines (`-ui`), the list's tabs of the episode's words and questions (`-episode`); `content.js` listens and starts it |
 | `extension/read.*`, `reading.js` | Reading practice: the page, and the test Gemini writes put in order, marked and turned into a band |
 | `extension/core.js` | Pure logic: subtitle and playlist formats, cue search and alignment, word matching, time-stretch |

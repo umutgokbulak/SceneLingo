@@ -23,6 +23,7 @@ const SL_DEFAULTS = {
   hoverPause: true,
   newPerDay: 15, // new cards a day in review
   wordLevel: 'B1', // the level an episode's words to learn are chosen for
+  nounColors: true, // German nouns in the subtitles underlined in the colour of der, die or das
   goalListen: 5, // today's plan: sentences listened to a day,
   goalSpeak: 1, // conversations or spoken answers a day,
   goalWrite: 2, // texts written a week,

@@ -18,6 +18,15 @@ let hintLevel = 0; // letters (or words, in a sentence) shown as a hint
 let finished = 0;
 let geminiKey = ''; // shown form only: whether there is a key
 let answerInput = null;
+let deNouns = null; // German nouns with their gender, once loaded (nouns.js)
+let articleAsk = null; // a German noun's article, asked on the front of its card: { noun, picked }
+
+// A saved German noun, as said with its article: { article, lemma, plural, g }, or null.
+function nounOf(item) {
+  if (!deNouns || (item.lang || settings.learnLang) !== 'de' || slKindOf(item) !== 'word') return null;
+  const n = slNounText(slNoun(deNouns, item.word));
+  return n && n.lemma.toLowerCase() === item.word.trim().toLowerCase() ? n : null;
+}
 const audio = new Audio();
 
 // ---------- small things ----------
@@ -91,18 +100,28 @@ function ipaOf(item) {
 }
 
 // The word, big, with its pronunciation and its two voices beside it.
-function headword(item) {
+// `askArticle`: a German noun's article left as a gap, to be chosen.
+function headword(item, askArticle) {
   const box = el('div', 'head');
   const text = itemText(item);
   const term = el('div', 'term', text);
   term.classList.toggle('long', text.length > 28);
+  // A German noun is learnt with its article, in the colour of its gender, and heard with it.
+  const noun = nounOf(item);
+  if (noun) term.prepend(askArticle ? el('span', 'art-gap', '___ ') : el('span', 'g-' + noun.g, noun.article + ' '));
   box.append(term);
   const ipa = ipaOf(item);
   if (ipa && slKindOf(item) !== 'sentence') box.append(el('span', 'ipa', ipa));
+  if (noun && noun.plural && !noun.pluralOnly) {
+    const plural = el('span', 'ipa plural', slT('plural') + ' ' + noun.plural);
+    plural.hidden = !!askArticle; // shown with the article: "die Rechnungen" would give it away
+    box.append(plural);
+  }
   const lang = voiceOf(item);
-  const listen = btn(icon('speaker'), () => speakText(text, lang, false), 'round');
+  const said = noun ? noun.article + ' ' + text : text;
+  const listen = btn(icon('speaker'), () => speakText(said, lang, false), 'round');
   listen.title = slT('reviewListen') + ' (R)';
-  const slow = btn('0.7×', () => speakText(text, lang, true), 'round slow');
+  const slow = btn('0.7×', () => speakText(said, lang, true), 'round slow');
   slow.title = slT('reviewSlow');
   const say = el('span', 'say');
   say.append(listen, slow);
@@ -157,10 +176,14 @@ function paintFront() {
   const front = $('front');
   front.textContent = '';
   answerInput = null;
+  articleAsk = null;
   const item = current;
   const add = (...nodes) => front.append(...nodes.filter(Boolean));
   if (type === 'recognize') {
-    add(headword(item), contextLine(item), sourceLine(item));
+    // A German noun of one gender: der, die or das, asked before its meaning.
+    const noun = nounOf(item);
+    articleAsk = noun && noun.g && !noun.article.includes('/') ? { noun, picked: null } : null;
+    add(headword(item, !!articleAsk), articleAsk && articleRow(), contextLine(item), sourceLine(item));
     return;
   }
   if (type === 'cloze') {
@@ -203,6 +226,39 @@ function paintFront() {
     }
   });
   setTimeout(() => answerInput && answerInput.focus(), 0);
+}
+
+// Der, die or das: three buttons (and the keys 1, 2, 3 while the card is not yet turned).
+function articleRow() {
+  const row = el('div', 'artask');
+  row.append(el('span', null, slT('askArticle')));
+  ['der', 'die', 'das'].forEach((a, i) => {
+    const b = btn([a, el('kbd', null, String(i + 1))], () => pickArticle(a), 'btn small');
+    b.dataset.a = a;
+    row.append(b);
+  });
+  return row;
+}
+
+function pickArticle(a) {
+  if (!articleAsk || articleAsk.picked) return;
+  articleAsk.picked = a;
+  const { noun } = articleAsk;
+  for (const b of $('front').querySelectorAll('.artask button')) {
+    b.disabled = true;
+    b.classList.toggle('right', b.dataset.a === noun.article);
+    b.classList.toggle('wrong', b.dataset.a === a && a !== noun.article);
+  }
+  showArticle();
+  speakText(noun.article + ' ' + noun.lemma, voiceOf(current), false);
+}
+
+// The gap filled with the article, in its colour.
+function showArticle() {
+  const gap = $('front').querySelector('.art-gap');
+  if (gap && articleAsk) gap.replaceWith(el('span', 'g-' + articleAsk.noun.g, articleAsk.noun.article + ' '));
+  const plural = $('front').querySelector('.plural');
+  if (plural) plural.hidden = false;
 }
 
 // Saying the answer instead of typing it.
@@ -719,15 +775,27 @@ function showEmpty() {
 // The answer: shown (a recalled card) or checked (a typed one).
 function check() {
   if (!current || revealed) return;
+  showArticle();
   if (type !== 'recognize') {
     const typed = answerInput ? answerInput.value : '';
     if (slKindOf(current) === 'sentence') {
       const score = slSentenceScore(slCleanLine(current.word), typed, SubtitleCore.matchWords);
       verdict = score >= 0.9 ? 'right' : score >= 0.6 ? 'close' : 'wrong';
-    } else verdict = slCheckAnswer(typed, slAccepted(current, type));
+    } else verdict = slCheckAnswer(typed.replace(/^\s*(der|die|das)\s+/i, ''), slAccepted(current, type));
+    // A German noun typed with the wrong article: the word is known, its article not yet.
+    const noun = type === 'produce' ? nounOf(current) : null;
+    const article = (/^\s*(der|die|das)\s+/i.exec(typed) || [])[1];
+    const wrongArticle = !!noun && !!article && verdict !== 'wrong' && !noun.article.split('/').includes(article.toLowerCase());
+    if (wrongArticle) verdict = 'close';
     if (answerInput) answerInput.disabled = true;
-    const shown = slKindOf(current) === 'sentence' ? slCleanLine(current.word) : slAccepted(current, type)[0];
-    const text = verdict === 'right' ? '✓ ' + slT('verdictRight') : verdict === 'close' ? '≈ ' + slT('verdictClose') : '✗ ' + slT('verdictWrong', shown);
+    const shown = slKindOf(current) === 'sentence' ? slCleanLine(current.word) : noun ? noun.article + ' ' + noun.lemma : slAccepted(current, type)[0];
+    const text = wrongArticle
+      ? '≈ ' + slT('verdictArticle', shown)
+      : verdict === 'right'
+        ? '✓ ' + slT('verdictRight')
+        : verdict === 'close'
+          ? '≈ ' + slT('verdictClose')
+          : '✗ ' + slT('verdictWrong', shown);
     $('front').append(el('div', 'verdict ' + verdict, text));
     speakText(itemText(current), voiceOf(current), false);
   }
@@ -828,13 +896,19 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') $('gearMenu').hidden = true;
   if (e.ctrlKey || e.metaKey || e.altKey || !current) return;
   if (/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement && document.activeElement.tagName)) return;
-  if (!revealed && (e.code === 'Space' || e.code === 'Enter')) check();
+  if (!revealed && articleAsk && !articleAsk.picked && /^(Digit|Numpad)[123]$/.test(e.code)) pickArticle(['der', 'die', 'das'][+e.code.slice(-1) - 1]);
+  else if (!revealed && (e.code === 'Space' || e.code === 'Enter')) check();
   else if (e.code === 'KeyR') speak(false);
   else if (revealed && (e.code === 'Digit1' || e.code === 'Numpad1')) grade('again');
   else if (revealed && (e.code === 'Digit2' || e.code === 'Numpad2')) grade('good');
   else if (revealed && (e.code === 'Digit3' || e.code === 'Numpad3')) grade('easy');
   else return;
   e.preventDefault();
+});
+
+slNouns().then((list) => {
+  deNouns = list;
+  if (current && type === 'recognize' && !revealed && nounOf(current)) paintFront();
 });
 
 chrome.storage.sync.get(SL_DEFAULTS, (stored) => {

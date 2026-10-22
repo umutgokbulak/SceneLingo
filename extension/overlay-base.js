@@ -44,6 +44,7 @@ const waiting = () => slT({ prime: 'waitPrime', youtube: 'waitYoutube', netflix:
 
 let settings = { ...SL_DEFAULTS };
 let savedWords = new Set();
+let deNouns = null; // German nouns with their gender, once loaded (nouns.js)
 let tracks = [];
 let fileTracks = []; // subtitle files the user opened; they stay when the page's own tracks change
 let emptyNote = ''; // why there are no tracks, when the site has said so

@@ -22,22 +22,42 @@ function segmenter(lang) {
 function fillWords(line, text, lang) {
   line.textContent = '';
   const seg = segmenter(lang);
+  const nouns = lang === 'de' && settings.nounColors ? germanNouns() : null;
   text.split('\n').forEach((row, r) => {
     if (r) line.appendChild(document.createElement('br'));
     const parts = seg
       ? Array.from(seg.segment(row), (s) => [s.segment, s.isWordLike])
       : row.split(/([\p{L}\p{M}\p{N}'’]+)/u).map((s, i) => [s, i % 2 === 1]);
+    let starts = true; // a sentence begins here: its first word has a capital whatever it is
     for (const [str, isWord] of parts) {
       if (!str) continue;
       if (!isWord) {
         line.appendChild(document.createTextNode(str));
+        if (/[.!?…:"„“»«–—-]/.test(str)) starts = true;
         continue;
       }
       const w = el('span', 'sl-word', str);
       if (savedWords.has(str.toLowerCase())) w.classList.add('sl-saved');
+      // German nouns, written with a capital in the middle of a sentence, in the colour of their gender.
+      if (nouns && !starts && /^\p{Lu}\p{Ll}/u.test(str)) {
+        const n = slNounText(slNoun(nouns, str));
+        if (n && n.g) w.classList.add('sl-g' + n.g);
+      }
+      starts = false;
       line.appendChild(w);
     }
   });
+}
+
+// The German nouns, asked for when they are first wanted; the line on screen is drawn again once
+// they are there.
+function germanNouns() {
+  if (deNouns) return deNouns;
+  slNouns().then((list) => {
+    deNouns = list;
+    shown = { idx: -2, sec: null };
+  });
+  return null;
 }
 
 function showCue(idx, sec) {

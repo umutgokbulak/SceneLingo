@@ -115,6 +115,7 @@ function playerButton() {
 
 function applySettings(keys) {
   if (keys.includes('uiLang')) rebuild();
+  if (keys.includes('nounColors')) shown = { idx: -2, sec: null };
   if (SITE === 'youtube') playerButton();
   if (practice && (practice.mode !== settings.mode || !settings.enabled)) closePractice(false);
   if (settings.mode !== 'speak') releaseMic();
@@ -455,7 +456,7 @@ function buildUI() {
   );
   pages.card.append(row(slT('hoverPause'), check('hoverPause'), 'label'), row(slT('hoverLookup'), check('hoverLookup'), 'label'), row(slT('autoSpeak'), check('autoSpeak'), 'label'), geminiRow, geminiNote);
   pages.sound.append(accentRow, row(slT('volume'), vol), boostRow, boostNote);
-  pages.look.append(row(slT('fontSize'), size.wrap), row(slT('position'), pos.wrap), el('div', 'sl-mhead', slT('keysTitle')), keys);
+  pages.look.append(row(slT('fontSize'), size.wrap), row(slT('position'), pos.wrap), row(slT('nounColors'), check('nounColors'), 'label'), el('div', 'sl-mhead', slT('keysTitle')), keys);
   const menuFoot = el('div', 'sl-mfoot');
   menuFoot.append(reviewBtn, traceBtn);
   menu.append(menuTop, statusEl, menuTabs, ...Object.values(pages), menuFoot);

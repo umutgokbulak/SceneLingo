@@ -178,6 +178,13 @@
     const meaning = reversed ? text : info.translation;
     const learntLang = reversed ? tl : sl;
     if (reversed) body.append(el('div', 'sl-sel-note', slT('selectIn', slLangName(tl))));
+    // A German noun: its article, in the colour of its gender, and its plural.
+    if (learntLang === 'de' && typeof slNouns === 'function' && !/\s/.test(learnt.trim())) {
+      const n = slNounText(slNoun(await slNouns(), learnt));
+      if (mine !== token) return;
+      if (n && !reversed && n.lemma.toLowerCase() === learnt.trim().toLowerCase()) word.prepend(el('span', 'sl-sel-art sl-g' + n.g, n.article + ' '));
+      if (n) ipa.append(el('span', 'sl-sel-plural', (n.lemma.toLowerCase() === learnt.trim().toLowerCase() ? '' : n.article + ' ' + n.lemma + ' · ') + (n.plural && !n.pluralOnly ? slT('plural') + ' ' + n.plural : '')));
+    }
     body.append(el('div', 'sl-sel-main', info.translation || '—'));
     const labelled = (label, value) => {
       const line = el('div', 'sl-sel-line');
@@ -354,6 +361,11 @@
     .sl-sel-x:hover { color: #fff; }
     .sl-sel-ipa { display: block; color: #8b949e; font-size: 13px; }
     .sl-sel-ipa:empty { display: none; }
+    .sl-sel-art.sl-gm { color: #5ba4ff; }
+    .sl-sel-art.sl-gf { color: #ff6b6b; }
+    .sl-sel-art.sl-gn { color: #4cc968; }
+    .sl-sel-plural { margin-left: 8px; }
+    .sl-sel-plural:first-child { margin-left: 0; }
     .sl-sel-btns { display: flex; gap: 6px; margin: 8px 0; flex-wrap: wrap; }
     .sl-sel-btn {
       font: inherit; font-size: 12px; color: #e6edf3; background: #21262d; border: 1px solid #30363d;

@@ -144,7 +144,11 @@ function row(item) {
 
   const w = el('div', 'w');
   const top = el('div', 'top');
-  top.append(el('b', kind === 'sentence' ? 'sentence' : null, itemText(item)));
+  const word = el('b', kind === 'sentence' ? 'sentence' : null, itemText(item));
+  // A German noun with its article, in the colour of its gender.
+  const noun = deNouns && (item.lang || 'en') === 'de' && kind === 'word' ? slNounText(slNoun(deNouns, item.word)) : null;
+  if (noun && noun.lemma.toLowerCase() === item.word.trim().toLowerCase()) word.prepend(el('span', 'g-' + noun.g, noun.article + ' '));
+  top.append(word);
   const ipa = item.extra && item.extra.ipa ? item.extra.ipa : item.ipa ? '/' + item.ipa + '/' : '';
   if (ipa && kind !== 'sentence') top.append(el('span', 'ipa', ipa));
   if (kind !== 'word') top.append(el('span', 'chip', slT(KIND_LABEL[kind])));
@@ -623,6 +627,13 @@ chrome.storage.onChanged.addListener((changes, area) => {
   if (changes.words) words = changes.words.newValue || [];
   if (changes.words || changes.lastBackup) render();
   if (changes.cloudEmail || changes.lastSync || changes.cloudError) paintCloud();
+});
+
+// German nouns, for their articles: the list is drawn again once they are there.
+let deNouns = null;
+slNouns().then((list) => {
+  deNouns = list;
+  if (words.some((w) => w.lang === 'de')) render();
 });
 
 chrome.storage.sync.get(SL_DEFAULTS, (stored) => {

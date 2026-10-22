@@ -77,6 +77,11 @@ yazdım, çalışırken ihtiyaç duyduklarımı ekledim, sonra onu izlediğim di
 - **Her sayfaya tek çubuktan geçiş:** Bugün, tekrar, kelimeler ve dört alıştırma, her sayfanın üstünde birer
   sekme (telefonda ekranın altında); tekrar sekmesi bekleyen kart sayısını, bugünkü payı biten alıştırma yeşil
   bir noktayı gösterir.
+- **Almanca isimler der, die, das ile.** Almanca altyazıda isimlerin altı artikelinin rengiyle çizilir (der mavi,
+  die kırmızı, das yeşil). Kelime kartı artikeli ve çoğulu gösterir, kelimenin hangi hâli olursa olsun
+  ("Häusern" → das Haus); listede olmayan bileşik isim son parçasının artikelini alır. Kaydedilen isimler
+  listede ve tekrarda artikeliyle görünür; tekrar önce artikeli sorar: der mi, die mi, das mı? Yazarak cevapta
+  artikel yanlışsa "neredeyse" sayılır. Anahtar gerekmez: 6.000 isimlik liste eklentinin içinde.
 - **Gemini kullanımı:** bugünkü istek ve token sayısı ile son bir hafta, anahtarın yanında.
 - **Bugünün planı ve hafta.** Her gün: bekleyen kartlar, 5 dinleme cümlesi ve bir konuşma; haftada iki yazı ve iki okuma.
   Eklenti penceresi neyin kaldığını gösterir ve sıradakini açar; İlerleme sayfası son yedi günü gün gün, toplamları
@@ -109,9 +114,9 @@ yazdım, çalışırken ihtiyaç duyduklarımı ekledim, sonra onu izlediğim di
 | --- | --- |
 | ![IELTS cevabı, tahmini band ve dört ölçüt, düzeltmeler ve band 8 cevap](docs/screenshots/ielts-speaking.jpg) | ![Kafede konuşma: garsonun cümleleri, senin cevabın ve altında daha iyi hâli](docs/screenshots/conversation.jpg) |
 
-| Bölümün kelimeleri | |
+| Bölümün kelimeleri | Almanca isimler |
 | --- | --- |
-| ![Filmin yanındaki listenin Kelimeler sekmesi: B1 seviyesinde bilinmeyebilecek kelimeler, anlamları, satıra git ve yıldız](docs/screenshots/episode-words.jpg) | |
+| ![Filmin yanındaki listenin Kelimeler sekmesi: B1 seviyesinde bilinmeyebilecek kelimeler, anlamları, satıra git ve yıldız](docs/screenshots/episode-words.jpg) | ![İsimlerin altı artikel rengiyle çizilmiş bir Almanca altyazı: Rechnung kırmızı, Kinderzimmer yeşil, Mann ve Bahnhof mavi](docs/screenshots/german-nouns.jpg) |
 
 | İlerleme | IELTS Writing |
 | --- | --- |
@@ -181,7 +186,7 @@ saat okuyup yazmasına yeter. Kurulum adımları [İngilizce README](README.md#s
 
 ## Nasıl yapıldı
 
-Manifest V3, yalın JavaScript; bağımlılık ve derleme adımı yok. 115 birim testi, site olmadan denenebilen her şey
+Manifest V3, yalın JavaScript; bağımlılık ve derleme adımı yok. 118 birim testi, site olmadan denenebilen her şey
 için oynatıcıyı taklit eden bir test sayfası ve gerisi için eklentiyi gerçek bir tarayıcıya yükleyip yöneten bir
 betik var. Altyazıların sitelerde nasıl bulunduğu, iki altyazı izinin nasıl eşleştirildiği ve yolda çıkan
 sorunlar [İngilizce README](README.md#engineering-notes)'de anlatılıyor.

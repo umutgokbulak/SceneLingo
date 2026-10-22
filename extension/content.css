@@ -1207,3 +1207,13 @@ html.sl-hide-native video::-webkit-media-text-track-container {
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
+
+/* German nouns: der blue, die red, das green, as learners of German colour them */
+#scenelingo-root .sl-word.sl-gm { text-decoration: underline 2px rgba(91, 164, 255, 0.85); text-underline-offset: 5px; }
+#scenelingo-root .sl-word.sl-gf { text-decoration: underline 2px rgba(255, 107, 107, 0.85); text-underline-offset: 5px; }
+#scenelingo-root .sl-word.sl-gn { text-decoration: underline 2px rgba(76, 201, 104, 0.85); text-underline-offset: 5px; }
+#scenelingo-root .sl-pop-art { font-size: 18px; font-weight: 700; }
+#scenelingo-root .sl-pop-art.sl-gm { color: #5ba4ff; }
+#scenelingo-root .sl-pop-art.sl-gf { color: #ff6b6b; }
+#scenelingo-root .sl-pop-art.sl-gn { color: #4cc968; }
+#scenelingo-root .sl-pop-plural { flex-basis: 100%; font-size: 13px; color: #8fa3b5; }

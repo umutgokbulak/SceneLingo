@@ -11,3 +11,9 @@ is; the rest of SceneLingo is under the MIT license.
 
 SceneLingo uses them to find, in an episode's subtitles, the words a learner at a given level is not likely
 to know yet (`extension/episode.js`).
+
+`de-nouns.txt` holds the German nouns among those words, about 6,000, with their gender and plural, and the
+forms of them that point back to them (`=Häuser<TAB>Haus`). It is made by `test/nouns.py` from
+[german-nouns](https://github.com/gambolputty/german-nouns) by gambolputty, compiled from the German
+Wiktionary, and is licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) as that is.
+SceneLingo uses it to give German nouns their article (`extension/nouns.js`).

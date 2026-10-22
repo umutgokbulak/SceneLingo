@@ -479,6 +479,21 @@ function days() {
     assert.deepEqual(await b.worker(`remind().then(() => new Promise((r) => chrome.notifications.getAll(r))).then((n) => Object.keys(n))`), ['remind']);
     await b.worker(`chrome.storage.sync.set({ remindOn: false })`);
 
+    // ---- German nouns: der, die or das ----
+    await b.worker(`chrome.storage.local.set(${JSON.stringify({ words: [{ word: 'Rechnung', kind: 'word', translation: 'fatura', context: 'Kann ich bitte die Rechnung haben?', lang: 'de', added: NOW - DAY, due: NOW - 1000 }] })})`);
+    await b.open(b.extensionPage('review.html'));
+    await wait(1200);
+    assert.match(await page(`$('#front .term').textContent`), /^___ Rechnung/, 'the article is asked first');
+    assert.ok(await page(`$('#front .plural').hidden`), 'and the plural, which would give it away, waits');
+    await b.named('Digit1', 49); // der
+    await wait(300);
+    assert.equal(await page(`[...document.querySelectorAll('.artask button')].map((x) => x.dataset.a + ':' + x.className.replace('btn small', '').trim()).join()`), 'der:wrong,die:right,das:');
+    assert.match(await page(`$('#front .term').textContent`), /^die Rechnung/);
+    assert.match(await page(`$('#front .plural').textContent`), /die Rechnungen/);
+    await b.open(b.extensionPage('words.html'));
+    await wait(1200);
+    assert.equal(await page(`$('.row .w b').textContent`), 'die Rechnung');
+
     // ---- the list of all words ----
     await seed();
     await b.open(b.extensionPage('words.html'));

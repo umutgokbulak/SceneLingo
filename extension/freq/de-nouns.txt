@@ -1,0 +1,7858 @@
+# German nouns, their gender (m, f, n; none: plural only) and plural; then "=form<TAB>lemma".
+# From german-nouns by gambolputty (WiktionaryDE), CC BY-SA 4.0; only the nouns among the 20,000
+# commonest words of German film subtitles (see README.md).
+Aas	n	Aase
+Abbild	n	Abbilder
+Abbruch	m	Abbrüche
+Abdrehen	n	
+Abdruck	m	Abdrücke
+Abend	m	Abende
+Abendbrot	n	Abendbrote
+Abendessen	n	Abendessen
+Abenteuer	n	Abenteuer
+Aber	n	Aber
+Aberglaube	m	
+Aberglauben	m	
+Abfahrt	f	Abfahrten
+Abfall	m	Abfälle
+Abfangen	n	
+Abfindung	f	Abfindungen
+Abflug	m	Abflüge
+Abfluss	m	Abflüsse
+Abgang	m	Abgänge
+Abgeordnete	f	Abgeordnete
+Abgeordneter	m	Abgeordnete
+Abgrund	m	Abgründe
+Abi	n	Abis
+Abitur	n	Abiture
+Abkommen	n	Abkommen
+Abkürzung	f	Abkürzungen
+Ablassen	n	
+Ablauf	m	Abläufe
+Ablehnen	n	
+Ablehnung	f	Ablehnungen
+Ablenkung	f	Ablenkungen
+Ablenkungsmanöver	n	Ablenkungsmanöver
+Abmachung	f	Abmachungen
+Abmarsch	m	Abmärsche
+Abneigung	f	Abneigungen
+Abrechnung	f	Abrechnungen
+Abreise	f	Abreisen
+Absatz	m	Absätze
+Abschaum	m	
+Abschied	m	Abschiede
+Abschiedsbrief	m	Abschiedsbriefe
+Abschiedsgeschenk	n	Abschiedsgeschenke
+Abschlachten	n	
+Abschluss	m	Abschlüsse
+Abschlussball	m	Abschlussbälle
+Abschlussfeier	f	Abschlussfeiern
+Abschnitt	m	Abschnitte
+Abschuss	m	Abschüsse
+Abseits	n	Abseits
+Absender	m	Absender
+Absicht	f	Absichten
+Absolutes	n	
+Absperrung	f	Absperrungen
+Abstammung	f	Abstammungen
+Abstand	m	Abstände
+Abstimmung	f	Abstimmungen
+Absturz	m	Abstürze
+Abt	m	Äbte
+Abteil	n	Abteile
+Abteilung	f	Abteilungen
+Abteilungsleiter	m	Abteilungsleiter
+Abtreibung	f	Abtreibungen
+Abwasch	mf	Abwäsche
+Abwechslung	f	Abwechslungen
+Abwehr	f	
+Abwesenheit	f	Abwesenheiten
+Abzeichen	n	Abzeichen
+Abzug	m	Abzüge
+Ach	n	
+Achse	f	Achsen
+Acht	f	Achten
+Achte	mf	Achten
+Achterbahn	f	Achterbahnen
+Achtung	f	
+Achtzehn	f	
+Acker	m	Äcker
+Action	f	
+Ade	n	Ades
+Adel	m	
+Ader	f	Adern
+Adieu	n	Adieus
+Adjutant	m	Adjutanten
+Adler	m	Adler
+Admiral	m	Admirale
+Adoption	f	Adoptionen
+Adrenalin	n	
+Adresse	f	Adressen
+Affe	m	Affen
+Affäre	f	Affären
+After	m	After
+Agency	f	
+Agent	m	Agenten
+Agentin	f	Agentinnen
+Agentur	f	Agenturen
+Aggression	f	Aggressionen
+Ahnung	f	Ahnungen
+Ai	n	Ais
+Air	nf	Airs
+Airport	m	Airports
+Ais	n	Ais
+Akademie	f	Akademien
+Akku	m	Akkus
+Akt	m	Akte
+Akte	f	Akten
+Aktenkoffer	m	Aktenkoffer
+Aktentasche	f	Aktentaschen
+Aktie	f	Aktien
+Aktion	f	Aktionen
+Aktiv	n	Aktive
+Aktive	f	Aktive
+Aktivität	f	Aktivitäten
+Akzent	m	Akzente
+Alabama	m	Alabama
+Alarm	m	Alarme
+Alarmanlage	f	Alarmanlagen
+Alarmstufe	f	Alarmstufen
+Albtraum	m	Albträume
+Album	n	Alben
+Ale	n	Ales
+Alf	m	
+Alias	nm	Aliasse
+Alibi	n	Alibis
+Alien	mn	Aliens
+Alkohol	m	Alkohole
+Alkoholiker	m	Alkoholiker
+Alkoholikerin	f	Alkoholikerinnen
+All	n	
+Allergie	f	Allergien
+Allianz	f	Allianzen
+Alligator	m	Alligatoren
+Allmächtiger	m	Allmächtige
+Alltag	m	Alltage
+Almosen	n	Almosen
+Alpha	n	Alphas
+Alphabet	nm	Alphabete
+Alptraum	m	Alpträume
+Alt	mn	Alte
+Altar	m	Altäre
+Alte	f	Alte
+Alter	mn	Alte
+Altern	n	
+Alternative	f	Alternativen
+Altersheim	n	Altersheime
+Alzheimer	m	
+Amateur	m	Amateure
+Amber	m	
+Ambulanz	f	Ambulanzen
+Ameise	f	Ameisen
+Amen	n	Amen
+Amerikaner	m	Amerikaner
+Amerikanerin	f	Amerikanerinnen
+Ami	mf	Amis
+Amigo	m	Amigos
+Amme	f	Ammen
+Amnesie	f	Amnesien
+Amok	m	
+Ampel	f	Ampeln
+Amt	n	Ämter
+Amulett	n	Amulette
+Analyse	f	Analysen
+Ananas	f	Ananas
+Anarchie	f	Anarchien
+Anatomie	f	Anatomien
+Anbetracht	m	
+Anblick	m	Anblicke
+Andenken	n	Andenken
+Anerkennung	f	Anerkennungen
+Anfall	m	Anfälle
+Anfang	m	Anfänge
+Anflug	m	Anflüge
+Anfrage	f	Anfragen
+Anfänger	m	Anfänger
+Anführer	m	Anführer
+Anführerin	f	Anführerinnen
+Angeber	m	Angeber
+Angebot	n	Angebote
+Angehörige	f	Angehörige
+Angeklagte	f	Angeklagte
+Angel	f	Angeln
+Angelegenheit	f	Angelegenheiten
+Angeln	n	
+Angelus	mn	
+Angesicht	n	Angesichter
+Angestellte	f	Angestellte
+Angestellter	m	Angestellte
+Angewohnheit	f	Angewohnheiten
+Angreifer	m	Angreifer
+Angriff	m	Angriffe
+Angst	f	Ängste
+Angsthase	m	Angsthasen
+Anhalten	n	
+Anhalter	m	Anhalter
+Anhaltspunkt	m	Anhaltspunkte
+Anhänger	m	Anhänger
+Anhörung	f	Anhörungen
+Anker	m	Anker
+Anklage	f	Anklagen
+Ankunft	f	Ankünfte
+Ankündigung	f	Ankündigungen
+Anlage	f	Anlagen
+Anlass	m	Anlässe
+Anleitung	f	Anleitungen
+Anliegen	n	Anliegen
+Anmarsch	m	
+Anmeldung	f	Anmeldungen
+Anmut	f	
+Anna	m	Anna
+Annahme	f	Annahmen
+Anomalie	f	Anomalien
+Anordnung	f	Anordnungen
+Anpassung	f	Anpassungen
+Anruf	m	Anrufe
+Anrufbeantworter	m	Anrufbeantworter
+Anrufer	m	Anrufer
+Ansage	f	Ansagen
+Ansager	m	Ansager
+Ansatz	m	Ansätze
+Anschein	m	
+Anschlag	m	Anschläge
+Anschluss	m	Anschlüsse
+Anschuldigung	f	Anschuldigungen
+Ansehen	n	
+Ansicht	f	Ansichten
+Ansprache	f	Ansprachen
+Anspruch	m	Ansprüche
+Anstalt	f	Anstalten
+Anstand	m	Anstände
+Anstellung	f	Anstellungen
+Anstieg	m	Anstiege
+Anstrengung	f	Anstrengungen
+Anteil	m	Anteile
+Antenne	f	Antennen
+Antike	f	Antiken
+Antlitz	n	Antlitze
+Antrag	m	Anträge
+Antrieb	m	Antriebe
+Antwort	f	Antworten
+Anwalt	m	Anwälte
+Anwaltskanzlei	f	Anwaltskanzleien
+Anweisung	f	Anweisungen
+Anwendung	f	Anwendungen
+Anwesen	n	Anwesen
+Anwesenheit	f	
+Anwältin	f	Anwältinnen
+Anwärter	m	Anwärter
+Anzahl	f	Anzahlen
+Anzahlung	f	Anzahlungen
+Anzeichen	n	Anzeichen
+Anzeige	f	Anzeigen
+Anziehen	n	
+Anziehung	f	Anziehungen
+Anziehungskraft	f	Anziehungskräfte
+Anzug	m	Anzüge
+Apartment	n	Apartments
+Apfel	m	Äpfel
+Apfelkuchen	m	Apfelkuchen
+Apokalypse	f	Apokalypsen
+Apotheke	f	Apotheken
+Apotheker	m	Apotheker
+App	fn	Apps
+Apparat	m	Apparate
+Appartement	n	Appartements
+Appell	m	Appelle
+Appetit	m	
+Applaus	m	Applause
+April	m	Aprile
+Aquarium	n	Aquarien
+Araber	m	Araber
+Arbeit	f	Arbeiten
+Arbeiter	m	Arbeiter
+Arbeitgeber	m	Arbeitgeber
+Arbeitsplatz	m	Arbeitsplätze
+Arbeitstag	m	Arbeitstage
+Arbeitszimmer	n	Arbeitszimmer
+Arche	f	Archen
+Architekt	m	Architekten
+Architektur	f	Architekturen
+Archiv	n	Archive
+Are	f	Aren
+Arena	f	Arenen
+Argument	n	Argumente
+Arm	m	Arme
+Armband	n	Armbänder
+Arme	f	Arme
+Armee	f	Armeen
+Armer	m	Arme
+Armut	f	
+Arrangement	n	Arrangements
+Arrest	m	Arreste
+Arroganz	f	Arroganzen
+Arsch	m	Ärsche
+Arschgesicht	n	Arschgesichter
+Arschloch	n	Arschlöcher
+Arsenal	n	Arsenale
+Art	f	Arten
+Artefakt	n	Artefakte
+Arterie	f	Arterien
+Arthritis	f	Arthritiden
+Artikel	m	Artikel
+Artillerie	f	Artillerien
+Arznei	f	Arzneien
+Arzt	m	Ärzte
+As	mn	Asse
+Asche	f	Aschen
+Aschenbecher	m	Aschenbecher
+Aspekt	m	Aspekte
+Aspirin	n	
+Ass	n	Asse
+Assistent	m	Assistenten
+Assistentin	f	Assistentinnen
+Assistenzarzt	m	Assistenzärzte
+Ast	m	Äste
+Asthma	n	
+Astronaut	m	Astronauten
+Asyl	n	Asyle
+Atelier	n	Ateliers
+Atem	m	
+Atemzug	m	Atemzüge
+Atlas	m	
+Atmen	n	
+Atmosphäre	f	Atmosphären
+Atmung	f	
+Atombombe	f	Atombomben
+Attacke	f	Attacken
+Attentat	n	Attentate
+Attentäter	m	Attentäter
+Au	f	Auen
+Audienz	f	Audienzen
+Aufbau	m	Aufbauten
+Aufenthalt	m	Aufenthalte
+Aufenthaltsort	m	Aufenthaltsorte
+Auferstehung	f	Auferstehungen
+Auffahrt	f	Auffahrten
+Auffassung	f	Auffassungen
+Aufführung	f	Aufführungen
+Aufgabe	f	Aufgaben
+Aufkleber	m	Aufkleber
+Aufklärung	f	Aufklärungen
+Aufkommen	n	Aufkommen
+Auflage	f	Auflagen
+Auflösung	f	Auflösungen
+Aufmerksamkeit	f	Aufmerksamkeiten
+Aufnahme	f	Aufnahmen
+Aufpasser	m	Aufpasser
+Aufprall	m	Aufpralle
+Aufregung	f	Aufregungen
+Aufrichtigkeit	f	Aufrichtigkeiten
+Aufruf	m	Aufrufe
+Aufruhr	m	Aufruhre
+Aufräumen	n	
+Aufsatz	m	Aufsätze
+Aufschlag	m	Aufschläge
+Aufschrei	m	Aufschreie
+Aufschub	m	Aufschübe
+Aufsehen	n	
+Aufseher	m	Aufseher
+Aufsicht	f	Aufsichten
+Aufspüren	n	
+Aufstand	m	Aufstände
+Aufstellen	n	
+Aufstellung	f	Aufstellungen
+Aufstieg	m	Aufstiege
+Auftauchen	n	
+Auftrag	m	Aufträge
+Auftraggeber	m	Auftraggeber
+Auftragskiller	m	Auftragskiller
+Auftreten	n	
+Auftritt	m	Auftritte
+Aufwand	m	Aufwände
+Aufzeichnung	f	Aufzeichnungen
+Aufzug	m	Aufzüge
+Auge	n	Augen
+Augenblick	m	Augenblicke
+Augenkontakt	m	Augenkontakte
+August	m	Auguste
+Augustus	m	Augusti
+Auktion	f	Auktionen
+Aura	f	Auren
+Aurora	f	Auroras
+Aus	n	
+Ausbilder	m	Ausbilder
+Ausbildung	f	Ausbildungen
+Ausblick	m	Ausblicke
+Ausbruch	m	Ausbrüche
+Ausdauer	f	
+Ausdruck	m	Ausdrücke
+Ausdrucksweise	f	Ausdrucksweisen
+Auseinandersetzung	f	Auseinandersetzungen
+Auserwählte	f	Auserwählte
+Ausfahrt	f	Ausfahrten
+Ausflug	m	Ausflüge
+Ausführung	f	Ausführungen
+Ausgabe	f	Ausgaben
+Ausgang	m	Ausgänge
+Ausgangssperre	f	Ausgangssperren
+Ausgleich	m	Ausgleiche
+Aushilfe	f	Aushilfen
+Auskommen	n	
+Auskunft	f	Auskünfte
+Ausland	n	
+Auslieferung	f	Auslieferungen
+Ausländer	m	Ausländer
+Auslöser	m	Auslöser
+Ausmaß	n	Ausmaße
+Ausnahme	f	Ausnahmen
+Ausrede	f	Ausreden
+Ausrüstung	f	Ausrüstungen
+Aussage	f	Aussagen
+Ausschalten	n	
+Ausschau	f	
+Ausschlag	m	Ausschläge
+Ausschnitt	m	Ausschnitte
+Ausschuss	m	Ausschüsse
+Aussehen	n	
+Aussicht	f	Aussichten
+Ausstattung	f	Ausstattungen
+Ausstellung	f	Ausstellungen
+Aussterben	n	
+Ausstrahlung	f	Ausstrahlungen
+Austausch	m	Austausche
+Auswahl	f	Auswahlen
+Ausweg	m	Auswege
+Ausweis	m	Ausweise
+Auszeichnung	f	Auszeichnungen
+Auszeit	f	Auszeiten
+Auto	n	Autos
+Autobahn	f	Autobahnen
+Autofahren	n	
+Autogramm	n	Autogramme
+Automobil	n	Automobile
+Autopsie	f	Autopsien
+Autor	m	Autoren
+Autorin	f	Autorinnen
+Autorität	f	Autoritäten
+Autoschlüssel	m	Autoschlüssel
+Autotür	f	Autotüren
+Autounfall	m	Autounfälle
+Außenminister	m	Außenminister
+Außenministerium	n	Außenministerien
+Außenposten	m	Außenposten
+Außenseiter	m	Außenseiter
+Außenwelt	f	Außenwelten
+Außerirdischer	m	Außerirdische
+Avatar	m	Avatars
+Ave	n	Ave
+Avenue	f	Avenuen
+Axel	m	Axel
+Axt	f	Äxte
+BMW	m	BMWs
+Baba	fm	Babas
+Baby	n	Babys
+Babysitter	m	Babysitter
+Bach	m	Bäche
+Back	fm	Backen
+Backbord	nm	Backborde
+Backe	f	Backen
+Backen	mn	Backen
+Bacon	m	
+Bad	n	Bäder
+Badeanzug	m	Badeanzüge
+Badehose	f	Badehosen
+Bademantel	m	Bademäntel
+Baden	n	
+Badewanne	f	Badewannen
+Badezimmer	n	Badezimmer
+Bagel	m	Bagels
+Bahn	f	Bahnen
+Bahnhof	m	Bahnhöfe
+Bahnsteig	m	Bahnsteige
+Balance	f	Balancen
+Balboa	m	Balboa
+Balken	m	Balken
+Balkon	m	Balkons
+Ball	m	Bälle
+Ballast	m	Ballaste
+Ballett	n	Ballette
+Ballon	m	Ballons
+Banane	f	Bananen
+Band	nmf	Bänder
+Bande	f	Banden
+Bandit	m	Banditen
+Bange	f	
+Bank	f	Bänke
+Banker	m	Banker
+Bankett	n	Bankette
+Bankier	m	Bankiers
+Bankkonto	n	Bankkonten
+Bankrott	m	Bankrotte
+Bankräuber	m	Bankräuber
+Bann	m	Banne
+Banner	nm	Banner
+Bar	nf	Bars
+Baracke	f	Baracken
+Barbecue	n	Barbecues
+Barbie	f	Barbies
+Bares	n	
+Bargeld	n	
+Barkeeper	m	Barkeeper
+Barmann	m	Barmänner
+Barmherzigkeit	f	
+Baron	m	Barone
+Baronin	f	Baroninnen
+Barriere	f	Barrieren
+Bart	m	Bärte
+Base	f	Basen
+Baseball	m	Baseballs
+Baseballschläger	m	Baseballschläger
+Basis	f	Basen
+Basketball	m	Basketbälle
+Bass	m	Bässe
+Bastard	m	Bastarde
+Bataillon	n	Bataillone
+Batterie	f	Batterien
+Bau	m	Bauten
+Bauarbeiter	m	Bauarbeiter
+Bauch	m	Bäuche
+Bauchgefühl	n	Bauchgefühle
+Bauen	n	
+Bauer	mn	Bauern
+Bauernhof	m	Bauernhöfe
+Baum	m	Bäume
+Baumhaus	n	Baumhäuser
+Baumwolle	f	Baumwollen
+Baustelle	f	Baustellen
+Baute	f	Bauten
+Bauunternehmer	m	Bauunternehmer
+Beach	mf	Beaches
+Beachtung	f	
+Beamter	m	Beamte
+Bear	m	Bears
+Beat	m	Beats
+Beau	m	Beaus
+Beauty	f	Beautys
+Beben	n	Beben
+Becher	m	Becher
+Beck	m	Becke
+Becken	n	Becken
+Bedacht	m	
+Bedarf	m	Bedarfe
+Bedauern	n	
+Bedenken	n	Bedenken
+Bedeutung	f	Bedeutungen
+Bedienung	f	Bedienungen
+Bedingung	f	Bedingungen
+Bedrohung	f	Bedrohungen
+Bedürfnis	n	Bedürfnisse
+Beerdigung	f	Beerdigungen
+Befehl	m	Befehle
+Befehlshaber	m	Befehlshaber
+Befinden	n	
+Befragung	f	Befragungen
+Befreiung	f	Befreiungen
+Befriedigung	f	Befriedigungen
+Befugnis	f	Befugnisse
+Befund	m	Befunde
+Beförderung	f	Beförderungen
+Begabung	f	Begabungen
+Begegnung	f	Begegnungen
+Begehren	n	Begehren
+Begeisterung	f	Begeisterungen
+Begierde	f	Begierden
+Beginn	m	Beginne
+Begleiter	m	Begleiter
+Begleitung	f	Begleitungen
+Begnadigung	f	Begnadigungen
+Begriff	m	Begriffe
+Begräbnis	n	Begräbnisse
+Begründung	f	Begründungen
+Begrüßen	n	
+Begrüßung	f	Begrüßungen
+Behandlung	f	Behandlungen
+Behauptung	f	Behauptungen
+Beherrschung	f	
+Behinderte	f	Behinderte
+Behinderung	f	Behinderungen
+Behälter	m	Behälter
+Behörde	f	Behörden
+Bei	m	Beie
+Beichte	f	Beichten
+Beifall	m	
+Beihilfe	f	Beihilfen
+Beil	n	Beile
+Beileid	n	
+Bein	n	Beine
+Beinbruch	m	Beinbrüche
+Beispiel	n	Beispiele
+Beistand	m	Beistände
+Beitrag	m	Beiträge
+Beißen	n	
+Bekannte	f	Bekannte
+Bekannter	m	Bekannte
+Bekanntschaft	f	Bekanntschaften
+Belagerung	f	Belagerungen
+Belastung	f	Belastungen
+Beleidigung	f	Beleidigungen
+Beleuchtung	f	Beleuchtungen
+Belieben	n	
+Belohnung	f	Belohnungen
+Belästigung	f	Belästigungen
+Bemerkung	f	Bemerkungen
+Bemühen	n	
+Benehmen	n	
+Bengel	m	Bengel
+Benimm	m	
+Benjamin	m	Benjamine
+Benzin	n	Benzine
+Beobachter	m	Beobachter
+Beobachtung	f	Beobachtungen
+Berater	m	Berater
+Beratung	f	Beratungen
+Bereich	mn	Bereiche
+Bereitschaft	f	Bereitschaften
+Berg	m	Berge
+Bericht	m	Berichte
+Berliner	m	Berliner
+Bernstein	m	Bernsteine
+Bertram	m	
+Beruf	m	Berufe
+Berufung	f	Berufungen
+Beruhigungsmittel	n	Beruhigungsmittel
+Berühmtheit	f	Berühmtheiten
+Berührung	f	Berührungen
+Besatzung	f	Besatzungen
+Bescheid	m	Bescheide
+Bescheidenheit	f	
+Bescheißen	n	
+Beschimpfen	n	
+Beschließen	n	
+Beschluss	m	Beschlüsse
+Beschreibung	f	Beschreibungen
+Beschrieb	m	Beschriebe
+Beschuldigte	f	Beschuldigte
+Beschuss	m	
+Beschwerde	f	Beschwerden
+Beschäftigung	f	Beschäftigungen
+Beschützer	m	Beschützer
+Besen	m	Besen
+Besessenheit	f	
+Besetzung	f	Besetzungen
+Besitz	m	Besitze
+Besitzer	m	Besitzer
+Besitzerin	f	Besitzerinnen
+Besonderes	n	
+Besorgnis	f	Besorgnisse
+Besprechung	f	Besprechungen
+Besserung	f	Besserungen
+Bestand	m	Bestände
+Bestandteil	m	Bestandteile
+Beste	f	Beste
+Bestechung	f	Bestechungen
+Besteck	n	Bestecke
+Bestellung	f	Bestellungen
+Bester	m	Beste
+Bestes	n	Beste
+Bestie	f	Bestien
+Bestimmung	f	Bestimmungen
+Bestrafung	f	Bestrafungen
+Bestätigung	f	Bestätigungen
+Besuch	m	Besuche
+Besucher	m	Besucher
+Beta	nf	Betas
+Bete	f	Beten
+Beteiligung	f	Beteiligungen
+Beton	m	Betons
+Betrag	m	Beträge
+Betreten	n	
+Betreuer	m	Betreuer
+Betreuung	f	Betreuungen
+Betrieb	m	Betriebe
+Betrug	m	Betrüge
+Betrunkene	f	Betrunkene
+Betrunkener	m	Betrunkene
+Betrüger	m	Betrüger
+Betrügerin	f	Betrügerinnen
+Bett	n	Betten
+Bettchen	n	Bettchen
+Bettler	m	Bettler
+Betäubung	f	Betäubungen
+Betäubungsmittel	n	Betäubungsmittel
+Beule	f	Beulen
+Beurteilung	f	Beurteilungen
+Beute	f	Beuten
+Beutel	m	Beutel
+Bevölkerung	f	Bevölkerungen
+Bewachung	f	Bewachungen
+Bewaffneter	m	Bewaffnete
+Bewegung	f	Bewegungen
+Beweis	m	Beweise
+Beweismaterial	n	Beweismaterialien
+Beweismittel	n	Beweismittel
+Beweisstück	n	Beweisstücke
+Bewerber	m	Bewerber
+Bewerbung	f	Bewerbungen
+Bewertung	f	Bewertungen
+Bewohner	m	Bewohner
+Bewunderung	f	Bewunderungen
+Bewusstsein	n	Bewusstseine
+Bewährung	f	Bewährungen
+Bewährungshelfer	m	Bewährungshelfer
+Bezahlung	f	Bezahlungen
+Bezeichnung	f	Bezeichnungen
+Beziehung	f	Beziehungen
+Bezirk	m	Bezirke
+Bezug	m	Bezüge
+Bibel	f	Bibeln
+Biber	m	Biber
+Bibliothek	f	Bibliotheken
+Bien	m	
+Biene	f	Bienen
+Bier	n	Biere
+Biest	nm	Biester
+Bike	n	Bikes
+Bikini	mn	Bikinis
+Bilanz	f	Bilanzen
+Bild	n	Bilder
+Bildschirm	m	Bildschirme
+Bildung	f	Bildungen
+Billard	n	Billarde
+Binde	f	Binden
+Bindung	f	Bindungen
+Bingo	n	
+Biologie	f	
+Biopsie	f	Biopsien
+Birne	f	Birnen
+Bischof	m	Bischöfe
+Biss	m	Bisse
+Bisschen	n	Bisschen
+Bissen	m	Bissen
+Bitte	f	Bitten
+Bitter	m	Bitter
+Blackout	mn	Blackouts
+Blank	mn	Blanks
+Blas	m	Blase
+Blase	f	Blasen
+Blasen	n	
+Blatt	n	Blätter
+Blau	n	Blau
+Blech	n	Bleche
+Blei	nm	Bleie
+Bleibe	f	Bleiben
+Bleistift	m	Bleistifte
+Blick	m	Blicke
+Blicke	f	Blicken
+Blickwinkel	m	Blickwinkel
+Blinddarm	m	Blinddärme
+Blinde	f	Blinde
+Blinder	m	Blinde
+Blitz	m	Blitze
+Block	m	Blöcke
+Blockade	f	Blockaden
+Blog	nm	Blogs
+Blonde	f	Blonde
+Blondine	f	Blondinen
+Blowjob	m	Blowjobs
+Bloßstellen	n	
+Blues	m	
+Bluff	m	Bluffs
+Blume	f	Blumen
+Bluse	f	Blusen
+Blut	n	Blute
+Blutbad	n	Blutbäder
+Blutbild	n	Blutbilder
+Blutdruck	m	Blutdrücke
+Blutgruppe	f	Blutgruppen
+Blutprobe	f	Blutproben
+Blutsauger	m	Blutsauger
+Bluttest	m	Bluttests
+Blutung	f	Blutungen
+Blutvergießen	n	
+Blödmann	m	Blödmänner
+Blödsinn	m	
+Blüte	f	Blüten
+Bob	m	Bobs
+Bobby	m	Bobbys
+Bock	mn	Böcke
+Boden	m	Böden
+Body	m	Bodys
+Bodyguard	m	Bodyguards
+Bogen	m	Bogen
+Bohne	f	Bohnen
+Bohrer	m	Bohrer
+Bolzen	mn	Bolzen
+Bombe	f	Bomben
+Bomber	m	Bomber
+Bon	m	Bons
+Bonbon	mn	Bonbons
+Bonus	m	Bonus
+Boom	m	Booms
+Boomer	m	Boomer
+Boot	nm	Boote
+Bord	nm	Borde
+Bordeaux	m	Bordeaux
+Bordell	n	Bordelle
+Borg	m	Borge
+Bosheit	f	Bosheiten
+Boss	m	Bosse
+Bosse	f	Bossen
+Boston	mn	Bostons
+Bot	m	Bots
+Bote	m	Boten
+Botschaft	f	Botschaften
+Botschafter	m	Botschafter
+Botschafterin	f	Botschafterinnen
+Boulevard	m	Boulevards
+Bourbon	m	Bourbons
+Bowlen	n	
+Bowling	n	
+Box	f	Boxen
+Boxen	n	
+Boxer	m	Boxer
+Branche	f	Branchen
+Brand	m	Brände
+Brandstiftung	f	Brandstiftungen
+Brandy	m	Brandys
+Braten	mn	Braten
+Brauch	m	Bräuche
+Braun	nm	Braun
+Brauner	m	Braune
+Braut	f	Bräute
+Brautjungfer	f	Brautjungfern
+Bravo	nmf	Bravos
+Break	mn	Breaks
+Brei	m	Breie
+Breite	f	Breiten
+Bremse	f	Bremsen
+Bremsen	n	
+Brenner	m	Brenner
+Brett	n	Bretter
+Bridge	n	
+Brief	m	Briefe
+Briefkasten	m	Briefkästen
+Brieftasche	f	Brieftaschen
+Briefträger	m	Briefträger
+Brigade	f	Brigaden
+Brillant	m	Brillanten
+Brille	f	Brillen
+Brise	f	Brisen
+Broadway	m	
+Brocken	mn	Brocken
+Bronze	f	Bronzen
+Brosche	f	Broschen
+Broschüre	f	Broschüren
+Brot	n	Brote
+Bruch	mn	Brüche
+Bruchbude	f	Bruchbuden
+Bruchteil	m	Bruchteile
+Bruder	m	Brüder
+Bruderschaft	f	Bruderschaften
+Brummen	n	
+Brunch	m	Brunche
+Brunnen	m	Brunnen
+Brust	f	Brüste
+Brustkorb	m	Brustkörbe
+Brutalität	f	Brutalitäten
+Bräutigam	m	Bräutigame
+Brötchen	n	Brötchen
+Brücke	f	Brücken
+Brüderchen	n	Brüderchen
+Brühe	f	Brühen
+Brünette	f	Brünette
+Bub	m	Buben
+Bubi	m	Bubis
+Buch	n	Bücher
+Buchen	n	
+Buchhalter	m	Buchhalter
+Buchhaltung	f	Buchhaltungen
+Buchladen	m	Buchläden
+Buchmacher	m	Buchmacher
+Buchstabe	m	Buchstaben
+Bucht	f	Buchten
+Buckel	mf	Buckel
+Buddha	m	Buddhas
+Bude	f	Buden
+Budget	n	Budgets
+Buffet	n	Buffets
+Bug	m	Büge
+Buh	n	Buhs
+Bulle	mf	Bullen
+Bund	mn	Bünde
+Bundesstaat	m	Bundesstaaten
+Bunker	m	Bunker
+Bureau	n	Bureaus
+Burg	f	Burgen
+Burger	m	Burger
+Burke	f	Burken
+Bursche	m	Burschen
+Bus	mf	Busse
+Busbahnhof	m	Busbahnhöfe
+Busch	m	Büsche
+Busen	m	Busen
+Busfahrer	m	Busfahrer
+Bushaltestelle	f	Bushaltestellen
+Business	n	
+Butch	f	Butches
+Butler	m	Butler
+Butter	fmn	Butters
+Buße	f	Bußen
+Bäcker	m	Bäcker
+Bäckerei	f	Bäckereien
+Bär	m	Bären
+Börse	f	Börsen
+Böses	n	
+Bösewicht	m	Bösewichte
+Bücherei	f	Büchereien
+Büchse	f	Büchsen
+Büffel	m	Büffel
+Bügeln	n	
+Bühne	f	Bühnen
+Bündel	n	Bündel
+Bündnis	n	Bündnisse
+Bürde	f	Bürden
+Bürger	m	Bürger
+Bürgerkrieg	m	Bürgerkriege
+Bürgermeister	m	Bürgermeister
+Bürgermeisterin	f	Bürgermeisterinnen
+Bürgersteig	m	Bürgersteige
+Büro	n	Büros
+Bürokratie	f	Bürokratien
+Bürschchen	n	Bürschchen
+Bürste	f	Bürsten
+Büßen	n	
+Cabrio	n	Cabrios
+Caesar	m	Caesaren
+Cafeteria	f	Cafeterien
+Café	n	Cafés
+Call	m	Calls
+Camelot	m	Camelots
+Camp	n	Camps
+Campus	m	Campus
+Canyon	m	Canyons
+Cap	nmf	Caps
+Cape	n	Capes
+Cappuccino	m	Cappuccino
+Casanova	m	Casanovas
+Casino	n	Casinos
+Casting	n	Castings
+Cello	n	Celli
+Cent	m	Cent
+Center	nm	Center
+Champagner	m	Champagner
+Champion	m	Champions
+Chan	mn	Chans
+Chance	f	Chancen
+Chaos	n	
+Charakter	m	Charaktere
+Charleston	m	Charlestons
+Charlotte	f	Charlotten
+Charmante	f	Charmanten
+Charme	m	
+Chauffeur	m	Chauffeure
+Check	m	Checks
+Cheerleader	m	Cheerleader
+Cheeseburger	m	Cheeseburger
+Chef	m	Chefs
+Chefin	f	Chefinnen
+Chefkoch	m	Chefköche
+Chemie	f	Chemien
+Chemiker	m	Chemiker
+Chemo	f	Chemos
+Cheyenne	mf	Cheyenne
+Chi	n	Chis
+Chili	m	Chilis
+China	f	Chinas
+Chinatown	fn	Chinatowns
+Chinese	m	Chinesen
+Chip	m	Chips
+Chirurg	m	Chirurgen
+Chirurgie	f	Chirurgien
+Chirurgin	f	Chirurginnen
+Chor	mn	Chöre
+Christ	m	Christen
+City	f	Citys
+Clan	m	Clane
+Clique	f	Cliquen
+Cloud	f	Clouds
+Clown	m	Clowns
+Club	m	Clubs
+Coach	m	Coachs
+Cockpit	n	Cockpits
+Cocktail	m	Cocktails
+Code	m	Codes
+Cognac	m	Cognacs
+Cola	fn	Colas
+College	n	Colleges
+Comeback	n	Comebacks
+Comic	mn	Comics
+Community	f	Communitys
+Computer	m	Computer
+Concierge	mf	Concierges
+Container	m	Container
+Cookie	nm	Cookies
+Cop	m	Cops
+Copyright	n	Copyrights
+Cornflakes		Cornflakes
+Corporal	m	Corporäle
+Corps	n	Corps
+Couch	fm	Couchs
+Count	m	Counts
+Countdown	mn	Countdowns
+Country	mf	
+County	nf	Countys
+Coup	m	Coups
+Courage	f	
+Court	m	Courts
+Cousin	m	Cousins
+Cousine	f	Cousinen
+Cover	n	Cover
+Cowboy	m	Cowboys
+Cox	m	Cox
+Crack	mn	Cracks
+Cracker	m	Cracker
+Crash	m	Crashs
+Creek	mn	Creek
+Creme	f	Cremes
+Crew	f	Crews
+Cross	m	Cross
+Crème	f	Crèmes
+Curry	mn	Currys
+Cut	m	Cuts
+Cutter	m	Cutter
+Cäsar	m	Cäsaren
+DNA	f	
+Dach	n	Dächer
+Dachboden	m	Dachböden
+Daddy	m	Daddys
+Daheim	n	
+Dame	f	Damen
+Damentoilette	f	Damentoiletten
+Damm	m	Dämme
+Dampf	m	Dämpfe
+Dan	m	Dan
+Dank	m	
+Dankbarkeit	f	Dankbarkeiten
+Dankeschön	n	
+Darbietung	f	Darbietungen
+Darlehen	n	Darlehen
+Darling	m	Darlings
+Darm	m	Därme
+Darsteller	m	Darsteller
+Darstellung	f	Darstellungen
+Dasein	n	
+Date	n	Dates
+Datei	f	Dateien
+Daten		Daten
+Datenbank	f	Datenbanken
+Datum	n	Daten
+Dauer	f	Dauern
+Daumen	m	Daumen
+Dax	m	Daxe
+Deal	m	Deals
+Dealer	m	Dealer
+Debatte	f	Debatten
+Deck	n	Decks
+Decke	f	Decken
+Deckel	m	Deckel
+Deckung	f	Deckungen
+Defekt	m	Defekte
+Definition	f	Definitionen
+Degen	m	Degen
+Dekan	m	Dekane
+Dekoration	f	Dekorationen
+Delta	n	Deltas
+Demo	fn	Demos
+Demokratie	f	Demokratien
+Demonstration	f	Demonstrationen
+Demut	f	
+Demütigung	f	Demütigungen
+Denke	f	
+Denken	n	
+Denker	m	Denker
+Denkmal	n	Denkmale
+Deo	n	Deos
+Department	n	Departments
+Depp	m	Deppen
+Depression	f	Depressionen
+Derwisch	m	Derwische
+Des	n	Des
+Desaster	n	Desaster
+Design	n	Designs
+Designer	m	Designer
+Dessert	n	Desserts
+Detail	n	Details
+Detektiv	m	Detektive
+Detonation	f	Detonationen
+Deutsche	nf	Deutsche
+Deutscher	m	Deutsche
+Devon	n	
+Dezember	m	Dezember
+Diabetes	m	
+Diagnose	f	Diagnosen
+Dialekt	m	Dialekte
+Dialog	m	Dialoge
+Diamant	mf	Diamanten
+Dichte	f	Dichten
+Dichter	m	Dichter
+Dicke	f	Dicken
+Dicker	m	Dicke
+Die	n	Dice
+Dieb	m	Diebe
+Diebin	f	Diebinnen
+Diebstahl	m	Diebstähle
+Diener	m	Diener
+Dienerin	f	Dienerinnen
+Dienst	m	Dienste
+Dienstag	m	Dienstage
+Dienstmarke	f	Dienstmarken
+Dienstmädchen	n	Dienstmädchen
+Dienststelle	f	Dienststellen
+Diesel	m	Diesel
+Dietrich	m	Dietriche
+Diktator	m	Diktatoren
+Dilemma	n	Dilemmata
+Dimension	f	Dimensionen
+Diner	nm	Diners
+Ding	n	Dinge
+Dinner	n	Dinners
+Dino	m	Dinos
+Dinosaurier	m	Dinosaurier
+Diplom	n	Diplome
+Diplomat	m	Diplomaten
+Diplomatie	f	
+Direktor	m	Direktoren
+Direktorin	f	Direktorinnen
+Dirk	f	Dirken
+Disco	f	Discos
+Diskette	f	Disketten
+Diskretion	f	
+Diskussion	f	Diskussionen
+Distanz	f	Distanzen
+Distrikt	m	Distrikte
+Disziplin	f	Disziplinen
+Division	f	Divisionen
+Dixie	m	
+Diät	f	Diäten
+Dock	n	Docks
+Dodo	m	Dodos
+Doktor	m	Doktoren
+Dokument	n	Dokumente
+Dokumentation	f	Dokumentationen
+Dolch	m	Dolche
+Dollar	m	Dollar
+Dolmetscher	m	Dolmetscher
+Dom	m	Dome
+Dominion	n	Dominien
+Domino	nm	Dominos
+Donna	f	Donnas
+Donner	m	Donner
+Donnergrollen	n	
+Donnerstag	m	Donnerstage
+Donnerwetter	n	Donnerwetter
+Donut	m	Donuts
+Dope	n	Dopes
+Doppelgänger	m	Doppelgänger
+Dorf	n	Dörfer
+Dorfbewohner	m	Dorfbewohner
+Dorn	m	Dornen
+Dornröschen	n	
+Dose	f	Dosen
+Dosis	f	Dosen
+Double	n	Doubles
+Drache	m	Drachen
+Drachen	m	Drachen
+Draht	m	Drähte
+Drama	n	Dramen
+Drang	m	Dränge
+Dreck	m	
+Drecksack	m	Drecksäcke
+Drecksarbeit	f	Drecksarbeiten
+Drecksau	f	Drecksäue
+Dreckskerl	m	Dreckskerle
+Dreh	m	Drehs
+Drehbuch	n	Drehbücher
+Drehe	f	Drehen
+Drehung	f	Drehungen
+Drei	f	Dreien
+Dreieck	n	Dreiecke
+Dreier	m	Dreier
+Dreizehn	f	
+Dreißig	f	
+Drink	m	Drinks
+Dritte	f	Dritte
+Drittel	nm	Drittel
+Dritter	m	Dritte
+Drive	m	Drives
+Droge	f	Drogen
+Drogendealer	m	Drogendealer
+Drogenhandel	m	
+Drohne	f	Drohnen
+Drohung	f	Drohungen
+Druck	m	Drücke
+Drucker	m	Drucker
+Drängen	n	
+Dschungel	mnf	Dschungel
+Du	n	
+Duell	n	Duelle
+Duft	m	Düfte
+Dukaten	m	Dukaten
+Dummchen	n	Dummchen
+Dummerchen	n	Dummerchen
+Dummheit	f	Dummheiten
+Dummkopf	m	Dummköpfe
+Dumpfbacke	f	Dumpfbacken
+Dunkel	n	
+Dunkelheit	f	Dunkelheiten
+Dunkles	n	Dunkle
+Durchbruch	m	Durchbrüche
+Durcheinander	n	Durcheinander
+Durchfall	m	Durchfälle
+Durchgang	m	Durchgänge
+Durchkommen	n	
+Durchlaucht	f	Durchlauchten
+Durchmesser	m	Durchmesser
+Durchreise	f	Durchreisen
+Durchsage	f	Durchsagen
+Durchschnitt	m	Durchschnitte
+Durchsuchung	f	Durchsuchungen
+Durst	m	
+Dusche	f	Duschen
+Dutzend	n	Dutzende
+Duzen	n	
+Dynamit	n	
+Dynastie	f	Dynastien
+Dämmerung	f	Dämmerungen
+Dämon	m	Dämonen
+Dünger	m	Dünger
+Dürre	f	Dürren
+Eagle	n	Eagles
+Earl	m	Earls
+Ebene	f	Ebenen
+Echo	n	Echos
+Ecke	f	Ecken
+Eclair	n	Eclairs
+Ecstasy	nf	
+Eden	n	
+Effekt	m	Effekte
+Effizienz	f	Effizienzen
+Ego	n	Egos
+Ehe	f	Ehen
+Ehebruch	m	Ehebrüche
+Ehefrau	f	Ehefrauen
+Ehemann	m	Ehemänner
+Ehepaar	n	Ehepaare
+Ehering	m	Eheringe
+Ehevertrag	m	Eheverträge
+Ehre	f	Ehren
+Ehrengast	m	Ehrengäste
+Ehrenmann	m	Ehrenmänner
+Ehrenwort	n	Ehrenworte
+Ehrfurcht	f	
+Ehrgeiz	m	
+Ehrlichkeit	f	
+Ei	n	Eier
+Eiche	f	Eichen
+Eichhörnchen	n	Eichhörnchen
+Eid	m	Eide
+Eifer	m	
+Eifersucht	f	
+Eigen	n	
+Eigenschaft	f	Eigenschaften
+Eigentum	n	Eigentume
+Eigentümer	m	Eigentümer
+Eile	f	
+Eimer	mf	Eimer
+Einatmen	n	
+Einbildung	f	Einbildungen
+Einblick	m	Einblicke
+Einbrecher	m	Einbrecher
+Einbruch	m	Einbrüche
+Eindringen	n	
+Eindringling	m	Eindringlinge
+Eindruck	m	Eindrücke
+Einer	m	Einer
+Einfahrt	f	Einfahrten
+Einfall	m	Einfälle
+Einfluss	m	Einflüsse
+Einführung	f	Einführungen
+Eingang	m	Eingänge
+Eingeweide	n	Eingeweide
+Eingriff	m	Eingriffe
+Einhalten	n	
+Einheimische	f	Einheimische
+Einheit	f	Einheiten
+Einhorn	n	Einhörner
+Einigung	f	Einigungen
+Einkauf	m	Einkäufe
+Einkaufszentrum	n	Einkaufszentren
+Einklang	m	Einklänge
+Einkommen	n	Einkommen
+Einladung	f	Einladungen
+Einrichtung	f	Einrichtungen
+Eins	f	Einsen
+Einsamkeit	f	Einsamkeiten
+Einsatz	m	Einsätze
+Einschließen	n	
+Einschreiben	n	Einschreiben
+Einschätzung	f	Einschätzungen
+Einsicht	f	Einsichten
+Einspruch	m	Einsprüche
+Einstein	mn	Einsteins
+Einstellung	f	Einstellungen
+Einstieg	m	Einstiege
+Eintopf	m	Eintöpfe
+Eintrag	m	Einträge
+Eintreffen	n	
+Eintritt	m	Eintritte
+Einverständnis	n	Einverständnisse
+Einwanderer	m	Einwanderer
+Einwanderungsbehörde	f	Einwanderungsbehörden
+Einwilligung	f	Einwilligungen
+Einwohner	m	Einwohner
+Einzelgänger	m	Einzelgänger
+Einzelhaft	f	
+Einzelkind	n	Einzelkinder
+Einzelner	m	Einzelne
+Einzug	m	Einzüge
+Eis	n	Eis
+Eiscreme	f	Eiscremes
+Eisen	n	Eisen
+Eisenbahn	f	Eisenbahnen
+Eistee	m	Eistees
+Eiswürfel	m	Eiswürfel
+Eitelkeit	f	Eitelkeiten
+Ekel	mn	Ekel
+El	m	Elim
+Elch	m	Elche
+Elefant	m	Elefanten
+Elegant	m	Elegants
+Eleganz	f	
+Elektriker	m	Elektriker
+Elektrische	f	Elektrische
+Elektrizität	f	
+Elektronik	f	
+Element	n	Elemente
+Elend	n	
+Elf	mf	Elfen
+Elite	f	Eliten
+Ellbogen	m	Ellbogen
+Elle	f	Ellen
+Ellenbogen	m	Ellenbogen
+Eltern		Eltern
+Elternteil	mn	Elternteile
+Email	n	Emails
+Eminenz	f	Eminenzen
+Emotion	f	Emotionen
+Empfang	m	Empfänge
+Empfehlung	f	Empfehlungen
+Empfinden	n	
+Empfänger	m	Empfänger
+Empire	n	
+End	n	Ends
+Ende	n	Enden
+Endstation	f	Endstationen
+Energie	f	Energien
+Energiequelle	f	Energiequellen
+Engagement	n	Engagements
+Enge	f	Engen
+Engel	m	Engel
+Engelchen	n	Engelchen
+Engländer	m	Engländer
+Enkel	m	Enkel
+Enkelin	f	Enkelinnen
+Enkelkind	n	Enkelkinder
+Entdeckung	f	Entdeckungen
+Ente	f	Enten
+Entfernen	n	
+Entfernung	f	Entfernungen
+Entführer	m	Entführer
+Entführung	f	Entführungen
+Enthusiasmus	m	
+Entkommen	n	
+Entlassung	f	Entlassungen
+Entscheidung	f	Entscheidungen
+Entschlossenheit	f	
+Entschluss	m	Entschlüsse
+Entschuldigung	f	Entschuldigungen
+Entschädigung	f	Entschädigungen
+Entspannung	f	Entspannungen
+Enttäuschung	f	Enttäuschungen
+Entwicklung	f	Entwicklungen
+Entwurf	m	Entwürfe
+Entzug	m	Entzüge
+Epidemie	f	Epidemien
+Episode	f	Episoden
+Er	m	Er
+Erbarmen	n	
+Erbe	nm	Erben
+Erbin	f	Erbinnen
+Erbrechen	n	
+Erdbeben	n	Erdbeben
+Erdboden	m	Erdböden
+Erde	f	Erden
+Erdgeschoss	n	Erdgeschosse
+Erdnussbutter	f	
+Ereignis	n	Ereignisse
+Erektion	f	Erektionen
+Erfahrung	f	Erfahrungen
+Erfinder	m	Erfinder
+Erfindung	f	Erfindungen
+Erfolg	m	Erfolge
+Erfrischung	f	Erfrischungen
+Erfüllung	f	Erfüllungen
+Ergebnis	n	Ergebnisse
+Erholung	f	
+Erika	f	Eriken
+Erinnerung	f	Erinnerungen
+Erkenntnis	fn	Erkenntnisse
+Erklärung	f	Erklärungen
+Erkrankung	f	Erkrankungen
+Erkältung	f	Erkältungen
+Erlangen	n	
+Erlaubnis	f	Erlaubnisse
+Erlebnis	n	Erlebnisse
+Erlegen	n	
+Erleichterung	f	Erleichterungen
+Erlöser	m	Erlöser
+Erlösung	f	Erlösungen
+Ermittler	m	Ermittler
+Ermittlung	f	Ermittlungen
+Ermordung	f	Ermordungen
+Erniedrigung	f	Erniedrigungen
+Ernst	m	
+Ernte	f	Ernten
+Ernährung	f	Ernährungen
+Eroberung	f	Eroberungen
+Erpresser	m	Erpresser
+Erpressung	f	Erpressungen
+Erregung	f	Erregungen
+Erreichen	n	
+Ersatz	m	Ersätze
+Erscheinung	f	Erscheinungen
+Erschießen	n	
+Erschöpfung	f	Erschöpfungen
+Erstaunen	n	
+Erste	f	Erste
+Erster	m	Erste
+Ersuchen	n	Ersuchen
+Ertrag	m	Erträge
+Ertrinken	n	
+Erwachen	n	
+Erwachsene	f	Erwachsene
+Erwachsener	m	Erwachsene
+Erwarten	n	
+Erwartung	f	Erwartungen
+Erwägung	f	Erwägungen
+Erzbischof	m	Erzbischöfe
+Erzeugen	n	
+Erziehung	f	
+Erzählen	n	
+Erzähler	m	Erzähler
+Eröffnung	f	Eröffnungen
+Es	n	Es
+Esel	m	Esel
+Eskorte	f	Eskorten
+Espresso	mn	Espressos
+Esse	fn	Essen
+Essen	n	Essen
+Essig	m	Essige
+Esszimmer	n	Esszimmer
+Esther	f	
+Etage	f	Etagen
+Ethan	n	
+Ethik	f	Ethiken
+Etikett	n	Etikette
+Etwas	n	Etwas
+Eule	f	Eulen
+Euro	mf	Euros
+Europäer	m	Europäer
+Evakuierung	f	Evakuierungen
+Event	nm	Events
+Evolution	f	Evolutionen
+Ewigkeit	f	Ewigkeiten
+Ex	mf	Ex
+Examen	n	Examina
+Exekution	f	Exekutionen
+Exempel	n	Exempel
+Exemplar	n	Exemplare
+Exfrau	f	Exfrauen
+Exfreund	m	Exfreunde
+Exil	n	Exile
+Existenz	f	Existenzen
+Exmann	m	Exmänner
+Exorzismus	m	Exorzismen
+Expedition	f	Expeditionen
+Experiment	n	Experimente
+Experte	m	Experten
+Expertin	f	Expertinnen
+Explosion	f	Explosionen
+Express	m	Expresse
+Extra	n	Extras
+Extrem	n	Extreme
+Exzellenz	f	Exzellenzen
+Fabrik	f	Fabriken
+Fach	n	Fächer
+Fachgebiet	n	Fachgebiete
+Fachmann	m	Fachmänner
+Fackel	fnm	Fackeln
+Faden	m	Fäden
+Fahndung	f	Fahndungen
+Fahne	f	Fahnen
+Fahren	n	
+Fahrer	m	Fahrer
+Fahrerflucht	f	
+Fahrkarte	f	Fahrkarten
+Fahrrad	n	Fahrräder
+Fahrstuhl	m	Fahrstühle
+Fahrt	f	Fahrten
+Fahrzeug	n	Fahrzeuge
+Fakt	mn	Fakten
+Faktor	m	Faktoren
+Fakultät	f	Fakultäten
+Falke	m	Falken
+Fall	mn	Fälle
+Falle	f	Fallen
+Fallschirm	m	Fallschirme
+Falschgeld	n	
+Familie	f	Familien
+Familienmitglied	n	Familienmitglieder
+Familientreffen	n	Familientreffen
+Fan	m	Fans
+Fanatiker	m	Fanatiker
+Fang	m	Fänge
+Fangen	n	
+Fantasie	f	Fantasien
+Farbe	f	Farben
+Farbige	f	Farbige
+Farce	f	Farcen
+Farm	f	Farmen
+Farmer	m	Farmer
+Fass	n	Fässer
+Fassade	f	Fassaden
+Fassung	f	Fassungen
+Faulen	n	
+Fauler	m	Faule
+Faust	f	Fäuste
+Favorit	m	Favoriten
+Fax	nm	Faxe
+Februar	m	Februare
+Fechten	n	
+Feder	f	Federn
+Fee	f	Feen
+Fegefeuer	n	
+Fehl	mnf	Fehle
+Fehlen	n	
+Fehler	m	Fehler
+Fehlgeburt	f	Fehlgeburten
+Feier	f	Feiern
+Feierabend	m	Feierabende
+Feiertag	m	Feiertage
+Feige	f	Feigen
+Feigheit	f	
+Feigling	m	Feiglinge
+Feind	m	Feinde
+Feindseligkeit	f	Feindseligkeiten
+Feld	n	Felder
+Feldmarschall	m	Feldmarschälle
+Feldwebel	m	Feldwebel
+Feldzug	m	Feldzüge
+Fell	n	Felle
+Fels	m	Felsen
+Felsen	m	Felsen
+Fenster	n	Fenster
+Ferien		Ferien
+Ferienlager	n	Ferienlager
+Ferkel	n	Ferkel
+Fernbedienung	f	Fernbedienungen
+Ferne	f	Fernen
+Ferner	m	Ferner
+Fernglas	n	Ferngläser
+Fernsehen	n	
+Fernseher	m	Fernseher
+Fest	n	Feste
+Feste	f	Festen
+Festhalten	n	
+Festival	n	Festivals
+Festland	n	Festländer
+Festmahl	n	Festmähler
+Festnahme	f	Festnahmen
+Festnehmen	n	
+Festplatte	f	Festplatten
+Festung	f	Festungen
+Fett	n	Fette
+Fetter	m	Fette
+Fettsack	m	Fettsäcke
+Fetzen	m	Fetzen
+Feuchte	f	
+Feuchtigkeit	f	Feuchtigkeiten
+Feuer	n	Feuer
+Feueralarm	m	Feueralarme
+Feuerlöscher	m	Feuerlöscher
+Feuerwehr	f	Feuerwehren
+Feuerwehrmann	m	Feuerwehrmänner
+Feuerwerk	n	Feuerwerke
+Feuerzeug	n	Feuerzeuge
+Fiasko	n	Fiaskos
+Fick	m	Ficks
+Ficke	f	Ficken
+Ficken	n	
+Fieber	n	Fieber
+Fight	m	Fights
+Figur	f	Figuren
+Fiktion	f	Fiktionen
+Filiale	f	Filialen
+Film	m	Filme
+Filmemacher	m	Filmemacher
+Filmmaterial	n	Filmmaterialien
+Filmstar	m	Filmstars
+Filter	mn	Filter
+Finale	n	Finale
+Finanzamt	n	Finanzämter
+Finanzierung	f	Finanzierungen
+Finger	m	Finger
+Fingerabdruck	m	Fingerabdrücke
+Finsternis	f	Finsternisse
+Firewall	fm	Firewalls
+Firma	f	Firmen
+First	m	Firste
+Fisch	m	Fische
+Fischen	n	
+Fischer	m	Fischer
+Fitnessstudio	n	Fitnessstudios
+Fix	m	Fixe
+Flach	n	Flache
+Flagge	f	Flaggen
+Flamme	f	Flammen
+Flanke	f	Flanken
+Flasche	f	Flaschen
+Fleck	m	Flecke
+Flecken	m	Flecken
+Fledermaus	f	Fledermäuse
+Fleisch	n	
+Flicken	m	Flicken
+Fliege	f	Fliegen
+Fliegen	n	
+Flieger	m	Flieger
+Flinte	f	Flinten
+Flittchen	n	Flittchen
+Flitterwochen		Flitterwochen
+Floh	m	Flöhe
+Flohmarkt	m	Flohmärkte
+Flora	f	Floren
+Flott	nm	
+Flotte	f	Flotten
+Floß	n	Flöße
+Fluch	m	Flüche
+Fluchen	n	
+Flucht	f	Fluchten
+Fluchtversuch	m	Fluchtversuche
+Fluchtweg	m	Fluchtwege
+Flug	m	Flüge
+Flugbahn	f	Flugbahnen
+Flughafen	m	Flughäfen
+Flugplatz	m	Flugplätze
+Flugticket	n	Flugtickets
+Flugzeug	n	Flugzeuge
+Flugzeugabsturz	m	Flugzeugabstürze
+Flur	mf	Flure
+Fluss	m	Flüsse
+Flut	f	Fluten
+Flyer	m	Flyer
+Fläche	f	Flächen
+Fläschchen	n	Fläschchen
+Flöte	f	Flöten
+Flüchtling	m	Flüchtlinge
+Flügel	m	Flügel
+Flüssigkeit	f	Flüssigkeiten
+Fohlen	n	Fohlen
+Fokus	m	Fokusse
+Folge	f	Folgen
+Folter	f	Foltern
+Fonds	m	Fonds
+Food	n	
+Football	m	Footballs
+Forderung	f	Forderungen
+Forensik	f	
+Form	f	Formen
+Formalität	f	Formalitäten
+Formation	f	Formationen
+Formel	f	Formeln
+Formen	n	
+Formular	n	Formulare
+Forscher	m	Forscher
+Forschung	f	Forschungen
+Fort	n	Forts
+Fortschritt	m	Fortschritte
+Fortsetzung	f	Fortsetzungen
+Foto	nfm	Fotos
+Fotograf	m	Fotografen
+Fotografie	f	Fotografien
+Fotze	f	Fotzen
+Foul	n	Fouls
+Foundation	f	Foundations
+Fracht	f	Frachten
+Frachter	m	Frachter
+Frachtraum	m	Frachträume
+Frack	m	Fräcke
+Frage	f	Fragen
+Franc	m	Francs
+Franzose	m	Franzosen
+Franzosen		Franzosen
+Französin	f	Französinnen
+Frau	f	Frauen
+Frauchen	n	Frauchen
+Frauenstimme	f	Frauenstimmen
+Fraß	m	Fraße
+Freak	m	Freaks
+Frechheit	f	Frechheiten
+Freie	nf	Freie
+Freier	m	Freier
+Freigabe	f	Freigaben
+Freiheit	f	Freiheiten
+Freilassung	f	Freilassungen
+Freiraum	m	Freiräume
+Freitag	m	Freitage
+Freitagabend	m	Freitagabende
+Freiwilliger	m	Freiwillige
+Freizeichen	n	Freizeichen
+Freizeit	f	Freizeiten
+Fremde	f	Fremde
+Fremder	m	Fremde
+Frequenz	f	Frequenzen
+Fresse	f	Fressen
+Fressen	n	
+Freude	f	Freuden
+Freund	m	Freunde
+Freundin	f	Freundinnen
+Freundlichkeit	f	Freundlichkeiten
+Freundschaft	f	Freundschaften
+Friede	m	Frieden
+Frieden	m	Frieden
+Friedhof	m	Friedhöfe
+Frische	f	
+Friseur	m	Friseure
+Frist	f	Fristen
+Frisur	f	Frisuren
+Fritz	m	Fritze
+Front	f	Fronten
+Frosch	m	Frösche
+Frost	m	Fröste
+Frucht	f	Früchte
+Frustration	f	Frustrationen
+Fräulein	n	Fräulein
+Früh	fmn	
+Frühe	f	
+Frühjahr	n	Frühjahre
+Frühling	m	Frühlinge
+Frühstück	n	Frühstücke
+Fuchs	m	Füchse
+Fund	mn	Funde
+Fundament	n	Fundamente
+Funk	m	Fünke
+Funke	mf	Funken
+Funken	mn	Funken
+Funkgerät	n	Funkgeräte
+Funkkontakt	m	Funkkontakte
+Funkspruch	m	Funksprüche
+Funkstille	f	Funkstillen
+Funktion	f	Funktionen
+Furcht	f	
+Furz	m	Fürze
+Fusel	m	Fusel
+Fusion	f	Fusionen
+Futter	n	Futter
+Fuß	m	Füße
+Fußball	m	Fußbälle
+Fußboden	m	Fußböden
+Fußstapfen	m	Fußstapfen
+Fächer	m	Fächer
+Fähigkeit	f	Fähigkeiten
+Fähnrich	m	Fähnriche
+Fähre	f	Fähren
+Fährte	f	Fährten
+Fällen	n	
+Fälschung	f	Fälschungen
+Föderation	f	Föderationen
+Fötus	m	Föten
+Fühlen	n	
+Führe	f	Führen
+Führer	m	Führer
+Führerschein	m	Führerscheine
+Führung	f	Führungen
+Fülle	f	Füllen
+Füllen	n	Füllen
+Fünf	f	Fünfen
+Fünfer	m	Fünfer
+Fünfter	m	Fünfte
+Fünfzehn	f	
+Für	n	
+Fürsorge	f	Fürsorgen
+Fürst	m	Fürsten
+Fürstin	f	Fürstinnen
+Gabe	f	Gaben
+Gabel	f	Gabeln
+Gag	m	Gags
+Gage	fm	Gagen
+Gala	f	Galas
+Galaxie	f	Galaxien
+Galerie	f	Galerien
+Galgen	m	Galgen
+Gallier	m	Gallier
+Gamma	n	Gammas
+Gang	mf	Gänge
+Gangster	m	Gangster
+Gans	f	Gänse
+Ganzes	n	Ganze
+Garage	f	Garagen
+Garantie	f	Garantien
+Garde	f	Garden
+Garderobe	f	Garderoben
+Garnison	f	Garnisonen
+Garten	m	Gärten
+Gas	n	Gase
+Gasse	f	Gassen
+Gast	m	Gäste
+Gastfreundschaft	f	Gastfreundschaften
+Gastgeber	m	Gastgeber
+Gastgeberin	f	Gastgeberinnen
+Gasthaus	n	Gasthäuser
+Gate	nf	Gates
+Gatte	m	Gatten
+Gattin	f	Gattinnen
+Gaul	m	Gäule
+Gauner	m	Gauner
+Gebet	n	Gebete
+Gebiet	n	Gebiete
+Gebieter	m	Gebieter
+Gebirge	n	Gebirge
+Gebot	n	Gebote
+Gebrauch	m	Gebräuche
+Gebrüll	n	
+Geburt	f	Geburten
+Geburtsdatum	n	Geburtsdaten
+Geburtstag	m	Geburtstage
+Geburtstagsfeier	f	Geburtstagsfeiern
+Geburtstagsgeschenk	n	Geburtstagsgeschenke
+Geburtstagskind	n	Geburtstagskinder
+Geburtstagsparty	f	Geburtstagspartys
+Geburtsurkunde	f	Geburtsurkunden
+Gebäck	n	Gebäcke
+Gebärmutter	f	Gebärmütter
+Gebäude	n	Gebäude
+Gebüsch	n	Gebüsche
+Gedanke	m	Gedanken
+Gedanken	m	Gedanken
+Gedenken	n	
+Gedenkfeier	f	Gedenkfeiern
+Gedicht	n	Gedichte
+Geduld	f	
+Gedächtnis	n	Gedächtnisse
+Gedächtnisverlust	m	Gedächtnisverluste
+Gefahr	f	Gefahren
+Gefallen	mn	Gefallen
+Gefangene	f	Gefangene
+Gefangener	m	Gefangene
+Gefangenschaft	f	Gefangenschaften
+Gefecht	n	Gefechte
+Gefolge	n	Gefolge
+Gefreiter	m	Gefreite
+Gefährden	n	
+Gefährtin	f	Gefährtinnen
+Gefängnis	n	Gefängnisse
+Gefäß	n	Gefäße
+Gefühl	n	Gefühle
+Gegend	f	Gegenden
+Gegeneinander	n	
+Gegengift	n	Gegengifte
+Gegenleistung	f	Gegenleistungen
+Gegenmittel	n	Gegenmittel
+Gegensatz	m	Gegensätze
+Gegenstand	m	Gegenstände
+Gegenteil	n	Gegenteile
+Gegenwart	f	
+Gegenzug	m	Gegenzüge
+Gegenüber	n	
+Gegner	m	Gegner
+Gehalt	mn	Gehalte
+Gehaltserhöhung	f	Gehaltserhöhungen
+Geheimdienst	m	Geheimdienste
+Geheimhaltung	f	
+Geheimnis	n	Geheimnisse
+Geheimwaffe	f	Geheimwaffen
+Gehen	n	
+Gehirn	n	Gehirne
+Gehirnerschütterung	f	Gehirnerschütterungen
+Gehirnwäsche	f	Gehirnwäschen
+Gehorsam	m	
+Gehör	n	Gehöre
+Geier	m	Geier
+Geige	f	Geigen
+Geiger	m	Geiger
+Geisel	fm	Geiseln
+Geiselnahme	f	Geiselnahmen
+Geist	m	Geister
+Gelb	n	Gelb
+Geld	n	Gelder
+Geldbeutel	m	Geldbeutel
+Geldbörse	f	Geldbörsen
+Gelegenheit	f	Gelegenheiten
+Geliebte	f	Geliebte
+Geliebter	m	Geliebte
+Gelächter	n	Gelächter
+Gelände	n	Gelände
+Geländer	n	Geländer
+Gelübde	n	Gelübde
+Gemahl	m	Gemahle
+Gemahlin	f	Gemahlinnen
+Gemein	f	Gemeinen
+Gemeinde	f	Gemeinden
+Gemeine	f	Gemeinen
+Gemeinschaft	f	Gemeinschaften
+Gemetzel	n	Gemetzel
+Gemurmel	n	
+Gemälde	n	Gemälde
+Gemüse	n	Gemüse
+Gemüt	n	Gemüter
+Gen	n	Gene
+Genehmigung	f	Genehmigungen
+General	m	Generale
+Generalstaatsanwalt	m	Generalstaatsanwälte
+Generation	f	Generationen
+Generator	m	Generatoren
+Genesis	f	Genesen
+Genesung	f	Genesungen
+Genick	n	Genicke
+Genie	n	Genies
+Genießen	n	
+Genosse	m	Genossen
+Gentleman	m	Gentlemen
+Genugtuung	f	Genugtuungen
+Genuss	m	Genüsse
+Genüge	nf	
+Gepäck	n	
+Gequatsche	n	
+Gerade	f	Geraden
+Gerechtigkeit	f	Gerechtigkeiten
+Gerede	n	
+Gericht	n	Gerichte
+Gerichtsbeschluss	m	Gerichtsbeschlüsse
+Gerichtshof	m	Gerichtshöfe
+Gerichtsmedizin	f	
+Gerichtssaal	m	Gerichtssäle
+German	n	Germane
+Geruch	m	Gerüche
+Gerät	n	Geräte
+Geräusch	n	Geräusche
+Gerücht	n	Gerüchte
+Gesang	m	Gesänge
+Geschehen	n	Geschehen
+Geschenk	n	Geschenke
+Geschichte	f	Geschichten
+Geschick	n	Geschicke
+Geschirr	n	Geschirre
+Geschlecht	n	Geschlechter
+Geschlechtsverkehr	m	
+Geschlossene	f	Geschlossene
+Geschmack	m	Geschmäcke
+Geschrei	n	
+Geschwader	n	Geschwader
+Geschwindigkeit	f	Geschwindigkeiten
+Geschwister	n	Geschwister
+Geschworene	f	Geschworene
+Geschwätz	n	
+Geschäft	n	Geschäfte
+Geschäftsführer	m	Geschäftsführer
+Geschäftsleute		Geschäftsleute
+Geschäftsmann	m	Geschäftsleute
+Geschäftspartner	m	Geschäftspartner
+Geschäftsreise	f	Geschäftsreisen
+Geschöpf	n	Geschöpfe
+Geschütz	n	Geschütze
+Gesellschaft	f	Gesellschaften
+Gesetz	n	Gesetze
+Gesetzeshüter	m	Gesetzeshüter
+Gesicht	n	Gesichter
+Gesichtsausdruck	m	Gesichtsausdrücke
+Gesindel	n	
+Gespenst	n	Gespenster
+Gespräch	n	Gespräche
+Gespür	n	
+Gestalt	f	Gestalten
+Gestalten	n	
+Gestank	m	
+Gestapo	f	
+Geste	f	Gesten
+Gestern	n	
+Geständnis	n	Geständnisse
+Gesundheit	f	
+Getreide	n	Getreide
+Getriebe	n	Getriebe
+Getränk	n	Getränke
+Getue	n	
+Gewahrsam	mn	Gewahrsame
+Gewalt	f	Gewalten
+Gewand	n	Gewänder
+Gewann	n	Gewanne
+Gewebe	n	Gewebe
+Gewehr	n	Gewehre
+Gewerkschaft	f	Gewerkschaften
+Gewicht	n	Gewichte
+Gewinn	m	Gewinne
+Gewinner	m	Gewinner
+Gewissen	n	Gewissen
+Gewissheit	f	Gewissheiten
+Gewitter	n	Gewitter
+Gewohnheit	f	Gewohnheiten
+Gewächshaus	n	Gewächshäuser
+Gewässer	n	Gewässer
+Geysir	m	Geysire
+Ghetto	nm	Ghettos
+Gier	f	
+Gießen	n	
+Gift	nfm	Gifte
+Gig	mfn	Gigs
+Gin	m	Gins
+Ginger	m	Ginger
+Gipfel	m	Gipfel
+Gips	m	Gipse
+Giraffe	f	Giraffen
+Gitarre	f	Gitarren
+Gitter	n	Gitter
+Glanz	m	
+Glas	n	Gläser
+Glatze	f	Glatzen
+Glatzkopf	m	Glatzköpfe
+Glaube	m	
+Glauben	m	
+Glaubwürdigkeit	f	
+Gleichgewicht	n	Gleichgewichte
+Gleichung	f	Gleichungen
+Gleis	n	Gleise
+Glied	n	Glieder
+Glocke	f	Glocken
+Glockenläuten	n	
+Gloria	n	
+Gläschen	n	Gläschen
+Gläubiger	m	Gläubiger
+Glöckchen	n	Glöckchen
+Glück	n	
+Glücksbringer	m	Glücksbringer
+Glückspilz	m	Glückspilze
+Glücksspiel	n	Glücksspiele
+Glückssträhne	f	Glückssträhnen
+Glückstag	m	Glückstage
+Glückwunsch	m	Glückwünsche
+Glühbirne	f	Glühbirnen
+Gnade	f	Gnaden
+Go	n	
+Gold	n	
+Goldmine	f	Goldminen
+Golf	mn	Golfe
+Golfplatz	m	Golfplätze
+Goliath	m	Goliaths
+Gong	mn	Gongs
+Gorilla	m	Gorillas
+Gosse	f	Gossen
+Gott	m	Götter
+Gottesdienst	m	Gottesdienste
+Gouverneur	m	Gouverneure
+Grab	n	Gräber
+Graben	m	Gräben
+Grabstein	m	Grabsteine
+Grad	mn	Grade
+Graf	m	Grafen
+Gral	m	
+Gramm	n	Gramme
+Granate	f	Granaten
+Grant	m	
+Gras	n	Gräser
+Gratulation	f	Gratulationen
+Grau	n	Graus
+Grauen	n	
+Grausamkeit	f	Grausamkeiten
+Gray	n	Gray
+Grazie	f	Grazien
+Green	n	Greens
+Greif	m	Greife
+Grenze	f	Grenzen
+Grieche	m	Griechen
+Griff	m	Griffe
+Grill	m	Grills
+Grillen	n	
+Grimm	m	Grimm
+Gringo	m	Gringos
+Grinsen	n	
+Grippe	f	Grippen
+Grips	m	
+Groll	m	
+Grollen	n	
+Große	f	Große
+Großeltern		Großeltern
+Großer	m	Große
+Großmaul	n	Großmäuler
+Großmutter	f	Großmütter
+Großstadt	f	Großstädte
+Großteil	m	Großteile
+Großvater	m	Großväter
+Großzügigkeit	f	
+Grube	f	Gruben
+Gruft	f	Grüfte
+Grund	m	Gründe
+Grundgütiger	m	
+Grundlage	f	Grundlagen
+Grundschule	f	Grundschulen
+Grundstück	n	Grundstücke
+Gruppe	f	Gruppen
+Gruß	m	Grüße
+Gräber	m	Gräber
+Gräfin	f	Gräfinnen
+Größe	f	Größen
+Grün	n	Grüns
+Gründer	m	Gründer
+Grüne	nf	Grüne
+Grüner	m	Grüne
+Gucke	f	Gucken
+Gummi	mn	Gummi
+Gun	nmf	Guns
+Gunst	f	
+Gurgel	f	Gurgeln
+Gurke	f	Gurken
+Gurt	m	Gurte
+Gut	n	Güter
+Gutachten	n	Gutachten
+Guter	m	Gute
+Gutes	n	
+Gutschein	m	Gutscheine
+Gymnasium	n	Gymnasien
+Gänsehaut	f	
+Gärtner	m	Gärtner
+Gästehaus	n	Gästehäuser
+Gästeliste	f	Gästelisten
+Gästezimmer	n	Gästezimmer
+Göre	f	Gören
+Göttin	f	Göttinnen
+Gürtel	m	Gürtel
+Güte	f	
+Haar	n	Haare
+Haarfarbe	f	Haarfarben
+Haarschnitt	m	Haarschnitte
+Habe	f	
+Haben	n	
+Habgier	f	
+Hack	nm	Hacks
+Hackbraten	m	Hackbraten
+Hacke	f	Hacken
+Hacken	nmf	Hacken
+Hacker	m	Hacker
+Hackfleisch	n	
+Hades	m	
+Hafen	m	Häfen
+Haft	fm	Hafte
+Haftbefehl	m	Haftbefehle
+Haftstrafe	f	Haftstrafen
+Hagen	m	Hägen
+Hahn	m	Hähne
+Hai	m	Haie
+Haken	m	Haken
+Halbbruder	m	Halbbrüder
+Halbe	f	Halben
+Halbzeit	f	Halbzeiten
+Hall	mf	Halle
+Halle	f	Hallen
+Halleluja	n	Hallelujas
+Hallo	n	Hallos
+Halloween	n	Halloweens
+Halluzination	f	Halluzinationen
+Hals	m	Hälse
+Halsband	n	Halsbänder
+Halskette	f	Halsketten
+Halt	m	Halte
+Haltestelle	f	Haltestellen
+Haltung	f	Haltungen
+Halunke	m	Halunken
+Hamburger	m	Hamburger
+Hammer	m	Hämmer
+Hamster	m	Hamster
+Han	m	Hane
+Hand	f	Hände
+Handbuch	n	Handbücher
+Handel	m	Händel
+Handeln	n	
+Handgelenk	n	Handgelenke
+Handlanger	m	Handlanger
+Handlung	f	Handlungen
+Handschlag	m	Handschläge
+Handschrift	f	Handschriften
+Handschuh	m	Handschuhe
+Handschuhfach	n	Handschuhfächer
+Handtasche	f	Handtaschen
+Handtuch	n	Handtücher
+Handvoll	f	Handvoll
+Handwerk	n	Handwerke
+Handwerker	m	Handwerker
+Handy	n	Handys
+Handynummer	f	Handynummern
+Hang	m	Hänge
+Hangar	m	Hangars
+Hans	m	Hänse
+Happen	m	Happen
+Hardware	f	Hardwares
+Harmonie	f	Harmonien
+Hart	m	Harte
+Hasch	nmf	Haschs
+Hase	m	Hasen
+Hass	m	
+Hast	f	
+Hau	m	Haue
+Haube	f	Hauben
+Hauch	m	Hauche
+Haue	f	Hauen
+Haufen	m	Haufen
+Haupt	n	Häupter
+Haupteingang	m	Haupteingänge
+Hauptfach	n	Hauptfächer
+Hauptmann	m	Hauptmänner
+Hauptquartier	n	Hauptquartiere
+Hauptrolle	f	Hauptrollen
+Hauptsache	f	Hauptsachen
+Hauptstadt	f	Hauptstädte
+Hauptstraße	f	Hauptstraßen
+Haus	n	Häuser
+Hausarbeit	f	Hausarbeiten
+Hausarrest	m	Hausarreste
+Hausfrau	f	Hausfrauen
+Haushalt	m	Haushalte
+Haushälterin	f	Haushälterinnen
+Hausmeister	m	Hausmeister
+Hausmädchen	n	Hausmädchen
+Haustier	n	Haustiere
+Haustür	f	Haustüren
+Haut	f	Häute
+Hautfarbe	f	Hautfarben
+Havanna	fm	Havannas
+Hebamme	fm	Hebammen
+Hebe	f	Heben
+Hebel	m	Hebel
+Heck	n	Hecke
+Heer	n	Heere
+Heft	n	Hefte
+Heil	n	
+Heiligabend	m	Heiligabende
+Heilige	f	Heilige
+Heiliger	m	Heilige
+Heiligkeit	f	Heiligkeiten
+Heilmittel	n	Heilmittel
+Heilung	f	Heilungen
+Heim	n	Heime
+Heimat	f	Heimaten
+Heimatstadt	f	Heimatstädte
+Heimweg	m	Heimwege
+Heimweh	n	
+Heirat	f	Heiraten
+Heiratsantrag	m	Heiratsanträge
+Heizung	f	Heizungen
+Heißes	n	Heiße
+Hektar	nm	Hektare
+Held	m	Helden
+Heldin	f	Heldinnen
+Helfer	m	Helfer
+Helikopter	m	Helikopter
+Helium	n	
+Helles	n	Helle
+Hellseher	m	Hellseher
+Helm	m	Helme
+Hemd	n	Hemden
+Hengst	m	Hengste
+Henker	m	Henker
+Henry	n	
+Herausforderer	m	Herausforderer
+Herausforderung	f	Herausforderungen
+Herausgeber	m	Herausgeber
+Herbst	m	Herbste
+Herd	m	Herde
+Herde	f	Herden
+Herkules	m	Herkulesse
+Herkunft	f	Herkünfte
+Hermann	m	Hermänner
+Heroin	nf	Heroinnen
+Herpes	m	Herpetes
+Herr	m	Herren
+Herrchen	n	Herrchen
+Herrgott	m	
+Herrin	f	Herrinnen
+Herrlichkeit	f	Herrlichkeiten
+Herrschaft	f	Herrschaften
+Herrscher	m	Herrscher
+Hersteller	m	Hersteller
+Herstellung	f	Herstellungen
+Herz	n	Herzen
+Herzanfall	m	Herzanfälle
+Herzchen	n	Herzchen
+Herzfrequenz	f	Herzfrequenzen
+Herzinfarkt	m	Herzinfarkte
+Herzog	m	Herzöge
+Herzogin	f	Herzoginnen
+Herzschlag	m	Herzschläge
+Herzstillstand	m	Herzstillstände
+Hetero	m	Heteros
+Heu	n	
+Heuchelei	f	Heucheleien
+Heuchler	m	Heuchler
+Heuhaufen	m	Heuhaufen
+Heulen	n	
+Heute	n	
+Hexe	f	Hexen
+Hexen	n	Hexene
+Hexer	m	Hexer
+Hexerei	f	Hexereien
+Hieb	m	Hiebe
+Highway	m	Highways
+Hilfe	f	Hilfen
+Hilfssheriff	m	Hilfssheriffs
+Himmel	m	Himmel
+Hindernis	n	Hindernisse
+Hingabe	f	
+Hinrichtung	f	Hinrichtungen
+Hinsicht	f	Hinsichten
+Hinterausgang	m	Hinterausgänge
+Hintereingang	m	Hintereingänge
+Hintergrund	m	Hintergründe
+Hinterhalt	m	Hinterhalte
+Hinterhof	m	Hinterhöfe
+Hinterkopf	m	Hinterköpfe
+Hintern	m	Hintern
+Hintertür	f	Hintertüren
+Hinterwäldler	m	Hinterwäldler
+Hinterzimmer	n	Hinterzimmer
+Hinweg	m	Hinwege
+Hinweis	m	Hinweise
+Hippie	m	Hippies
+Hirn	n	Hirne
+Hirsch	m	Hirsche
+Hirte	m	Hirten
+His	n	His
+Historiker	m	Historiker
+Hit	m	Hits
+Hitze	f	Hitzen
+Hobby	n	Hobbys
+Hoch	n	Hochs
+Hochstapler	m	Hochstapler
+Hochverrat	m	Hochverrate
+Hochzeit	f	Hochzeiten
+Hochzeitsgeschenk	n	Hochzeitsgeschenke
+Hochzeitskleid	n	Hochzeitskleider
+Hochzeitsnacht	f	Hochzeitsnächte
+Hochzeitsreise	f	Hochzeitsreisen
+Hochzeitstag	m	Hochzeitstage
+Hocker	m	Hocker
+Hockey	n	
+Hoden	m	Hoden
+Hof	m	Höfe
+Hoffnung	f	Hoffnungen
+Hoheit	f	Hoheiten
+Hokuspokus	m	
+Hole	n	Holes
+Holländer	m	Holländer
+Hologramm	n	Hologramme
+Holz	n	Hölzer
+Holzfäller	m	Holzfäller
+Homie	m	Homies
+Homo	m	Homos
+Homosexuelle	f	Homosexuelle
+Honig	m	Honige
+Honorar	n	Honorare
+Horde	f	Horden
+Horizont	m	Horizonte
+Horn	n	Hörner
+Horror	m	
+Horst	m	Horste
+Hose	f	Hosen
+Hosenscheißer	m	Hosenscheißer
+Hosentasche	f	Hosentaschen
+Hospital	n	Hospitäler
+Hotdog	nm	Hotdogs
+Hotel	n	Hotels
+Hotelzimmer	n	Hotelzimmer
+Hubschrauber	m	Hubschrauber
+Hufe	f	Hufen
+Hugo	m	Hugos
+Huhn	n	Hühner
+Hulk	mf	Hulke
+Hummer	m	Hummer
+Humor	m	Humore
+Hund	m	Hunde
+Hundefutter	n	
+Hundegebell	n	
+Hundert	fn	Hundert
+Hunderter	m	Hunderter
+Hunger	m	
+Hunt	m	Hunte
+Hupe	f	Hupen
+Hure	f	Huren
+Hurensohn	m	Hurensöhne
+Hurra	n	Hurras
+Hurrikan	m	Hurrikans
+Husten	mn	Husten
+Hut	mf	Hüte
+Hydra	f	Hydren
+Hypnose	f	Hypnosen
+Hypothek	f	Hypotheken
+Hypothese	f	Hypothesen
+Häftling	m	Häftlinge
+Hähnchen	n	Hähnchen
+Hälfte	f	Hälften
+Händchen	n	Händchen
+Händler	m	Händler
+Härte	f	Härten
+Häschen	n	Häschen
+Häuptling	m	Häuptlinge
+Häuschen	n	Häuschen
+Höflichkeit	f	Höflichkeiten
+Höhe	f	Höhen
+Höhenangst	f	
+Höhepunkt	m	Höhepunkte
+Höhle	f	Höhlen
+Hölle	f	Höllen
+Hören	n	
+Hörer	m	Hörer
+Höschen	n	Höschen
+Hüfte	f	Hüften
+Hügel	m	Hügel
+Hühnchen	n	Hühnchen
+Hülle	f	Hüllen
+Hündchen	n	Hündchen
+Hündin	f	Hündinnen
+Hüter	m	Hüter
+Hütte	f	Hütten
+Ich	n	Ich
+Ideal	n	Ideale
+Idee	f	Ideen
+Identifikation	f	Identifikationen
+Identifizierung	f	Identifizierungen
+Identität	f	Identitäten
+Idiot	m	Idioten
+Idiotin	f	Idiotinnen
+Idol	n	Idole
+Illusion	f	Illusionen
+Image	n	Images
+Imbiss	m	Imbisse
+Immunität	f	Immunitäten
+Immunsystem	n	Immunsysteme
+Imperator	m	Imperatoren
+Imperium	n	Imperien
+Impfstoff	m	Impfstoffe
+Impuls	m	Impulse
+Inder	m	Inder
+Indianer	m	Indianer
+Individuum	n	Individuen
+Industrie	f	Industrien
+Infanterie	f	Infanterien
+Infektion	f	Infektionen
+Info	fn	Infos
+Informant	m	Informanten
+Information	f	Informationen
+Infrastruktur	f	Infrastrukturen
+Infusion	f	Infusionen
+Ingenieur	m	Ingenieure
+Inhaber	m	Inhaber
+Inhalt	m	Inhalte
+Initiative	f	Initiativen
+Injektion	f	Injektionen
+Innenminister	m	Innenminister
+Innenstadt	f	Innenstädte
+Inneres	n	
+Inquisition	f	Inquisitionen
+Inschrift	f	Inschriften
+Insekt	n	Insekten
+Insel	f	Inseln
+Insider	m	Insider
+Inspektion	f	Inspektionen
+Inspektor	m	Inspektoren
+Inspiration	f	Inspirationen
+Instinkt	m	Instinkte
+Institut	n	Institute
+Institution	f	Institutionen
+Instrument	n	Instrumente
+Insulin	n	
+Integrität	f	
+Intelligenz	f	Intelligenzen
+Intensivstation	f	Intensivstationen
+Interesse	n	Interessen
+Internat	n	Internate
+Internationale	f	
+Internet	n	
+Interpol	f	
+Interpretation	f	Interpretationen
+Interview	n	Interviews
+Intimität	f	Intimitäten
+Intuition	f	Intuitionen
+Invasion	f	Invasionen
+Investition	f	Investitionen
+Investor	m	Investoren
+Ire	m	Iren
+Iren	n	Irene
+Iris	f	Iris
+Ironie	f	Ironien
+Irre	f	Irre
+Irrenanstalt	f	Irrenanstalten
+Irrenhaus	n	Irrenhäuser
+Irrer	m	Irre
+Irrsinn	m	
+Irrtum	m	Irrtümer
+Islam	m	Islame
+Isolation	f	Isolationen
+Ist	n	
+Italiener	m	Italiener
+Item	nm	Items
+Iwan	m	Iwans
+Ja	n	Ja
+Jacht	f	Jachten
+Jacke	f	Jacken
+Jackett	n	Jacketts
+Jackpot	m	Jackpots
+Jade	fm	Jaden
+Jagd	f	Jagden
+Jaguar	m	Jaguare
+Jahr	n	Jahre
+Jahrbuch	n	Jahrbücher
+Jahrestag	m	Jahrestage
+Jahreszeit	f	Jahreszeiten
+Jahrgang	m	Jahrgänge
+Jahrhundert	n	Jahrhunderte
+Jahrmarkt	m	Jahrmärkte
+Jahrzehnt	n	Jahrzehnte
+Jammer	m	
+Januar	m	Januare
+Japaner	m	Japaner
+Jarl	m	Jarls
+Jasmin	m	Jasmine
+Jazz	m	
+Jean	f	Jeans
+Jeans	f	Jeans
+Jeep	m	Jeeps
+Jenseits	n	
+Jersey	mn	Jerseys
+Jet	m	Jets
+Jetzt	n	
+Job	m	Jobs
+Joghurt	mfn	Joghurts
+Johannes	m	Johannesse
+Joint	m	Joints
+Jojo	n	Jojos
+Joker	m	Joker
+Jonny	m	Jonnys
+Journal	n	Journale
+Journalismus	m	
+Journalist	m	Journalisten
+Journalistin	f	Journalistinnen
+Jubel	m	
+Jubiläum	n	Jubiläen
+Jude	m	Juden
+Jugend	f	
+Jugendamt	n	Jugendämter
+Jugendliche	f	Jugendliche
+Jugendlicher	m	Jugendliche
+Juli	m	Julis
+Jumper	m	Jumper
+Junge	m	Jungen
+Junges	n	Junge
+Jungfer	f	Jungfern
+Jungfräulichkeit	f	
+Junggeselle	m	Junggesellen
+Juni	m	Junis
+Junior	m	Junioren
+Junkie	m	Junkies
+Jura	m	Jura
+Jury	f	Jurys
+Justiz	f	
+Justizministerium	n	Justizministerien
+Juwel	mn	Juwelen
+Juwelier	m	Juweliere
+Jäger	m	Jäger
+Jägerin	f	Jägerinnen
+Jüdin	f	Jüdinnen
+Jünger	m	Jünger
+Kabel	n	Kabel
+Kabine	f	Kabinen
+Kabinett	n	Kabinette
+Kacke	f	
+Kadaver	m	Kadaver
+Kaff	n	Kaffe
+Kaffee	mn	Kaffees
+Kahn	m	Kähne
+Kai	m	Kais
+Kaiser	m	Kaiser
+Kaiserin	f	Kaiserinnen
+Kakao	m	Kakaos
+Kakerlake	f	Kakerlaken
+Kalb	n	Kälber
+Kalender	m	Kalender
+Kaliber	n	Kaliber
+Kamel	n	Kamele
+Kamera	f	Kameras
+Kamerad	m	Kameraden
+Kameramann	m	Kameramänner
+Kamin	mn	Kamine
+Kamm	m	Kämme
+Kammer	f	Kammern
+Kammerjäger	m	Kammerjäger
+Kampagne	f	Kampagnen
+Kampf	m	Kämpfe
+Kampfgeist	m	
+Kampfkunst	f	Kampfkünste
+Kanadier	m	Kanadier
+Kanal	m	Kanäle
+Kanalisation	f	Kanalisationen
+Kandidat	m	Kandidaten
+Kandidatin	f	Kandidatinnen
+Kandidatur	f	Kandidaturen
+Kang	mn	Kangs
+Kaninchen	n	Kaninchen
+Kanister	m	Kanister
+Kanne	f	Kannen
+Kanone	f	Kanonen
+Kante	f	Kanten
+Kantine	f	Kantinen
+Kanu	n	Kanus
+Kanzlei	f	Kanzleien
+Kanzler	m	Kanzler
+Kapelle	f	Kapellen
+Kapital	n	Kapitale
+Kapitalismus	m	
+Kapitel	n	Kapitel
+Kapitulation	f	Kapitulationen
+Kapitän	m	Kapitäne
+Kaplan	m	Kapläne
+Kappe	f	Kappen
+Kapsel	f	Kapseln
+Kapuze	f	Kapuzen
+Kar	n	Kare
+Karaoke	n	
+Karate	n	
+Kardinal	m	Kardinäle
+Karibik	f	
+Karma	n	
+Karneval	m	Karnevale
+Karo	n	Karos
+Karre	f	Karren
+Karren	m	Karren
+Karriere	f	Karrieren
+Karte	f	Karten
+Kartell	n	Kartelle
+Kartenspiel	n	Kartenspiele
+Kartoffel	f	Kartoffeln
+Karton	m	Kartons
+Karussell	n	Karussells
+Kaserne	f	Kasernen
+Kasino	n	Kasinos
+Kasper	m	Kasper
+Kasse	f	Kassen
+Kassette	f	Kassetten
+Kassierer	m	Kassierer
+Kasten	m	Kästen
+Kat	mn	Kats
+Katalog	m	Kataloge
+Katastrophe	f	Katastrophen
+Kate	f	Katen
+Kategorie	f	Kategorien
+Kater	m	Kater
+Kathedrale	f	Kathedralen
+Katholik	m	Katholiken
+Katz	f	Katzen
+Katze	f	Katzen
+Kauf	m	Käufe
+Kaufhaus	n	Kaufhäuser
+Kaufmann	m	Kaufmänner
+Kaugummi	mn	Kaugummis
+Kaution	f	Kautionen
+Kauz	m	Käuze
+Kavalier	mn	Kavaliere
+Kavallerie	f	Kavallerien
+Kaviar	m	Kaviare
+Kehle	f	Kehlen
+Kehre	f	Kehren
+Keks	mn	Keks
+Kelch	m	Kelche
+Keller	m	Keller
+Kellner	m	Kellner
+Kellnerin	f	Kellnerinnen
+Ken	n	Ken
+Kenntnis	f	Kenntnisse
+Kennzeichen	n	Kennzeichen
+Kerker	m	Kerker
+Kerl	m	Kerle
+Kerlchen	n	Kerlchen
+Kerle	m	Kerle
+Kern	m	Kerne
+Kerze	f	Kerzen
+Kessel	m	Kessel
+Ketchup	mn	Ketchups
+Kette	f	Ketten
+Kettensäge	f	Kettensägen
+Ketzer	m	Ketzer
+Keule	f	Keulen
+Khan	m	Khane
+Kichern	n	
+Kick	m	Kicks
+Kid	n	Kids
+Kidnapper	m	Kidnapper
+Kiefer	fmn	Kiefern
+Kiffen	n	
+Kiki	m	
+Killer	m	Killer
+Kilo	nm	Kilo
+Kilometer	mn	Kilometer
+Kind	n	Kinder
+Kindchen	n	Kindchen
+Kindergarten	m	Kindergärten
+Kindermädchen	n	Kindermädchen
+Kinderspiel	n	Kinderspiele
+Kinderwagen	m	Kinderwagen
+Kinderzimmer	n	Kinderzimmer
+Kindheit	f	
+King	m	Kings
+Kinn	n	Kinne
+Kino	n	Kinos
+Kippe	f	Kippen
+Kirche	f	Kirchen
+Kirsche	f	Kirschen
+Kissen	n	Kissen
+Kiste	fm	Kisten
+Kit	nm	Kits
+Kitt	m	Kitte
+Kittel	m	Kittel
+Klage	f	Klagen
+Klammer	f	Klammern
+Klang	m	Klänge
+Klappe	f	Klappen
+Klappern	n	
+Klaps	m	Klapse
+Klarer	m	Klare
+Klarheit	f	Klarheiten
+Klartext	m	Klartexte
+Klasse	f	Klassen
+Klassentreffen	n	Klassentreffen
+Klassenzimmer	n	Klassenzimmer
+Klassiker	m	Klassiker
+Klatsch	m	Klatsche
+Klatschen	n	
+Klaue	f	Klauen
+Klauen	n	
+Klaus	f	Klausen
+Klavier	n	Klaviere
+Klaviermusik	f	Klaviermusiken
+Klebeband	n	Klebebänder
+Kleber	m	Kleber
+Kleid	n	Kleider
+Kleiderschrank	m	Kleiderschränke
+Kleidung	f	Kleidungen
+Klein	n	
+Kleine	f	Kleine
+Kleiner	m	Kleine
+Kleingeld	n	
+Kleinigkeit	f	Kleinigkeiten
+Kleinkind	n	Kleinkinder
+Kleinstadt	f	Kleinstädte
+Klemme	f	Klemmen
+Klempner	m	Klempner
+Klick	m	Klicks
+Klient	m	Klienten
+Klientin	f	Klientinnen
+Klima	n	Klimas
+Klimaanlage	f	Klimaanlagen
+Klinge	f	Klingen
+Klingel	f	Klingeln
+Klinik	f	Kliniken
+Klippe	f	Klippen
+Klischee	n	Klischees
+Klo	n	Klos
+Klon	m	Klone
+Klopapier	n	Klopapiere
+Klopfen	n	
+Kloster	n	Klöster
+Klotz	m	Klötze
+Klub	m	Klubs
+Klugscheißer	m	Klugscheißer
+Klumpen	m	Klumpen
+Kläger	m	Kläger
+Knabe	m	Knaben
+Knacker	m	Knacker
+Knall	m	Knalle
+Knaller	m	Knaller
+Knappe	m	Knappen
+Knarre	f	Knarren
+Knast	m	Knäste
+Knecht	m	Knechte
+Kneipe	f	Kneipen
+Knete	f	Kneten
+Knicks	m	Knickse
+Knie	n	Knie
+Knoblauch	m	
+Knochen	m	Knochen
+Knopf	m	Knöpfe
+Knoten	m	Knoten
+Knöchel	m	Knöchel
+Knüller	m	Knüller
+Knüppel	m	Knüppel
+Kobold	m	Kobolde
+Kobra	f	Kobras
+Koch	mn	Köche
+Kochen	n	
+Kodex	m	Kodexe
+Koffein	n	
+Koffer	m	Koffer
+Kofferraum	m	Kofferräume
+Kohl	m	Kohle
+Kohle	f	Kohlen
+Kokain	n	
+Kokosnuss	f	Kokosnüsse
+Koks	mn	Kokse
+Kollege	m	Kollegen
+Kollegin	f	Kolleginnen
+Kollektion	f	Kollektionen
+Kollektiv	n	Kollektive
+Kolonie	f	Kolonien
+Kolonne	f	Kolonnen
+Kolumne	f	Kolumnen
+Koma	nf	Komas
+Kombi	mf	Kombis
+Kombination	f	Kombinationen
+Komet	m	Kometen
+Komfort	m	
+Komiker	m	Komiker
+Komitee	n	Komitees
+Komma	n	Kommas
+Kommandant	m	Kommandanten
+Kommandeur	m	Kommandeure
+Kommando	n	Kommandos
+Kommentar	m	Kommentare
+Kommissar	m	Kommissare
+Kommission	f	Kommissionen
+Kommode	f	Kommoden
+Kommunikation	f	Kommunikationen
+Kommunismus	m	
+Kommunist	m	Kommunisten
+Kompanie	f	Kompanien
+Kompass	m	Kompasse
+Kompetenz	f	Kompetenzen
+Komplex	m	Komplexe
+Kompliment	n	Komplimente
+Komplize	m	Komplizen
+Komplizin	f	Komplizinnen
+Komplott	nm	Komplotte
+Kompromiss	mn	Kompromisse
+Komödie	f	Komödien
+Kondom	nm	Kondome
+Konferenz	f	Konferenzen
+Konferenzraum	m	Konferenzräume
+Konflikt	m	Konflikte
+Konfrontation	f	Konfrontationen
+Kongo	n	
+Kongress	m	Kongresse
+Konkurrenz	f	Konkurrenzen
+Konsole	f	Konsolen
+Konsul	m	Konsuln
+Konsulat	n	Konsulate
+Kontakt	m	Kontakte
+Kontaktperson	f	Kontaktpersonen
+Kontext	m	Kontexte
+Kontinent	m	Kontinente
+Konto	n	Konten
+Kontrolle	f	Kontrollen
+Kontrollraum	m	Kontrollräume
+Konversation	f	Konversationen
+Konvoi	m	Konvois
+Konzentration	f	Konzentrationen
+Konzept	n	Konzepte
+Konzern	m	Konzerne
+Konzert	n	Konzerte
+Kooperation	f	Kooperationen
+Kopf	m	Köpfe
+Kopfgeld	n	Kopfgelder
+Kopfgeldjäger	m	Kopfgeldjäger
+Kopfhörer	m	Kopfhörer
+Kopfkissen	n	Kopfkissen
+Kopfverletzung	f	Kopfverletzungen
+Kopfweh	n	
+Kopie	f	Kopien
+Koran	m	Korane
+Korb	m	Körbe
+Koreaner	m	Koreaner
+Korn	nm	Körner
+Korrektur	f	Korrekturen
+Korridor	m	Korridore
+Korruption	f	Korruptionen
+Kosmos	m	
+Kost	f	
+Kosten		Kosten
+Kostprobe	f	Kostproben
+Kostüm	n	Kostüme
+Kotze	f	Kotzen
+Krach	m	Kräche
+Kraft	f	Kräfte
+Kraftwerk	n	Kraftwerke
+Kragen	m	Kragen
+Kram	m	
+Kramer	m	Kramer
+Krampf	m	Krämpfe
+Kran	m	Kräne
+Kranke	f	Kranke
+Krankenhaus	n	Krankenhäuser
+Krankenschwester	f	Krankenschwestern
+Krankenstation	f	Krankenstationen
+Krankenversicherung	f	Krankenversicherungen
+Krankenwagen	m	Krankenwagen
+Kranker	m	Kranke
+Krankheit	f	Krankheiten
+Kranz	m	Kränze
+Krater	m	Krater
+Kratzen	n	
+Kratzer	m	Kratzer
+Kraut	nm	Kräuter
+Krawatte	f	Krawatten
+Kreativität	f	
+Kreatur	f	Kreaturen
+Krebs	m	Krebse
+Kredit	mn	Kredite
+Kreditkarte	f	Kreditkarten
+Kreide	f	Kreiden
+Kreis	m	Kreise
+Kreisen	n	
+Kreislauf	m	Kreisläufe
+Kreuz	n	Kreuze
+Kreuzer	m	Kreuzer
+Kreuzfahrt	f	Kreuzfahrten
+Kreuzung	f	Kreuzungen
+Kreuzworträtsel	n	Kreuzworträtsel
+Kreuzzug	m	Kreuzzüge
+Krieg	m	Kriege
+Kriegen	n	
+Krieger	m	Krieger
+Kriegsführung	f	Kriegsführungen
+Kriegsgericht	n	Kriegsgerichte
+Kriegsschiff	n	Kriegsschiffe
+Kriminalität	f	
+Kriminalpolizei	f	
+Kriminelle	f	Kriminelle
+Krimineller	m	Kriminelle
+Kripo	f	Kripos
+Kris	m	Krise
+Krise	f	Krisen
+Kristall	mn	Kristalle
+Kritik	f	Kritiken
+Kritiker	m	Kritiker
+Krokodil	n	Krokodile
+Krone	f	Kronen
+Krug	m	Krüge
+Krypton	n	
+Kryptonit	n	Kryptonite
+Krähe	f	Krähen
+Krönung	f	Krönungen
+Kröte	f	Kröten
+Krümel	m	Krümel
+Krüppel	m	Krüppel
+Kubaner	m	Kubaner
+Kuchen	m	Kuchen
+Kuckuck	m	Kuckucke
+Kugel	f	Kugeln
+Kugelschreiber	m	Kugelschreiber
+Kuh	f	Kühe
+Kult	m	Kulte
+Kultur	f	Kulturen
+Kummer	m	
+Kumpel	m	Kumpel
+Kunde	mf	Kunden
+Kundin	f	Kundinnen
+Kundschaft	f	Kundschaften
+Kunst	f	Künste
+Kunstwerk	n	Kunstwerke
+Kupfer	n	Kupfer
+Kuppel	f	Kuppeln
+Kupplung	f	Kupplungen
+Kur	f	Kuren
+Kurier	m	Kuriere
+Kurs	m	Kurse
+Kurve	f	Kurven
+Kurzer	m	Kurze
+Kurzschluss	m	Kurzschlüsse
+Kusine	f	Kusinen
+Kuss	m	Küsse
+Kutsche	f	Kutschen
+Kutscher	m	Kutscher
+Käfer	m	Käfer
+Käfig	m	Käfige
+Kälte	f	
+Kämpfer	m	Kämpfer
+Käse	m	Käse
+Kästchen	n	Kästchen
+Kätzchen	n	Kätzchen
+Käufer	m	Käufer
+Köchin	f	Köchinnen
+Köder	m	Köder
+König	m	Könige
+Königin	f	Königinnen
+Königreich	n	Königreiche
+Können	n	
+Köpfchen	n	Köpfchen
+Körper	m	Körper
+Körperverletzung	f	Körperverletzungen
+Köter	m	Köter
+Küche	f	Küchen
+Kühle	f	
+Kühler	m	Kühler
+Kühlschrank	m	Kühlschränke
+Küken	n	Küken
+Kündigung	f	Kündigungen
+Künstler	m	Künstler
+Künstlerin	f	Künstlerinnen
+Kürbis	m	Kürbisse
+Kürze	f	
+Küsschen	n	Küsschen
+Küste	f	Küsten
+Küstenwache	f	Küstenwachen
+Label	n	Labels
+Labor	n	Labore
+Labyrinth	n	Labyrinthe
+Lache	f	Lachen
+Lachen	n	
+Lacher	m	Lacher
+Lachs	mn	Lachse
+Lack	m	Lacke
+Lade	f	Laden
+Laden	mn	Läden
+Ladung	f	Ladungen
+Lady	f	Ladys
+Lage	f	Lagen
+Lagebericht	m	Lageberichte
+Lager	n	Lager
+Lagerfeuer	n	Lagerfeuer
+Lagerhalle	f	Lagerhallen
+Lagerhaus	n	Lagerhäuser
+Lagerraum	m	Lagerräume
+Lahme	f	Lahme
+Lake	fm	Laken
+Laken	n	Laken
+Lala	m	Lalas
+Lama	nm	Lamas
+Lamm	n	Lämmer
+Lampe	f	Lampen
+Land	n	Länder
+Landebahn	f	Landebahnen
+Landhaus	n	Landhäuser
+Landkarte	f	Landkarten
+Landschaft	f	Landschaften
+Landsleute		Landsleute
+Landstreicher	m	Landstreicher
+Landung	f	Landungen
+Landwirtschaft	f	Landwirtschaften
+Langeweile	f	
+Langweiler	m	Langweiler
+Lanze	f	Lanzen
+Lappen	m	Lappen
+Laptop	mn	Laptops
+Lasagne	f	Lasagnen
+Laser	m	Laser
+Last	f	Lasten
+Laster	nm	Laster
+Lastwagen	m	Lastwagen
+Laterne	f	Laternen
+Latte	fm	Latten
+Lauf	m	Läufe
+Laufbahn	f	Laufbahnen
+Laufen	n	
+Laune	f	Launen
+Laut	m	Laute
+Laute	f	Lauten
+Lautsprecher	m	Lautsprecher
+Lava	f	Laven
+Lawine	f	Lawinen
+League	f	Leagues
+Leben	n	Leben
+Lebensende	n	Lebensenden
+Lebensform	f	Lebensformen
+Lebensgefahr	f	Lebensgefahren
+Lebensgeschichte	f	Lebensgeschichten
+Lebenslauf	m	Lebensläufe
+Lebensmittel	n	Lebensmittel
+Lebensstil	m	Lebensstile
+Lebensunterhalt	m	
+Lebensversicherung	f	Lebensversicherungen
+Lebensweise	f	Lebensweisen
+Lebenswerk	n	Lebenswerke
+Lebenszeichen	n	Lebenszeichen
+Lebenszeit	f	Lebenszeiten
+Leber	f	Lebern
+Lebewesen	n	Lebewesen
+Leck	n	Lecks
+Lecker	m	Lecker
+Leder	n	Leder
+Lee	fnm	
+Leere	f	
+Legende	f	Legenden
+Legion	f	Legionen
+Lehm	m	Lehme
+Lehne	f	Lehnen
+Lehrbuch	n	Lehrbücher
+Lehre	f	Lehren
+Lehrer	m	Lehrer
+Lehrerin	f	Lehrerinnen
+Lehrling	m	Lehrlinge
+Leib	m	Leiber
+Leibwächter	m	Leibwächter
+Leiche	f	Leichen
+Leichenhalle	f	Leichenhallen
+Leichenschauhaus	n	Leichenschauhäuser
+Leichnam	m	Leichname
+Leichter	m	Leichter
+Leid	n	
+Leiden	n	Leiden
+Leidenschaft	f	Leidenschaften
+Leider	m	Leider
+Leihe	f	Leihen
+Leine	f	Leinen
+Leinen	n	Leinen
+Leinwand	f	Leinwände
+Leiste	f	Leisten
+Leisten	m	Leisten
+Leistung	f	Leistungen
+Leite	f	Leiten
+Leiter	mf	Leiter
+Leiterin	f	Leiterinnen
+Leitung	f	Leitungen
+Lektion	f	Lektionen
+Lenkrad	n	Lenkräder
+Leopard	m	Leoparden
+Lernen	n	
+Lesbe	f	Lesben
+Lese	f	Lesen
+Lesen	n	
+Leser	m	Leser
+Letzte	f	Letzte
+Letzter	m	Letzte
+Letztes	n	Letzte
+Leuchte	f	Leuchten
+Leuchten	n	
+Leuchtturm	m	Leuchttürme
+Leukämie	f	Leukämien
+Leute		Leute
+Leutnant	m	Leutnante
+Level	mn	Levels
+Lew	m	Lewa
+Lexikon	n	Lexika
+Licht	n	Lichter
+Lichtung	f	Lichtungen
+Liebe	f	Lieben
+Liebende	f	Liebende
+Liebesgeschichte	f	Liebesgeschichten
+Liebeskummer	m	
+Liebesleben	n	Liebesleben
+Liebhaber	m	Liebhaber
+Liebling	m	Lieblinge
+Lieblingsessen	n	Lieblingsessen
+Lieblingsfarbe	f	Lieblingsfarben
+Lied	n	Lieder
+Lieferant	m	Lieferanten
+Lieferung	f	Lieferungen
+Lieferwagen	m	Lieferwagen
+Liege	f	Liegen
+Lift	mn	Lifte
+Liga	f	Ligen
+Like	nm	Likes
+Lila	n	
+Limit	n	Limits
+Limo	fn	Limos
+Limonade	f	Limonaden
+Limousine	f	Limousinen
+Linie	f	Linien
+Link	m	Links
+Linke	f	Linke
+Linker	m	Linke
+Linkshänder	m	Linkshänder
+Lippe	f	Lippen
+Lippenstift	m	Lippenstifte
+List	f	Listen
+Liste	f	Listen
+Liter	mn	Liter
+Literatur	f	Literaturen
+Live	m	Liven
+Lizenz	f	Lizenzen
+Lkw	m	Lkw
+Lob	nm	Lobe
+Lobby	f	Lobbys
+Loch	nm	Löcher
+Locke	f	Locken
+Lodge	f	Lodges
+Loft	mn	Lofts
+Log	n	Loge
+Logbuch	n	Logbücher
+Loge	f	Logen
+Logik	f	Logiken
+Logo	nm	Logos
+Lohn	m	Löhne
+Lok	f	Loks
+Lokal	n	Lokale
+Londoner	m	Londoner
+Look	m	Looks
+Lord	m	Lords
+Lori	m	Loris
+Los	n	Lose
+Loser	m	Loser
+Lost	m	
+Lot	n	Lote
+Lotterie	f	Lotterien
+Lotto	n	Lottos
+Lounge	f	Lounges
+Lover	m	Lover
+Loyalität	f	Loyalitäten
+Luder	n	Luder
+Luft	fm	Lüfte
+Luftangriff	m	Luftangriffe
+Luftraum	m	Lufträume
+Luftwaffe	f	Luftwaffen
+Luke	f	Luken
+Lulu	n	Lulus
+Lump	m	Lumpen
+Lumpen	m	Lumpen
+Lunch	m	Lunches
+Lunge	f	Lungen
+Lungenentzündung	f	Lungenentzündungen
+Lupe	f	Lupen
+Lust	f	Lüste
+Lutscher	m	Lutscher
+Lutz	m	Lutz
+Lux	n	Lux
+Luxus	m	
+Luzifer	m	
+Lächeln	n	Lächeln
+Länge	f	Längen
+Lärm	m	
+Läufer	m	Läufer
+Löffel	m	Löffel
+Lösegeld	n	Lösegelder
+Lösung	f	Lösungen
+Löwe	m	Löwen
+Lücke	f	Lücken
+Lüften	n	
+Lüge	f	Lügen
+Lügner	m	Lügner
+Lügnerin	f	Lügnerinnen
+Lümmel	m	Lümmel
+Mac	m	Macs
+Machete	fm	Macheten
+Macho	m	Machos
+Macht	f	Mächte
+Madame	f	Mesdames
+Made	f	Maden
+Mademoiselle	f	Mesdemoiselles
+Madison	m	Madisons
+Madonna	f	Madonnen
+Maestro	m	Maestros
+Mafia	f	Mafias
+Magazin	n	Magazine
+Magd	f	Mägde
+Magen	m	Mägen
+Magie	f	
+Magier	m	Magier
+Magnet	m	Magnete
+Mahl	n	Mähler
+Mahlzeit	f	Mahlzeiten
+Mai	m	Maie
+Maid	f	Maiden
+Mail	fn	Mails
+Mailbox	f	Mailboxen
+Mais	m	Maise
+Majestät	f	Majestäten
+Major	m	Majore
+Makkaroni		Makkaroni
+Makler	m	Makler
+Mal	n	Male
+Malaria	f	
+Maler	m	Maler
+Malerei	f	Malereien
+Mall	f	Malls
+Mama	f	Mamas
+Mami	f	Mamis
+Mamma	f	Mammae
+Man	mn	Mans
+Management	n	Managements
+Manager	m	Manager
+Manchester	m	
+Mandant	m	Mandanten
+Mandantin	f	Mandantinnen
+Mandarin	m	Mandarine
+Mangel	mf	Mängel
+Maniküre	f	Maniküren
+Manipulation	f	Manipulationen
+Mann	m	Männer
+Mannschaft	f	Mannschaften
+Mantel	m	Mäntel
+Manuskript	n	Manuskripte
+Manöver	n	Manöver
+Mappe	f	Mappen
+Maquis	m	Maquis
+Mara	fm	Maras
+Marathon	m	Marathons
+Marge	f	Margen
+Marie	f	
+Marihuana	n	
+Marina	f	Marinas
+Marine	f	Marinen
+Marines		Marines
+Marionette	f	Marionetten
+Mark	fn	Mark
+Marke	f	Marken
+Marketing	n	
+Markierung	f	Markierungen
+Markt	m	Märkte
+Marktplatz	m	Marktplätze
+Marmelade	f	Marmeladen
+Marmor	m	Marmore
+Marquis	m	Marquis
+Mars	m	Marse
+Marsch	fm	Marschen
+Marschall	m	Marschälle
+Martini	nm	Martinis
+Masche	f	Maschen
+Maschine	f	Maschinen
+Maschinengewehr	n	Maschinengewehre
+Maschinenraum	m	Maschinenräume
+Maske	f	Masken
+Massage	f	Massagen
+Massaker	n	Massaker
+Masse	f	Massen
+Massiv	n	Massive
+Mast	mf	Maste
+Master	m	Master
+Masters	n	Masters
+Masturbieren	n	
+Match	nm	Matchs
+Material	n	Materialien
+Materie	f	Materien
+Mathe	f	
+Mathematik	f	
+Matratze	f	Matratzen
+Matrix	f	Matrizen
+Matrose	m	Matrosen
+Matt	n	Matts
+Matte	fn	Matten
+Mauer	f	Mauern
+Maul	n	Mäuler
+Maultier	n	Maultiere
+Maulwurf	m	Maulwürfe
+Maus	f	Mäuse
+Maxime	f	Maximen
+Maximum	n	Maxima
+Maya	mf	Maya
+Mayo	f	Mayos
+Mayonnaise	f	Mayonnaisen
+Maß	nf	Maße
+Mechaniker	m	Mechaniker
+Mechanismus	m	Mechanismen
+Medaille	f	Medaillen
+Media	f	Mediä
+Medikament	n	Medikamente
+Meditation	f	Meditationen
+Medium	n	Medien
+Medizin	f	Medizinen
+Mediziner	m	Mediziner
+Meer	n	Meere
+Meerjungfrau	f	Meerjungfrauen
+Meeting	n	Meetings
+Mehl	n	Mehle
+Mehr	n	
+Mehrheit	f	Mehrheiten
+Meile	f	Meilen
+Meineid	m	Meineide
+Meinung	f	Meinungen
+Meister	m	Meister
+Meisterin	f	Meisterinnen
+Meisterschaft	f	Meisterschaften
+Meisterwerk	n	Meisterwerke
+Melde	f	Melden
+Meldung	f	Meldungen
+Melodie	f	Melodien
+Melone	f	Melonen
+Memo	n	Memos
+Memoiren		Memoiren
+Memphis	mf	
+Menge	f	Mengen
+Mensch	mn	Menschen
+Menschenleben	n	Menschenleben
+Menschenverstand	m	
+Menschheit	f	
+Menschliches	n	
+Menschlichkeit	f	Menschlichkeiten
+Mentor	m	Mentoren
+Menü	n	Menüs
+Merlin	m	Merline
+Messe	f	Messen
+Messer	nm	Messer
+Messias	m	Messiasse
+Met	m	
+Metall	n	Metalle
+Metapher	f	Metaphern
+Meter	mn	Meter
+Methode	f	Methoden
+Metropolis	f	Metropolen
+Metzger	m	Metzger
+Meute	f	Meuten
+Meuterei	f	Meutereien
+Mexikaner	m	Mexikaner
+Miau	n	
+Miene	f	Mienen
+Miese	f	Miese
+Miete	f	Mieten
+Mieter	m	Mieter
+Mietvertrag	m	Mietverträge
+Mietwagen	m	Mietwagen
+Mieze	f	Miezen
+Migräne	f	Migränen
+Mikro	n	Mikros
+Mikrofon	n	Mikrofone
+Mikrowelle	f	Mikrowellen
+Milan	m	Milane
+Milch	f	Milche
+Milde	f	
+Militär	nm	Militärs
+Miliz	f	Milizen
+Milliarde	f	Milliarden
+Milliardär	m	Milliardäre
+Milligramm	n	Milligramm
+Millimeter	mn	Millimeter
+Million	f	Millionen
+Millionär	m	Millionäre
+Milz	f	Milzen
+Minderjährige	f	Minderjährige
+Mine	f	Minen
+Mineralwasser	n	Mineralwasser
+Mini	m	Minis
+Minimum	n	Minima
+Minister	m	Minister
+Ministerium	n	Ministerien
+Minus	n	Minusse
+Minute	f	Minuten
+Mir	m	Mirs
+Mischung	f	Mischungen
+Miss	f	Misses
+Missachtung	f	Missachtungen
+Missbrauch	m	Missbräuche
+Misserfolg	m	Misserfolge
+Missgeburt	f	Missgeburten
+Missgeschick	n	Missgeschicke
+Mission	f	Missionen
+Misstrauen	n	
+Missverständnis	n	Missverständnisse
+Mist	m	
+Mister	m	Mister
+Mistkerl	m	Mistkerle
+Mitarbeit	f	
+Mitarbeiter	m	Mitarbeiter
+Mitarbeiterin	f	Mitarbeiterinnen
+Mitbewohner	m	Mitbewohner
+Mitbewohnerin	f	Mitbewohnerinnen
+Mitbürger	m	Mitbürger
+Miteinander	n	
+Mitfahrgelegenheit	f	Mitfahrgelegenheiten
+Mitgefühl	n	
+Mitgift	f	Mitgiften
+Mitglied	n	Mitglieder
+Mitgliedschaft	f	Mitgliedschaften
+Mithilfe	f	Mithilfen
+Mitleid	n	
+Mittag	mn	Mittage
+Mittagessen	n	Mittagessen
+Mittagspause	f	Mittagspausen
+Mitte	f	Mitten
+Mitteilung	f	Mitteilungen
+Mittel	nf	Mittel
+Mittelalter	n	
+Mittelmeer	n	Mittelmeere
+Mittelpunkt	m	Mittelpunkte
+Mittelsmann	m	Mittelsmänner
+Mitternacht	f	Mitternächte
+Mittwoch	m	Mittwoche
+Mix	m	Mixe
+Mixer	m	Mixer
+Mob	m	Mobs
+Mobile	n	Mobiles
+Mode	fm	Moden
+Model	nm	Models
+Modell	n	Modelle
+Moderator	m	Moderatoren
+Moderne	f	
+Molly	m	Mollys
+Moloch	m	Moloche
+Moment	mn	Momente
+Monarchie	f	Monarchien
+Monat	mn	Monate
+Mond	m	Monde
+Mondlicht	n	
+Mondschein	m	
+Monitor	m	Monitore
+Monsignore	m	Monsignori
+Monster	n	Monster
+Montag	m	Montage
+Moor	n	Moore
+Moos	n	Moose
+Moped	n	Mopeds
+Moral	f	Moralen
+Mord	m	Morde
+Morddezernat	n	Morddezernate
+Morden	n	
+Mordfall	m	Mordfälle
+Mordkommission	f	Mordkommissionen
+Mordwaffe	f	Mordwaffen
+More	f	Moren
+Morgen	mn	Morgen
+Morgengrauen	n	
+Morphium	n	
+Moschee	f	Moscheen
+Moslem	m	Moslems
+Motel	n	Motels
+Motiv	n	Motive
+Motivation	f	Motivationen
+Motor	m	Motoren
+Motorhaube	f	Motorhauben
+Motorrad	n	Motorräder
+Motto	n	Mottos
+Movie	nm	Movies
+Mucks	m	Muckse
+Muffin	m	Muffins
+Mumie	f	Mumien
+Mumm	m	
+Mund	mf	Münder
+Mundwerk	n	Mundwerke
+Munition	f	Munitionen
+Muschel	f	Muscheln
+Muschi	f	Muschis
+Muse	f	Musen
+Museum	n	Museen
+Musical	n	Musicals
+Musik	f	Musiken
+Musiker	m	Musiker
+Muskel	m	Muskeln
+Muss	n	
+Mustang	m	Mustangs
+Muster	n	Muster
+Mut	m	
+Mutation	f	Mutationen
+Mutter	f	Mütter
+Muttermal	n	Muttermale
+Mutti	f	Muttis
+My	n	Mys
+Mylady		Myladys
+Mylord	m	Mylords
+Mysterium	n	Mysterien
+Mythologie	f	Mythologien
+Mythos	m	Mythen
+Mädchen	n	Mädchen
+Mädel	n	Mädel
+Männchen	n	Männchen
+Männlichkeit	f	
+Märchen	n	Märchen
+Märtyrer	m	Märtyrer
+März	m	Märze
+Mäuschen	n	Mäuschen
+Möbel	n	Möbel
+Möglichkeit	f	Möglichkeiten
+Mönch	m	Mönche
+Möpse		Möpse
+Mörder	m	Mörder
+Mörderin	f	Mörderinnen
+Möse	f	Mösen
+Mücke	f	Mücken
+Müdigkeit	f	
+Mühe	f	Mühen
+Mühle	f	Mühlen
+Müll	m	
+Müllcontainer	m	Müllcontainer
+Mülleimer	m	Mülleimer
+Müller	m	Müller
+Mülltonne	f	Mülltonnen
+Münster	nm	Münster
+Münze	f	Münzen
+Müsli	n	Müsli
+Mütze	f	Mützen
+Nachbar	m	Nachbarn
+Nachbarin	f	Nachbarinnen
+Nachbarschaft	f	Nachbarschaften
+Nachfolger	m	Nachfolger
+Nachfrage	f	Nachfragen
+Nachhilfe	f	Nachhilfen
+Nachlass	m	Nachlasse
+Nachmittag	m	Nachmittage
+Nachname	m	Nachnamen
+Nachricht	f	Nachrichten
+Nachschub	m	Nachschübe
+Nachsehen	n	
+Nachsicht	f	
+Nachsitzen	n	
+Nacht	f	Nächte
+Nachtclub	m	Nachtclubs
+Nachteil	m	Nachteile
+Nachthemd	n	Nachthemden
+Nachtigall	f	Nachtigallen
+Nachtisch	m	Nachtische
+Nachtrag	m	Nachträge
+Nachtschicht	f	Nachtschichten
+Nachttisch	m	Nachttische
+Nachtwache	f	Nachtwachen
+Nachtwächter	m	Nachtwächter
+Nachwuchs	m	
+Nacken	m	Nacken
+Nadel	f	Nadeln
+Nagel	m	Nägel
+Nahrung	f	Nahrungen
+Naht	f	Nähte
+Name	m	Namen
+Namen	m	Namen
+Nana	f	Nanas
+Nanny	f	Nannys
+Narbe	f	Narben
+Narkose	f	Narkosen
+Narr	m	Narren
+Nase	f	Nasen
+Nasenbluten	n	
+Nass	n	
+Nation	f	Nationen
+Nationalgarde	f	Nationalgarden
+Natur	f	Naturen
+Naturtalent	n	Naturtalente
+Nazi	m	Nazis
+Nebel	m	Nebel
+Neffe	mf	Neffen
+Negativ	n	Negative
+Neger	m	Neger
+Neid	m	
+Neige	f	Neigen
+Neigung	f	Neigungen
+Nein	n	Nein
+Nerd	m	Nerds
+Nerv	m	Nerven
+Nervengas	n	Nervengase
+Nervenkitzel	m	Nervenkitzel
+Nervensystem	n	Nervensysteme
+Nervensäge	f	Nervensägen
+Nervenzusammenbruch	m	Nervenzusammenbrüche
+Nest	n	Nester
+Net	n	Nets
+Netz	n	Netze
+Netzwerk	n	Netzwerke
+Neuanfang	m	Neuanfänge
+Neue	f	Neue
+Neues	n	
+Neugier	f	
+Neugierde	f	
+Neuigkeit	f	Neuigkeiten
+Neujahr	n	
+Neuling	m	Neulinge
+Neun	f	Neunen
+Neustart	m	Neustarts
+News		News
+Newton	n	Newton
+Nichte	f	Nichten
+Nichts	n	
+Nichtsnutz	m	Nichtsnutze
+Nicken	n	
+Nickerchen	n	Nickerchen
+Niederlage	f	Niederlagen
+Niemand	m	
+Niere	f	Nieren
+Niesen	n	
+Niete	f	Nieten
+Nigger	m	Nigger
+Nikolaus	m	Nikolause
+Ninja	m	Ninja
+Nippel	m	Nippel
+Niveau	n	Niveaus
+Nix	m	Nixe
+No	n	
+Noah	f	Noahs
+Nobody	m	Nobodys
+Non	f	Nonen
+Nonne	f	Nonnen
+Nord	m	Norde
+Norden	m	
+Nordpol	m	Nordpole
+Norm	f	Normen
+Normal	n	Normale
+Normale	f	Normalen
+Normalität	f	
+Not	f	Nöte
+Notar	m	Notare
+Notarzt	m	Notärzte
+Notaufnahme	f	Notaufnahmen
+Note	f	Noten
+Notfall	m	Notfälle
+Notiz	f	Notizen
+Notizbuch	n	Notizbücher
+Notruf	m	Notrufe
+Notwehr	f	
+Notwendigkeit	f	Notwendigkeiten
+Nova	f	Novae
+November	m	November
+Nu	mn	
+Null	fmn	Nullen
+Nummer	f	Nummern
+Nummernschild	n	Nummernschilder
+Nuss	f	Nüsse
+Nutte	f	Nutten
+Nutzen	m	Nutzen
+Nächstenliebe	f	
+Nähe	f	
+Nähen	n	
+Näher	m	Näher
+Närrin	f	Närrinnen
+Obdachlose	f	Obdachlose
+Obduktion	f	Obduktionen
+Ober	m	Ober
+Oberarzt	m	Oberärzte
+Oberbefehlshaber	m	Oberbefehlshaber
+Oberfläche	f	Oberflächen
+Oberhaupt	n	Oberhäupter
+Oberin	f	Oberinnen
+Oberkörper	m	Oberkörper
+Oberleutnant	m	Oberleutnants
+Oberschenkel	m	Oberschenkel
+Oberst	m	Oberste
+Oberteil	nm	Oberteile
+Obhut	f	
+Objekt	n	Objekte
+Objektiv	nm	Objektive
+Obst	n	
+Ochse	m	Ochsen
+Oder	n	Oders
+Ofen	m	Öfen
+Off	n	
+Offenbarung	f	Offenbarungen
+Offenheit	f	
+Offensive	f	Offensiven
+Offizier	m	Offiziere
+Ohnmacht	f	Ohnmachten
+Ohr	n	Ohren
+Ohrfeige	f	Ohrfeigen
+Ohrring	m	Ohrringe
+Oktober	m	Oktober
+Olive	f	Oliven
+Olympia	n	
+Olympiade	f	Olympiaden
+Oma	f	Omas
+Omaha	f	Omaha
+Omega	n	Omegas
+Omelett	n	Omelette
+Omen	n	Omen
+Omi	f	Omis
+On	n	
+Onkel	m	Onkel
+Opa	m	Opas
+Oper	f	Opern
+Operation	f	Operationen
+Opfer	n	Opfer
+Opfern	n	
+Opium	n	
+Opposition	f	Oppositionen
+Optimismus	m	
+Option	f	Optionen
+Orakel	n	Orakel
+Orange	fn	Orangen
+Orangensaft	m	Orangensäfte
+Orbit	m	Orbits
+Orchester	n	Orchester
+Orden	m	Orden
+Order	f	Orders
+Ordner	m	Ordner
+Ordnung	f	Ordnungen
+Organ	n	Organe
+Organisation	f	Organisationen
+Organismus	m	Organismen
+Orgasmus	m	Orgasmen
+Orgel	f	Orgeln
+Orgie	f	Orgien
+Orientierung	f	Orientierungen
+Original	n	Originale
+Orion	m	
+Ort	mn	Orte
+Oscar	m	Oscars
+Osten	m	
+Ostern	n	Ostern
+Ostküste	f	Ostküsten
+Out	n	Out
+Outfit	n	Outfits
+Oxford	n	Oxfords
+Ozean	m	Ozeane
+Pa	m	Pas
+Paar	n	Paare
+Pack	nm	Packs
+Packen	m	Packen
+Packung	f	Packungen
+Page	m	Pagen
+Pager	m	Pager
+Paket	n	Pakete
+Pakt	m	Pakte
+Palast	m	Paläste
+Palme	f	Palmen
+Panda	m	Pandas
+Panik	f	Paniken
+Panne	f	Pannen
+Panther	m	Panther
+Panzer	m	Panzer
+Paolo	m	Paoli
+Papa	m	Papas
+Papagei	m	Papageien
+Papas	m	Papas
+Papi	m	Papis
+Papier	n	Papiere
+Papierkram	m	
+Paprika	mf	Paprika
+Paps	m	Papse
+Papst	m	Päpste
+Parade	f	Paraden
+Paradies	n	Paradiese
+Paranoia	f	
+Parasit	m	Parasiten
+Pardon	mn	
+Parfum	n	Parfums
+Parfüm	n	Parfüms
+Pariser	m	Pariser
+Park	m	Parks
+Parkhaus	n	Parkhäuser
+Parkplatz	m	Parkplätze
+Parlament	n	Parlamente
+Partei	f	Parteien
+Partie	f	Partien
+Partikel	fn	Partikeln
+Partner	m	Partner
+Partnerin	f	Partnerinnen
+Partnerschaft	f	Partnerschaften
+Party	f	Partys
+Pas	m	Pas
+Pascal	n	Pascal
+Pascha	mn	Paschas
+Pass	m	Pässe
+Passage	f	Passagen
+Passagier	m	Passagiere
+Passwort	n	Passwörter
+Pasta	f	Pasten
+Pastete	f	Pasteten
+Pastor	m	Pastoren
+Pate	m	Paten
+Pater	m	Patres
+Patient	m	Patienten
+Patientin	f	Patientinnen
+Patriot	m	Patrioten
+Patrone	f	Patronen
+Patrouille	f	Patrouillen
+Patsche	f	Patschen
+Pause	f	Pausen
+Pazifik	m	
+Pech	n	Peche
+Pegasus	m	
+Peilsender	m	Peilsender
+Peitsche	f	Peitschen
+Pelle	f	Pellen
+Pelz	m	Pelze
+Penis	m	Penisse
+Penner	m	Penner
+Penny	m	Pennys
+Pension	f	Pensionen
+Pentagon	n	Pentagone
+Penthouse	n	Penthouses
+Perfekt	n	Perfekte
+Perfektion	f	
+Periode	f	Perioden
+Perle	f	Perlen
+Person	f	Personen
+Personal	n	
+Personalabteilung	f	Personalabteilungen
+Perspektive	f	Perspektiven
+Persönlichkeit	f	Persönlichkeiten
+Perücke	f	Perücken
+Pest	f	Pesten
+Pfad	m	Pfade
+Pfadfinder	m	Pfadfinder
+Pfahl	m	Pfähle
+Pfand	nm	Pfänder
+Pfanne	f	Pfannen
+Pfannkuchen	m	Pfannkuchen
+Pfarrer	m	Pfarrer
+Pfeffer	m	Pfeffer
+Pfeife	f	Pfeifen
+Pfeil	m	Pfeile
+Pfennig	m	Pfennige
+Pferd	n	Pferde
+Pferdchen	n	Pferdchen
+Pferderennen	n	Pferderennen
+Pfiff	m	Pfiffe
+Pfirsich	m	Pfirsiche
+Pflanze	f	Pflanzen
+Pflaster	n	Pflaster
+Pflege	f	
+Pflegeeltern		Pflegeeltern
+Pflegeheim	n	Pflegeheime
+Pfleger	m	Pfleger
+Pflicht	f	Pflichten
+Pfund	n	Pfunde
+Pfütze	f	Pfützen
+Phantasie	f	Phantasien
+Phantom	n	Phantome
+Pharao	mn	Pharaonen
+Phase	f	Phasen
+Phaser	m	Phaser
+Philosoph	m	Philosophen
+Philosophie	f	Philosophien
+Physik	f	
+Physiker	m	Physiker
+Phänomen	n	Phänomene
+Pi	n	Pis
+Piano	n	Pianos
+Pickel	m	Pickel
+Picknick	n	Picknicke
+Piep	m	Piepe
+Piepton	m	Pieptöne
+Pier	mf	Piers
+Pierrot	m	Pierrots
+Pike	f	Piken
+Pilger	m	Pilger
+Pille	f	Pillen
+Pilot	m	Piloten
+Pilz	m	Pilze
+Pimmel	m	Pimmel
+Pin	m	Pins
+Ping	m	Pings
+Pinguin	m	Pinguine
+Pinkeln	n	
+Pinsel	m	Pinsel
+Pipi	n	
+Pirat	m	Piraten
+Pisse	f	
+Pisser	m	Pisser
+Pistole	f	Pistolen
+Pizza	f	Pizzas
+Pizzeria	f	Pizzerien
+Plage	f	Plagen
+Plakat	n	Plakate
+Plan	m	Pläne
+Plane	f	Planen
+Planen	n	
+Planet	m	Planeten
+Plantage	f	Plantagen
+Planung	f	Planungen
+Planänderung	f	Planänderungen
+Plasma	n	Plasmen
+Plastik	fnm	Plastiken
+Platt	n	
+Platte	f	Platten
+Platten	m	Platten
+Plattform	f	Plattformen
+Platz	m	Plätze
+Playboy	m	Playboys
+Pleite	f	Pleiten
+Plus	n	Plus
+Plutonium	n	
+Plätzchen	n	Plätzchen
+Plündern	n	
+Po	m	Pos
+Poesie	f	Poesien
+Poet	m	Poeten
+Pointe	f	Pointen
+Pokal	m	Pokale
+Poker	nm	
+Pol	m	Pole
+Pole	m	Polen
+Police	f	Policen
+Polieren	n	
+Politik	f	Politiken
+Politiker	m	Politiker
+Polizei	f	Polizeien
+Polizeibericht	m	Polizeiberichte
+Polizeichef	m	Polizeichefs
+Polizeifunk	m	
+Polizeirevier	n	Polizeireviere
+Polizeisirene	f	Polizeisirenen
+Polizeistation	f	Polizeistationen
+Polizeiwache	f	Polizeiwachen
+Polizist	m	Polizisten
+Polizistin	f	Polizistinnen
+Polo	n	
+Pommes		Pommes
+Pony	nm	Ponys
+Pool	mn	Pools
+Pop	m	
+Popcorn	n	Popcorns
+Pope	m	Popen
+Popmusik	f	Popmusiken
+Popo	m	Popos
+Porno	m	Pornos
+Port	m	Porte
+Portal	n	Portale
+Portemonnaie	n	Portemonnaies
+Porter	mn	Porter
+Portier	m	Portiers
+Portion	f	Portionen
+Porträt	n	Porträts
+Porzellan	n	Porzellane
+Position	f	Positionen
+Positiv	mn	Positive
+Post	fm	Posten
+Postamt	n	Postämter
+Postbote	m	Postboten
+Posten	m	Posten
+Poster	nm	Poster
+Postkarte	f	Postkarten
+Potential	n	Potentiale
+Potenzial	n	Potenziale
+Power	f	
+Pracht	f	
+Praktikantin	f	Praktikantinnen
+Praktikum	n	Praktika
+Praxis	f	Praxen
+Prediger	m	Prediger
+Predigt	f	Predigten
+Preis	m	Preise
+Premier	m	Premiers
+Premiere	f	Premieren
+Premierminister	m	Premierminister
+Presse	f	Pressen
+Pressekonferenz	f	Pressekonferenzen
+Priester	m	Priester
+Prima	f	Primen
+Prinz	m	Prinzen
+Prinzessin	f	Prinzessinnen
+Prinzip	n	Prinzipien
+Prior	m	Prioren
+Priorität	f	Prioritäten
+Prise	f	Prisen
+Prison	nf	Prisons
+Privatleben	n	Privatleben
+Privatschule	f	Privatschulen
+Privatsphäre	f	Privatsphären
+Privileg	n	Privilegien
+Probe	f	Proben
+Problem	n	Probleme
+Produkt	n	Produkte
+Produktion	f	Produktionen
+Produzent	m	Produzenten
+Professor	m	Professoren
+Profi	m	Profis
+Profil	n	Profile
+Profit	m	Profite
+Prognose	f	Prognosen
+Programm	n	Programme
+Projekt	n	Projekte
+Propaganda	f	
+Prophet	m	Propheten
+Prophezeiung	f	Prophezeiungen
+Prost	n	Proste
+Prostituierte	f	Prostituierte
+Prostitution	f	
+Protein	n	Proteine
+Protest	m	Proteste
+Protokoll	n	Protokolle
+Prototyp	m	Prototypen
+Proviant	m	Proviante
+Provinz	f	Provinzen
+Provision	f	Provisionen
+Prozedur	f	Prozeduren
+Prozent	n	Prozente
+Prozess	m	Prozesse
+Prämie	f	Prämien
+Präsentation	f	Präsentationen
+Präsenz	f	Präsenzen
+Präsident	m	Präsidenten
+Präsidentin	f	Präsidentinnen
+Präsidium	n	Präsidien
+Präzision	f	
+Prüfung	f	Prüfungen
+Prügel	m	Prügel
+Prügelei	f	Prügeleien
+Pseudonym	n	Pseudonyme
+Psyche	f	Psychen
+Psychiater	m	Psychiater
+Psychiaterin	f	Psychiaterinnen
+Psychiatrie	f	Psychiatrien
+Psychologe	m	Psychologen
+Psychologie	f	Psychologien
+Psychologin	f	Psychologinnen
+Psychopath	m	Psychopathen
+Pub	nm	Pubs
+Pubertät	f	
+Publikum	n	Publika
+Puck	m	Pucks
+Pudding	m	Puddinge
+Pudel	mf	Pudel
+Puder	mn	Puder
+Puff	mn	Puffe
+Pulli	m	Pullis
+Pullover	m	Pullover
+Puls	mf	Pulse
+Pulver	n	Pulver
+Pumpe	f	Pumpen
+Punk	m	Punks
+Punkt	m	Punkte
+Punsch	m	Punsche
+Puppe	f	Puppen
+Pussy	f	Pussys
+Puste	f	
+Put	nm	Puts
+Putz	m	Putze
+Putze	f	Putzen
+Putzfrau	f	Putzfrauen
+Puzzle	n	Puzzles
+Pyjama	mn	Pyjamas
+Pyramide	f	Pyramiden
+Päckchen	n	Päckchen
+Pärchen	n	Pärchen
+Pöbel	m	
+Püppchen	n	Püppchen
+Qual	f	Qualen
+Qualität	f	Qualitäten
+Quarantäne	f	Quarantänen
+Quark	mn	Quarks
+Quarterback	m	Quarterbacks
+Quartier	n	Quartiere
+Quatsch	m	
+Queen	f	
+Quelle	f	Quellen
+Quentin	n	Quentin
+Quere	f	
+Quittung	f	Quittungen
+Quote	f	Quoten
+ROM	n	ROMs
+Rabatt	m	Rabatte
+Rabbi	m	Rabbinen
+Rabe	m	Raben
+Rache	f	
+Rachen	m	Rachen
+Rad	n	Räder
+Radar	nm	Radare
+Radio	nm	Radios
+Radius	m	Radien
+Rahmen	m	Rahmen
+Rain	m	Raine
+Rakete	f	Raketen
+Rampe	f	Rampen
+Rampenlicht	n	Rampenlichter
+Ranch	f	Ranchs
+Rand	m	Ränder
+Rande	f	Randen
+Rang	m	Ränge
+Ranger	m	Ranger
+Rasen	mn	Rasen
+Rasenmäher	m	Rasenmäher
+Rasiermesser	n	Rasiermesser
+Rasse	f	Rassen
+Rassismus	m	Rassismen
+Rassist	m	Rassisten
+Rast	f	Rasten
+Raste	f	Rasten
+Rat	m	Räte
+Rate	f	Raten
+Rathaus	n	Rathäuser
+Ratschlag	m	Ratschläge
+Ratte	f	Ratten
+Raub	m	Raube
+Raubtier	n	Raubtiere
+Raubüberfall	m	Raubüberfälle
+Rauch	m	Rauche
+Rauchen	n	
+Raucher	m	Raucher
+Raum	m	Räume
+Raumschiff	n	Raumschiffe
+Raumstation	f	Raumstationen
+Rausch	m	Räusche
+Rauschen	n	
+Razzia	f	Razzien
+Re	n	Res
+Reaktion	f	Reaktionen
+Reaktor	m	Reaktoren
+Real	m	Reales
+Realität	f	Realitäten
+Rebell	m	Rebellen
+Rebellion	f	Rebellionen
+Rechenschaft	f	
+Recherche	f	Recherchen
+Rechner	m	Rechner
+Rechnung	f	Rechnungen
+Recht	n	Rechte
+Rechte	f	Rechte
+Rechter	m	Rechte
+Rechtsanwalt	m	Rechtsanwälte
+Redakteur	m	Redakteure
+Redaktion	f	Redaktionen
+Rede	f	Reden
+Redensart	f	Redensarten
+Redner	m	Redner
+Regal	n	Regale
+Regel	f	Regeln
+Regen	m	Regen
+Regenbogen	m	Regenbogen
+Regenschirm	m	Regenschirme
+Regie	f	Regien
+Regierung	f	Regierungen
+Regime	n	Regime
+Regiment	n	Regimenter
+Region	f	Regionen
+Regisseur	m	Regisseure
+Register	n	Register
+Reh	n	Rehe
+Reha	f	Rehas
+Reich	n	Reiche
+Reiche	f	Reiche
+Reicher	m	Reiche
+Reichtum	m	Reichtümer
+Reichweite	f	Reichweiten
+Reif	m	Reife
+Reife	f	
+Reifen	m	Reifen
+Reihe	f	Reihen
+Reihen	m	Reihen
+Reihenfolge	f	Reihenfolgen
+Rein	f	Reinen
+Reine	f	
+Reinfall	m	Reinfälle
+Reinheit	f	
+Reinigung	f	Reinigungen
+Reis	mn	Reise
+Reise	f	Reisen
+Reisebüro	n	Reisebüros
+Reisen	n	
+Reisende	f	Reisende
+Reisender	m	Reisende
+Reisepass	m	Reisepässe
+Reiten	n	
+Reiter	mf	Reiter
+Reiz	m	Reize
+Reißen	n	
+Reißverschluss	m	Reißverschlüsse
+Reklame	f	Reklamen
+Rekord	m	Rekorde
+Rektor	m	Rektoren
+Religion	f	Religionen
+Ren	n	Rene
+Rendezvous	n	Rendezvous
+Rennbahn	f	Rennbahnen
+Rennen	n	Rennen
+Rennfahrer	m	Rennfahrer
+Rente	f	Renten
+Rentner	m	Rentner
+Reparatur	f	Reparaturen
+Reporter	m	Reporter
+Reporterin	f	Reporterinnen
+Republik	f	Republiken
+Republikaner	m	Republikaner
+Reservat	n	Reservate
+Reserve	f	Reserven
+Reservierung	f	Reservierungen
+Residenz	f	Residenzen
+Respekt	m	
+Rest	m	Reste
+Restaurant	n	Restaurants
+Resultat	n	Resultate
+Retten	n	
+Retter	m	Retter
+Rettung	f	Rettungen
+Rettungswagen	m	Rettungswagen
+Reue	f	
+Revanche	f	Revanchen
+Reverend	m	Reverends
+Revier	n	Reviere
+Revolution	f	Revolutionen
+Revolutionär	m	Revolutionäre
+Revolver	m	Revolver
+Rex	m	Rexe
+Rezept	n	Rezepte
+Rezeption	f	Rezeptionen
+Rhythmus	m	Rhythmen
+Richter	m	Richter
+Richterin	f	Richterinnen
+Richtung	f	Richtungen
+Riechen	n	
+Riegel	m	Riegel
+Riemen	m	Riemen
+Riese	mf	Riesen
+Riff	nm	Riffe
+Rindfleisch	n	
+Ring	m	Ringe
+Ringen	n	
+Rippchen	n	Rippchen
+Rippe	f	Rippen
+Risiko	n	Risikos
+Riss	m	Risse
+Ritt	m	Ritte
+Ritter	m	Ritter
+Ritual	n	Rituale
+Ritz	m	Ritze
+Robinson	m	Robinsons
+Roboter	m	Roboter
+Roch	m	
+Rock	m	Röcke
+Rocken	m	Rocken
+Rockmusik	f	
+Rockstar	m	Rockstars
+Rodeo	mn	Rodeos
+Rohr	n	Rohre
+Rolle	fmn	Rollen
+Roller	m	Roller
+Rollo	nf	Rollos
+Rollstuhl	m	Rollstühle
+Rom	m	Roma
+Roman	m	Romane
+Romane	m	Romanen
+Romantik	f	
+Romantiker	m	Romantiker
+Romanze	f	Romanzen
+Rosa	n	Rosas
+Rose	f	Rosen
+Ross	n	Rosse
+Rost	m	Roste
+Rot	n	Rot
+Rotschopf	m	Rotschöpfe
+Rotwein	m	Rotweine
+Rouge	n	Rouges
+Route	f	Routen
+Routine	f	Routinen
+Rover	m	Rover
+Royal	m	Royals
+Rubel	m	Rubel
+Rubin	m	Rubine
+Ruck	m	Rucke
+Rucksack	m	Rucksäcke
+Rudel	n	Rudel
+Ruder	n	Ruder
+Rudern	n	
+Ruf	m	Rufe
+Ruh	f	
+Ruhe	f	
+Ruhestand	m	
+Ruhm	m	
+Ruin	m	
+Rum	m	Rums
+Rummel	m	
+Rumpf	m	Rümpfe
+Rund	n	Runde
+Runde	f	Runden
+Russ	m	Russe
+Russe	m	Russen
+Rutsch	m	Rutsche
+Rutsche	f	Rutschen
+Rätsel	n	Rätsel
+Räuber	m	Räuber
+Röhre	f	Röhren
+Römer	m	Römer
+Röntgen	n	Röntgen
+Rübe	f	Rüben
+Rücken	m	Rücken
+Rückfall	m	Rückfälle
+Rückflug	m	Rückflüge
+Rückgrat	n	Rückgrate
+Rückkehr	f	
+Rückruf	m	Rückrufe
+Rückschlag	m	Rückschläge
+Rückseite	f	Rückseiten
+Rücksicht	f	Rücksichten
+Rücksitz	m	Rücksitze
+Rückstand	m	Rückstände
+Rücktritt	m	Rücktritte
+Rückweg	m	Rückwege
+Rückzieher	m	Rückzieher
+Rückzug	m	Rückzüge
+Rührei	n	Rühreier
+Rüpel	m	Rüpel
+Rüstung	f	Rüstungen
+Saal	m	Säle
+Saat	f	Saaten
+Sabotage	f	Sabotagen
+Sache	f	Sachen
+Sack	m	Säcke
+Sackgasse	f	Sackgassen
+Safe	mn	Safes
+Saft	m	Säfte
+Saga	f	Sagas
+Sage	f	Sagen
+Sagen	n	
+Sahne	f	
+Saison	f	Saisons
+Sake	m	
+Salam	m	
+Salami	fm	Salami
+Salat	m	Salate
+Salbe	f	Salben
+Salon	m	Salons
+Saloon	m	Saloons
+Salut	m	Salute
+Salz	n	Salze
+Samen	m	Samen
+Sammeln	n	
+Sammler	m	Sammler
+Sammlung	f	Sammlungen
+Samstag	m	Samstage
+Samstagabend	m	Samstagabende
+Samt	m	Samte
+Samurai	m	Samurai
+Sanatorium	n	Sanatorien
+Sand	m	Sande
+Sandwich	nm	Sandwichs
+Sang	m	Sänge
+Sanitäter	m	Sanitäter
+Sarg	m	Särge
+Sarkasmus	m	Sarkasmen
+Satan	m	Satane
+Satellit	m	Satelliten
+Sattel	m	Sättel
+Satz	m	Sätze
+Sau	f	Säue
+Sauce	f	Saucen
+Sauerei	f	Sauereien
+Sauerstoff	m	
+Saugen	n	
+Sauna	f	Saunen
+Saustall	m	Sauställe
+Scan	m	Scans
+Scanner	m	Scanner
+Schach	n	Schachs
+Schachmatt	n	Schachmatts
+Schacht	m	Schächte
+Schachtel	f	Schachteln
+Schachzug	m	Schachzüge
+Schade	m	Schäden
+Schaden	m	Schäden
+Schaf	n	Schafe
+Schaff	n	Schaffe
+Schaffen	n	
+Schaffner	m	Schaffner
+Schal	m	Schals
+Schale	f	Schalen
+Schalte	f	Schalten
+Schalter	m	Schalter
+Scham	f	
+Schande	f	
+Scharfschütze	m	Scharfschützen
+Schatten	m	Schatten
+Schatz	m	Schätze
+Schau	f	Schauen
+Schaufel	f	Schaufeln
+Schaufenster	n	Schaufenster
+Schaukel	f	Schaukeln
+Schaum	m	Schäume
+Schauplatz	m	Schauplätze
+Schauspiel	n	Schauspiele
+Schauspieler	m	Schauspieler
+Schauspielerei	f	Schauspielereien
+Schauspielerin	f	Schauspielerinnen
+Schaute	m	Schauten
+Scheck	m	Schecks
+Scheibe	f	Scheiben
+Scheich	m	Scheichs
+Scheidung	f	Scheidungen
+Schein	m	Scheine
+Scheinwerfer	m	Scheinwerfer
+Scheiterhaufen	m	Scheiterhaufen
+Scheitern	n	
+Scheiß	m	
+Scheißding	n	Scheißdinge
+Scheißdreck	m	
+Scheiße	f	
+Scheißer	m	Scheißer
+Scheißhaufen	m	Scheißhaufen
+Scheißkerl	m	Scheißkerle
+Schema	n	Schemas
+Schenk	m	Schenken
+Schenke	f	Schenken
+Schenkel	m	Schenkel
+Scherben	m	
+Schere	f	Scheren
+Scherz	m	Scherze
+Scheu	f	
+Scheune	f	Scheunen
+Schicht	f	Schichten
+Schick	m	
+Schicksal	n	Schicksale
+Schiedsrichter	m	Schiedsrichter
+Schießen	n	Schießen
+Schießerei	f	Schießereien
+Schießpulver	n	Schießpulver
+Schiff	n	Schiffe
+Schiffe	f	
+Schild	mn	Schilde
+Schildkröte	f	Schildkröten
+Schiller	m	Schiller
+Schilling	m	Schilling
+Schimmel	m	Schimmel
+Schimmer	m	Schimmer
+Schinken	m	Schinken
+Schirm	m	Schirme
+Schiss	m	Schisse
+Schlacht	f	Schlachten
+Schlachten	n	
+Schlachtfeld	n	Schlachtfelder
+Schlaf	m	
+Schlafanzug	m	Schlafanzüge
+Schlafenszeit	f	Schlafenszeiten
+Schlafmittel	n	Schlafmittel
+Schlafzimmer	n	Schlafzimmer
+Schlag	m	Schläge
+Schlaganfall	m	Schlaganfälle
+Schlagzeile	f	Schlagzeilen
+Schlagzeug	n	Schlagzeuge
+Schlamassel	mn	Schlamassel
+Schlamm	m	Schlämme
+Schlampe	f	Schlampen
+Schlange	f	Schlangen
+Schlappschwanz	m	Schlappschwänze
+Schlauch	m	Schläuche
+Schlaumeier	m	Schlaumeier
+Schleier	m	Schleier
+Schleife	f	Schleifen
+Schleim	m	Schleime
+Schlich	m	Schliche
+Schlief	m	Schliefe
+Schliefen	n	
+Schließe	f	Schließen
+Schließfach	n	Schließfächer
+Schlinge	f	Schlingen
+Schlips	m	Schlipse
+Schlitten	m	Schlitten
+Schlitz	m	Schlitze
+Schloss	n	Schlösser
+Schlucht	f	Schluchten
+Schluck	m	Schlucke
+Schluckauf	m	Schluckaufe
+Schluss	m	Schlüsse
+Schlussfolgerung	f	Schlussfolgerungen
+Schlächter	m	Schlächter
+Schläger	m	Schläger
+Schlägerei	f	Schlägereien
+Schlückchen	n	Schlückchen
+Schlüpfer	m	Schlüpfer
+Schlüssel	m	Schlüssel
+Schmach	f	
+Schmecken	n	
+Schmelzen	n	
+Schmerz	m	Schmerzen
+Schmerzmittel	n	Schmerzmittel
+Schmetterling	m	Schmetterlinge
+Schmied	m	Schmiede
+Schmiere	f	Schmieren
+Schminke	f	Schminken
+Schmiss	m	Schmisse
+Schmuck	m	Schmucke
+Schmuckstück	n	Schmuckstücke
+Schmuggler	m	Schmuggler
+Schmutz	m	
+Schnabel	m	Schnäbel
+Schnaps	m	Schnäpse
+Schnauze	f	Schnauzen
+Schnecke	f	Schnecken
+Schnee	m	
+Schneemann	m	Schneemänner
+Schneesturm	m	Schneestürme
+Schneewittchen	n	
+Schneid	mf	
+Schneide	f	Schneiden
+Schneider	m	Schneider
+Schnelle	f	Schnellen
+Schnelligkeit	f	Schnelligkeiten
+Schnitt	m	Schnitte
+Schnitte	f	Schnitten
+Schnupfen	m	Schnupfen
+Schnur	f	Schnüre
+Schnurrbart	m	Schnurrbärte
+Schnäppchen	n	Schnäppchen
+Schnüffler	m	Schnüffler
+Schnürsenkel	m	Schnürsenkel
+Schock	mn	Schocke
+Schokolade	f	Schokoladen
+Schokoriegel	m	Schokoriegel
+Schoss	m	Schosse
+Schotten	m	
+Schoß	mf	Schöße
+Schrank	m	Schränke
+Schraube	f	Schrauben
+Schraubenschlüssel	m	Schraubenschlüssel
+Schraubenzieher	m	Schraubenzieher
+Schreck	m	Schrecke
+Schrecken	m	Schrecken
+Schrei	m	Schreie
+Schreibe	f	Schreiben
+Schreiben	n	Schreiben
+Schreiber	m	Schreiber
+Schreibmaschine	f	Schreibmaschinen
+Schreibtisch	m	Schreibtische
+Schrein	m	Schreine
+Schrieb	m	Schriebe
+Schrift	f	Schriften
+Schriftsteller	m	Schriftsteller
+Schriftstellerin	f	Schriftstellerinnen
+Schritt	m	Schritte
+Schrotflinte	f	Schrotflinten
+Schrott	m	Schrotte
+Schrottplatz	m	Schrottplätze
+Schub	m	Schübe
+Schublade	f	Schubladen
+Schubs	m	Schubse
+Schuft	m	Schufte
+Schuh	m	Schuhe
+Schuld	f	Schulden
+Schulden		Schulden
+Schuldige	f	Schuldige
+Schule	f	Schulen
+Schuljahr	n	Schuljahre
+Schulmädchen	n	Schulmädchen
+Schultag	m	Schultage
+Schulter	f	Schultern
+Schuppen	m	Schuppen
+Schurke	m	Schurken
+Schuss	m	Schüsse
+Schusslinie	f	Schusslinien
+Schusswunde	f	Schusswunden
+Schuster	m	Schuster
+Schutt	m	
+Schutz	m	Schutze
+Schutzengel	m	Schutzengel
+Schutzhaft	f	
+Schutzschild	m	Schutzschilde
+Schwachkopf	m	Schwachköpfe
+Schwachsinn	m	
+Schwachstelle	f	Schwachstellen
+Schwager	m	Schwäger
+Schwamm	m	Schwämme
+Schwan	m	Schwäne
+Schwangere	f	Schwangere
+Schwangerschaft	f	Schwangerschaften
+Schwanz	m	Schwänze
+Schwanzlutscher	m	Schwanzlutscher
+Schwarm	m	Schwärme
+Schwarz	n	
+Schwarze	f	Schwarze
+Schwarzer	m	Schwarze
+Schwarzmarkt	m	Schwarzmärkte
+Schwede	m	Schweden
+Schwefel	m	
+Schweigen	n	
+Schweigepflicht	f	Schweigepflichten
+Schwein	n	Schweine
+Schweinchen	n	Schweinchen
+Schweinefleisch	n	
+Schweinehund	m	Schweinehunde
+Schweinerei	f	Schweinereien
+Schweizer	m	Schweizer
+Schweiß	m	Schweiße
+Schwelle	f	Schwellen
+Schwellung	f	Schwellungen
+Schwere	f	
+Schwerkraft	f	Schwerkräfte
+Schwert	n	Schwerter
+Schwester	f	Schwestern
+Schwesterchen	n	Schwesterchen
+Schwiegermutter	f	Schwiegermütter
+Schwiegersohn	m	Schwiegersöhne
+Schwiegertochter	f	Schwiegertöchter
+Schwiegervater	m	Schwiegerväter
+Schwimmbad	n	Schwimmbäder
+Schwimmen	n	
+Schwimmer	m	Schwimmer
+Schwindel	m	
+Schwindler	m	Schwindler
+Schwuchtel	f	Schwuchteln
+Schwuler	m	Schwule
+Schwung	m	Schwünge
+Schwur	m	Schwüre
+Schwäche	f	Schwächen
+Schwächling	m	Schwächlinge
+Schwägerin	f	Schwägerinnen
+Schwänzen	n	
+Schädel	m	Schädel
+Schäfer	m	Schäfer
+Schätzchen	n	Schätzchen
+Schätzung	f	Schätzungen
+Schönes	n	
+Schönheit	f	Schönheiten
+Schöpfer	m	Schöpfer
+Schöpfung	f	Schöpfungen
+Schüler	m	Schüler
+Schülerin	f	Schülerinnen
+Schürze	f	Schürzen
+Schüssel	f	Schüsseln
+Schütze	mf	Schützen
+Schützling	m	Schützlinge
+Scooter	m	Scooter
+Scout	m	Scouts
+Sechs	f	Sechsen
+Sechzehn	f	
+See	mf	Seen
+Seele	f	Seelen
+Seelenklempner	m	Seelenklempner
+Seemann	m	Seemänner
+Segel	n	Segel
+Segen	m	Segen
+Sehen	n	
+Sehne	f	Sehnen
+Sehnsucht	f	Sehnsüchte
+Seide	f	Seiden
+Seife	f	Seifen
+Seil	n	Seile
+Sein	n	
+Seite	f	Seiten
+Sekretär	m	Sekretäre
+Sekretärin	f	Sekretärinnen
+Sekt	m	Sekte
+Sekte	f	Sekten
+Sektion	f	Sektionen
+Sektor	m	Sektoren
+Sekunde	f	Sekunden
+Selbst	n	
+Selbstachtung	f	
+Selbstbewusstsein	n	
+Selbstmitleid	n	
+Selbstmord	m	Selbstmorde
+Selbstverteidigung	f	Selbstverteidigungen
+Selbstvertrauen	n	
+Semester	n	Semester
+Seminar	n	Seminare
+Senat	m	Senate
+Senator	m	Senatoren
+Senatorin	f	Senatorinnen
+Sender	m	Sender
+Sendung	f	Sendungen
+Senf	m	Senfe
+Senior	m	Senioren
+Sensation	f	Sensationen
+September	m	September
+Sequenz	f	Sequenzen
+Serge	fm	Sergen
+Sergeant	m	Sergeanten
+Serie	f	Serien
+Serienkiller	m	Serienkiller
+Serienmörder	m	Serienmörder
+Seriennummer	f	Seriennummern
+Serum	n	Seren
+Server	m	Server
+Service	mn	Services
+Serviette	f	Servietten
+Sessel	m	Sessel
+Set	nm	Sets
+Seuche	f	Seuchen
+Seufzer	m	Seufzer
+Sex	m	
+Sexleben	n	Sexleben
+Sexualität	f	Sexualitäten
+Shampoo	n	Shampoos
+Sharon	f	Sharons
+Sherry	m	Sherrys
+Shop	m	Shops
+Shorts		Shorts
+Show	f	Shows
+Showbusiness	n	
+Shuttle	mn	Shuttles
+Sicherheit	f	Sicherheiten
+Sicherheitsdienst	m	Sicherheitsdienste
+Sicherheitsleute		Sicherheitsleute
+Sicherung	f	Sicherungen
+Sicht	f	Sichten
+Sichtkontakt	m	Sichtkontakte
+Sichtweise	f	Sichtweisen
+Sichtweite	f	Sichtweiten
+Sie	fm	Sie
+Sieben	fn	Siebenen
+Siebzehn	f	
+Siedler	m	Siedler
+Siedlung	f	Siedlungen
+Sieg	m	Siege
+Siegel	n	Siegel
+Sieger	m	Sieger
+Signal	n	Signale
+Signatur	f	Signaturen
+Signor	m	Signori
+Signora	f	Signoras
+Signorina	f	Signorinas
+Silber	n	
+Silvester	mn	Silvester
+Simpel	m	Simpel
+Sims	mn	Simse
+Simulation	f	Simulationen
+Singen	n	
+Single	mfn	Singles
+Sinn	m	Sinne
+Sir	m	Sirs
+Sire	m	Sires
+Sirene	f	Sirenen
+Sirup	m	Sirupe
+Sitte	f	Sitten
+Situation	f	Situationen
+Sitz	m	Sitze
+Sitzung	f	Sitzungen
+Skala	f	Skalen
+Skalpell	n	Skalpelle
+Skandal	m	Skandale
+Skelett	n	Skelette
+Ski	m	Ski
+Skifahren	n	
+Skipper	m	Skipper
+Sklave	m	Sklaven
+Sklaverei	f	
+Sklavin	f	Sklavinnen
+Skorpion	m	Skorpione
+Skript	n	Skripte
+Skrupel	mn	Skrupel
+Skulptur	f	Skulpturen
+Slip	m	Slips
+Slogan	m	Slogans
+Smiley	nm	Smileys
+Smoking	m	Smokings
+Snack	m	Snacks
+Socke	f	Socken
+Socken	m	Socken
+Soda	nf	
+Sofa	n	Sofas
+Software	f	Softwares
+Sohn	m	Söhne
+Sol	nm	Sole
+Soldat	m	Soldaten
+Solidarität	f	Solidaritäten
+Soll	n	Soll
+Solo	n	Solos
+Sommer	m	Sommer
+Sommerferien		Sommerferien
+Sonde	f	Sonden
+Song	m	Songs
+Sonnenaufgang	m	Sonnenaufgänge
+Sonnenbrille	f	Sonnenbrillen
+Sonnenlicht	n	
+Sonnenschein	m	
+Sonnensystem	n	Sonnensysteme
+Sonnenuntergang	m	Sonnenuntergänge
+Sonntag	m	Sonntage
+Sorge	f	Sorgen
+Sorgerecht	n	Sorgerechte
+Sorte	f	Sorten
+Soul	m	
+Sound	m	Sounds
+Souvenir	n	Souvenirs
+Sowieso	mf	Sowiesos
+Sozialarbeiter	m	Sozialarbeiter
+Sozialarbeiterin	f	Sozialarbeiterinnen
+Soße	f	Soßen
+Spa	n	Spas
+Space	n	Spaces
+Spaghetti	f	Spaghetti
+Spalt	m	Spalte
+Spalte	f	Spalten
+Spanier	m	Spanier
+Spanner	m	Spanner
+Spannung	f	Spannungen
+Spare	m	Spares
+Spass	m	Spässe
+Spatz	m	Spatzen
+Spaziergang	m	Spaziergänge
+Spaß	m	Späße
+Speck	m	Specke
+Speed	n	
+Speer	m	Speere
+Speicher	m	Speicher
+Speisekarte	f	Speisekarten
+Speisesaal	m	Speisesäle
+Spektakel	nm	Spektakel
+Spekulation	f	Spekulationen
+Spende	f	Spenden
+Spender	m	Spender
+Sperma	n	Spermen
+Sperre	f	Sperren
+Spesen		Spesen
+Spezialeinheit	f	Spezialeinheiten
+Spezialist	m	Spezialisten
+Spezialität	f	Spezialitäten
+Spezies	f	Spezies
+Spiegel	m	Spiegel
+Spiegelbild	n	Spiegelbilder
+Spiel	n	Spiele
+Spielchen	n	Spielchen
+Spielen	n	
+Spieler	m	Spieler
+Spielfeld	n	Spielfelder
+Spielplatz	m	Spielplätze
+Spielraum	m	Spielräume
+Spielverderber	m	Spielverderber
+Spielzeug	n	Spielzeuge
+Spieß	m	Spieße
+Spießer	m	Spießer
+Spinat	m	Spinate
+Spind	m	Spinde
+Spinne	f	Spinnen
+Spinner	m	Spinner
+Spion	m	Spione
+Spionage	f	
+Spionin	f	Spioninnen
+Spitz	m	Spitze
+Spitze	f	Spitzen
+Spitzel	m	Spitzel
+Spitzname	m	Spitznamen
+Splitter	m	Splitter
+Sponsor	m	Sponsoren
+Sport	m	Sporte
+Sportler	m	Sportler
+Sportsfreund	m	Sportsfreunde
+Sportwagen	m	Sportwagen
+Spot	m	Spots
+Spott	m	
+Sprache	f	Sprachen
+Sprech	m	
+Spreche	f	Sprechen
+Sprechen	n	
+Sprecher	m	Sprecher
+Sprengstoff	m	Sprengstoffe
+Sprichwort	n	Sprichwörter
+Springer	m	Springer
+Sprit	m	Sprite
+Spritze	f	Spritzen
+Spritztour	f	Spritztouren
+Spruch	m	Sprüche
+Sprung	m	Sprünge
+Spucke	f	
+Spur	f	Spuren
+Spurensicherung	f	Spurensicherungen
+Späher	m	Späher
+Spüle	f	Spülen
+Staat	m	Staaten
+Staatsanwalt	m	Staatsanwälte
+Staatsanwaltschaft	f	Staatsanwaltschaften
+Staatsanwältin	f	Staatsanwältinnen
+Staatsbürger	m	Staatsbürger
+Stab	m	Stäbe
+Stabilität	f	
+Stabschef	m	Stabschefs
+Stacheldraht	m	Stacheldrähte
+Stadion	n	Stadien
+Stadium	n	Stadien
+Stadt	f	Städte
+Stadtrat	m	Stadträte
+Staffel	fm	Staffeln
+Stahl	m	Stähle
+Stalker	m	Stalker
+Stall	m	Ställe
+Stamm	m	Stämme
+Stammbaum	m	Stammbäume
+Stand	m	Stände
+Standard	m	Standards
+Standort	m	Standorte
+Standpunkt	m	Standpunkte
+Stange	f	Stangen
+Stapel	m	Stapel
+Star	m	Stare
+Starre	f	
+Start	m	Starts
+Statement	n	Statements
+Station	f	Stationen
+Statistik	f	Statistiken
+Statthalter	m	Statthalter
+Statue	f	Statuen
+Status	m	Status
+Stau	m	Staus
+Staub	m	Stäube
+Staubsauger	m	Staubsauger
+Staunen	n	
+Steak	n	Steaks
+Stechen	n	Stechen
+Stecken	m	Stecken
+Stecker	m	Stecker
+Steig	m	Steige
+Steige	f	Steigen
+Stein	m	Steine
+Steinbruch	m	Steinbrüche
+Stelle	f	Stellen
+Stellung	f	Stellungen
+Stellungnahme	f	Stellungnahmen
+Stellvertreter	m	Stellvertreter
+Stempel	m	Stempel
+Sterben	n	
+Stereoanlage	f	Stereoanlagen
+Sterling	m	Sterlinge
+Stern	m	Sterne
+Stetson	m	Stetsons
+Steuer	nf	Steuer
+Steuerbord	nm	Steuerborde
+Steuermann	m	Steuermänner
+Steuerung	f	Steuerungen
+Steuerzahler	m	Steuerzahler
+Steven	m	Steven
+Stewardess	f	Stewardessen
+Stich	m	Stiche
+Stichwort	n	Stichwörter
+Stick	m	Sticks
+Stiefel	m	Stiefel
+Stiefmutter	f	Stiefmütter
+Stiefvater	m	Stiefväter
+Stiel	m	Stiele
+Stier	m	Stiere
+Stift	mnf	Stifte
+Stiftung	f	Stiftungen
+Stil	m	Stile
+Stille	f	
+Stillstand	m	Stillstände
+Stimme	f	Stimmen
+Stimmengewirr	n	
+Stimmung	f	Stimmungen
+Stinker	m	Stinker
+Stinktier	n	Stinktiere
+Stipendium	n	Stipendien
+Stirn	f	Stirnen
+Stock	m	Stöcke
+Stockwerk	n	Stockwerke
+Stoff	m	Stoffe
+Stokes	n	Stokes
+Stolz	m	
+Stopfen	m	Stopfen
+Stopp	m	Stopps
+Story	f	Storys
+Stoß	m	Stöße
+Stoßen	n	
+Strafe	f	Strafen
+Straftat	f	Straftaten
+Strafzettel	m	Strafzettel
+Strahl	m	Strahlen
+Strahlung	f	Strahlungen
+Strand	m	Strände
+Strandhaus	n	Strandhäuser
+Strang	m	Stränge
+Strategie	f	Strategien
+Strauß	m	Sträuße
+Straße	f	Straßen
+Straßenbahn	f	Straßenbahnen
+Straßenrand	m	Straßenränder
+Straßenseite	f	Straßenseiten
+Streben	n	
+Streber	m	Streber
+Strecke	f	Strecken
+Streich	m	Streiche
+Streichholz	n	Streichhölzer
+Streife	f	Streifen
+Streifen	m	Streifen
+Streifenwagen	m	Streifenwagen
+Streik	m	Streiks
+Streit	m	Streite
+Strenge	f	
+Stress	m	Stresse
+Streuner	m	Streuner
+Strich	m	Striche
+Strick	m	Stricke
+Strike	m	Strikes
+Stripperin	f	Stripperinnen
+Stroh	n	
+Strohhalm	m	Strohhalme
+Strohsack	m	Strohsäcke
+Strom	m	Ströme
+Stromausfall	m	Stromausfälle
+Stromschlag	m	Stromschläge
+Strudel	m	Strudel
+Struktur	f	Strukturen
+Sträfling	m	Sträflinge
+Strömung	f	Strömungen
+Stuart	mf	Stuarts
+Student	m	Studenten
+Studentin	f	Studentinnen
+Studie	f	Studien
+Studio	n	Studios
+Studium	n	Studien
+Stufe	f	Stufen
+Stuhl	m	Stühle
+Stumpf	m	Stümpfe
+Stunde	f	Stunden
+Stuntman	m	Stuntmen
+Sturm	m	Stürme
+Sturz	m	Stürze
+Stute	f	Stuten
+Ständer	m	Ständer
+Stärke	f	Stärken
+Stärkere	f	Stärkere
+Stör	m	Störe
+Störung	f	Störungen
+Stück	n	Stücke
+Stückchen	n	Stückchen
+Stütze	f	Stützen
+Stützpunkt	m	Stützpunkte
+Subjekt	n	Subjekte
+Substanz	f	Substanzen
+Suche	f	Suchen
+Sucher	m	Sucher
+Sucht	f	Süchte
+Suite	f	Suiten
+Sultan	m	Sultane
+Sultanin	f	Sultaninnen
+Summe	f	Summen
+Summer	m	Summer
+Sumpf	m	Sümpfe
+Super	n	
+Superheld	m	Superhelden
+Supermarkt	m	Supermärkte
+Superstar	m	Superstars
+Suppe	f	Suppen
+Surfen	n	
+Sushi	n	Sushis
+Swimmingpool	mn	Swimmingpools
+Symbol	n	Symbole
+Sympathie	f	Sympathien
+Symptom	n	Symptome
+Syndikat	n	Syndikate
+Syphilis	f	
+System	n	Systeme
+Szenario	n	Szenarien
+Szene	f	Szenen
+Säge	f	Sägen
+Sänger	m	Sänger
+Sängerin	f	Sängerinnen
+Säufer	m	Säufer
+Säule	f	Säulen
+Säure	f	Säuren
+Söhnchen	n	Söhnchen
+Söldner	m	Söldner
+Süden	m	
+Sünde	f	Sünden
+Sündenbock	m	Sündenböcke
+Sünder	m	Sünder
+Süß	n	
+Süße	f	Süßen
+Tabak	m	Tabake
+Tablett	n	Tabletts
+Tablette	f	Tabletten
+Tabu	n	Tabus
+Taco	m	Tacos
+Tafel	f	Tafeln
+Taft	m	Tafte
+Tag	mn	Tage
+Tagebuch	n	Tagebücher
+Tagesanbruch	m	Tagesanbrüche
+Tageslicht	n	
+Tagesordnung	f	Tagesordnungen
+Taille	f	Taillen
+Takt	m	Takte
+Taktik	f	Taktiken
+Tal	n	Täler
+Talent	n	Talente
+Taliban	m	Taliban
+Talisman	m	Talismane
+Talk	m	Talks
+Tang	m	Tange
+Tango	m	Tangos
+Tank	m	Tanks
+Tankstelle	f	Tankstellen
+Tantchen	n	Tantchen
+Tante	f	Tanten
+Tanz	m	Tänze
+Tanzen	n	
+Tanzfläche	f	Tanzflächen
+Tanzmusik	f	Tanzmusiken
+Tapferkeit	f	
+Tara	f	Taren
+Tarnung	f	Tarnungen
+Tasche	f	Taschen
+Taschengeld	n	Taschengelder
+Taschenlampe	f	Taschenlampen
+Taschentuch	n	Taschentücher
+Tasse	f	Tassen
+Tastatur	f	Tastaturen
+Taste	f	Tasten
+Tasten	n	
+Tat	f	Taten
+Tate	m	Tates
+Tatort	m	Tatorte
+Tatsache	f	Tatsachen
+Tattoo	mn	Tattoos
+Tatwaffe	f	Tatwaffen
+Tau	mn	Taue
+Taube	f	Tauben
+Taucher	m	Taucher
+Taufe	f	Taufen
+Tausch	m	Tausche
+Tausend	fnm	Tausenden
+Tausender	m	Tausender
+Taverne	f	Tavernen
+Taxi	nm	Taxis
+Taxifahrer	m	Taxifahrer
+Taxis	f	Taxien
+Team	n	Teams
+Technik	f	Techniken
+Techniker	m	Techniker
+Technologie	f	Technologien
+Teddy	m	Teddys
+Teddybär	m	Teddybären
+Tee	mn	Tees
+Teenager	m	Teenager
+Teich	m	Teiche
+Teig	m	Teige
+Teil	nm	Teile
+Teilchen	n	Teilchen
+Teilhaber	m	Teilhaber
+Teilnahme	f	Teilnahmen
+Teilnehmer	m	Teilnehmer
+Telefon	n	Telefone
+Telefonat	n	Telefonate
+Telefonbuch	n	Telefonbücher
+Telefonnummer	f	Telefonnummern
+Telefonzelle	f	Telefonzellen
+Telegramm	n	Telegramme
+Teleskop	n	Teleskope
+Teller	mn	Teller
+Tempel	m	Tempel
+Temperament	n	Temperamente
+Temperatur	f	Temperaturen
+Tempo	n	Tempi
+Tennis	n	
+Teppich	m	Teppiche
+Tequila	m	Tequilas
+Termin	m	Termine
+Terminal	mn	Terminals
+Terminkalender	m	Terminkalender
+Terminplan	m	Terminpläne
+Terrain	n	Terrains
+Terrasse	f	Terrassen
+Territorium	n	Territorien
+Terror	m	
+Terrorismus	m	
+Terrorist	m	Terroristen
+Test	m	Tests
+Testament	n	Testamente
+Testen	n	
+Teufel	m	Teufel
+Teufelskerl	m	Teufelskerle
+Tex	n	Tex
+Text	m	Texte
+Thai	mf	Thai
+Than	m	Thane
+Theater	n	Theater
+Theaterstück	n	Theaterstücke
+Theke	f	Theken
+Thema	n	Themen
+Theorie	f	Theorien
+Therapeut	m	Therapeuten
+Therapeutin	f	Therapeutinnen
+Therapie	f	Therapien
+These	f	Thesen
+Thing	n	Thinge
+Thron	m	Throne
+Thunfisch	m	Thunfische
+Tibet	m	Tibete
+Tick	m	Ticks
+Ticket	n	Tickets
+Tief	n	Tiefs
+Tiefe	f	Tiefen
+Tiefpunkt	m	Tiefpunkte
+Tier	n	Tiere
+Tierarzt	m	Tierärzte
+Tierheim	n	Tierheime
+Tiger	m	Tiger
+Timing	n	Timings
+Tinte	f	Tinten
+Tipp	m	Tipps
+Tisch	m	Tische
+Titan	nm	Titanen
+Titel	m	Titel
+Titelbild	n	Titelbilder
+Titelseite	f	Titelseiten
+To	fn	Tos
+Toast	m	Toasts
+Toaster	m	Toaster
+Tochter	f	Töchter
+Tod	m	Tode
+Todesangst	f	Todesängste
+Todesfall	m	Todesfälle
+Todesstrafe	f	Todesstrafen
+Todestag	m	Todestage
+Todesursache	f	Todesursachen
+Todesurteil	n	Todesurteile
+Toilette	f	Toiletten
+Toilettenpapier	n	Toilettenpapiere
+Toleranz	f	Toleranzen
+Tolle	f	Tollen
+Tollwut	f	
+Tomate	f	Tomaten
+Tommy	m	Tommys
+Ton	m	Tone
+Tonband	n	Tonbänder
+Tonfall	m	Tonfälle
+Tonne	f	Tonnen
+Tool	n	Tools
+Top	n	Tops
+Topf	m	Töpfe
+Tor	nm	Tore
+Tori	m	Tori
+Tornado	m	Tornados
+Torpedo	m	Torpedos
+Torrente	m	Torrenten
+Torte	f	Torten
+Total	n	Totale
+Tote	f	Tote
+Toter	m	Tote
+Totschlag	m	
+Touch	m	Touchs
+Touchdown	m	Touchdowns
+Tour	f	Touren
+Tourist	m	Touristen
+Tournee	f	Tournees
+Tower	m	Tower
+Trab	m	
+Tracht	f	Trachten
+Tradition	f	Traditionen
+Trage	f	Tragen
+Tragödie	f	Tragödien
+Trailer	m	Trailer
+Trainer	m	Trainer
+Training	n	Trainings
+Traktor	m	Traktoren
+Traktorstrahl	m	Traktorstrahlen
+Trance	f	Trancen
+Trank	m	Tränke
+Transaktion	f	Transaktionen
+Transfer	m	Transfers
+Transplantation	f	Transplantationen
+Transport	m	Transporte
+Transporter	m	Transporter
+Tratsch	m	
+Trauer	f	
+Trauerfeier	f	Trauerfeiern
+Traum	m	Träume
+Trauma	n	Traumen
+Traurigkeit	f	Traurigkeiten
+Trauung	f	Trauungen
+Trauzeuge	m	Trauzeugen
+Treff	nm	Treffs
+Treffen	n	Treffen
+Treffer	m	Treffer
+Treffpunkt	m	Treffpunkte
+Treiben	n	Treiben
+Treibstoff	m	Treibstoffe
+Trend	m	Trends
+Trennung	f	Trennungen
+Treppe	f	Treppen
+Treppenhaus	n	Treppenhäuser
+Tresen	m	Tresen
+Tresor	m	Tresore
+Tresorraum	m	Tresorräume
+Treue	f	
+Triade	f	Triaden
+Tribut	m	Tribute
+Trick	m	Tricks
+Trieb	m	Triebe
+Trinken	n	
+Trinker	m	Trinker
+Trinkgeld	n	Trinkgelder
+Trinkwasser	n	Trinkwasser
+Trip	m	Trips
+Tritt	m	Tritte
+Triumph	m	Triumphe
+Trocknen	n	
+Trockner	m	Trockner
+Troll	m	Trolle
+Trommel	f	Trommeln
+Trommelwirbel	m	Trommelwirbel
+Trompete	f	Trompeten
+Tropf	m	Tröpfe
+Tropfen	mn	Tropfen
+Trophäe	f	Trophäen
+Trost	m	
+Trottel	m	Trottel
+Trotz	m	
+Trubel	m	
+Truck	m	Trucks
+Trug	m	
+Truhe	f	Truhen
+Trumpf	m	Trümpfe
+Trunkenheit	f	
+Trupp	m	Trupps
+Truppe	f	Truppen
+Truthahn	m	Truthähne
+Träger	m	Träger
+Träne	f	Tränen
+Tränengas	n	
+Träumer	m	Träumer
+Trübsal	f	Trübsale
+Trümmer		Trümmer
+Tuch	n	Tücher
+Tuck	m	Tücke
+Tugend	f	Tugenden
+Tumor	m	Tumoren
+Tun	nm	Tune
+Tunnel	m	Tunnel
+Tunte	f	Tunten
+Turm	m	Türme
+Turner	m	Turner
+Turnhalle	f	Turnhallen
+Turnier	n	Turniere
+Tussi	f	Tussis
+Typ	m	Typen
+Tyrann	m	Tyrannen
+Tyrannei	f	Tyranneien
+Tänzer	m	Tänzer
+Tänzerin	f	Tänzerinnen
+Täter	m	Täter
+Tätigkeit	f	Tätigkeiten
+Tätowierung	f	Tätowierungen
+Täubchen	n	Täubchen
+Täuschung	f	Täuschungen
+Tölpel	m	Tölpel
+Törtchen	n	Törtchen
+Töten	n	
+Tötung	f	Tötungen
+Tür	f	Türen
+Türe	f	Türen
+Türklingel	f	Türklingeln
+Türsteher	m	Türsteher
+Tüte	f	Tüten
+Ufer	n	Ufer
+Ufo	n	Ufos
+Uhr	f	Uhren
+Uhrzeit	f	Uhrzeiten
+Ultimatum	n	Ultimatums
+Ultraschall	m	
+Umarmung	f	Umarmungen
+Umfang	m	Umfänge
+Umfeld	n	Umfelder
+Umfrage	f	Umfragen
+Umgang	m	Umgänge
+Umgebung	f	Umgebungen
+Umhang	m	Umhänge
+Umkreis	m	Umkreise
+Umlauf	m	Umläufe
+Umlaufbahn	f	Umlaufbahnen
+Umsatz	m	Umsätze
+Umschlag	m	Umschläge
+Umstand	m	Umstände
+Umweg	m	Umwege
+Umwelt	f	Umwelten
+Umzug	m	Umzüge
+Unabhängigkeit	f	Unabhängigkeiten
+Unbekannte	f	Unbekannte
+Unbekannter	m	Unbekannte
+Unentschieden	n	Unentschieden
+Unfall	m	Unfälle
+Unfug	m	
+Unfähigkeit	f	Unfähigkeiten
+Ungeheuer	n	Ungeheuer
+Ungehorsam	m	
+Ungerechtigkeit	f	Ungerechtigkeiten
+Ungeziefer	n	Ungeziefer
+Unglück	n	Unglücke
+Unheil	n	
+Uni	fn	Unis
+Uniform	f	Uniformen
+Union	f	Unionen
+Universität	f	Universitäten
+Universum	n	Universen
+Unkraut	n	Unkräuter
+Unordnung	f	
+Unrecht	n	
+Unruhe	f	Unruhen
+Unschuld	f	
+Unschuldige	f	Unschuldige
+Unschuldiger	m	Unschuldige
+Unsicherheit	f	Unsicherheiten
+Unsinn	m	
+Unsterblichkeit	f	
+Unter	m	Unter
+Unterbewusstsein	n	
+Unterbrechung	f	Unterbrechungen
+Unterdrückung	f	Unterdrückungen
+Unterfangen	n	Unterfangen
+Untergang	m	Untergänge
+Untergrund	m	Untergründe
+Unterhalt	m	
+Unterhaltung	f	Unterhaltungen
+Unterhose	f	Unterhosen
+Unterkunft	f	Unterkünfte
+Unternehmen	n	Unternehmen
+Unternehmer	m	Unternehmer
+Unteroffizier	m	Unteroffiziere
+Unterricht	m	Unterrichte
+Unterschied	m	Unterschiede
+Unterschlupf	m	Unterschlüpfe
+Unterschrift	f	Unterschriften
+Unterstützung	f	Unterstützungen
+Untersuchung	f	Untersuchungen
+Untertitel	m	Untertitel
+Unterwelt	f	Unterwelten
+Unterwäsche	f	Unterwäschen
+Untreue	f	
+Unverschämtheit	f	Unverschämtheiten
+Unwetter	n	Unwetter
+Unzucht	f	
+Update	n	Updates
+Upper	m	Upper
+Uran	n	
+Urgroßvater	m	Urgroßväter
+Urin	m	Urine
+Urkunde	f	Urkunden
+Urlaub	m	Urlaube
+Urne	f	Urnen
+Ursache	f	Ursachen
+Ursprung	m	Ursprünge
+Urteil	n	Urteile
+Urteilsvermögen	n	
+Vagina	f	Vaginen
+Valentinstag	m	Valentinstage
+Vampir	m	Vampire
+Van	m	Vans
+Vanille	f	
+Variante	f	Varianten
+Vase	f	Vasen
+Vater	m	Väter
+Vaterland	n	Vaterländer
+Vati	m	Vatis
+Vegetarier	m	Vegetarier
+Veilchen	n	Veilchen
+Ventil	n	Ventile
+Ventilator	m	Ventilatoren
+Verabredung	f	Verabredungen
+Verachtung	f	
+Veranda	f	Veranden
+Veranstaltung	f	Veranstaltungen
+Verantwortliche	f	Verantwortliche
+Verantwortung	f	Verantwortungen
+Verband	m	Verbände
+Verbesserung	f	Verbesserungen
+Verbindung	f	Verbindungen
+Verbot	n	Verbote
+Verbrechen	n	Verbrechen
+Verbrecher	m	Verbrecher
+Verbreiten	n	
+Verbündete	f	Verbündete
+Verbündeter	m	Verbündete
+Verdacht	m	Verdachte
+Verdammnis	f	Verdammnisse
+Verderben	n	Verderben
+Verdienst	mn	Verdienste
+Verdächtige	f	Verdächtige
+Verdächtiger	m	Verdächtige
+Verehrer	m	Verehrer
+Verehrung	f	Verehrungen
+Verein	m	Vereine
+Vereinbarung	f	Vereinbarungen
+Vereinigung	f	Vereinigungen
+Verfahren	n	Verfahren
+Verfall	m	Verfälle
+Verfassung	f	Verfassungen
+Verfolger	m	Verfolger
+Verfolgung	f	Verfolgungen
+Verfügung	f	Verfügungen
+Vergangenheit	f	Vergangenheiten
+Vergebung	f	Vergebungen
+Vergehen	n	Vergehen
+Vergeltung	f	Vergeltungen
+Vergessen	n	
+Vergewaltiger	m	Vergewaltiger
+Vergewaltigung	f	Vergewaltigungen
+Vergießen	n	
+Vergleich	m	Vergleiche
+Vergnügen	n	Vergnügen
+Verhaftung	f	Verhaftungen
+Verhalten	n	Verhalten
+Verhandlung	f	Verhandlungen
+Verhungern	n	
+Verhältnis	n	Verhältnisse
+Verhör	n	Verhöre
+Verkauf	m	Verkäufe
+Verkehr	m	Verkehre
+Verkleidung	f	Verkleidungen
+Verkäufer	m	Verkäufer
+Verkäuferin	f	Verkäuferinnen
+Verlag	m	Verlage
+Verlangen	n	Verlangen
+Verlass	m	
+Verlassen	n	
+Verlaub	m	
+Verlauf	m	Verläufe
+Verlegenheit	f	Verlegenheiten
+Verleger	m	Verleger
+Verletzte	f	Verletzte
+Verletzung	f	Verletzungen
+Verleumdung	f	Verleumdungen
+Verliebte	f	Verliebte
+Verlierer	m	Verlierer
+Verlies	n	Verliese
+Verlobte	f	Verlobte
+Verlobter	m	Verlobte
+Verlobung	f	Verlobungen
+Verlobungsring	m	Verlobungsringe
+Verlust	m	Verluste
+Verlängerung	f	Verlängerungen
+Vermieter	m	Vermieter
+Vermittler	m	Vermittler
+Vermittlung	f	Vermittlungen
+Vermutung	f	Vermutungen
+Vermächtnis	n	Vermächtnisse
+Vermögen	n	Vermögen
+Vernehmen	n	
+Vernehmung	f	Vernehmungen
+Vernichtung	f	Vernichtungen
+Vernunft	f	
+Verpackung	f	Verpackungen
+Verpflegung	f	Verpflegungen
+Verpflichtung	f	Verpflichtungen
+Verrat	m	
+Verräter	m	Verräter
+Verräterin	f	Verräterinnen
+Verrückte	f	Verrückte
+Verrückter	m	Verrückte
+Vers	m	Verse
+Versagen	n	
+Versager	m	Versager
+Versammlung	f	Versammlungen
+Verschluss	m	Verschlüsse
+Verschwendung	f	Verschwendungen
+Verschwinden	n	
+Verschwörung	f	Verschwörungen
+Versehen	n	Versehen
+Versetzung	f	Versetzungen
+Versicherung	f	Versicherungen
+Version	f	Versionen
+Versorgung	f	Versorgungen
+Versprechen	n	Versprechen
+Verspätung	f	Verspätungen
+Verstand	m	
+Versteck	n	Verstecke
+Verstopfung	f	Verstopfungen
+Verstorbene	f	Verstorbene
+Verstoß	m	Verstöße
+Verständnis	n	Verständnisse
+Verstärkung	f	Verstärkungen
+Versuch	m	Versuche
+Versuchskaninchen	n	Versuchskaninchen
+Versuchung	f	Versuchungen
+Versöhnung	f	Versöhnungen
+Verteidiger	m	Verteidiger
+Verteidigung	f	Verteidigungen
+Verteidigungsminister	m	Verteidigungsminister
+Verteidigungsministerium	n	Verteidigungsministerien
+Vertrag	m	Verträge
+Vertrauen	n	
+Vertreter	m	Vertreter
+Vertretung	f	Vertretungen
+Vertrieb	m	Vertriebe
+Verurteilung	f	Verurteilungen
+Verwalter	m	Verwalter
+Verwaltung	f	Verwaltungen
+Verwandlung	f	Verwandlungen
+Verwandte	f	Verwandte
+Verwandter	m	Verwandte
+Verwandtschaft	f	Verwandtschaften
+Verwechslung	f	Verwechslungen
+Verwenden	n	
+Verwendung	f	Verwendungen
+Verwirrung	f	Verwirrungen
+Verwundete	f	Verwundete
+Verzeihung	f	
+Verzug	m	Verzüge
+Verzweiflung	f	Verzweiflungen
+Verzögern	n	
+Verzögerung	f	Verzögerungen
+Veränderung	f	Veränderungen
+Veröffentlichung	f	Veröffentlichungen
+Vetter	m	Vettern
+Viagra	n	
+Video	n	Videos
+Videospiel	n	Videospiele
+Vieh	n	
+Viel	nm	
+Vier	f	Vieren
+Viertel	nmf	Viertel
+Viertelstunde	f	Viertelstunden
+Vierter	m	Vierte
+Vierzehn	f	
+Villa	f	Villen
+Viper	f	Vipern
+Virus	nm	Viren
+Visage	f	Visagen
+Visier	n	Visiere
+Vision	f	Visionen
+Visitenkarte	f	Visitenkarten
+Visum	n	Visa
+Vitamin	n	Vitamine
+Vizepräsident	m	Vizepräsidenten
+Vogel	m	Vögel
+Vogelgezwitscher	n	
+Vogelscheuche	f	Vogelscheuchen
+Volk	n	Völker
+Vollgas	n	
+Vollidiot	m	Vollidioten
+Vollmacht	f	Vollmachten
+Vollmond	m	Vollmonde
+Volltreffer	m	Volltreffer
+Volt	n	Volt
+Von	mf	Vons
+Voodoo	m	
+Vorahnung	f	Vorahnungen
+Vorarbeiter	m	Vorarbeiter
+Voraus	m	
+Vorbereitung	f	Vorbereitungen
+Vorbild	n	Vorbilder
+Vorderseite	f	Vorderseiten
+Vordertür	f	Vordertüren
+Vorfall	m	Vorfälle
+Vorführung	f	Vorführungen
+Vorgang	m	Vorgänge
+Vorgehen	n	
+Vorgehensweise	f	Vorgehensweisen
+Vorgeschichte	f	
+Vorgesetzter	m	Vorgesetzte
+Vorgänger	m	Vorgänger
+Vorhaben	n	Vorhaben
+Vorhang	m	Vorhänge
+Vorkommen	n	Vorkommen
+Vorladung	f	Vorladungen
+Vorlage	f	Vorlagen
+Vorlesung	f	Vorlesungen
+Vorliebe	f	Vorlieben
+Vormittag	m	Vormittage
+Vormund	m	Vormunde
+Vorname	m	Vornamen
+Vorort	m	Vororte
+Vorrang	m	
+Vorrat	m	Vorräte
+Vorrichtung	f	Vorrichtungen
+Vorsatz	mn	Vorsätze
+Vorschein	m	
+Vorschlag	m	Vorschläge
+Vorschrift	f	Vorschriften
+Vorschuss	m	Vorschüsse
+Vorsehung	f	
+Vorsicht	f	
+Vorsichtsmaßnahme	f	Vorsichtsmaßnahmen
+Vorsitz	m	Vorsitze
+Vorsitzende	f	Vorsitzende
+Vorsitzender	m	Vorsitzende
+Vorspeise	f	Vorspeisen
+Vorspiel	n	Vorspiele
+Vorsprung	m	Vorsprünge
+Vorstadt	f	Vorstädte
+Vorstand	m	Vorstände
+Vorstellung	f	Vorstellungen
+Vorstellungsgespräch	n	Vorstellungsgespräche
+Vorstellungskraft	f	Vorstellungskräfte
+Vorteil	m	Vorteile
+Vortrag	m	Vorträge
+Vorwand	m	Vorwände
+Vorwarnung	f	Vorwarnungen
+Vorwurf	m	Vorwürfe
+Vulkan	m	Vulkane
+Vulkanier	m	Vulkanier
+Vögelchen	n	Vögelchen
+Vögeln	n	
+Wa		Wa
+Waage	f	Waagen
+Wache	f	Wachen
+Wachmann	m	Wachmänner
+Wachs	n	Wachse
+Wachstum	n	
+Wachtmeister	m	Wachtmeister
+Wade	f	Waden
+Waffe	f	Waffen
+Waffenhändler	m	Waffenhändler
+Waffenstillstand	m	Waffenstillstände
+Waggon	m	Waggons
+Wagner	m	Wagner
+Wahl	f	Wahlen
+Wahlkampf	m	Wahlkämpfe
+Wahn	m	Wahne
+Wahnsinn	m	
+Wahnsinniger	m	Wahnsinnige
+Wahrheit	f	Wahrheiten
+Wahrnehmung	f	Wahrnehmungen
+Wahrsager	m	Wahrsager
+Wahrscheinlichkeit	f	Wahrscheinlichkeiten
+Waise	fm	Waisen
+Waisenhaus	n	Waisenhäuser
+Waisenkind	n	Waisenkinder
+Wal	m	Wale
+Wald	m	Wälder
+Walker	m	Walker
+Walking	n	
+Wall	m	Wälle
+Walzer	m	Walzer
+Wand	f	Wände
+Wandel	m	Wandel
+Wanderer	m	Wanderer
+Wandern	n	
+Wange	f	Wangen
+Wanne	f	Wannen
+Want	fn	Wanten
+Wanze	f	Wanzen
+Wappen	n	Wappen
+Ware	f	Waren
+Warf	f	Warfen
+Warner	m	Warner
+Warnung	f	Warnungen
+Warp	mn	Warpe
+Wart	m	Warte
+Warte	f	Warten
+Wartezimmer	n	Wartezimmer
+Waschbecken	n	Waschbecken
+Waschbär	m	Waschbären
+Waschen	n	
+Waschlappen	m	Waschlappen
+Waschmaschine	f	Waschmaschinen
+Wasser	n	Wasser
+Wasserfall	m	Wasserfälle
+Wasserhahn	m	Wasserhähne
+Wat	m	Wats
+Wau	m	Waue
+Weber	m	Weber
+Webseite	f	Webseiten
+Website	f	Websites
+Wechsel	m	Wechsel
+Wechselgeld	n	Wechselgelder
+Weck	m	Wecken
+Wecke	f	Wecken
+Wecken	mn	Wecken
+Wecker	m	Wecker
+Weg	m	Wege
+Weh	n	Wehe
+Wehe	nf	Wehen
+Wehr	nf	Wehre
+Weib	n	Weiber
+Weibchen	n	Weibchen
+Weiche	f	Weichen
+Weichei	n	Weicheier
+Weide	f	Weiden
+Weihnacht	f	
+Weihnachten	n	Weihnachten
+Weihnachtsbaum	m	Weihnachtsbäume
+Weihnachtsfest	n	Weihnachtsfeste
+Weihnachtsgeschenk	n	Weihnachtsgeschenke
+Weihnachtsmann	m	Weihnachtsmänner
+Weilchen	n	Weilchen
+Weile	f	
+Wein	m	Weine
+Weinkeller	m	Weinkeller
+Weise	f	Weisen
+Weiser	m	Weise
+Weisheit	f	Weisheiten
+Weite	f	Weiten
+Weizen	mn	Weizen
+Weiß	n	
+Weiße	f	Weiße
+Weißer	m	Weiße
+Weißwein	m	Weißweine
+Welle	f	Wellen
+Wellenlänge	f	Wellenlängen
+Welpe	m	Welpen
+Welt	f	Welten
+Weltall	n	
+Weltkrieg	m	Weltkriege
+Weltmeister	m	Weltmeister
+Weltraum	m	
+Weltuntergang	m	Weltuntergänge
+Wende	fm	Wenden
+Wendung	f	Wendungen
+Wenn	n	Wenn
+Werbespot	m	Werbespots
+Werbung	f	Werbungen
+Werd	mnf	Werde
+Werft	f	Werften
+Werk	n	Werke
+Werkstatt	f	Werkstätten
+Werkzeug	n	Werkzeuge
+Wert	m	Werte
+Werwolf	m	Werwölfe
+Wesen	n	Wesen
+West	m	Weste
+Weste	f	Westen
+Westen	m	
+Western	m	Western
+Westküste	f	Westküsten
+Wettbewerb	m	Wettbewerbe
+Wette	f	Wetten
+Wetten	n	
+Wetter	nm	Wetter
+Wetterbericht	m	Wetterberichte
+Wettkampf	m	Wettkämpfe
+Whirlpool	m	Whirlpools
+Whiskey	m	Whiskeys
+Whisky	m	Whiskys
+Whistler	m	Whistler
+Wichser	m	Wichser
+Wicht	m	Wichte
+Wichtigkeit	f	Wichtigkeiten
+Wider	n	
+Widerrede	f	Widerreden
+Widerspruch	m	Widersprüche
+Widerstand	m	Widerstände
+Wie	n	
+Wiedergeburt	f	Wiedergeburten
+Wiedergutmachung	f	Wiedergutmachungen
+Wiederholung	f	Wiederholungen
+Wiederhören	n	
+Wiedersehen	n	Wiedersehen
+Wiege	f	Wiegen
+Wiener	mf	Wiener
+Wiese	f	Wiesen
+Wiesel	n	Wiesel
+Wikinger	m	Wikinger
+Wild	n	
+Wilder	m	Wilde
+Wilderer	m	Wilderer
+Wildnis	f	Wildnisse
+Wildschwein	n	Wildschweine
+Wille	m	Willen
+Willen	m	Willen
+Willkommen	n	Willkommen
+Wind	m	Winde
+Winde	f	Winden
+Windel	f	Windeln
+Windschutzscheibe	f	Windschutzscheiben
+Wink	m	Winke
+Winkel	m	Winkel
+Winter	m	Winter
+Wirbel	m	Wirbel
+Wirbelsäule	f	Wirbelsäulen
+Wirklichkeit	f	Wirklichkeiten
+Wirkung	f	Wirkungen
+Wirt	m	Wirte
+Wirtschaft	f	Wirtschaften
+Wisch	m	Wische
+Wissen	n	
+Wissenschaft	f	Wissenschaften
+Wissenschaftler	m	Wissenschaftler
+Wissenschaftlerin	f	Wissenschaftlerinnen
+Witwe	f	Witwen
+Witwer	m	Witwer
+Witz	m	Witze
+Witzbold	m	Witzbolde
+Woche	f	Wochen
+Wochenende	n	Wochenenden
+Wodka	m	Wodkas
+Wohl	n	
+Wohlergehen	n	
+Wohlstand	m	
+Wohltäter	m	Wohltäter
+Wohnen	n	
+Wohnheim	n	Wohnheime
+Wohnmobil	n	Wohnmobile
+Wohnsitz	m	Wohnsitze
+Wohnung	f	Wohnungen
+Wohnwagen	m	Wohnwagen
+Wohnzimmer	n	Wohnzimmer
+Wolf	m	Wölfe
+Wolfram	n	
+Wolke	f	Wolken
+Wolle	f	Wollen
+Won	m	Won
+Wood	m	Woods
+Wort	n	Wörter
+Wortwahl	f	
+Wrack	n	Wracks
+Wuchs	m	Wüchse
+Wucht	f	
+Wunde	f	Wunden
+Wunder	n	Wunder
+Wunderbares	n	
+Wunsch	m	Wünsche
+Wurf	m	Würfe
+Wurm	mn	Würmer
+Wurmloch	n	Wurmlöcher
+Wurst	f	Würste
+Wurzel	f	Wurzeln
+Wut	f	
+Wächter	m	Wächter
+Wählen	n	
+Wähler	m	Wähler
+Währung	f	Währungen
+Wärme	f	
+Wärmer	m	Wärmer
+Wärter	m	Wärter
+Wäsche	f	Wäschen
+Wäscherei	f	Wäschereien
+Wörterbuch	n	Wörterbücher
+Würde	f	Würden
+Würfel	m	Würfel
+Würstchen	n	Würstchen
+Wüste	f	Wüsten
+Yacht	f	Yachten
+Yakuza	fm	Yakuza
+Yang	n	
+Yankee	m	Yankees
+Yard	n	Yards
+Yen	m	Yen
+Yin	n	
+Yoga	mn	
+Yuan	m	Yuan
+Zahl	f	Zahlen
+Zahltag	m	Zahltage
+Zahlung	f	Zahlungen
+Zahn	m	Zähne
+Zahnarzt	m	Zahnärzte
+Zahnbürste	f	Zahnbürsten
+Zahnfee	f	Zahnfeen
+Zahnpasta	f	Zahnpasten
+Zane	m	Zani
+Zange	f	Zangen
+Zar	m	Zaren
+Zauber	m	Zauber
+Zauberei	f	Zaubereien
+Zauberer	m	Zauberer
+Zauberin	f	Zauberinnen
+Zauberspruch	m	Zaubersprüche
+Zaubertrank	m	Zaubertränke
+Zaum	m	Zäume
+Zaun	m	Zäune
+Zebra	n	Zebras
+Zeh	m	Zehen
+Zehn	f	Zehnen
+Zehner	mf	Zehner
+Zehntausend	fn	Zehntausenden
+Zeichen	n	Zeichen
+Zeichnen	n	
+Zeichnung	f	Zeichnungen
+Zeile	f	Zeilen
+Zeit	f	Zeiten
+Zeitalter	n	Zeitalter
+Zeitbombe	f	Zeitbomben
+Zeitfenster	n	Zeitfenster
+Zeitlang	f	
+Zeitmaschine	f	Zeitmaschinen
+Zeitplan	m	Zeitpläne
+Zeitpunkt	m	Zeitpunkte
+Zeitraum	m	Zeiträume
+Zeitschrift	f	Zeitschriften
+Zeitung	f	Zeitungen
+Zeitverschwendung	f	Zeitverschwendungen
+Zeitvertreib	m	Zeitvertreibe
+Zelle	f	Zellen
+Zelt	nm	Zelte
+Zelte	m	Zelten
+Zelten	mn	Zelten
+Zement	m	Zemente
+Zentimeter	mn	Zentimeter
+Zentrale	f	Zentralen
+Zentrum	n	Zentren
+Zepter	nm	Zepter
+Zeremonie	f	Zeremonien
+Zerstörer	m	Zerstörer
+Zerstörung	f	Zerstörungen
+Zettel	m	Zettel
+Zeug	n	Zeuge
+Zeuge	m	Zeugen
+Zeugenaussage	f	Zeugenaussagen
+Zeugenschutzprogramm	n	Zeugenschutzprogramme
+Zeugenstand	m	
+Zeugin	f	Zeuginnen
+Zeugnis	n	Zeugnisse
+Zeugs	n	
+Zicke	f	Zicken
+Ziege	f	Ziegen
+Ziegel	m	Ziegel
+Ziel	n	Ziele
+Ziellinie	f	Ziellinien
+Zielscheibe	f	Zielscheiben
+Zigarette	f	Zigaretten
+Zigarre	f	Zigarren
+Zigeuner	m	Zigeuner
+Zimmer	n	Zimmer
+Zimmermann	m	Zimmermänner
+Zimmermädchen	n	Zimmermädchen
+Zimt	mn	Zimte
+Zirkel	m	Zirkel
+Zirkus	m	Zirkusse
+Zitat	n	Zitate
+Zitrone	f	Zitronen
+Zivilisation	f	Zivilisationen
+Zivilist	m	Zivilisten
+Zofe	f	Zofen
+Zoll	mn	Zölle
+Zombie	m	Zombies
+Zone	f	Zonen
+Zoo	m	Zoos
+Zoom	mn	Zooms
+Zorn	m	
+Zucken	n	
+Zucker	m	Zucker
+Zufall	m	Zufälle
+Zuflucht	f	
+Zufluchtsort	m	Zufluchtsorte
+Zufriedenheit	f	
+Zug	m	Züge
+Zugabe	f	Zugaben
+Zugang	m	Zugänge
+Zugriff	m	Zugriffe
+Zuhause	n	
+Zuhälter	m	Zuhälter
+Zuhörer	m	Zuhörer
+Zukunft	f	Zukünfte
+Zulassung	f	Zulassungen
+Zuneigung	f	Zuneigungen
+Zunge	f	Zungen
+Zurückhaltung	f	
+Zusammenarbeit	f	
+Zusammenbruch	m	Zusammenbrüche
+Zusammenfassung	f	Zusammenfassungen
+Zusammenhang	m	Zusammenhänge
+Zusammenleben	n	
+Zuschauer	m	Zuschauer
+Zustand	m	Zustände
+Zustimmung	f	Zustimmungen
+Zuständigkeit	f	Zuständigkeiten
+Zutritt	m	
+Zuversicht	f	Zuversichten
+Zwang	m	Zwänge
+Zwanzig	f	
+Zweck	m	Zwecke
+Zwecke	f	Zwecken
+Zwei	f	Zweien
+Zweier	m	Zweier
+Zweifel	m	Zweifel
+Zweig	m	Zweige
+Zweiter	m	Zweite
+Zwerg	m	Zwerge
+Zwiebel	fm	Zwiebeln
+Zwilling	m	Zwillinge
+Zwinge	f	Zwingen
+Zwischenfall	m	Zwischenfälle
+Zwischenzeit	f	Zwischenzeiten
+Zwölf	f	Zwölfen
+Zyklus	m	Zyklen
+Zylinder	m	Zylinder
+Zärtlichkeit	f	Zärtlichkeiten
+Zügel	m	Zügel
+Zünder	m	Zünder
+Zündung	f	Zündungen
+Ächzen	n	
+Äffchen	n	Äffchen
+Ägypter	m	Ägypter
+Ähnlichkeit	f	Ähnlichkeiten
+Änderung	f	Änderungen
+Ära	f	Ären
+Ärger	m	
+Ärmel	m	Ärmel
+Ärztin	f	Ärztinnen
+Äußern	n	
+Öde	f	Öden
+Öffentlichkeit	f	Öffentlichkeiten
+Öffnung	f	Öffnungen
+Öl	n	Öle
+Übel	n	Übel
+Übelkeit	f	
+Überarbeitung	f	Überarbeitungen
+Überblick	m	Überblicke
+Überdosis	f	Überdosen
+Übereinstimmung	f	Übereinstimmungen
+Überfall	m	Überfälle
+Überfluss	m	
+Übergabe	f	Übergaben
+Übergang	m	Übergänge
+Überleben	n	
+Überlebende	f	Überlebende
+Überlegung	f	Überlegungen
+Übernahme	f	Übernahmen
+Überprüfung	f	Überprüfungen
+Überraschung	f	Überraschungen
+Übersetzer	m	Übersetzer
+Übersetzung	f	Übersetzungen
+Übertragung	f	Übertragungen
+Überwachung	f	Überwachungen
+Überwachungskamera	f	Überwachungskameras
+Überweisung	f	Überweisungen
+Überzeugung	f	Überzeugungen
+Übung	f	Übungen
+=Abdrücke	Abdruck
+=Abdrücken	Abdruck
+=Abende	Abend
+=Abends	Abend
+=Abreisen	Abreise
+=Absätze	Absatz
+=Absichten	Absicht
+=Abstürzen	Absturz
+=Abteilungen	Abteilung
+=Achten	Acht
+=Adern	Ader
+=Adressen	Adresse
+=Affen	Affe
+=Affären	Affäre
+=Agenten	Agent
+=Akten	Akt
+=Aktien	Aktie
+=Aktionen	Aktion
+=Aktiven	Aktiv
+=Aktivitäten	Aktivität
+=Albträume	Albtraum
+=Aliens	Alien
+=Allergien	Allergie
+=Alpträume	Alptraum
+=Alten	Alt
+=Alters	Alter
+=Alternativen	Alternative
+=Amateure	Amateur
+=Ameisen	Ameise
+=Amerikanern	Amerikaner
+=Amis	Ami
+=Amigos	Amigo
+=Amtes	Amt
+=Anfälle	Anfall
+=Anfange	Anfang
+=Anfragen	Anfrage
+=Angebote	Angebot
+=Angeboten	Angebot
+=Angelegenheiten	Angelegenheit
+=Angesichts	Angesicht
+=Angriffe	Angriff
+=Angriffen	Angriff
+=Ängste	Angst
+=Ängsten	Angst
+=Anklagen	Anklage
+=Anlagen	Anlage
+=Anomalien	Anomalie
+=Anordnungen	Anordnung
+=Anrufe	Anruf
+=Anrufen	Anruf
+=Anschläge	Anschlag
+=Anschuldigungen	Anschuldigung
+=Ansichten	Ansicht
+=Ansprüche	Anspruch
+=Anstrengungen	Anstrengung
+=Anteile	Anteil
+=Antiken	Antike
+=Anträge	Antrag
+=Antworten	Antwort
+=Anwälte	Anwalt
+=Anwälten	Anwalt
+=Anweisungen	Anweisung
+=Anzeigen	Anzeige
+=Anzüge	Anzug
+=Äpfel	Apfel
+=Arbeiten	Arbeit
+=Arbeitern	Arbeiter
+=Arbeitsplätze	Arbeitsplatz
+=Architekten	Architekt
+=Argumente	Argument
+=Armen	Arm
+=Arms	Arm
+=Armeen	Armee
+=Ärsche	Arsch
+=Arschlöcher	Arschloch
+=Arschlöchern	Arschloch
+=Arten	Art
+=Artefakte	Artefakt
+=Ärzte	Arzt
+=Ärzten	Arzt
+=Arztes	Arzt
+=Asse	As
+=Aspekte	Aspekt
+=Assistenten	Assistent
+=Astronauten	Astronaut
+=Aufgaben	Aufgabe
+=Aufnahmen	Aufnahme
+=Aufrufen	Aufruf
+=Aufträge	Auftrag
+=Auftritte	Auftritt
+=Aufzeichnungen	Aufzeichnung
+=Augen	Auge
+=Augenblicke	Augenblick
+=Ausdrücke	Ausdruck
+=Ausdrücken	Ausdruck
+=Ausgaben	Ausgabe
+=Ausgänge	Ausgang
+=Ausnahmen	Ausnahme
+=Ausreden	Ausrede
+=Aussagen	Aussage
+=Aussichten	Aussicht
+=Austauschen	Austausch
+=Ausweise	Ausweis
+=Ausweisen	Ausweis
+=Auszeichnungen	Auszeichnung
+=Autos	Auto
+=Autoren	Autor
+=Babys	Baby
+=Bade	Bad
+=Bahnen	Bahn
+=Bälle	Ball
+=Ballons	Ballon
+=Bananen	Banane
+=Bänder	Band
+=Bands	Band
+=Banden	Bande
+=Banditen	Bandit
+=Banken	Bank
+=Bars	Bar
+=Baracken	Baracke
+=Bastarde	Bastard
+=Batterien	Batterie
+=Bauten	Bau
+=Baue	Bau
+=Bauern	Bauer
+=Bäume	Baum
+=Bäumen	Baum
+=Bedingungen	Bedingung
+=Bedrohungen	Bedrohung
+=Bedürfnisse	Bedürfnis
+=Beerdigungen	Beerdigung
+=Befehle	Befehl
+=Befehlen	Befehl
+=Befunden	Befund
+=Beginne	Beginn
+=Beginnen	Beginn
+=Begriffen	Begriff
+=Behandlungen	Behandlung
+=Behörden	Behörde
+=Beichten	Beichte
+=Beine	Bein
+=Beinen	Bein
+=Beispiele	Beispiel
+=Beleidigungen	Beleidigung
+=Bemerkungen	Bemerkung
+=Bereiche	Bereich
+=Bereichen	Bereich
+=Berge	Berg
+=Bergen	Berg
+=Berichte	Bericht
+=Berichten	Bericht
+=Berufe	Beruf
+=Berufen	Beruf
+=Bescheiden	Bescheid
+=Beschrieben	Beschrieb
+=Beschwerden	Beschwerde
+=Besitze	Besitz
+=Besitzen	Besitz
+=Bestellungen	Bestellung
+=Bestien	Bestie
+=Besuche	Besuch
+=Besuchen	Besuch
+=Beten	Bete
+=Betrieben	Betrieb
+=Betrüge	Betrug
+=Betrügen	Betrug
+=Betten	Bett
+=Bette	Bett
+=Bewegungen	Bewegung
+=Beweise	Beweis
+=Beweisen	Beweis
+=Beziehungen	Beziehung
+=Bienen	Biene
+=Biester	Biest
+=Bilder	Bild
+=Bildern	Bild
+=Bilde	Bild
+=Binden	Binde
+=Bitten	Bitte
+=Blätter	Blatt
+=Blättern	Blatt
+=Bleiben	Bleibe
+=Blicken	Blick
+=Blitze	Blitz
+=Blonden	Blonde
+=Blondinen	Blondine
+=Blumen	Blume
+=Blute	Blut
+=Bluten	Blut
+=Blutungen	Blutung
+=Blüten	Blüte
+=Bohnen	Bohne
+=Bomben	Bombe
+=Bonbons	Bonbon
+=Boote	Boot
+=Booten	Boot
+=Borgen	Borg
+=Boten	Bote
+=Botschaften	Botschaft
+=Brauche	Brauch
+=Bräute	Braut
+=Brautjungfern	Brautjungfer
+=Breiten	Breite
+=Bretter	Brett
+=Briefe	Brief
+=Briefen	Brief
+=Brillanten	Brillant
+=Brote	Brot
+=Brüche	Bruch
+=Brüder	Bruder
+=Brüdern	Bruder
+=Bruders	Bruder
+=Brüste	Brust
+=Brüsten	Brust
+=Brücken	Brücke
+=Buben	Bub
+=Bücher	Buch
+=Büchern	Buch
+=Buchstaben	Buchstabe
+=Bullen	Bulle
+=Burschen	Bursche
+=Busse	Bus
+=Butters	Butter
+=Bären	Bär
+=Bösewichte	Bösewicht
+=Bürgern	Bürger
+=Bürgermeisters	Bürgermeister
+=Büros	Büro
+=Cents	Cent
+=Champions	Champion
+=Chancen	Chance
+=Chefs	Chef
+=Chinesen	Chinese
+=Chips	Chip
+=Chirurgen	Chirurg
+=Christen	Christ
+=Clans	Clan
+=Clowns	Clown
+=Clubs	Club
+=Cocktails	Cocktail
+=Codes	Code
+=Comics	Comic
+=Computern	Computer
+=Cops	Cop
+=Cousins	Cousin
+=Cowboys	Cowboy
+=Crews	Crew
+=Daddys	Daddy
+=Damen	Dame
+=Danke	Dank
+=Dates	Date
+=Dateien	Datei
+=Dauern	Dauer
+=Deals	Deal
+=Decks	Deck
+=Decken	Decke
+=Deppen	Depp
+=Depressionen	Depression
+=Details	Detail
+=Detektive	Detektiv
+=Deutschen	Deutsche
+=Diamanten	Diamant
+=Dicken	Dicke
+=Dies	Die
+=Diebe	Dieb
+=Dieben	Dieb
+=Diebstahls	Diebstahl
+=Dienste	Dienst
+=Diensten	Dienst
+=Dienstags	Dienstag
+=Dimensionen	Dimension
+=Dinge	Ding
+=Dingen	Ding
+=Dings	Ding
+=Diplomaten	Diplomat
+=Direktors	Direktor
+=Diskussionen	Diskussion
+=Docks	Dock
+=Dokumente	Dokument
+=Dokumenten	Dokument
+=Dollars	Dollar
+=Donnern	Donner
+=Donnerstags	Donnerstag
+=Donuts	Donut
+=Dörfer	Dorf
+=Dosen	Dose
+=Drähte	Draht
+=Dreckskerle	Dreckskerl
+=Drehen	Dreh
+=Dreien	Drei
+=Drinks	Drink
+=Drogen	Droge
+=Drohnen	Drohne
+=Drohungen	Drohung
+=Drücke	Druck
+=Drücken	Druck
+=Dus	Du
+=Dummheiten	Dummheit
+=Dummköpfe	Dummkopf
+=Duschen	Dusche
+=Dutzende	Dutzend
+=Dämonen	Dämon
+=Ebenen	Ebene
+=Ecken	Ecke
+=Ehen	Ehe
+=Ehefrauen	Ehefrau
+=Ehemänner	Ehemann
+=Ehren	Ehre
+=Eier	Ei
+=Eiern	Ei
+=Eigenschaften	Eigenschaft
+=Einbrüche	Einbruch
+=Eindringlinge	Eindringling
+=Einheiten	Einheit
+=Einkäufe	Einkauf
+=Einladungen	Einladung
+=Einrichtungen	Einrichtung
+=Einsätze	Einsatz
+=Einstellungen	Einstellung
+=Elefanten	Elefant
+=Elemente	Element
+=Elende	Elend
+=Elfen	Elf
+=Ellen	Elle
+=Emotionen	Emotion
+=Empfange	Empfang
+=Empfehlungen	Empfehlung
+=Enden	Ende
+=Endes	Ende
+=Engen	Enge
+=Engeln	Engel
+=Enkelkinder	Enkelkind
+=Enten	Ente
+=Entführungen	Entführung
+=Entscheidungen	Entscheidung
+=Entschuldigungen	Entschuldigung
+=Entwicklungen	Entwicklung
+=Entwürfe	Entwurf
+=Erben	Erbe
+=Erden	Erde
+=Ereignisse	Ereignis
+=Ereignissen	Ereignis
+=Erfahrungen	Erfahrung
+=Erfindungen	Erfindung
+=Erfolge	Erfolg
+=Erfolgen	Erfolg
+=Ergebnisse	Ergebnis
+=Erinnerungen	Erinnerung
+=Erkenntnisse	Erkenntnis
+=Erklärungen	Erklärung
+=Erlebnisse	Erlebnis
+=Ermittlungen	Ermittlung
+=Ernste	Ernst
+=Ernten	Ernte
+=Ertrage	Ertrag
+=Erwartungen	Erwartung
+=Essens	Essen
+=Etagen	Etage
+=Ewigkeiten	Ewigkeit
+=Exemplare	Exemplar
+=Experimente	Experiment
+=Experimenten	Experiment
+=Experten	Experte
+=Explosionen	Explosion
+=Extreme	Extrem
+=Extremen	Extrem
+=Fabriken	Fabrik
+=Fackeln	Fackel
+=Fäden	Faden
+=Fahnen	Fahne
+=Fahrkarten	Fahrkarte
+=Fahrzeuge	Fahrzeug
+=Fakten	Fakt
+=Faktoren	Faktor
+=Falken	Falke
+=Fälle	Fall
+=Falls	Fall
+=Fallen	Fall
+=Familien	Familie
+=Familienmitglieder	Familienmitglied
+=Fans	Fan
+=Fange	Fang
+=Fantasien	Fantasie
+=Farben	Farbe
+=Farmen	Farm
+=Fässer	Fass
+=Fasse	Fass
+=Fäuste	Faust
+=Faxen	Fax
+=Federn	Feder
+=Feen	Fee
+=Fehlern	Fehler
+=Feiern	Feier
+=Feiertage	Feiertag
+=Feigen	Feige
+=Feiglinge	Feigling
+=Feinde	Feind
+=Feinden	Feind
+=Felder	Feld
+=Feldern	Feld
+=Fenstern	Fenster
+=Fernen	Ferne
+=Festen	Fest
+=Festes	Fest
+=Fette	Fett
+=Fetten	Fett
+=Fettes	Fett
+=Feuern	Feuer
+=Feuers	Feuer
+=Figuren	Figur
+=Filme	Film
+=Filmen	Film
+=Films	Film
+=Fingern	Finger
+=Fingerabdrücke	Fingerabdruck
+=Fingerabdrücken	Fingerabdruck
+=Firmen	Firma
+=Fische	Fisch
+=Flaggen	Flagge
+=Flammen	Flamme
+=Flaschen	Flasche
+=Fledermäuse	Fledermaus
+=Flöhe	Floh
+=Flüge	Flug
+=Flughäfen	Flughafen
+=Flugzeuge	Flugzeug
+=Flugzeugen	Flugzeug
+=Flurs	Flur
+=Flüsse	Fluss
+=Flusses	Fluss
+=Fluten	Flut
+=Flüchtlinge	Flüchtling
+=Flügeln	Flügel
+=Folgen	Folge
+=Foltern	Folter
+=Forderungen	Forderung
+=Formalitäten	Formalität
+=Formulare	Formular
+=Forschungen	Forschung
+=Fortschritte	Fortschritt
+=Fotos	Foto
+=Fotografen	Fotograf
+=Fragen	Frage
+=Francs	Franc
+=Frauen	Frau
+=Freaks	Freak
+=Freien	Freie
+=Freiheiten	Freiheit
+=Freitags	Freitag
+=Frequenzen	Frequenz
+=Freuden	Freude
+=Freunde	Freund
+=Freunden	Freund
+=Freundinnen	Freundin
+=Freundschaften	Freundschaft
+=Friedens	Friede
+=Fronten	Front
+=Frösche	Frosch
+=Früchte	Frucht
+=Frühstücken	Frühstück
+=Funktionen	Funktion
+=Futtern	Futter
+=Füße	Fuß
+=Füßen	Fuß
+=Fähigkeiten	Fähigkeit
+=Fälschungen	Fälschung
+=Führen	Führe
+=Führers	Führer
+=Fürs	Für
+=Fürsten	Fürst
+=Gaben	Gabe
+=Galaxien	Galaxie
+=Gänge	Gang
+=Gangs	Gang
+=Gange	Gang
+=Gänse	Gans
+=Garden	Garde
+=Gärten	Garten
+=Gäste	Gast
+=Gästen	Gast
+=Gates	Gate
+=Gatten	Gatte
+=Gebete	Gebet
+=Gebeten	Gebet
+=Gebiete	Gebiet
+=Gebieten	Gebiet
+=Gebote	Gebot
+=Geboten	Gebot
+=Geburtstage	Geburtstag
+=Gebäuden	Gebäude
+=Gebäudes	Gebäude
+=Gedichte	Gedicht
+=Gefahren	Gefahr
+=Gefängnisse	Gefängnis
+=Gefühle	Gefühl
+=Gefühlen	Gefühl
+=Gegenden	Gegend
+=Gegenstände	Gegenstand
+=Gehalten	Gehalt
+=Geheimnisse	Geheimnis
+=Geheimnissen	Geheimnis
+=Gehirne	Gehirn
+=Gehirns	Gehirn
+=Gehöre	Gehör
+=Gehören	Gehör
+=Geiseln	Geisel
+=Geister	Geist
+=Geistern	Geist
+=Geistes	Geist
+=Geiste	Geist
+=Gelder	Geld
+=Gelegenheiten	Gelegenheit
+=Gemeinen	Gemein
+=Gene	Gen
+=Generals	General
+=Generationen	Generation
+=Genesen	Genesis
+=Genies	Genie
+=Genossen	Genosse
+=Gentlemen	Gentleman
+=Gerichte	Gericht
+=Gerichts	Gericht
+=Geräte	Gerät
+=Geräusche	Geräusch
+=Gerüchte	Gerücht
+=Gerüchten	Gerücht
+=Geschenke	Geschenk
+=Geschenken	Geschenk
+=Geschichten	Geschichte
+=Geschäfte	Geschäft
+=Geschäften	Geschäft
+=Geschöpfe	Geschöpf
+=Geschütze	Geschütz
+=Gesetze	Gesetz
+=Gesetzen	Gesetz
+=Gesetzes	Gesetz
+=Gesichter	Gesicht
+=Gesichtern	Gesicht
+=Gespenster	Gespenst
+=Gespräche	Gespräch
+=Gesprächen	Gespräch
+=Gesten	Geste
+=Getrieben	Getriebe
+=Getränke	Getränk
+=Gewannen	Gewann
+=Gewehre	Gewehr
+=Gewehren	Gewehr
+=Gewerkschaften	Gewerkschaft
+=Gewinne	Gewinn
+=Gewinnen	Gewinn
+=Gewohnheiten	Gewohnheit
+=Gittern	Gitter
+=Gläser	Glas
+=Glaubens	Glaube
+=Glocken	Glocke
+=Glückwünsche	Glückwunsch
+=Gnaden	Gnade
+=Gorillas	Gorilla
+=Götter	Gott
+=Göttern	Gott
+=Gottes	Gott
+=Gouverneurs	Gouverneur
+=Grabe	Grab
+=Grade	Grad
+=Grafen	Graf
+=Granaten	Granate
+=Greife	Greif
+=Greifen	Greif
+=Grenzen	Grenze
+=Griechen	Grieche
+=Griffen	Griff
+=Großvaters	Großvater
+=Gründe	Grund
+=Gründen	Grund
+=Grunde	Grund
+=Grundlagen	Grundlage
+=Gruppen	Gruppe
+=Grüße	Gruß
+=Grüßen	Gruß
+=Größen	Größe
+=Grünen	Grüne
+=Gucken	Gucke
+=Gurken	Gurke
+=Güter	Gut
+=Gute	Gut
+=Haare	Haar
+=Haaren	Haar
+=Haie	Hai
+=Halben	Halbe
+=Hallen	Hall
+=Halluzinationen	Halluzination
+=Halte	Halt
+=Halten	Halt
+=Halts	Halt
+=Halunken	Halunke
+=Hämmern	Hammer
+=Hände	Hand
+=Händen	Hand
+=Handlungen	Handlung
+=Handschuhe	Handschuh
+=Handtücher	Handtuch
+=Handys	Handy
+=Hänge	Hang
+=Hängen	Hang
+=Harte	Hart
+=Harten	Hart
+=Hasen	Hase
+=Hasse	Hass
+=Hauen	Hau
+=Häuser	Haus
+=Häusern	Haus
+=Hauses	Haus
+=Hause	Haus
+=Haustiere	Haustier
+=Heben	Hebe
+=Hefte	Heft
+=Heiraten	Heirat
+=Helden	Held
+=Hemden	Hemd
+=Herausforderungen	Herausforderung
+=Herden	Herd
+=Herren	Herr
+=Herrn	Herr
+=Herrschaften	Herrschaft
+=Herzen	Herz
+=Herzens	Herz
+=Himmels	Himmel
+=Hindernisse	Hindernis
+=Hinweise	Hinweis
+=Hinweisen	Hinweis
+=Hippies	Hippie
+=Hits	Hit
+=Hobbys	Hobby
+=Hochzeiten	Hochzeit
+=Hofe	Hof
+=Hoffnungen	Hoffnung
+=Hörner	Horn
+=Hosen	Hose
+=Hotdogs	Hotdog
+=Hotels	Hotel
+=Hühner	Huhn
+=Hühnern	Huhn
+=Hunde	Hund
+=Hunden	Hund
+=Hupen	Hupe
+=Huren	Hure
+=Hurensöhne	Hurensohn
+=Hüte	Hut
+=Hüten	Hut
+=Häftlinge	Häftling
+=Hälften	Hälfte
+=Höhen	Höhe
+=Höhlen	Höhle
+=Hüften	Hüfte
+=Hügeln	Hügel
+=Hütten	Hütte
+=Ichs	Ich
+=Ideale	Ideal
+=Idealen	Ideal
+=Ideen	Idee
+=Identitäten	Identität
+=Idioten	Idiot
+=Illusionen	Illusion
+=Impulse	Impuls
+=Indianern	Indianer
+=Individuen	Individuum
+=Infektionen	Infektion
+=Infos	Info
+=Informanten	Informant
+=Informationen	Information
+=Ingenieure	Ingenieur
+=Insekten	Insekt
+=Inseln	Insel
+=Instinkte	Instinkt
+=Instrumente	Instrument
+=Interessen	Interesse
+=Interviews	Interview
+=Investitionen	Investition
+=Investoren	Investor
+=Irene	Iren
+=Jacken	Jacke
+=Jahre	Jahr
+=Jahren	Jahr
+=Jahres	Jahr
+=Jahrhunderte	Jahrhundert
+=Jahrhunderten	Jahrhundert
+=Jahrhunderts	Jahrhundert
+=Jahrzehnte	Jahrzehnt
+=Jahrzehnten	Jahrzehnt
+=Jasmine	Jasmin
+=Jets	Jet
+=Jobs	Job
+=Journalisten	Journalist
+=Juden	Jude
+=Jungen	Junge
+=Junggesellen	Junggeselle
+=Junkies	Junkie
+=Juwelen	Juwel
+=Kaisers	Kaiser
+=Kakerlaken	Kakerlake
+=Kameras	Kamera
+=Kameraden	Kamerad
+=Kämpfe	Kampf
+=Kämpfen	Kampf
+=Kanäle	Kanal
+=Kandidaten	Kandidat
+=Kanonen	Kanone
+=Kappen	Kappe
+=Karen	Kar
+=Karten	Karte
+=Kartoffeln	Kartoffel
+=Kartons	Karton
+=Kassetten	Kassette
+=Katastrophen	Katastrophe
+=Katholiken	Katholik
+=Katzen	Katz
+=Kaufe	Kauf
+=Kehren	Kehre
+=Kekse	Keks
+=Kenntnisse	Kenntnis
+=Kerlen	Kerl
+=Kerls	Kerl
+=Kerzen	Kerze
+=Ketten	Kette
+=Kids	Kid
+=Kilometern	Kilometer
+=Kinder	Kind
+=Kindern	Kind
+=Kindes	Kind
+=Kings	King
+=Kinos	Kino
+=Kippen	Kippe
+=Kirchen	Kirche
+=Kirschen	Kirsche
+=Kisten	Kiste
+=Klagen	Klage
+=Klammern	Klammer
+=Klänge	Klang
+=Klappen	Klappe
+=Klassen	Klasse
+=Kleider	Kleid
+=Kleidern	Kleid
+=Kleinigkeiten	Kleinigkeit
+=Klienten	Klient
+=Klingen	Klinge
+=Klingeln	Klingel
+=Klippen	Klippe
+=Klone	Klon
+=Klonen	Klon
+=Knaben	Knabe
+=Knallen	Knall
+=Knarren	Knarre
+=Knien	Knie
+=Knöpfe	Knopf
+=Knöpfen	Knopf
+=Kobolde	Kobold
+=Koche	Koch
+=Kohlen	Kohl
+=Kollegen	Kollege
+=Kolonien	Kolonie
+=Kometen	Komet
+=Kommandanten	Kommandant
+=Kommandos	Kommando
+=Kommentare	Kommentar
+=Kommunisten	Kommunist
+=Komplexe	Komplex
+=Komplimente	Kompliment
+=Komplizen	Komplize
+=Kompromisse	Kompromiss
+=Kondome	Kondom
+=Konflikte	Konflikt
+=Kontakte	Kontakt
+=Konten	Konto
+=Kontrollen	Kontrolle
+=Konzerte	Konzert
+=Köpfe	Kopf
+=Köpfen	Kopf
+=Kopien	Kopie
+=Kostüme	Kostüm
+=Kotzen	Kotze
+=Kräfte	Kraft
+=Kräften	Kraft
+=Krämpfe	Krampf
+=Krankenhäuser	Krankenhaus
+=Krankenhäusern	Krankenhaus
+=Krankenhauses	Krankenhaus
+=Krankenschwestern	Krankenschwester
+=Krankheiten	Krankheit
+=Kräuter	Kraut
+=Krawatten	Krawatte
+=Kreaturen	Kreatur
+=Kredite	Kredit
+=Kreditkarten	Kreditkarte
+=Kreise	Kreis
+=Kreuze	Kreuz
+=Kreuzen	Kreuz
+=Kriege	Krieg
+=Krieges	Krieg
+=Kristalle	Kristall
+=Kritiken	Kritik
+=Krokodile	Krokodil
+=Kronen	Krone
+=Krähen	Krähe
+=Kröten	Kröte
+=Kugeln	Kugel
+=Kühe	Kuh
+=Kühen	Kuh
+=Kulturen	Kultur
+=Kumpels	Kumpel
+=Kunden	Kunde
+=Künste	Kunst
+=Kunstwerke	Kunstwerk
+=Kurse	Kurs
+=Kurven	Kurve
+=Küsse	Kuss
+=Küssen	Kuss
+=Könige	König
+=Königs	König
+=Königinnen	Königin
+=Körpern	Körper
+=Körpers	Körper
+=Läden	Laden
+=Ladungen	Ladung
+=Ladys	Lady
+=Lagen	Lage
+=Lagern	Lager
+=Lampen	Lampe
+=Länder	Land
+=Ländern	Land
+=Lande	Land
+=Laufe	Lauf
+=Launen	Laune
+=Lauten	Laut
+=Lebens	Leben
+=Lebensformen	Lebensform
+=Legenden	Legende
+=Legionen	Legion
+=Lehnen	Lehne
+=Lehren	Lehre
+=Lehrern	Lehrer
+=Leibe	Leib
+=Leichen	Leiche
+=Leide	Leid
+=Leihen	Leihe
+=Leistungen	Leistung
+=Leiten	Leite
+=Leitungen	Leitung
+=Lektionen	Lektion
+=Leoparden	Leopard
+=Lesben	Lesbe
+=Leuten	Leute
+=Lichter	Licht
+=Lichts	Licht
+=Lieben	Liebe
+=Lieder	Lied
+=Lieferanten	Lieferant
+=Lieferungen	Lieferung
+=Liegen	Liege
+=Linien	Linie
+=Links	Link
+=Lippen	Lippe
+=Listen	List
+=Loben	Lob
+=Löcher	Loch
+=Löchern	Loch
+=Locken	Locke
+=Lokale	Lokal
+=Lokalen	Lokal
+=Lords	Lord
+=Lose	Los
+=Lungen	Lunge
+=Lösungen	Lösung
+=Löwen	Löwe
+=Lücken	Lücke
+=Lügen	Lüge
+=Mächte	Macht
+=Maden	Made
+=Magazine	Magazin
+=Mahlzeiten	Mahlzeit
+=Mails	Mail
+=Male	Mal
+=Malen	Mal
+=Mamas	Mama
+=Mandanten	Mandant
+=Männer	Mann
+=Männern	Mann
+=Mannes	Mann
+=Mäntel	Mantel
+=Marionetten	Marionette
+=Marks	Mark
+=Marken	Marke
+=Markierungen	Markierung
+=Martinis	Martini
+=Maschinen	Maschine
+=Masken	Maske
+=Massen	Masse
+=Massive	Massiv
+=Materialien	Material
+=Matrosen	Matrose
+=Mauern	Mauer
+=Mäuse	Maus
+=Maße	Maß
+=Medaillen	Medaille
+=Medikamente	Medikament
+=Medikamenten	Medikament
+=Medien	Medium
+=Meere	Meer
+=Meetings	Meeting
+=Meilen	Meile
+=Meinungen	Meinung
+=Meistern	Meister
+=Meisters	Meister
+=Melden	Melde
+=Meldungen	Meldung
+=Mengen	Menge
+=Menschen	Mensch
+=Messen	Messe
+=Metern	Meter
+=Methoden	Methode
+=Mieten	Miete
+=Militärs	Militär
+=Milliarden	Milliarde
+=Millionen	Million
+=Minen	Mine
+=Minuten	Minute
+=Misses	Miss
+=Missionen	Mission
+=Mistkerle	Mistkerl
+=Mitarbeitern	Mitarbeiter
+=Mitglieder	Mitglied
+=Mitgliedern	Mitglied
+=Mittags	Mittag
+=Mitten	Mitte
+=Mitteln	Mittel
+=Mittels	Mittel
+=Mittwochs	Mittwoch
+=Models	Model
+=Modelle	Modell
+=Momente	Moment
+=Momenten	Moment
+=Monate	Monat
+=Monaten	Monat
+=Monde	Mond
+=Mondes	Mond
+=Monstern	Monster
+=Montags	Montag
+=Moore	Moor
+=Moose	Moos
+=Morde	Mord
+=Morgens	Morgen
+=Moslems	Moslem
+=Motive	Motiv
+=Motoren	Motor
+=Motors	Motor
+=Motorräder	Motorrad
+=Muffins	Muffin
+=Munde	Mund
+=Muscheln	Muschel
+=Muschis	Muschi
+=Muskeln	Muskel
+=Mütter	Mutter
+=Müttern	Mutter
+=Mädchens	Mädchen
+=Mädels	Mädel
+=Möglichkeiten	Möglichkeit
+=Mönche	Mönch
+=Mördern	Mörder
+=Mörders	Mörder
+=Mücken	Mücke
+=Mühen	Mühe
+=Münzen	Münze
+=Nachbarn	Nachbar
+=Nachfragen	Nachfrage
+=Nachlassen	Nachlass
+=Nachmittags	Nachmittag
+=Nachnamen	Nachname
+=Nachrichten	Nachricht
+=Nächte	Nacht
+=Nächten	Nacht
+=Nadeln	Nadel
+=Nägel	Nagel
+=Nägeln	Nagel
+=Nähte	Naht
+=Namens	Name
+=Narben	Narbe
+=Narren	Narr
+=Nasen	Nase
+=Nasse	Nass
+=Nationen	Nation
+=Nazis	Nazi
+=Neffen	Neffe
+=Negative	Negativ
+=Negativen	Negativ
+=Neigen	Neige
+=Nerven	Nerv
+=Neuigkeiten	Neuigkeit
+=Niemandes	Niemand
+=Nieren	Niere
+=Nonnen	Nonne
+=Nordens	Norden
+=Normalen	Normal
+=Noten	Note
+=Notfälle	Notfall
+=Notizen	Notiz
+=Nullen	Null
+=Nummern	Nummer
+=Nüsse	Nuss
+=Nutten	Nutte
+=Nähern	Näher
+=Oberste	Oberst
+=Obersten	Oberst
+=Objekte	Objekt
+=Ochsen	Ochse
+=Offiziere	Offizier
+=Offizieren	Offizier
+=Ohren	Ohr
+=Ohrfeigen	Ohrfeige
+=Ohrringe	Ohrring
+=Oliven	Olive
+=Omas	Oma
+=Onkels	Onkel
+=Opas	Opa
+=Operationen	Operation
+=Opfers	Opfer
+=Optionen	Option
+=Orangen	Orange
+=Organe	Organ
+=Organisationen	Organisation
+=Originale	Original
+=Orte	Ort
+=Orten	Ort
+=Paare	Paar
+=Paaren	Paar
+=Packe	Pack
+=Pakete	Paket
+=Papiere	Papier
+=Papieren	Papier
+=Papstes	Papst
+=Parasiten	Parasit
+=Parks	Park
+=Parteien	Partei
+=Partnern	Partner
+=Partners	Partner
+=Partys	Party
+=Pässe	Pass
+=Passe	Pass
+=Passagiere	Passagier
+=Patienten	Patient
+=Patrioten	Patriot
+=Patronen	Patrone
+=Patrouillen	Patrouille
+=Pausen	Pause
+=Perfekte	Perfekt
+=Perfekten	Perfekt
+=Perlen	Perle
+=Personen	Person
+=Persönlichkeiten	Persönlichkeit
+=Pfeifen	Pfeife
+=Pfeile	Pfeil
+=Pferde	Pferd
+=Pferden	Pferd
+=Pfirsiche	Pfirsich
+=Pflanzen	Pflanze
+=Pflichten	Pflicht
+=Phasen	Phase
+=Piepen	Piep
+=Pillen	Pille
+=Piloten	Pilot
+=Pilze	Pilz
+=Pinguine	Pinguin
+=Piraten	Pirat
+=Pistolen	Pistole
+=Plagen	Plage
+=Plakate	Plakat
+=Pläne	Plan
+=Plänen	Plan
+=Plans	Plan
+=Planeten	Planet
+=Plätze	Platz
+=Plätzen	Platz
+=Platze	Platz
+=Pos	Po
+=Polen	Pol
+=Polizisten	Polizist
+=Pornos	Porno
+=Positionen	Position
+=Positive	Positiv
+=Positiven	Positiv
+=Postkarten	Postkarte
+=Preise	Preis
+=Preisen	Preis
+=Pressen	Presse
+=Prinzen	Prinz
+=Prinzessinnen	Prinzessin
+=Prinzipien	Prinzip
+=Prioritäten	Priorität
+=Privilegien	Privileg
+=Proben	Probe
+=Probleme	Problem
+=Problemen	Problem
+=Problems	Problem
+=Produkte	Produkt
+=Produzenten	Produzent
+=Professoren	Professor
+=Profis	Profi
+=Programme	Programm
+=Programms	Programm
+=Projekte	Projekt
+=Propheten	Prophet
+=Prophezeiungen	Prophezeiung
+=Protokolle	Protokoll
+=Prototypen	Prototyp
+=Prozesses	Prozess
+=Präsidenten	Präsident
+=Prüfungen	Prüfung
+=Prügeln	Prügel
+=Psychologen	Psychologe
+=Psychopathen	Psychopath
+=Pumpen	Pumpe
+=Punkte	Punkt
+=Punkten	Punkt
+=Puppen	Puppe
+=Putzen	Putz
+=Pyramiden	Pyramide
+=Qualen	Qual
+=Qualitäten	Qualität
+=Quellen	Quelle
+=Quittungen	Quittung
+=Quoten	Quote
+=ROMs	ROM
+=Raben	Rabe
+=Räder	Rad
+=Rädern	Rad
+=Raketen	Rakete
+=Rangers	Ranger
+=Rassen	Rasse
+=Rasten	Rast
+=Rates	Rat
+=Raten	Rate
+=Ratschläge	Ratschlag
+=Ratten	Ratte
+=Rauben	Raub
+=Rauche	Rauch
+=Räume	Raum
+=Räumen	Raum
+=Raumschiffe	Raumschiff
+=Reaktionen	Reaktion
+=Rebellen	Rebell
+=Recherchen	Recherche
+=Rechnungen	Rechnung
+=Rechten	Recht
+=Rechtes	Recht
+=Reden	Rede
+=Regale	Regal
+=Regeln	Regel
+=Regierungen	Regierung
+=Reichen	Reich
+=Reinen	Rein
+=Reize	Reiz
+=Reizen	Reiz
+=Religionen	Religion
+=Rene	Ren
+=Reparaturen	Reparatur
+=Reste	Rest
+=Restaurants	Restaurant
+=Resultate	Resultat
+=Revolutionäre	Revolutionär
+=Rezepte	Rezept
+=Richtungen	Richtung
+=Riesen	Riese
+=Ringe	Ring
+=Rippen	Rippe
+=Risse	Riss
+=Rituale	Ritual
+=Röcke	Rock
+=Rocks	Rock
+=Rohre	Rohr
+=Rollen	Rolle
+=Rosen	Rose
+=Rufe	Ruf
+=Rufen	Ruf
+=Runden	Rund
+=Russen	Russ
+=Rutschen	Rutsch
+=Sachen	Sache
+=Säcke	Sack
+=Samstags	Samstag
+=Sands	Sand
+=Särge	Sarg
+=Sarge	Sarg
+=Satans	Satan
+=Satelliten	Satellit
+=Sätze	Satz
+=Scans	Scan
+=Schachteln	Schachtel
+=Schäden	Schade
+=Schafe	Schaf
+=Schafen	Schaf
+=Schaffe	Schaff
+=Schalten	Schalte
+=Scharfschützen	Scharfschütze
+=Schätze	Schatz
+=Schätzen	Schatz
+=Schauen	Schau
+=Schaufeln	Schaufel
+=Schaukeln	Schaukel
+=Schauspielern	Schauspieler
+=Schauten	Schaute
+=Schecks	Scheck
+=Scheiben	Scheibe
+=Scheine	Schein
+=Scheinen	Schein
+=Scheißkerle	Scheißkerl
+=Schenken	Schenk
+=Scheren	Schere
+=Scherze	Scherz
+=Scherzen	Scherz
+=Schichten	Schicht
+=Schicke	Schick
+=Schiffen	Schiff
+=Schiffs	Schiff
+=Schilde	Schild
+=Schilder	Schild
+=Schildern	Schild
+=Schildkröten	Schildkröte
+=Schlafe	Schlaf
+=Schläge	Schlag
+=Schlage	Schlag
+=Schlagzeilen	Schlagzeile
+=Schlampen	Schlampe
+=Schlangen	Schlange
+=Schleifen	Schleife
+=Schließen	Schließe
+=Schlösser	Schloss
+=Schlucke	Schluck
+=Schlucken	Schluck
+=Schlüsse	Schluss
+=Schmerzen	Schmerz
+=Schmetterlinge	Schmetterling
+=Schmieden	Schmied
+=Schmieren	Schmiere
+=Schminken	Schminke
+=Schnecken	Schnecke
+=Schneiden	Schneide
+=Schnellen	Schnelle
+=Schnitten	Schnitt
+=Schossen	Schoss
+=Schränke	Schrank
+=Schrauben	Schraube
+=Schreie	Schrei
+=Schreien	Schrei
+=Schrieben	Schrieb
+=Schriften	Schrift
+=Schritte	Schritt
+=Schritten	Schritt
+=Schubladen	Schublade
+=Schubsen	Schubs
+=Schuften	Schuft
+=Schuhe	Schuh
+=Schuhen	Schuh
+=Schulen	Schule
+=Schultern	Schulter
+=Schurken	Schurke
+=Schüsse	Schuss
+=Schwachköpfe	Schwachkopf
+=Schwänze	Schwanz
+=Schweden	Schwede
+=Schweine	Schwein
+=Schweinen	Schwein
+=Schwerter	Schwert
+=Schwestern	Schwester
+=Schwuchteln	Schwuchtel
+=Schwächen	Schwäche
+=Schülern	Schüler
+=Schützen	Schütze
+=Seen	See
+=Seelen	Seele
+=Segeln	Segel
+=Sehnen	Sehne
+=Seile	Seil
+=Seins	Sein
+=Seiten	Seite
+=Sekunden	Sekunde
+=Senatoren	Senator
+=Servietten	Serviette
+=Shows	Show
+=Siege	Sieg
+=Siegen	Sieg
+=Signale	Signal
+=Sinne	Sinn
+=Sinnen	Sinn
+=Sirenen	Sirene
+=Sitten	Sitte
+=Situationen	Situation
+=Sitze	Sitz
+=Sitzen	Sitz
+=Sitzungen	Sitzung
+=Sklaven	Sklave
+=Snacks	Snack
+=Söhne	Sohn
+=Söhnen	Sohn
+=Sohns	Sohn
+=Soldaten	Soldat
+=Sommers	Sommer
+=Songs	Song
+=Sonntags	Sonntag
+=Sorgen	Sorge
+=Sorten	Sorte
+=Spalten	Spalt
+=Spannungen	Spannung
+=Speichern	Speicher
+=Spekulationen	Spekulation
+=Spenden	Spende
+=Sperren	Sperre
+=Spezialisten	Spezialist
+=Spiegeln	Spiegel
+=Spiele	Spiel
+=Spiels	Spiel
+=Spielzeuge	Spielzeug
+=Spinnen	Spinne
+=Spione	Spion
+=Spitzen	Spitz
+=Spitznamen	Spitzname
+=Sponsoren	Sponsor
+=Sprachen	Sprache
+=Spritzen	Spritze
+=Sprüche	Spruch
+=Sprünge	Sprung
+=Spuren	Spur
+=Spülen	Spüle
+=Staaten	Staat
+=Städte	Stadt
+=Städten	Stadt
+=Stämme	Stamm
+=Stamme	Stamm
+=Stangen	Stange
+=Stars	Star
+=Stationen	Station
+=Statistiken	Statistik
+=Statuen	Statue
+=Steaks	Steak
+=Steigen	Steig
+=Steine	Stein
+=Steinen	Stein
+=Stellen	Stelle
+=Sterne	Stern
+=Sternen	Stern
+=Steuern	Steuer
+=Stevens	Steven
+=Stiche	Stich
+=Stiefeln	Stiefel
+=Stifte	Stift
+=Stiften	Stift
+=Stimmen	Stimme
+=Stockwerke	Stockwerk
+=Stoffe	Stoff
+=Stolze	Stolz
+=Storys	Story
+=Stoße	Stoß
+=Strafen	Strafe
+=Strahlen	Strahl
+=Strange	Strang
+=Straßen	Straße
+=Strecken	Strecke
+=Streiche	Streich
+=Streichen	Streich
+=Streichhölzer	Streichholz
+=Streite	Streit
+=Streiten	Streit
+=Stricken	Strick
+=Strömen	Strom
+=Studenten	Student
+=Studien	Studie
+=Studios	Studio
+=Stufen	Stufe
+=Stühle	Stuhl
+=Stunden	Stunde
+=Stürme	Sturm
+=Stürmen	Sturm
+=Stürze	Sturz
+=Stürzen	Sturz
+=Stärken	Stärke
+=Störe	Stör
+=Stören	Stör
+=Störungen	Störung
+=Stücke	Stück
+=Stücken	Stück
+=Stützen	Stütze
+=Substanzen	Substanz
+=Suchen	Suche
+=Summen	Summe
+=Summers	Summer
+=Superhelden	Superheld
+=Symbole	Symbol
+=Symptome	Symptom
+=Systeme	System
+=Systems	System
+=Szenen	Szene
+=Säulen	Säule
+=Sünden	Sünde
+=Süßes	Süß
+=Süßen	Süße
+=Tabletten	Tablette
+=Tacos	Taco
+=Tage	Tag
+=Tagen	Tag
+=Tages	Tag
+=Tagebücher	Tagebuch
+=Talente	Talent
+=Tanks	Tank
+=Tanten	Tante
+=Tanze	Tanz
+=Taschen	Tasche
+=Tassen	Tasse
+=Taten	Tat
+=Tatsachen	Tatsache
+=Tattoos	Tattoo
+=Tauben	Taube
+=Taufen	Taufe
+=Tausche	Tausch
+=Tauschen	Tausch
+=Tausenden	Tausend
+=Teams	Team
+=Techniken	Technik
+=Technologien	Technologie
+=Teile	Teil
+=Teilen	Teil
+=Teils	Teil
+=Telefone	Telefon
+=Telefonate	Telefonat
+=Telefonnummern	Telefonnummer
+=Temperaturen	Temperatur
+=Teppiche	Teppich
+=Termine	Termin
+=Terroristen	Terrorist
+=Tests	Test
+=Teste	Test
+=Teufels	Teufel
+=Texte	Text
+=Themen	Thema
+=Theorien	Theorie
+=Therapeuten	Therapeut
+=Things	Thing
+=Tickets	Ticket
+=Tiefen	Tiefe
+=Tiere	Tier
+=Tieren	Tier
+=Timings	Timing
+=Tipps	Tipp
+=Tische	Tisch
+=Tischen	Tisch
+=Töchter	Tochter
+=Töchtern	Tochter
+=Tode	Tod
+=Todes	Tod
+=Todesfälle	Todesfall
+=Toiletten	Toilette
+=Tollen	Tolle
+=Tomaten	Tomate
+=Tommys	Tommy
+=Töne	Ton
+=Tonnen	Tonne
+=Töpfe	Topf
+=Tore	Tor
+=Toren	Tor
+=Torpedos	Torpedo
+=Totale	Total
+=Totalen	Total
+=Touren	Tour
+=Touristen	Tourist
+=Traditionen	Tradition
+=Tragen	Trage
+=Tragödien	Tragödie
+=Träume	Traum
+=Träumen	Traum
+=Trauzeugen	Trauzeuge
+=Treppen	Treppe
+=Tricks	Trick
+=Trieben	Trieb
+=Trolle	Troll
+=Trommeln	Trommel
+=Trompeten	Trompete
+=Trophäen	Trophäe
+=Trucks	Truck
+=Truppen	Truppe
+=Tränen	Träne
+=Trümmern	Trümmer
+=Tücher	Tuch
+=Tugenden	Tugend
+=Türme	Turm
+=Typen	Typ
+=Tyrannen	Tyrann
+=Tänzerinnen	Tänzerin
+=Türen	Tür
+=Tüten	Tüte
+=Ufos	Ufo
+=Uhren	Uhr
+=Umfragen	Umfrage
+=Umstände	Umstand
+=Umständen	Umstand
+=Unfälle	Unfall
+=Unfalls	Unfall
+=Uniformen	Uniform
+=Universums	Universum
+=Unruhen	Unruhe
+=Unters	Unter
+=Unterhalte	Unterhalt
+=Unterhaltungen	Unterhaltung
+=Unterhosen	Unterhose
+=Unternehmens	Unternehmen
+=Unterrichte	Unterricht
+=Unterrichten	Unterricht
+=Unterschiede	Unterschied
+=Unterschriften	Unterschrift
+=Untersuchungen	Untersuchung
+=Ursachen	Ursache
+=Urteile	Urteil
+=Urteilen	Urteil
+=Vampire	Vampir
+=Vampiren	Vampir
+=Väter	Vater
+=Vätern	Vater
+=Vaters	Vater
+=Verabredungen	Verabredung
+=Veranstaltungen	Veranstaltung
+=Verbindungen	Verbindung
+=Verboten	Verbot
+=Verbrechens	Verbrechen
+=Verbrechern	Verbrecher
+=Vereinen	Verein
+=Vergleiche	Vergleich
+=Vergleichen	Vergleich
+=Verhaftungen	Verhaftung
+=Verhandlungen	Verhandlung
+=Verhältnisse	Verhältnis
+=Verhöre	Verhör
+=Verhören	Verhör
+=Verkaufe	Verkauf
+=Verkehren	Verkehr
+=Verletzungen	Verletzung
+=Verluste	Verlust
+=Vermutungen	Vermutung
+=Verpflichtungen	Verpflichtung
+=Verrate	Verrat
+=Verse	Vers
+=Versicherungen	Versicherung
+=Verstecke	Versteck
+=Verstecken	Versteck
+=Versuche	Versuch
+=Versuchen	Versuch
+=Verträge	Vertrag
+=Vertrage	Vertrag
+=Vertrieben	Vertrieb
+=Veränderungen	Veränderung
+=Videos	Video
+=Videospiele	Videospiel
+=Vieren	Vier
+=Viren	Virus
+=Visionen	Vision
+=Visa	Visum
+=Vitamine	Vitamin
+=Vizepräsidenten	Vizepräsident
+=Vögel	Vogel
+=Völker	Volk
+=Vollidioten	Vollidiot
+=Vorbereitungen	Vorbereitung
+=Vorfälle	Vorfall
+=Vorhänge	Vorhang
+=Vornamen	Vorname
+=Vorräte	Vorrat
+=Vorschläge	Vorschlag
+=Vorschriften	Vorschrift
+=Vorspielen	Vorspiel
+=Vorstellungen	Vorstellung
+=Vorteile	Vorteil
+=Vorträge	Vortrag
+=Vorwürfe	Vorwurf
+=Wachen	Wache
+=Wachsen	Wachs
+=Waffen	Waffe
+=Wahlen	Wahl
+=Wahrheiten	Wahrheit
+=Waisen	Waise
+=Wale	Wal
+=Wälder	Wald
+=Wäldern	Wald
+=Waldes	Wald
+=Wände	Wand
+=Wänden	Wand
+=Wandeln	Wandel
+=Wangen	Wange
+=Wanzen	Wanze
+=Waren	Ware
+=Warfen	Warf
+=Warten	Wart
+=Wassers	Wasser
+=Wechseln	Wechsel
+=Wege	Weg
+=Wegen	Weg
+=Wehen	Weh
+=Wehren	Wehr
+=Weiber	Weib
+=Weibern	Weib
+=Weichen	Weiche
+=Weicheier	Weichei
+=Weiden	Weide
+=Weine	Wein
+=Weinen	Wein
+=Weisen	Weise
+=Weiten	Weite
+=Wellen	Welle
+=Welpen	Welpe
+=Welten	Welt
+=Wenden	Wende
+=Wenns	Wenn
+=Werde	Werd
+=Werden	Werd
+=Werke	Werk
+=Werkzeuge	Werkzeug
+=Werte	Wert
+=Werten	Wert
+=Werwölfe	Werwolf
+=Wesens	Wesen
+=Westens	Westen
+=Wies	Wie
+=Wiegen	Wiege
+=Wiesen	Wiese
+=Wildes	Wild
+=Willens	Wille
+=Winden	Wind
+=Windeln	Windel
+=Winken	Wink
+=Winters	Winter
+=Wischen	Wisch
+=Wissens	Wissen
+=Witwen	Witwe
+=Witze	Witz
+=Wochen	Woche
+=Wochenenden	Wochenende
+=Wohle	Wohl
+=Wohnungen	Wohnung
+=Wölfe	Wolf
+=Wölfen	Wolf
+=Wolfe	Wolf
+=Wolken	Wolke
+=Wollen	Wolle
+=Woods	Wood
+=Wörter	Wort
+=Worte	Wort
+=Worten	Wort
+=Wunden	Wunde
+=Wundern	Wunder
+=Wünsche	Wunsch
+=Wünschen	Wunsch
+=Würmer	Wurm
+=Wurzeln	Wurzel
+=Würden	Würde
+=Würfeln	Würfel
+=Yankees	Yankee
+=Yards	Yard
+=Zahlen	Zahl
+=Zahlungen	Zahlung
+=Zähne	Zahn
+=Zähnen	Zahn
+=Zaren	Zar
+=Zaubern	Zauber
+=Zäune	Zaun
+=Zehen	Zeh
+=Zeichnungen	Zeichnung
+=Zeilen	Zeile
+=Zeiten	Zeit
+=Zeitschriften	Zeitschrift
+=Zeitungen	Zeitung
+=Zellen	Zelle
+=Zeugen	Zeug
+=Zeugenaussagen	Zeugenaussage
+=Ziegen	Ziege
+=Ziele	Ziel
+=Zielen	Ziel
+=Zigaretten	Zigarette
+=Zigarren	Zigarre
+=Zimmern	Zimmer
+=Zitronen	Zitrone
+=Zivilisationen	Zivilisation
+=Zivilisten	Zivilist
+=Zombies	Zombie
+=Zufälle	Zufall
+=Züge	Zug
+=Zügen	Zug
+=Zungen	Zunge
+=Zuschauern	Zuschauer
+=Zustande	Zustand
+=Zweien	Zwei
+=Zweifeln	Zweifel
+=Zwerge	Zwerg
+=Zwiebeln	Zwiebel
+=Zwillinge	Zwilling
+=Zwingen	Zwinge
+=Zügeln	Zügel
+=Änderungen	Änderung
+=Überfälle	Überfall
+=Überraschungen	Überraschung
+=Überwachungskameras	Überwachungskamera
+=Überzeugungen	Überzeugung
+=Übungen	Übung

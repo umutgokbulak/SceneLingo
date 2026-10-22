@@ -40,7 +40,15 @@ async function openPopup(anchor, pin, text) {
   paintSave();
   btns.append(listen, slow, save);
   const title = el('span', 'sl-pop-title');
-  title.append(el('span', 'sl-pop-word', word), ipa);
+  // A German noun with its article in the colour of its gender, and its plural.
+  // Another form of it ("Häusern") says which noun it is.
+  const nouns = langOf(lang) === 'de' ? germanNouns() : null;
+  const noun = nouns && !/\s/.test(word.trim()) ? slNounText(slNoun(nouns, word)) : null;
+  const isLemma = !!noun && noun.lemma.toLowerCase() === word.trim().toLowerCase();
+  if (isLemma) title.append(el('span', 'sl-pop-art sl-g' + noun.g, noun.article));
+  title.append(el('span', 'sl-pop-word', isLemma ? noun.lemma : word), ipa);
+  if (noun && !isLemma) title.append(el('span', 'sl-pop-expand', '→ ' + noun.article + ' ' + noun.lemma));
+  if (noun && noun.plural && !noun.pluralOnly) title.append(el('span', 'sl-pop-plural', slT('plural') + ' ' + noun.plural));
   if (expansion) title.append(el('span', 'sl-pop-expand', '= ' + expansion));
   head.append(title, btns);
   ui.popup.textContent = '';
