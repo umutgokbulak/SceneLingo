@@ -255,6 +255,8 @@ function detail(item) {
     return ul;
   };
   if ((extra.collocations || []).length) box.append(block(slT('collocations'), list(extra.collocations.map((c) => ({ text: c.text, sub: c.meaning })))));
+  const family = [...(extra.family || []).map((f) => ({ text: f.word, sub: f.meaning + ' · ' + slPos(f.pos) })), ...(extra.antonyms || []).map((a) => ({ text: '↔ ' + a.word, sub: a.meaning }))];
+  if (family.length) box.append(block(slT('wordFamily'), list(family)));
   if ((extra.examples || []).length) box.append(block(slT('moreExamples'), list(extra.examples.map((e) => ({ text: e.text, sub: e.translation })))));
   if ((item.examples || []).length) box.append(block(slT('metAgain'), list(item.examples.map((e) => ({ text: slCleanLine(e.text), sub: slSourceName(e.title) })))));
   if ((item.mine || []).length) box.append(block(slT('ownSentence'), list(item.mine.map((m) => ({ text: m.better || m.text, sub: m.better && m.better !== m.text ? m.text : '' })))));
@@ -518,7 +520,7 @@ async function addWord() {
     if (extra.ok) {
       const [first, ...rest] = extra.result.examples;
       card.extra = { ...extra.result, examples: rest };
-      card.enriched = 2;
+      card.enriched = 3;
       if (first) Object.assign(card, { context: first.text, contextTranslation: first.translation });
       if (extra.result.ipa) card.ipa = extra.result.ipa.replace(/^\/|\/$/g, '');
     }

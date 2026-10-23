@@ -41,7 +41,8 @@ function slEpisodeWords({ lines, ranks, lang, level, known, max = 30 }) {
   const limit = SL_LEVEL_RANK[level] || SL_LEVEL_RANK.B1;
   const out = [];
   for (const t of slEpisodeTokens(lines).values()) {
-    if (known && known.has(t.word)) continue;
+    // A saved word is known in all its forms ("negotiated" when "negotiate" is saved).
+    if (known && (known.has(t.word) || (typeof slSavedForm === 'function' && slSavedForm(t.word, known, lang)))) continue;
     // The lists count "don't" as "don" and "t": a word with an apostrophe is as common as its first part.
     const rank = ranks.get(t.word.split("'")[0]);
     const name = t.capitalMid > 0 && t.lower === 0 && (lang !== 'de' || rank === undefined);

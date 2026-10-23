@@ -98,6 +98,9 @@ require('./server.js'); // serves test/netflix.html
     const marked = await page(`(() => { const d = document.createElement('div'); fillWords(d, 'Haus? Ich habe die Rechnung für das Kinderzimmer, und der Mann schläft.', 'de'); return [...d.querySelectorAll('.sl-word')].filter((w) => /sl-g/.test(w.className)).map((w) => w.textContent + ':' + w.className.match(/sl-g(.)/)[1]); })()`);
     assert.deepEqual(marked, ['Rechnung:f', 'Kinderzimmer:n', 'Mann:m'], 'German nouns by gender: ' + JSON.stringify(marked));
     assert.equal(await page(`(() => { settings.nounColors = false; const d = document.createElement('div'); fillWords(d, 'Ich habe die Rechnung.', 'de'); return d.querySelectorAll('[class*="sl-g"]').length; })()`), 0, 'not when switched off');
+    // a saved word marked on the line in its other forms, and a saved phrase met in one
+    const forms = await page(`(() => { savedWords = new Set(['negotiate', 'rip off']); const d = document.createElement('div'); fillWords(d, 'They negotiated, then ripped us off.', 'en'); return [...d.querySelectorAll('.sl-saved')].map((w) => w.textContent); })()`);
+    assert.deepEqual(forms, ['negotiated'], 'negotiated is a form of negotiate: ' + JSON.stringify(forms));
     console.log('Netflix (stood in for) works, and so do the words of the episode, the settings and German nouns');
   } finally {
     await b.close();

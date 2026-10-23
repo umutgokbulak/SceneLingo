@@ -307,3 +307,21 @@ test('the week: what was done in each of the last seven days, and in all of them
   assert.equal(w.written, 0, 'nine days ago is not this week');
   assert.equal(w.saved, 1);
 });
+
+test('a saved word is known in its other forms: endings, doubled letters, irregular verbs', () => {
+  const saved = new Set(['negotiate', 'stop', 'study', 'go', 'big', 'glass', 'woman', 'car']);
+  const form = (w, lang) => S.slSavedForm(w, saved, lang);
+  assert.equal(form('negotiated'), 'negotiate');
+  assert.equal(form('negotiating'), 'negotiate');
+  assert.equal(form('stopped'), 'stop');
+  assert.equal(form('studies'), 'study');
+  assert.equal(form('went'), 'go');
+  assert.equal(form('bigger'), 'big');
+  assert.equal(form('glasses'), 'glass');
+  assert.equal(form('women'), 'woman');
+  assert.equal(form("car's"), 'car');
+  assert.equal(form('cares'), '', 'not a form of "car"');
+  assert.equal(form('careful'), '');
+  assert.equal(S.slSavedForm('Häusern', new Set(['häuser']), 'de'), 'häuser');
+  assert.equal(S.slSavedForm('negotiated', saved, 'fr'), '', 'only English and German endings are known');
+});

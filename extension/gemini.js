@@ -166,7 +166,11 @@ async function enrich({ word, phrase, sentence, sl, tl }) {
       `"level": its CEFR level as used here (A1, A2, B1, B2, C1 or C2);\n` +
       `"academic": true if it is useful in academic or formal writing (for example in the IELTS Writing test), else false;\n` +
       `"collocations": up to 3 common word combinations with it, each {"text": the combination in ${langName(sl)}, "meaning": its meaning in ${langName(tl)}};\n` +
-      `"examples": 2 short, natural everyday sentences in ${langName(sl)} that use it in the same sense, each {"text": the sentence, "translation": in ${langName(tl)}}.`
+      `"examples": 2 short, natural everyday sentences in ${langName(sl)} that use it in the same sense, each {"text": the sentence, "translation": in ${langName(tl)}}` +
+      (phrase || /\s/.test(item)
+        ? '.'
+        : `;\n"family": up to 4 other words of its word family that are in common use (the noun, verb, adjective or adverb made from the same root: "analyse", "analysis", "analytical"), each {"word": the word, "pos": "noun", "verb", "adjective" or "adverb", "meaning": in ${langName(tl)}}; [] if there are none;\n` +
+          `"antonyms": up to 2 common words of opposite meaning in this sense, each {"word": the word, "meaning": in ${langName(tl)}}; [] if there are none.`)
   );
   const list = (v) => (Array.isArray(v) ? v : []);
   const ipa = String(json.ipa || '').trim().replace(/^\/+|\/+$/g, '');
@@ -176,6 +180,8 @@ async function enrich({ word, phrase, sentence, sl, tl }) {
     academic: !!json.academic,
     collocations: list(json.collocations).slice(0, 3).map((c) => ({ text: String(c.text || ''), meaning: String(c.meaning || '') })).filter((c) => c.text),
     examples: list(json.examples).slice(0, 2).map((e) => ({ text: String(e.text || ''), translation: String(e.translation || '') })).filter((e) => e.text),
+    family: list(json.family).slice(0, 4).map((f) => ({ word: String(f.word || '').trim(), pos: String(f.pos || '').trim().toLowerCase(), meaning: String(f.meaning || '').trim() })).filter((f) => f.word && f.word.toLowerCase() !== String(word).toLowerCase()),
+    antonyms: list(json.antonyms).slice(0, 2).map((a) => ({ word: String(a.word || '').trim(), meaning: String(a.meaning || '').trim() })).filter((a) => a.word),
   };
 }
 

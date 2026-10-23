@@ -49,6 +49,57 @@ function slClozeParts(item) {
   return null;
 }
 
+// The forms a written word may be of: itself, and what it is without an ending ("negotiated",
+// "negotiate"; "stopping", "stop"; "studies", "study"; "went", "go"), so that a saved word is known
+// in all its forms. Rough on purpose: a form that is no word does no harm, it only matches nothing.
+const SL_IRREGULAR = Object.fromEntries(
+  ('went go,gone go,saw see,seen see,came come,took take,taken take,gave give,given give,got get,gotten get,made make,' +
+    'said say,told tell,thought think,brought bring,bought buy,caught catch,taught teach,found find,felt feel,kept keep,' +
+    'left leave,lost lose,meant mean,met meet,paid pay,sent send,spent spend,stood stand,understood understand,won win,' +
+    'wrote write,written write,broke break,broken break,chose choose,chosen choose,drove drive,driven drive,ate eat,eaten eat,' +
+    'fell fall,fallen fall,forgot forget,forgotten forget,froze freeze,frozen freeze,hid hide,hidden hide,knew know,known know,' +
+    'ran run,rang ring,rung ring,rose rise,risen rise,sang sing,sung sing,spoke speak,spoken speak,stole steal,stolen steal,' +
+    'swam swim,threw throw,thrown throw,woke wake,woken wake,wore wear,worn wear,began begin,begun begin,became become,' +
+    'built build,held hold,led lead,heard hear,slept sleep,sold sell,shot shoot,sat sit,fought fight,flew fly,flown fly,' +
+    'drew draw,drawn draw,drank drink,drunk drink,grew grow,grown grow,blew blow,blown blow,dealt deal,dug dig,fed feed,' +
+    'fled flee,forgave forgive,forgiven forgive,hung hang,laid lay,lay lie,lit light,shook shake,shaken shake,sank sink,' +
+    'slid slide,stuck stick,struck strike,swore swear,sworn swear,tore tear,torn tear,wept weep,wound wind,men man,women woman,' +
+    'children child,people person,feet foot,teeth tooth,mice mouse,better good,best good,worse bad,worst bad')
+    .split(',')
+    .map((p) => p.split(' '))
+);
+function slForms(word, lang = 'en') {
+  const w = String(word || '').toLowerCase().replace(/[’`]/g, "'").replace(/'s$/, '');
+  const out = new Set([w]);
+  const add = (x) => x.length >= 3 && out.add(x);
+  if (lang === 'de') {
+    for (const end of ['en', 'em', 'er', 'es', 'est', 'et', 'ten', 'te', 'st', 'e', 'n', 's', 't']) if (w.endsWith(end)) add(w.slice(0, -end.length));
+    return [...out];
+  }
+  if (lang !== 'en') return [...out];
+  if (SL_IRREGULAR[w]) out.add(SL_IRREGULAR[w]);
+  const doubled = (stem) => stem.length >= 3 && stem[stem.length - 1] === stem[stem.length - 2] && !/[aeiou]/.test(stem[stem.length - 1]);
+  if (/ies$/.test(w)) add(w.slice(0, -3) + 'y');
+  if (/ied$/.test(w)) add(w.slice(0, -3) + 'y');
+  if (/(s|x|z|ch|sh|o)es$/.test(w)) add(w.slice(0, -2));
+  if (/[^s]s$/.test(w)) add(w.slice(0, -1));
+  for (const end of ['ed', 'ing', 'er', 'est']) {
+    if (!w.endsWith(end)) continue;
+    const stem = w.slice(0, -end.length);
+    add(stem);
+    add(stem + 'e');
+    if (doubled(stem)) add(stem.slice(0, -1));
+    if (/i$/.test(stem) && end !== 'ing') add(stem.slice(0, -1) + 'y');
+  }
+  return [...out];
+}
+
+// The saved word (in lower case) a word of a line is a form of, or ''.
+function slSavedForm(word, saved, lang) {
+  for (const f of slForms(word, lang)) if (saved.has(f)) return f;
+  return '';
+}
+
 function slNormalize(text) {
   return String(text || '')
     .toLowerCase()
@@ -599,5 +650,5 @@ function slDictationPool(words, lang, rest, now, size, rand = Math.random) {
 }
 
 if (typeof module !== 'undefined') {
-  module.exports = { SL_RECORDS, SL_LOG_KEPT, slNoRecords, slMergeRecords, SL_PLAN, slGoals, slNextAt, slLogActivity, slActive, slTodayPlan, slWeek, SL_STAGES, slDictation, slDictationPool, slCanon, slFromCsv, slBackup, slStamp, slMergeCard, slMergeAll, slRestore, slStatus, slCleanLine, slHintMask, slCardType, slAdvance, slClozeParts, slCheckAnswer, slAccepted, slSentenceScore, slDayKey, slIsNew, slTodayQueue, slLogged, slStats, slDueCount, slAddExample, slMerge, slNormalize };
+  module.exports = { SL_IRREGULAR, slForms, slSavedForm, SL_RECORDS, SL_LOG_KEPT, slNoRecords, slMergeRecords, SL_PLAN, slGoals, slNextAt, slLogActivity, slActive, slTodayPlan, slWeek, SL_STAGES, slDictation, slDictationPool, slCanon, slFromCsv, slBackup, slStamp, slMergeCard, slMergeAll, slRestore, slStatus, slCleanLine, slHintMask, slCardType, slAdvance, slClozeParts, slCheckAnswer, slAccepted, slSentenceScore, slDayKey, slIsNew, slTodayQueue, slLogged, slStats, slDueCount, slAddExample, slMerge, slNormalize };
 }

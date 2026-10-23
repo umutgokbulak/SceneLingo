@@ -3,7 +3,7 @@ const keyOf = (item) => item.word.toLowerCase();
 const KIND_LABEL = { word: 'kindWordCard', phrase: 'kindPhraseCard', sentence: 'kindSentenceCard' };
 const TYPE_LABEL = { recognize: 'typeRecognize', cloze: 'typeCloze', produce: 'typeProduce' };
 const SECONDS_PER_CARD = 15; // for the time the session will take, roughly
-const ENRICH_VERSION = 2; // 2: with the pronunciation in IPA
+const ENRICH_VERSION = 3; // 2: with the pronunciation in IPA; 3: with the word family and opposites
 
 let settings = { ...SL_DEFAULTS };
 let words = [];
@@ -446,6 +446,17 @@ function paintSide() {
     const pairs = el('div', 'pairs');
     for (const c of extra.collocations) pairs.append(el('span', null, c.text), el('span', null, c.meaning));
     body.append(sec(slT('collocations'), extra.collocations.length, pairs));
+  }
+  // The other words of its family ("analysis", "analytical"), and its opposites.
+  const family = [...(extra.family || []).map((f) => ({ text: f.word, pos: slPos(f.pos), meaning: f.meaning })), ...(extra.antonyms || []).map((a) => ({ text: a.word, pos: slT('opposite'), meaning: a.meaning }))];
+  if (family.length) {
+    const pairs = el('div', 'pairs');
+    for (const f of family) {
+      const w = el('span');
+      w.append(f.text, el('small', null, ' ' + f.pos));
+      pairs.append(w, el('span', null, f.meaning));
+    }
+    body.append(sec(slT('wordFamily'), family.length, pairs));
   }
   const rows = (list) => {
     const box = el('div', 'rows');

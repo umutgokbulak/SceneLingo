@@ -101,6 +101,8 @@ function cards() {
         ipa: '/lɜːn/', level: 'A2', academic: false,
         collocations: [{ text: 'learn a language', meaning: 'bir dil öğrenmek' }, { text: 'learn by heart', meaning: 'ezberlemek' }, { text: 'learn from mistakes', meaning: 'hatalardan ders almak' }],
         examples: [{ text: 'She learned to swim last summer.', translation: 'Geçen yaz yüzmeyi öğrendi.' }, { text: 'We learn something new every day.', translation: 'Her gün yeni bir şey öğreniriz.' }],
+        family: [{ word: 'learner', pos: 'noun', meaning: 'öğrenci' }, { word: 'learning', pos: 'noun', meaning: 'öğrenme' }, { word: 'learned', pos: 'adjective', meaning: 'bilgili' }],
+        antonyms: [{ word: 'forget', meaning: 'unutmak' }],
       },
       enriched: 2, looked: 2, lang: 'en', title: SOURCE, added: NOW - 9 * DAY, reps: 2, interval: 3, due: NOW - 60000, last: NOW - 3 * DAY,
       source: { url: 'https://commons.wikimedia.org/wiki/File:Elephants_Dream_(2006).webm', time: 179 },
@@ -239,7 +241,8 @@ function days() {
     await b.named('Space', 32);
     await wait(500);
     assert.match(await page(`$('#back').textContent`), /öğrenmek, alışmak/);
-    assert.equal(await page(`$('#sideBody').querySelectorAll('.sec').length`), 4, 'goes with, examples, met again and the definition, all at once');
+    assert.equal(await page(`$('#sideBody').querySelectorAll('.sec').length`), 5, 'goes with, its family, examples, met again and the definition, all at once');
+    assert.match(await page(`$('#sideBody').textContent`), /learner.*isim.*öğrenci.*forget.*zıt anlamlı.*unutmak/s);
     assert.ok(await page(`!$('#sideFoot').hidden`), 'a sentence of one’s own at the foot of the panel');
     await b.named('Digit2', 50);
     await wait(800);

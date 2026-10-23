@@ -250,9 +250,16 @@ test('enrich and check-sentence ask Gemini once each, and need a key', async () 
   assert.equal((await ask({ type: 'enrich', word: 'keen', sl: 'en', tl: 'tr' })).error, 'noKey');
   site.geminiKey = 'test-key';
   const answer = (o) => ({ json: { candidates: [{ content: { parts: [{ text: JSON.stringify(o) }] } }] } });
-  reset(() => answer({ level: 'b2', academic: true, collocations: [{ text: 'keen on', meaning: 'meraklı' }, { meaning: 'no text' }], examples: [{ text: 'She is keen on music.', translation: 'Müziğe meraklı.' }] }));
+  reset(() => answer({ level: 'b2', academic: true, collocations: [{ text: 'keen on', meaning: 'meraklı' }, { meaning: 'no text' }], examples: [{ text: 'She is keen on music.', translation: 'Müziğe meraklı.' }], family: [{ word: 'keenly', pos: 'Adverb', meaning: 'hevesle' }, { word: 'keen', pos: 'adjective' }, { word: 'keenness', pos: 'noun', meaning: 'istek' }], antonyms: [{ word: 'reluctant', meaning: 'isteksiz' }] }));
   const extra = (await ask({ type: 'enrich', word: 'keen', sentence: 'a keen wit', sl: 'en', tl: 'tr' })).result;
-  assert.deepEqual(extra, { ipa: '', level: 'B2', academic: true, collocations: [{ text: 'keen on', meaning: 'meraklı' }], examples: [{ text: 'She is keen on music.', translation: 'Müziğe meraklı.' }] });
+  assert.deepEqual(extra, {
+    ipa: '', level: 'B2', academic: true, collocations: [{ text: 'keen on', meaning: 'meraklı' }], examples: [{ text: 'She is keen on music.', translation: 'Müziğe meraklı.' }],
+    family: [{ word: 'keenly', pos: 'adverb', meaning: 'hevesle' }, { word: 'keenness', pos: 'noun', meaning: 'istek' }], antonyms: [{ word: 'reluctant', meaning: 'isteksiz' }],
+  });
+  assert.match(JSON.parse(calls[0].init.body).contents[0].parts[0].text, /"family"/, 'a word: its family is asked for');
+  reset(() => answer({ level: 'b1' }));
+  await ask({ type: 'enrich', word: 'rip', phrase: 'rip off', sl: 'en', tl: 'tr' });
+  assert.doesNotMatch(JSON.parse(calls[0].init.body).contents[0].parts[0].text, /"family"/, 'a phrase has none');
   reset(() => answer({ correct: false, better: 'I am keen on football.', note: 'keen on kalıbı.' }));
   const checked = (await ask({ type: 'check-sentence', word: 'keen', sentence: 'I am keen to football.', sl: 'en', tl: 'tr' })).result;
   assert.deepEqual(checked, { correct: false, better: 'I am keen on football.', note: 'keen on kalıbı.' });

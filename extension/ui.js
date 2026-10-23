@@ -46,6 +46,10 @@ function slSourceName(title) {
   return m ? m[2] + ' · ' + m[1] : title || '';
 }
 
+// A word's part of speech, as Gemini names it, in the language of the page.
+const SL_POS = { noun: 'posNoun', verb: 'posVerb', adjective: 'posAdjective', adverb: 'posAdverb' };
+const slPos = (pos) => (SL_POS[pos] ? slT(SL_POS[pos]) : pos);
+
 // ---------- the pages' navigation ----------
 
 // Every page of the extension's own, one tab each: on top of the page, and on a phone a bar at its

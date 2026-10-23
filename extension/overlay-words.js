@@ -336,8 +336,13 @@ function noticeSaved(cue) {
   if (!savedWords.size || !cue || !connected()) return;
   const text = cue.text.replace(/\s*\n\s*/g, ' ').trim();
   const flat = ' ' + text.toLowerCase().replace(/[^\p{L}\p{N}']+/gu, ' ') + ' ';
+  // The line again with each word as the saved word it is a form of, if it is one, or as a word of
+  // a saved phrase: "they ripped off the wrong people" is met as "rip off", "negotiated" as "negotiate".
+  const lang = primary ? langOf(primary.track.languageCode) : 'en';
+  const parts = new Set([...savedWords].flatMap((k) => k.split(' ')));
+  const base = ' ' + flat.trim().split(' ').map((t) => slSavedForm(t, parts, lang) || t).join(' ') + ' ';
   for (const key of savedWords) {
-    if (key.split(' ').length > 4 || !flat.includes(' ' + key + ' ')) continue;
+    if (key.split(' ').length > 4 || !(flat.includes(' ' + key + ' ') || base.includes(' ' + key + ' '))) continue;
     const id = key + '|' + text;
     if (metLines.has(id)) continue;
     metLines.add(id);
@@ -386,7 +391,7 @@ function setSavedWords(words) {
   if (!ui) return;
   paintSentenceStar();
   for (const w of ui.pri.querySelectorAll('.sl-word')) {
-    w.classList.toggle('sl-saved', savedWords.has(w.textContent.toLowerCase()));
+    w.classList.toggle('sl-saved', !!slSavedForm(w.textContent, savedWords, primary ? langOf(primary.track.languageCode) : 'en'));
   }
 }
 

@@ -37,7 +37,7 @@ function fillWords(line, text, lang) {
         continue;
       }
       const w = el('span', 'sl-word', str);
-      if (savedWords.has(str.toLowerCase())) w.classList.add('sl-saved');
+      if (slSavedForm(str, savedWords, lang)) w.classList.add('sl-saved');
       // German nouns, written with a capital in the middle of a sentence, in the colour of their gender.
       if (nouns && !starts && /^\p{Lu}\p{Ll}/u.test(str)) {
         const n = slNounText(slNoun(nouns, str));

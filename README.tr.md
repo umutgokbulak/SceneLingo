@@ -52,8 +52,10 @@ yazdım, çalışırken ihtiyaç duyduklarımı ekledim, sonra onu izlediğim di
   cevap kontrol edilir (küçük yazım hataları doğru sayılır), günde yeni kart sayısı sınırlıdır ve araç
   çubuğundaki simge bekleyen kartları gösterir.
 - **Büyüyen kartlar.** Kaydettiğin kelime başka bir filmde yine geçerse o cümle karta örnek olarak eklenir; her
-  birinin yanında sahneyi doğru anında açan bir düğme var. Gemini anahtarıyla kart; seviyesini (CEFR), birlikte
-  kullanıldığı kelimeleri, iki örnek daha ve kendi yazdığın cümlenin kontrolünü de alır. Kartlar düzenlenebilir;
+  birinin yanında sahneyi doğru anında açan bir düğme var. Kelime başka hâlleriyle de tanınır ("negotiate"
+  kayıtlıysa "negotiated", "go" kayıtlıysa "went"). Gemini anahtarıyla kart; seviyesini (CEFR), birlikte
+  kullanıldığı kelimeleri, kelime ailesini ve zıt anlamlısını (analyse: analysis, analytical), iki örnek daha ve
+  kendi yazdığın cümlenin kontrolünü de alır. Kartlar düzenlenebilir;
   bir kelime ait olduğu kalıba çevrilebilir ("ripped" → "rip off").
 - **Dinleme alıştırması.** Kelimelerinin geçtiği cümleler okunur, sen duyduğunu yazarsın; sonra kelime kelime
   neyi doğru duyduğun, neyi yanlış yazdığın, neyi kaçırdığın ve cümlede olmayan neyi yazdığın gösterilir, cümlenin
@@ -206,7 +208,7 @@ saat okuyup yazmasına yeter. Kurulum adımları [İngilizce README](README.md#s
 
 ## Nasıl yapıldı
 
-Manifest V3, yalın JavaScript; bağımlılık ve derleme adımı yok. 128 birim testi, site olmadan denenebilen her şey
+Manifest V3, yalın JavaScript; bağımlılık ve derleme adımı yok. 129 birim testi, site olmadan denenebilen her şey
 için oynatıcıyı taklit eden bir test sayfası ve gerisi için eklentiyi gerçek bir tarayıcıya yükleyip yöneten bir
 betik var. Altyazıların sitelerde nasıl bulunduğu, iki altyazı izinin nasıl eşleştirildiği ve yolda çıkan
 sorunlar [İngilizce README](README.md#engineering-notes)'de anlatılıyor.
