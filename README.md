@@ -45,9 +45,10 @@
   flashcards that come back on a schedule.
 - **Where:** Amazon Prime Video, Netflix, YouTube, and any site whose subtitles can be found from outside the page
   (TED, Vimeo's player and Wikimedia Commons were checked) — or any video at all, with a subtitle file of your own.
-- **How it is built:** Manifest V3, plain JavaScript, no dependencies and no build step; 132 unit tests, a
+- **How it is built:** Manifest V3, plain JavaScript, no dependencies and no build step; 133 unit tests, a
   stand-in player for everything that can be tested without a site, and a script that loads the real extension
-  into a real browser for what cannot.
+  into a real browser for what cannot. The pure scripts are type-checked by TypeScript as they are (`checkJs`,
+  with JSDoc where a shape needs saying), in CI, without anything being built from them.
 
 ## Why
 
@@ -384,6 +385,7 @@ Until the app is verified by Google, the sign-in shows a warning that the app is
 
 ```bash
 npm test                # unit tests (Node's built-in runner, Node 22+)
+npm run typecheck       # TypeScript's check of the pure scripts as plain JavaScript (fetched by npx; nothing is built)
 npm run harness         # mock player at http://localhost:8765
 npm run check:youtube   # the real extension on YouTube, in Google Chrome (needs the network)
 npm run check:sites     # the same on TED, plyr.io, Vimeo's player and Wikimedia Commons
@@ -411,6 +413,7 @@ npm run pictures:pages  # the pictures of the review page and the list of words
 | `extension/shared.js` | Default settings and the review schedule |
 | `extension/study.js` | Card stages, gap and answer checking, the day's queue, the record of the days |
 | `demo/index.html` | The live demo: the overlay's scripts on a plain page, with the phone's stand-in for the extension API (`web.js`), on GitHub Pages |
+| `tsconfig.json`, `types/env.d.ts` | The type check: which scripts, and what they find around them (the extension API, Node's `module`) |
 | `test/unit/` | Unit tests |
 | `test/harness.html`, `server.js`, `mock-chrome.js` | Mock player, static server, mocked extension APIs |
 

@@ -184,4 +184,4 @@ function slWordsToTry(words, lang, n, rand = Math.random) {
     .map((x) => (lang === 'de' ? x.w.word : x.w.word.replace(/^\p{Lu}(?=\p{Ll}*$)/u, (c) => c.toLowerCase())));
 }
 
-if (typeof module !== 'undefined') module.exports = { SL_IELTS, SL_SCENES, SL_LEVELS, SL_WRITING, SL_WRITES, SL_WRITE_WORDS, slWordCount, SL_SPEAKING_KEYS, SL_WRITING_KEYS, slIeltsOverall, slWordsToTry };
+if (typeof module !== 'undefined') Object.assign(module.exports, { SL_IELTS, SL_SCENES, SL_LEVELS, SL_WRITING, SL_WRITES, SL_WRITE_WORDS, slWordCount, SL_SPEAKING_KEYS, SL_WRITING_KEYS, slIeltsOverall, slWordsToTry });

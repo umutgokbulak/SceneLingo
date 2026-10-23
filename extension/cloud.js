@@ -94,4 +94,4 @@ async function slCloudSync(token, storage, now) {
   return { added: merged.added, updated: merged.updated, count: merged.words.length, changed: 'words' in changes };
 }
 
-if (typeof module !== 'undefined') module.exports = { SL_CLOUD, slAuthUrl, slTokenFrom, slCloudSync };
+if (typeof module !== 'undefined') Object.assign(module.exports, { SL_CLOUD, slAuthUrl, slTokenFrom, slCloudSync });

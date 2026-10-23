@@ -207,7 +207,7 @@ function paintFront() {
     mask.hidden = true;
     const row = el('div', 'typed');
     answerInput = el(sentence ? 'textarea' : 'input');
-    answerInput.placeholder = slT('typeHere');
+    answerInput.placeholder = slT('typeAnswer');
     row.append(answerInput);
     const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (Recognition) {

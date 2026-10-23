@@ -259,7 +259,10 @@ function slTodayPlan(words, log, now, newPerDay, goals = SL_PLAN) {
     for (let i = 0; i < 7; i++) n += (log[slDayKey(now - i * SL_DAY)] || {})[kind] || 0;
     return n;
   };
+  /** @typedef {{ id: string, have: number, goal?: number, left?: number, done: boolean }} PlanStep */
+  /** @returns {PlanStep} */
   const step = (id, have, goal) => ({ id, have, goal, done: have >= goal });
+  /** @type {PlanStep[]} */
   const steps = [{ id: 'review', have: today.reviews || 0, left: due, done: due === 0 }];
   if (goals.listen > 0) steps.push(step('listen', today.listen || 0, goals.listen));
   if (goals.speak > 0) steps.push(step('speak', today.speak || 0, goals.speak));
@@ -644,11 +647,11 @@ function slDictationPool(words, lang, rest, now, size, rand = Math.random) {
   }
   const fresh = (s) => !(rest[s.key] > now);
   return [...all.values()]
-    .sort((a, b) => fresh(b) - fresh(a) || b.learning - a.learning || a.order - b.order)
+    .sort((a, b) => Number(fresh(b)) - Number(fresh(a)) || b.learning - a.learning || a.order - b.order)
     .slice(0, size)
     .map(({ learning, order, ...s }) => s);
 }
 
 if (typeof module !== 'undefined') {
-  module.exports = { SL_IRREGULAR, slForms, slSavedForm, SL_RECORDS, SL_LOG_KEPT, slNoRecords, slMergeRecords, SL_PLAN, slGoals, slNextAt, slLogActivity, slActive, slTodayPlan, slWeek, SL_STAGES, slDictation, slDictationPool, slCanon, slFromCsv, slBackup, slStamp, slMergeCard, slMergeAll, slRestore, slStatus, slCleanLine, slHintMask, slCardType, slAdvance, slClozeParts, slCheckAnswer, slAccepted, slSentenceScore, slDayKey, slIsNew, slTodayQueue, slLogged, slStats, slDueCount, slAddExample, slMerge, slNormalize };
+  Object.assign(module.exports, { SL_IRREGULAR, slForms, slSavedForm, SL_RECORDS, SL_LOG_KEPT, slNoRecords, slMergeRecords, SL_PLAN, slGoals, slNextAt, slLogActivity, slActive, slTodayPlan, slWeek, SL_STAGES, slDictation, slDictationPool, slCanon, slFromCsv, slBackup, slStamp, slMergeCard, slMergeAll, slRestore, slStatus, slCleanLine, slHintMask, slCardType, slAdvance, slClozeParts, slCheckAnswer, slAccepted, slSentenceScore, slDayKey, slIsNew, slTodayQueue, slLogged, slStats, slDueCount, slAddExample, slMerge, slNormalize });
 }

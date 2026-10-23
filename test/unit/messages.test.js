@@ -17,6 +17,16 @@ test('every language of the interface has every text, with the same blanks to fi
   }
 });
 
+test('no text is written twice in one language (the second would silently take the place of the first)', () => {
+  const source = read('messages.js');
+  for (const lang of Object.keys(SL_TEXTS)) {
+    const start = source.indexOf('\n  ' + lang + ': {');
+    const end = source.indexOf('\n  },', start);
+    const keys = [...source.slice(start, end).matchAll(/^ {4}([A-Za-z]+):/gm)].map((m) => m[1]);
+    assert.deepEqual(keys.filter((k, i) => keys.indexOf(k) !== i), [], lang);
+  }
+});
+
 test('every text the code asks for exists', () => {
   const asked = new Set();
   const named = new Set(); // every quoted word in the code: a key may be chosen between two, or kept in a table

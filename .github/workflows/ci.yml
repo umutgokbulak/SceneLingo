@@ -17,3 +17,5 @@ jobs:
         run: for f in extension/*.js test/*.js test/unit/*.js; do node --check "$f"; done
       - name: Unit tests
         run: npm test
+      - name: Type check (TypeScript on the plain JavaScript; nothing is built)
+        run: npm run typecheck

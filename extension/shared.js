@@ -80,4 +80,4 @@ function slGrade(item, grade, now) {
   return { ...item, ease, interval, reps, lapses, due: now + interval * SL_DAY };
 }
 
-if (typeof module !== 'undefined') module.exports = { SL_DEFAULTS, SL_LANGS, SL_DAY, slIsDue, slGrade, slGuessLanguages };
+if (typeof module !== 'undefined') Object.assign(module.exports, { SL_DEFAULTS, SL_LANGS, SL_DAY, slIsDue, slGrade, slGuessLanguages });

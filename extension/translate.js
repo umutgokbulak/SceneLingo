@@ -48,6 +48,8 @@ function builtInNames(code) {
 // A translator for the pair, or why there is none: 'none' (no such thing in this browser),
 // 'unavailable' (not for these languages), or 'downloadable' (its language pack has to be
 // fetched first, which the browser only does when a person asks: see the toolbar popup).
+/** @typedef {{ state: string, key?: string, translator?: { translate(text: string): Promise<string> } }} BuiltIn */
+/** @returns {Promise<BuiltIn>} */
 async function builtIn(sl, tl) {
   if (typeof Translator !== 'function') return { state: 'none' };
   const key = sl + '>' + tl;
@@ -70,7 +72,7 @@ async function builtIn(sl, tl) {
 
 async function translateMany(texts, sl, tl) {
   const flat = texts.map((t) => String(t).replace(/\s*\n\s*/g, ' ').trim());
-  const own = await builtIn(sl, tl).catch(() => ({ state: 'none' }));
+  const own = await builtIn(sl, tl).catch(() => /** @type {BuiltIn} */ ({ state: 'none' }));
   if (own.translator) {
     try {
       const lines = [];
@@ -111,7 +113,7 @@ async function lookup(text, sl, tl) {
     data = await call(text, sl, tl, '&dt=bd&dt=md&dt=ss&dt=rm');
   } catch (e) {
     // Without the service there is no dictionary entry, but the browser may still translate.
-    const own = await builtIn(sl, tl).catch(() => ({}));
+    const own = await builtIn(sl, tl).catch(() => /** @type {BuiltIn} */ ({ state: 'none' }));
     if (!own.translator) throw e;
     return { translation: String(await own.translator.translate(text)).trim(), dict: [], ipa: '', defs: [], synonyms: [] };
   }
@@ -161,5 +163,5 @@ async function lookup(text, sl, tl) {
 const SL_TRANSLATE = { translateMany, lookup };
 
 if (typeof module !== 'undefined') {
-  module.exports = { gLang, call, joined, translateMany, lookup };
+  Object.assign(module.exports, { gLang, call, joined, translateMany, lookup });
 }

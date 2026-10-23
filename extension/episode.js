@@ -73,4 +73,4 @@ function slEpisodeKey(lines) {
   return (h >>> 0).toString(36) + '-' + lines.length;
 }
 
-if (typeof module !== 'undefined') module.exports = { SL_LEVEL_RANK, slEpisodeTokens, slEpisodeWords, slRanks, slEpisodeKey };
+if (typeof module !== 'undefined') Object.assign(module.exports, { SL_LEVEL_RANK, slEpisodeTokens, slEpisodeWords, slRanks, slEpisodeKey });

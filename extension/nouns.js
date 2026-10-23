@@ -81,4 +81,4 @@ function slNouns() {
   return slNounsLoading;
 }
 
-if (typeof module !== 'undefined') module.exports = { SL_ARTICLE, slNounList, slNoun, slNounText, slCap };
+if (typeof module !== 'undefined') Object.assign(module.exports, { SL_ARTICLE, slNounList, slNoun, slNounText, slCap });

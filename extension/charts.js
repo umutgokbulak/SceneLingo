@@ -139,4 +139,4 @@ function slChartSvg(fig) {
   return kind === 'line' ? slLineSvg(data, fig.unit) : kind === 'bar' ? slBarSvg(data, fig.unit) : slPieSvg(data);
 }
 
-if (typeof module !== 'undefined') module.exports = { SL_CHART_KINDS, slNiceMax, slChartData, slChartKind, slChartSvg };
+if (typeof module !== 'undefined') Object.assign(module.exports, { SL_CHART_KINDS, slNiceMax, slChartData, slChartKind, slChartSvg });

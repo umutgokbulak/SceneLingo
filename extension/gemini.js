@@ -53,6 +53,7 @@ async function geminiJSON(apiKey, prompt, maxOutputTokens = 4096, think = false,
   if (geminiNoQuick === null) geminiNoQuick = !!(await chrome.storage.local.get({ geminiNoQuick: false })).geminiNoQuick;
   const quick = !think && !geminiNoQuick;
   if (quick) config.thinkingConfig = { thinkingBudget: 0 };
+  /** @type {({ text: string } | { inlineData: { mimeType: string, data: string } })[]} */
   const parts = [{ text: prompt }];
   if (media) parts.push({ inlineData: { mimeType: media.mimeType, data: media.data } });
   const body = JSON.stringify({ contents: [{ role: 'user', parts }], generationConfig: config });
@@ -607,5 +608,5 @@ async function checkSentence({ word, sentence, sl, tl }) {
 }
 
 if (typeof module !== 'undefined') {
-  module.exports = { countGemini, slGeminiResting, geminiKeyShown, langName, geminiJSON, savedKey, askGemini, explain, enrich, gloss, speakingFeedback, roleplay, ieltsWriting, everydayWriting, readingTest, listeningTest, ieltsTask, rewriteCheck, episodeGloss, episodeQuiz, checkSentence };
+  Object.assign(module.exports, { countGemini, slGeminiResting, geminiKeyShown, langName, geminiJSON, savedKey, askGemini, explain, enrich, gloss, speakingFeedback, roleplay, ieltsWriting, everydayWriting, readingTest, listeningTest, ieltsTask, rewriteCheck, episodeGloss, episodeQuiz, checkSentence });
 }

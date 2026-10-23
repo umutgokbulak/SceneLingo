@@ -134,5 +134,5 @@ function slVocabDone(items, answers, next) {
 }
 
 if (typeof module !== 'undefined') {
-  module.exports = { SL_VOCAB_BAND, SL_VOCAB_BANDS, SL_VOCAB_ASK, SL_VOCAB_DRAW, slVocabDraw, slAlike, slVocabFair, slVocabLookalikes, slVocabItems, slVocabScore, slVocabLevel, slVocabDone };
+  Object.assign(module.exports, { SL_VOCAB_BAND, SL_VOCAB_BANDS, SL_VOCAB_ASK, SL_VOCAB_DRAW, slVocabDraw, slAlike, slVocabFair, slVocabLookalikes, slVocabItems, slVocabScore, slVocabLevel, slVocabDone });
 }

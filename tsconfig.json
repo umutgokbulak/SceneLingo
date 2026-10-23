@@ -1,0 +1,34 @@
+{
+  // A check of the extension's pure scripts, as plain JavaScript: nothing is built from it.
+  //   npm run typecheck
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": true,
+    "noEmit": true,
+    "target": "ES2022",
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "strict": false,
+    "noImplicitThis": true,
+    "noUnusedLocals": true,
+    "noFallthroughCasesInSwitch": true,
+    "skipLibCheck": true,
+    "moduleDetection": "legacy",
+    "module": "none"
+  },
+  "files": [
+    "types/env.d.ts",
+    "extension/shared.js",
+    "extension/study.js",
+    "extension/core.js",
+    "extension/episode.js",
+    "extension/nouns.js",
+    "extension/reading.js",
+    "extension/listentest.js",
+    "extension/vocab.js",
+    "extension/charts.js",
+    "extension/practice-data.js",
+    "extension/translate.js",
+    "extension/cloud.js",
+    "extension/gemini.js"
+  ]
+}

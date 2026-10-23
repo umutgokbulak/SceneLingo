@@ -440,4 +440,4 @@ const SubtitleCore = (() => {
   return { parseTime, lastStarted, findCue, alignTranslation, spokenWords, matchWords, stretch, isShouting, calm, expandContraction, spokenTokens, fillsWindow, cueText, parseVtt, parseJson3, guessLang, parseAss, parseHlsMaster, parseHlsMedia, vttOffset, standaloneFiles };
 })();
 
-if (typeof module !== 'undefined') module.exports = SubtitleCore;
+if (typeof module !== 'undefined') Object.assign(module.exports, SubtitleCore);

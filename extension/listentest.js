@@ -77,4 +77,4 @@ function slListenBand(score, total) {
   return SL_LISTEN_BANDS.find(([least]) => of40 >= least)[1];
 }
 
-if (typeof module !== 'undefined') module.exports = { SL_LISTEN_PARTS, SL_LISTEN_VOICES, slListenParts, slSpeechChunks, slListenBand };
+if (typeof module !== 'undefined') Object.assign(module.exports, { SL_LISTEN_PARTS, SL_LISTEN_VOICES, slListenParts, slSpeechChunks, slListenBand });

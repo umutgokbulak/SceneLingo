@@ -164,5 +164,5 @@ function slReadingBand(score, total, kind) {
 }
 
 if (typeof module !== 'undefined') {
-  module.exports = { SL_READ_KINDS, SL_READ_WORDS, SL_READ_TOPICS, SL_READ_DAILY, SL_TFNG, SL_ROMAN, slLoose, slReadingParts, slGapRight, slReadingMark, slReadingBand };
+  Object.assign(module.exports, { SL_READ_KINDS, SL_READ_WORDS, SL_READ_TOPICS, SL_READ_DAILY, SL_TFNG, SL_ROMAN, slLoose, slReadingParts, slGapRight, slReadingMark, slReadingBand });
 }
