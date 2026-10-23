@@ -121,12 +121,14 @@ const recorder = (() => {
     } catch (e) {
       on = false;
     }
+    if (on && target.record) voiceRecorder.resume();
     clearInterval(tick);
     tick = setInterval(paint, 1000);
     paint();
   }
   function stop() {
     clearInterval(tick);
+    voiceRecorder.pause();
     if (!on) return;
     on = false;
     if (rec) rec.stop();
@@ -135,6 +137,90 @@ const recorder = (() => {
   }
   return { start, stop, toggle: (target) => (on ? stop() : start(target)), get on() { return on; }, available: !!Recognition, paint };
 })();
+
+// The sound of an IELTS answer, recorded while it is written down, for Gemini to hear its pace,
+// pauses and pronunciation. One recording an answer: stopping the microphone pauses it and
+// starting it again goes on with it. Where the browser cannot record beside the recogniser (or the
+// learner chose not to send it), the words alone are scored.
+const voiceRecorder = (() => {
+  let media = null;
+  let stream = null;
+  let chunks = [];
+  let spoken = 0; // ms recorded
+  let since = 0;
+  let wanted = false;
+  async function resume() {
+    wanted = true;
+    if (!window.MediaRecorder || !navigator.mediaDevices) return;
+    if (media && media.state === 'paused') {
+      media.resume();
+      since = Date.now();
+      return;
+    }
+    if (media) return;
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } });
+      if (!wanted) return release();
+      const type = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/ogg'].find((t) => MediaRecorder.isTypeSupported(t));
+      media = new MediaRecorder(stream, type ? { mimeType: type, audioBitsPerSecond: 32000 } : undefined);
+      chunks = [];
+      media.ondataavailable = (e) => e.data && e.data.size && chunks.push(e.data);
+      media.start(1000);
+      since = Date.now();
+    } catch (e) {
+      release();
+    }
+  }
+  function pause() {
+    wanted = false;
+    if (media && media.state === 'recording') {
+      media.pause();
+      spoken += Date.now() - since;
+    }
+  }
+  function release() {
+    if (stream) stream.getTracks().forEach((t) => t.stop());
+    stream = null;
+    media = null;
+  }
+  // The recording so far, as { blob, seconds }, or null; and a fresh start.
+  function take() {
+    return new Promise((resolve) => {
+      if (!media) return resolve(null);
+      if (media.state === 'recording') spoken += Date.now() - since;
+      const m = media;
+      m.onstop = () => {
+        const blob = chunks.length ? new Blob(chunks, { type: m.mimeType || 'audio/webm' }) : null;
+        const seconds = spoken / 1000;
+        reset();
+        resolve(blob && seconds >= 1 ? { blob, seconds } : null);
+      };
+      m.stop();
+      release();
+    });
+  }
+  function reset() {
+    if (media && media.state !== 'inactive') {
+      media.onstop = null;
+      media.stop();
+    }
+    release();
+    chunks = [];
+    spoken = 0;
+    wanted = false;
+  }
+  return { resume, pause, take, reset };
+})();
+
+// A recording as Gemini takes it: its type, without what the browser adds to it, and base64.
+function asAudio(rec) {
+  return new Promise((resolve) => {
+    const r = new FileReader();
+    r.onload = () => resolve({ mimeType: rec.blob.type.split(';')[0] || 'audio/webm', data: String(r.result).split(',')[1] || '', seconds: rec.seconds });
+    r.onerror = () => resolve(null);
+    r.readAsDataURL(rec.blob);
+  });
+}
 
 // ---------- choosing ----------
 
@@ -170,7 +256,9 @@ function paintHome() {
     $('usage').textContent = '';
     if (geminiKey) $('usage').append(slGeminiUsage(data.geminiUsage));
   });
-  chrome.storage.local.get({ speakLog: [] }, (data) => {
+  chrome.storage.local.get({ speakLog: [], speakVoice: true }, (data) => {
+    sendVoice = data.speakVoice !== false;
+    $('sendVoice').checked = sendVoice;
     const recent = (data.speakLog || []).slice(-10);
     $('last').textContent = '';
     if (!recent.length) return;
@@ -181,6 +269,10 @@ function paintHome() {
 $('level').addEventListener('change', () => {
   level = $('level').value;
   chrome.storage.local.set({ practiceLevel: level });
+});
+$('sendVoice').addEventListener('change', () => {
+  sendVoice = $('sendVoice').checked;
+  chrome.storage.local.set({ speakVoice: sendVoice });
 });
 
 // ---------- the IELTS test ----------
@@ -228,6 +320,9 @@ function showQuestion() {
     for (const p of item.points) $('points').append(el('li', null, p));
   }
   exam.tries = item.part === 3 ? [] : slWordsToTry(words, 'en', 3);
+  voiceRecorder.reset();
+  if (exam.played) URL.revokeObjectURL(exam.played);
+  exam.played = null;
   wordsToTry($('examTry'), exam.tries);
   $('examText').value = '';
   $('examText').disabled = false;
@@ -283,7 +378,8 @@ function startTalking() {
   });
 }
 
-const examTarget = () => ({ box: $('examText'), mic: $('examMic'), status: $('examStatus') });
+const examTarget = () => ({ box: $('examText'), mic: $('examMic'), status: $('examStatus'), record: sendVoice });
+let sendVoice = true; // the learner's choice: the recording goes to Gemini with the words
 
 function paintExamGo() {
   const last = exam.at + 1 >= exam.plan.length;
@@ -309,7 +405,10 @@ async function sendAnswer() {
   fb.textContent = '';
   fb.append(el('div', 'muted', slT('speakScoring')));
   const run = exam.run;
-  const res = await ask({ type: 'speak-feedback', part: item.part, question: item.question, points: item.points, answer, words: exam.tries, sl: 'en', tl: settings.nativeLang });
+  const rec = sendVoice ? await voiceRecorder.take() : (voiceRecorder.reset(), null);
+  const audio = rec && rec.blob.size < 15e6 ? await asAudio(rec) : null;
+  if (rec) exam.played = URL.createObjectURL(rec.blob);
+  const res = await ask({ type: 'speak-feedback', part: item.part, question: item.question, points: item.points, answer, words: exam.tries, sl: 'en', tl: settings.nativeLang, audio });
   if (res.ok) keepScore(item, res.result);
   // The test was left, or another begun, while the answer was being scored: the score is kept,
   // and nothing is drawn over what is on the page now.
@@ -328,7 +427,7 @@ async function sendAnswer() {
   const r = res.result;
   const overall = slIeltsOverall(r.bands);
   exam.results.push({ part: item.part, question: item.question, bands: r.bands, overall });
-  paintFeedback(fb, r, overall, item);
+  paintFeedback(fb, r, overall, item, rec && { url: exam.played, wpm: Math.round(slWordCount(answer) / (rec.seconds / 60)) });
   paintExamGo();
 }
 
@@ -349,9 +448,11 @@ const CRITERIA = [
   ['pronunciation', 'speakPronunciation'],
 ];
 
-function paintFeedback(fb, r, overall, item) {
+// `voice`: the recording of the answer, to hear again, and its pace in words a minute.
+function paintFeedback(fb, r, overall, item, voice) {
   const add = (...nodes) => fb.append(...nodes.filter(Boolean));
-  add(bandsBox(r.bands, overall, CRITERIA), r.summary && el('div', 'summary', r.summary), fixesBlock(r.corrections));
+  add(bandsBox(r.bands, overall, CRITERIA), el('div', 'heardby', slT(r.heard ? 'speakHeard' : 'speakRead')), r.summary && el('div', 'summary', r.summary));
+  add(soundBlock(r, voice), fixesBlock(r.corrections));
   if (r.better) {
     const model = el('div', 'model');
     model.append(el('p', null, r.better), sayButton(r.better));
@@ -362,6 +463,30 @@ function paintFeedback(fb, r, overall, item) {
     usedBlock(r.used)
   );
   fb.scrollIntoView({ block: 'start', behavior: 'smooth' });
+}
+
+// How the answer sounded: the recording, its pace, what Gemini heard of the delivery, and the words
+// said in a way that was hard to understand, each with how to say it.
+function soundBlock(r, voice) {
+  if (!voice && !r.delivery && !(r.sounds || []).length) return null;
+  const box = el('div', 'sound');
+  if (voice) {
+    const top = el('div', 'soundtop');
+    const player = el('audio');
+    player.controls = true;
+    player.src = voice.url;
+    top.append(player);
+    // About 120 to 150 words a minute is the pace of easy speech.
+    if (voice.wpm > 0 && isFinite(voice.wpm)) top.append(el('span', 'pace' + (voice.wpm < 90 ? ' slow' : ''), slT('speakPace', voice.wpm)));
+    box.append(top);
+  }
+  if (r.delivery) box.append(el('p', null, r.delivery));
+  for (const s of r.sounds || []) {
+    const row = el('div', 'soundrow');
+    row.append(el('b', null, s.word), s.heard ? el('s', null, s.heard) : '', el('span', null, s.tip), sayButton(s.word));
+    box.append(row);
+  }
+  return block(slT('speakSound'), box);
 }
 
 function showExamEnd() {

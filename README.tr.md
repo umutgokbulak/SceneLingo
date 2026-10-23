@@ -64,7 +64,10 @@ yazdım, çalışırken ihtiyaç duyduklarımı ekledim, sonra onu izlediğim di
   dilde, senin seviyende Gemini ile canlandırılır: sen konuşursun, o rolüne uygun cevap verir; söylediğin her
   şey düzeltilir ve ☆ ile kaydedilebilir. İngilizcede IELTS Speaking'in üç bölümü de var (Part 2'de 1 dakika
   hazırlık, 2 dakika konuşma): her cevap dört ölçüte göre tahmini band alır; hatalar düzeltilir, band 8 bir cevap
-  ve öğrenilecek ifadeler gösterilir. Kayıtlı kelimelerin "kullanmayı dene" diye önerilir; doğru kullandığın
+  ve öğrenilecek ifadeler gösterilir. Cevabın konuşurken kaydedilir ve Gemini yalnızca sözlerini değil kaydı da
+  dinler: akıcılık için hızını, duraksamalarını ve "ıı"larını, telaffuz için seslerini, vurgunu ve tonlamanı;
+  zor anlaşılan kelimeleri nasıl söyleneceğiyle, dakikada kaç kelime konuştuğunu ve kaydını yeniden dinlemeyi
+  gösterir (bir anahtarla kapatılabilir). Kayıtlı kelimelerin "kullanmayı dene" diye önerilir; doğru kullandığın
   cümle kartına örnek olarak eklenir.
 - **Yazma alıştırması.** Günlük mesaj ve mektuplar (ev sahibine, öğretmene, mağazaya...) öğrendiğin dilde, senin
   seviyende: Gemini yazının hangi seviyede olduğunu ve isteneni yapıp yapmadığını söyler, hataları düzeltir ve

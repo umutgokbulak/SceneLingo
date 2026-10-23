@@ -114,7 +114,10 @@ them), plyr.io, Vimeo's player, Wikimedia Commons and a YouTube player embedded 
   played out with Gemini in the language being learnt, at your level: you speak, it answers in character, and
   each thing you said is put right, to be saved with a star. In English, the IELTS Speaking test's three parts
   (with Part 2's minute to prepare and two to talk): each answer gets an estimated band on the four criteria,
-  its mistakes put right, a band 8 answer and phrases to learn. Saved words come up as words to try; one used
+  its mistakes put right, a band 8 answer and phrases to learn. The answer is recorded as it is said and
+  Gemini hears the recording, not only its words: its pace, pauses and fillers for fluency, its sounds, stress
+  and intonation for pronunciation, with the words that were hard to understand and how to say them, the pace
+  in words a minute, and the recording to hear again (a switch leaves it out). Saved words come up as words to try; one used
   rightly keeps your sentence as an example.
 - **Writing practice.** Everyday messages and letters (to a landlord, a teacher, a shop...) in the language
   being learnt, at your level: Gemini says what level the text shows and whether it did what was asked, puts
@@ -424,7 +427,9 @@ above were taken on.
   without a key, but not a supported API, so it can change or rate-limit without notice.
 - Speaking practice uses the browser's speech recognition, which in Chrome sends the audio to Google. It tells
   you whether you were understood, word by word; it does not grade individual sounds, and it is forgiving of an
-  accent.
+  accent. In the IELTS practice the recording also goes to Gemini (with your key), whose judgement of
+  pronunciation is an estimate, as an examiner's on one answer would be; a browser that cannot record beside
+  the recogniser sends the words alone, and says so.
 - Definitions and synonyms are available for single English words; phrases get a translation only.
 - What Gemini does (a word's meaning in its sentence, the IELTS bands, the conversations, putting a text right,
   writing a reading test)

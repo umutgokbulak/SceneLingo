@@ -35,6 +35,8 @@ const GEMINI_STUB = `(() => {
         better: 'I have lived in a small flat near the city centre for five years. What I like most is that everything is within walking distance.',
         phrases: [{ text: 'within walking distance', meaning: 'yürüme mesafesinde' }],
         used: [{ word: 'learn', ok: true, sentence: 'I learn something new in my neighbourhood every week.' }],
+        // what is heard in a recording
+        ...(init.body.includes('inlineData') ? { delivery: 'Akıcıydın ama sık duraksadın.', sounds: [{ word: 'neighbourhood', heard: 'neybırhud', tip: 'gh okunmaz' }] } : {}),
       });
     if (prompt.includes('IELTS Writing examiner'))
       return answer({
@@ -195,6 +197,9 @@ function days() {
       await wait(1000);
       await page(`(document.querySelector('#parts .tile').click(), true)`);
       await wait(300);
+      await page(`(voiceRecorder.resume(), true)`);
+      await wait(8000);
+      await page(`(voiceRecorder.pause(), true)`);
       await page(`(() => { const t = $('#examText'); t.value = 'I live in a flat near the city centre since five years and I like it because everything is near'; t.dispatchEvent(new Event('input')); $('#examGo').click(); return true; })()`);
       await wait(1000);
       await page(`(scrollTo(0, 0), true)`);
@@ -339,9 +344,17 @@ function days() {
     await wait(300);
     assert.match(await page(`$('#examHead').textContent`), /Part 1/);
     assert.ok(await page(`$('#examGo').disabled`), 'nothing said yet');
+    // the answer recorded as it is said (the test's microphone plays a tone), and sent with its words
+    await page(`(voiceRecorder.resume(), true)`);
+    await wait(2500);
+    await page(`(voiceRecorder.pause(), true)`);
     await page(`(() => { const t = $('#examText'); t.value = 'I live here since five years and I like it'; t.dispatchEvent(new Event('input')); $('#examGo').click(); return true; })()`);
-    await wait(1000);
+    await wait(1500);
     assert.equal(await page(`$('#fb .band.all b').textContent`), '6.5');
+    assert.match(await page(`$('#fb .heardby').textContent`), /kaydından|recording/, 'scored from the recording');
+    assert.ok(await page(`!!$('#fb .sound audio') && /^blob:/.test($('#fb .sound audio').src)`), 'the recording, to hear again');
+    assert.match(await page(`$('#fb .soundrow').textContent`), /neighbourhood.*gh okunmaz/);
+    assert.match(await page(`$('#fb .pace').textContent`), /\d+/);
     assert.match(await page(`$('#fb .fix').textContent`), /I have lived here for five years/);
     await page(`($('#fb .phrase .star').click(), true)`);
     await wait(400);

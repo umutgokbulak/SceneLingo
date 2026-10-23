@@ -46,13 +46,16 @@ const langName = (code) => new Intl.DisplayNames(['en'], { type: 'language' }).o
 // with a tight limit the answer is cut off mid-way. So the limit is generous; the answer is short.
 // Thinking also takes seconds: a look-up (what a word means, the words of a sentence) is asked to
 // be answered without it; whatever puts the learner right (`think`) is thought through. A model
-// that does not allow answering without thinking is asked again as it is.
-async function geminiJSON(apiKey, prompt, maxOutputTokens = 4096, think = false) {
+// that does not allow answering without thinking is asked again as it is. `media`, if given, is
+// heard or seen with the question: { mimeType, data } with the data in base64 (a recorded answer).
+async function geminiJSON(apiKey, prompt, maxOutputTokens = 4096, think = false, media = null) {
   const config = { temperature: 0.2, responseMimeType: 'application/json', maxOutputTokens };
   if (geminiNoQuick === null) geminiNoQuick = !!(await chrome.storage.local.get({ geminiNoQuick: false })).geminiNoQuick;
   const quick = !think && !geminiNoQuick;
   if (quick) config.thinkingConfig = { thinkingBudget: 0 };
-  const body = JSON.stringify({ contents: [{ role: 'user', parts: [{ text: prompt }] }], generationConfig: config });
+  const parts = [{ text: prompt }];
+  if (media) parts.push({ inlineData: { mimeType: media.mimeType, data: media.data } });
+  const body = JSON.stringify({ contents: [{ role: 'user', parts }], generationConfig: config });
   for (const model of geminiModel ? [geminiModel] : GEMINI_MODELS) {
     const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
       method: 'POST',
@@ -69,7 +72,7 @@ async function geminiJSON(apiKey, prompt, maxOutputTokens = 4096, think = false)
       if (quick && res.status === 400) {
         geminiNoQuick = true;
         try {
-          const answer = await geminiJSON(apiKey, prompt, maxOutputTokens, think);
+          const answer = await geminiJSON(apiKey, prompt, maxOutputTokens, think, media);
           Promise.resolve()
             .then(() => chrome.storage.local.set({ geminiNoQuick: true }))
             .catch(() => {});
@@ -199,7 +202,21 @@ async function gloss({ sentence, sl, tl }) {
 // Speaking practice, the IELTS test: an answer, as a speaking examiner would score it, what to put
 // right, and a better answer to learn from. The answer comes from speech recognition. Thought
 // through: the score is worth the wait.
-async function speakingFeedback({ part, question, points, answer, words, sl, tl }) {
+// With `audio` ({ mimeType, data, seconds }), the answer is heard as it was said: its pace, its
+// pauses and hesitations, its sounds, stress and intonation, which the words alone do not show.
+// A model that will not take the recording scores the words.
+async function speakingFeedback(msg) {
+  if (msg.audio && msg.audio.data) {
+    try {
+      return { ...(await speakingScore(msg, msg.audio)), heard: true };
+    } catch (e) {
+      if (!/Gemini 4\d\d/.test(e.message) || /Gemini 4(01|03|29)/.test(e.message)) throw e;
+    }
+  }
+  return { ...(await speakingScore(msg, null)), heard: false };
+}
+
+async function speakingScore({ part, question, points, answer, words, sl, tl }, audio) {
   const apiKey = await savedKey();
   const length = { 1: 'three or four sentences', 2: 'about 180 words', 3: 'four or five sentences' }[part] || 'four or five sentences';
   const tries = (words || []).slice(0, 5);
@@ -208,18 +225,25 @@ async function speakingFeedback({ part, question, points, answer, words, sl, tl 
     `You are an experienced IELTS Speaking examiner. The candidate's own language is ${langName(tl)}.\n` +
       `Part ${part}. ${part === 2 ? 'Card' : 'Question'}: "${String(question).slice(0, 300)}"` +
       ((points || []).length ? `\nYou should say: ${points.join('; ')}.` : '') +
-      `\n\nThe candidate's answer, written down by speech recognition (so ignore punctuation and capital letters; a word that does not fit may have been misheard, which can point to its pronunciation):\n"${String(answer).slice(0, 3000)}"\n\n` +
+      (audio
+        ? `\n\nThe candidate's answer is the recording attached (${Math.round(audio.seconds || 0)} seconds). Listen to it as the examiner would: judge Fluency and Coherence from its pace, pauses, hesitations and fillers, and Pronunciation from its sounds, word stress, sentence stress and intonation, not from the words alone. Speech recognition wrote it down as below (it may have misheard; trust what you hear):\n"${String(answer).slice(0, 3000)}"\n\n`
+        : `\n\nThe candidate's answer, written down by speech recognition (so ignore punctuation and capital letters; a word that does not fit may have been misheard, which can point to its pronunciation):\n"${String(answer).slice(0, 3000)}"\n\n`) +
       `Answer in JSON with these keys:\n` +
       `"bands": {"fluency": Fluency and Coherence, "lexical": Lexical Resource, "grammar": Grammatical Range and Accuracy, "pronunciation": Pronunciation}, each a band from 1 to 9 in steps of 0.5, as you would give for this answer alone; an answer much too short for Part ${part} scores lower;\n` +
       `"summary": two or three sentences in ${langName(tl)}: what was good, and the one thing that would raise the score most;\n` +
       `"corrections": up to 5 of the most important mistakes, each {"said": the words as the candidate said them, "better": the same put right, "note": the reason in a few words in ${langName(tl)}};\n` +
       `"better": a natural band 8 answer to the same ${part === 2 ? 'card' : 'question'}, ${length}, keeping the candidate's own ideas where they are good;\n` +
       `"phrases": up to 4 useful phrases or collocations from your better answer, each {"text": as in the answer, "meaning": in ${langName(tl)}}` +
+      (audio
+        ? `;\n"delivery": one or two sentences in ${langName(tl)} on how it sounded: the pace, the pauses and fillers, the intonation;\n` +
+          `"sounds": up to 5 words the candidate said in a way that was hard to understand or clearly not English, the ones that matter most first, each {"word": the word as it should be, "heard": how it sounded, in a few letters or words, "tip": how to say it, in a few words in ${langName(tl)}}; [] if there were none`
+        : '') +
       (tries.length
         ? `;\n"used": for each of these words the candidate was asked to try to use (${tries.map((w) => '"' + w + '"').join(', ')}), {"word": the word, "ok": true if the candidate used it, correctly, "sentence": the candidate's sentence with it, put right, or ""}.`
         : '.'),
     8192,
-    true
+    true,
+    audio
   );
   const list = (v) => (Array.isArray(v) ? v : []);
   const band = (v) => {
@@ -236,6 +260,8 @@ async function speakingFeedback({ part, question, points, answer, words, sl, tl 
     better: String(json.better || '').trim(),
     phrases: list(json.phrases).slice(0, 4).map((p) => ({ text: String(p.text || '').trim(), meaning: String(p.meaning || '').trim() })).filter((p) => p.text),
     used: list(json.used).map((u) => ({ word: String(u.word || '').trim(), ok: !!u.ok, sentence: String(u.sentence || '').trim() })).filter((u) => u.word),
+    delivery: String(json.delivery || '').trim(),
+    sounds: list(json.sounds).slice(0, 5).map((x) => ({ word: String(x.word || '').trim(), heard: String(x.heard || '').trim(), tip: String(x.tip || '').trim() })).filter((x) => x.word && x.tip),
   };
 }
 

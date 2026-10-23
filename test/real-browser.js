@@ -45,6 +45,8 @@ async function launch({ everywhere = false, window = false, language = '' } = {}
     '--user-data-dir=' + path.join(work, 'profile'), '--remote-debugging-pipe', '--enable-unsafe-extension-debugging',
     '--disable-features=CalculateNativeWinOcclusion', '--disable-backgrounding-occluded-windows',
     '--no-first-run', '--no-default-browser-check', '--disable-sync', '--autoplay-policy=no-user-gesture-required', '--mute-audio',
+    // a microphone that plays a tone, allowed without asking: for the recorded answers
+    '--use-fake-device-for-media-stream', '--use-fake-ui-for-media-stream',
     '--window-size=1280,800', ...(language ? ['--lang=' + language, '--accept-lang=' + language] : []), ...(window ? [] : ['--headless=new']), 'about:blank',
   ], { stdio: ['ignore', 'ignore', 'ignore', 'pipe', 'pipe'] });
   const [, , , toBrowser, fromBrowser] = browser.stdio;

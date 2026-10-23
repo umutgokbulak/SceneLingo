@@ -321,6 +321,22 @@ test('speaking: an IELTS answer scored by Gemini, and a conversation it plays al
   assert.doesNotMatch(calls[0].init.body, /thinkingBudget/, 'a score is thought through');
   reset(() => answer({ bands: { fluency: 6 } }));
   assert.match((await ask({ type: 'speak-feedback', part: 1, question: 'q', answer: 'a', sl: 'en', tl: 'tr' })).error, /no score/);
+  // with the recording: heard, with how it sounded; a model that will not take it scores the words
+  const scored = { bands: { fluency: 5.5, lexical: 6, grammar: 6, pronunciation: 5.5 }, summary: 'İyi.', delivery: 'Çok duraksadın.', sounds: [{ word: 'thought', heard: 'tot', tip: 'dil dişlerin arasında' }, { word: 'x' }] };
+  reset(() => answer(scored));
+  const audio = { mimeType: 'audio/webm', data: 'AAAA', seconds: 12 };
+  const heard = (await ask({ type: 'speak-feedback', part: 1, question: 'q', answer: 'I tot so', sl: 'en', tl: 'tr', audio })).result;
+  assert.equal(heard.heard, true);
+  assert.deepEqual(heard.sounds, [{ word: 'thought', heard: 'tot', tip: 'dil dişlerin arasında' }]);
+  assert.equal(heard.delivery, 'Çok duraksadın.');
+  const sent = JSON.parse(calls[0].init.body).contents[0].parts;
+  assert.deepEqual(sent[1], { inlineData: { mimeType: 'audio/webm', data: 'AAAA' } });
+  assert.match(sent[0].text, /recording attached \(12 seconds\)/);
+  let n = 0;
+  reset(() => (n++ === 0 ? { status: 400, json: { error: { message: 'Unsupported MIME type' } } } : answer(scored)));
+  const read = (await ask({ type: 'speak-feedback', part: 1, question: 'q', answer: 'I tot so', sl: 'en', tl: 'tr', audio })).result;
+  assert.equal(read.heard, false, 'refused with the recording: the words alone');
+  assert.equal(JSON.parse(calls[1].init.body).contents[0].parts.length, 1);
 
   const scene = { role: 'a waiter', situation: 'At a café.' };
   reset(() => answer({ reply: 'Hallo! Was darf es sein?', translation: 'Merhaba! Ne alırsınız?', correction: { ok: false, better: 'x' }, done: false }));
