@@ -156,6 +156,10 @@ async function lookup(text, sl, tl) {
   };
 }
 
+// Kept by name for the stand-in on the web (web.js): in the live demo the overlay's own scripts,
+// loaded after this one, have a `lookup` of their own.
+const SL_TRANSLATE = { translateMany, lookup };
+
 if (typeof module !== 'undefined') {
   module.exports = { gLang, call, joined, translateMany, lookup };
 }

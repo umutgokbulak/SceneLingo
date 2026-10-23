@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SceneLingo · live demo</title>
+<link rel="icon" href="../extension/icons/32.png">
+<meta name="description" content="SceneLingo, the browser extension for learning a language from films, running on a short film without being installed.">
+<style>
+  html, body { margin: 0; height: 100%; background: #000; overflow: hidden; font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; }
+  video { display: block; width: 100vw; height: 100vh; object-fit: contain; background: #000; }
+  /* what this page is, over the film's top left corner */
+  .about { position: fixed; top: 14px; left: 14px; z-index: 2147483000; max-width: min(430px, calc(100vw - 28px)); box-sizing: border-box; padding: 14px 16px; border-radius: 14px; color: #e6edf3; background: rgba(13, 17, 23, 0.86); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45); font-size: 13.5px; line-height: 1.5; }
+  .about h1 { display: flex; align-items: center; gap: 9px; margin: 0 0 6px; font-size: 15px; }
+  .about h1 img { width: 22px; height: 22px; border-radius: 6px; }
+  .about p { margin: 0 0 8px; color: #b4bdc8; }
+  .about b { color: #e6edf3; }
+  .about .row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+  .about select { padding: 4px 8px; border-radius: 8px; border: 1px solid #3a4350; background: #1b222c; color: #e6edf3; font: inherit; }
+  .about a { color: #7ab7ff; text-decoration: none; }
+  .about a:hover { text-decoration: underline; }
+  .about .x { position: absolute; top: 8px; right: 10px; border: 0; background: none; color: #7f8995; font-size: 16px; cursor: pointer; }
+  .about.small p, .about.small .row { display: none; }
+  .about.small h1 { margin: 0; padding-right: 18px; }
+  .credit { position: fixed; right: 12px; top: 10px; z-index: 2147483000; font-size: 11px; color: rgba(255, 255, 255, 0.45); }
+  .credit a { color: inherit; }
+</style>
+<script>
+// The extension, without being installed: the phone's stand-in for the browser's extension API
+// (web.js) gives it real translations and the dictionary; its cards are kept apart from the phone's.
+window.SL_STORE = 'scenelingo-demo.';
+</script>
+<script src="../extension/web.js"></script>
+<script>
+// The rest of what the content scripts ask of the extension: its files are one folder away, it
+// counts as running, a word is spoken by the overlay itself (with the browser's voices), and
+// what Gemini would answer is answered as without a key, which a visitor has not given.
+const GEMINI = ['sense', 'explain', 'gloss', 'enrich', 'check-sentence', 'episode-gloss', 'episode-quiz', 'episode-words'];
+(() => {
+  const runtime = window.chrome.runtime;
+  const send = runtime.sendMessage;
+  runtime.id = 'demo';
+  runtime.getURL = (path) => '../extension/' + path;
+  runtime.sendMessage = (msg, cb) => {
+    if (msg && msg.type === 'gemini-key') return send(msg, cb);
+    if (msg && (msg.type === 'tts' || GEMINI.includes(msg.type))) {
+      const p = Promise.resolve({ ok: false, error: msg.type === 'tts' ? 'demo' : 'noKey' });
+      if (cb) p.then(cb);
+      return p;
+    }
+    return send(msg, cb);
+  };
+})();
+</script>
+<script src="../extension/messages.js"></script>
+<script src="../extension/shared.js"></script>
+<script src="../extension/translate.js"></script>
+<script>
+// The film is in English: that is what is learnt here, in the visitor's own language (or Turkish,
+// for someone whose own is English), until they choose another.
+(() => {
+  const own = SL_DEFAULTS.nativeLang;
+  const stored = JSON.parse(localStorage.getItem(SL_STORE + 'sync') || '{}');
+  if (!stored.learnLang) localStorage.setItem(SL_STORE + 'sync', JSON.stringify({ ...stored, learnLang: 'en', nativeLang: own === 'en' ? 'tr' : own, autoSpeak: false }));
+})();
+</script>
+<link rel="stylesheet" href="../extension/content.css">
+<script src="../extension/study.js"></script>
+<script src="../extension/core.js"></script>
+<script src="../extension/subtitles.js"></script>
+<script src="../extension/episode.js"></script>
+<script src="../extension/nouns.js"></script>
+<script src="../extension/overlay-base.js"></script>
+<script src="../extension/overlay-tracks.js"></script>
+<script src="../extension/overlay-lines.js"></script>
+<script src="../extension/overlay-words.js"></script>
+<script src="../extension/overlay-practice.js"></script>
+<script src="../extension/overlay-ui.js"></script>
+<script src="../extension/overlay-episode.js"></script>
+<script src="../extension/content.js"></script>
+<script src="../extension/select.js"></script>
+</head>
+<body>
+<!-- Elephants Dream (2006), (c) Blender Foundation | Netherlands Media Art Institute, CC BY 2.5,
+     with its English and Turkish subtitles, as hosted by Wikimedia Commons:
+     https://commons.wikimedia.org/wiki/File:Elephants_Dream_(2006).webm -->
+<video crossorigin="anonymous" playsinline controls preload="metadata"
+       src="https://upload.wikimedia.org/wikipedia/commons/transcoded/a/a2/Elephants_Dream_%282006%29.webm/Elephants_Dream_%282006%29.webm.720p.vp9.webm">
+  <track kind="subtitles" srclang="en" label="English"
+         src="https://commons.wikimedia.org/w/api.php?action=timedtext&amp;title=File%3AElephants_Dream_%282006%29.webm&amp;lang=en&amp;trackformat=vtt&amp;origin=*">
+  <track kind="subtitles" srclang="tr" label="Türkçe"
+         src="https://commons.wikimedia.org/w/api.php?action=timedtext&amp;title=File%3AElephants_Dream_%282006%29.webm&amp;lang=tr&amp;trackformat=vtt&amp;origin=*">
+  <track kind="subtitles" srclang="de" label="Deutsch"
+         src="https://commons.wikimedia.org/w/api.php?action=timedtext&amp;title=File%3AElephants_Dream_%282006%29.webm&amp;lang=de&amp;trackformat=vtt&amp;origin=*">
+</video>
+
+<div class="about" id="about">
+  <button class="x" id="fold" title="Fold">–</button>
+  <h1><img src="../extension/icons/48.png" alt="">SceneLingo · live demo</h1>
+  <p>The browser extension, running on a short film <b>without being installed</b>. Press play: the subtitles come
+    in English and in your language. <b>Point at a word</b> for its meaning and its sound; click it for the
+    dictionary, and save it with the star. The bar over the subtitles has the rest: a line again, slower, the
+    film paused after each line, writing or saying what you hear.</p>
+  <div class="row">
+    <span>Translations into</span><select id="native"></select>
+  </div>
+  <div class="row">
+    <a href="https://github.com/umutgokbulak/SceneLingo">Source and install</a>·
+    <a href="https://github.com/umutgokbulak/SceneLingo#readme">What else it does</a>
+  </div>
+</div>
+<div class="credit"><a href="https://orange.blender.org/">Elephants Dream</a> (CC BY 2.5)</div>
+
+<script>
+// The visitor's own language, for the translations; the overlay follows the change at once.
+(() => {
+  const sel = document.getElementById('native');
+  chrome.storage.sync.get({ nativeLang: 'tr' }, ({ nativeLang }) => {
+    for (const code of SL_LANGS.filter((c) => c !== 'en')) {
+      const o = document.createElement('option');
+      o.value = code;
+      o.textContent = new Intl.DisplayNames([navigator.language || 'en'], { type: 'language' }).of(code);
+      sel.append(o);
+    }
+    sel.value = nativeLang;
+  });
+  sel.addEventListener('change', () => chrome.storage.sync.set({ nativeLang: sel.value }));
+  // Folded out of the way while the film plays, and from the start on a small screen.
+  const about = document.getElementById('about');
+  const fold = (small) => {
+    about.classList.toggle('small', small);
+    document.getElementById('fold').textContent = small ? '+' : '–';
+  };
+  document.getElementById('fold').addEventListener('click', () => fold(!about.classList.contains('small')));
+  document.querySelector('video').addEventListener('play', () => fold(true));
+  if (innerWidth < 700) fold(true);
+})();
+</script>
+</body>
+</html>

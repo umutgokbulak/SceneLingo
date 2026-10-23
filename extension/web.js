@@ -6,15 +6,17 @@
   if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.id) return;
 
   const listeners = [];
+  // The live demo keeps its cards apart from the phone's, which may share its address.
+  const store = window.SL_STORE || 'scenelingo.';
   const area = (name) => {
     const read = () => {
       try {
-        return JSON.parse(localStorage.getItem('scenelingo.' + name) || '{}');
+        return JSON.parse(localStorage.getItem(store + name) || '{}');
       } catch (e) {
         return {};
       }
     };
-    const write = (all) => localStorage.setItem('scenelingo.' + name, JSON.stringify(all));
+    const write = (all) => localStorage.setItem(store + name, JSON.stringify(all));
     const done = (value, cb) => {
       const p = Promise.resolve(value);
       if (cb) p.then(cb);
@@ -124,9 +126,9 @@
   async function handle(msg) {
     switch (msg && msg.type) {
       case 'translate':
-        return translateMany(msg.texts || [], msg.sl, msg.tl).then((r) => ({ ok: true, result: r.lines, engine: r.engine }), (e) => ({ ok: false, error: e.message }));
+        return SL_TRANSLATE.translateMany(msg.texts || [], msg.sl, msg.tl).then((r) => ({ ok: true, result: r.lines, engine: r.engine }), (e) => ({ ok: false, error: e.message }));
       case 'lookup':
-        return lookup(String(msg.text || ''), msg.sl, msg.tl).then((result) => ({ ok: true, result }), (e) => ({ ok: false, error: e.message }));
+        return SL_TRANSLATE.lookup(String(msg.text || ''), msg.sl, msg.tl).then((result) => ({ ok: true, result }), (e) => ({ ok: false, error: e.message }));
       case 'tts':
         speak(msg.text, msg.lang, msg.slow);
         return { ok: false, error: 'spoken here' };

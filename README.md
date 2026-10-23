@@ -9,6 +9,10 @@
 </p>
 
 <p align="center">
+  <a href="https://umutgokbulak.github.io/SceneLingo/demo/"><b>▶ Try it live, nothing to install</b></a>
+</p>
+
+<p align="center">
   <a href="README.tr.md">Türkçe</a> ·
   <a href="#install">Install</a> ·
   <a href="#where-it-works">Where it works</a> ·
@@ -367,6 +371,7 @@ npm run harness         # mock player at http://localhost:8765
 npm run check:youtube   # the real extension on YouTube, in Google Chrome (needs the network)
 npm run check:sites     # the same on TED, plyr.io, Vimeo's player and Wikimedia Commons
 npm run check:pages     # the review page and the list of words, driven in a real browser
+npm run check:demo      # the live demo (demo/), with the real translation service
 npm run pictures        # the stills of this README; `npm run film` and test/animate.py make the short film
 npm run pictures:pages  # the pictures of the review page and the list of words
 ```
@@ -386,6 +391,7 @@ npm run pictures:pages  # the pictures of the review page and the list of words
 | `extension/ui.*` | What the extension's own pages share: colours, light and dark, buttons, icons |
 | `extension/shared.js` | Default settings and the review schedule |
 | `extension/study.js` | Card stages, gap and answer checking, the day's queue, the record of the days |
+| `demo/index.html` | The live demo: the overlay's scripts on a plain page, with the phone's stand-in for the extension API (`web.js`), on GitHub Pages |
 | `test/unit/` | Unit tests |
 | `test/harness.html`, `server.js`, `mock-chrome.js` | Mock player, static server, mocked extension APIs |
 

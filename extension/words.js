@@ -337,6 +337,8 @@ async function paintCloud(note) {
     box.append(icon('cloud'), what, btn([icon('sync'), slT('cloudSyncNow')], () => cloudSync(true)), btn(slT('cloudSignOut'), signOut, 'btn small ghost'));
   } else {
     what.append(el('span', null, slT('cloudTip')));
+    // The app is a person's own, not verified by Google: only the accounts added to it may sign in.
+    what.append(el('small', null, slT('cloudInvite')));
     if (note) what.append(el('small', null, note));
   }
   if ((st.log || []).length) {
@@ -594,6 +596,23 @@ function csv() {
   download(slT('csvName'), new Blob(['﻿' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' }));
 }
 
+// The cards for Anki: a file it imports as it is (File > Import), the word on the front and, on the
+// back, its meaning, the sentence it was met in with the word in bold, and where.
+function anki() {
+  const esc = (s) => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/[\t\r\n]+/g, ' ');
+  const lines = ['#separator:tab', '#html:true', '#tags column:3'];
+  for (const w of sorted(words.filter(matches))) {
+    const ipa = w.extra && w.extra.ipa ? w.extra.ipa : w.ipa ? '/' + w.ipa + '/' : '';
+    const front = esc(w.word) + (ipa ? '<br><small>' + esc(ipa) + '</small>' : '');
+    const context = slCleanLine(w.context || '');
+    const at = context.toLowerCase().indexOf(String(w.word).toLowerCase());
+    const sentence = at < 0 ? esc(context) : esc(context.slice(0, at)) + '<b>' + esc(context.slice(at, at + w.word.length)) + '</b>' + esc(context.slice(at + w.word.length));
+    const back = [esc(meaningOf(w)), sentence && '<i>' + sentence + '</i>', w.title && '<small>' + esc(w.title) + '</small>'].filter(Boolean).join('<br>');
+    lines.push([front, back, 'scenelingo ' + (w.lang || 'en')].join('\t'));
+  }
+  download(slT('ankiName'), new Blob([lines.join('\n')], { type: 'text/tab-separated-values;charset=utf-8' }));
+}
+
 // ---------- start ----------
 
 $('backup').addEventListener('click', backup);
@@ -603,6 +622,7 @@ $('file').addEventListener('change', () => {
   $('file').value = '';
 });
 $('csv').addEventListener('click', csv);
+$('anki').addEventListener('click', anki);
 $('add').addEventListener('submit', (e) => {
   e.preventDefault();
   addWord();

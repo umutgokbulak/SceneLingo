@@ -8,6 +8,8 @@
   ve her cümleyi dinleme ve konuşma alıştırmasına çeviren bir tarayıcı eklentisi.
 </p>
 
+<p align="center"><a href="https://umutgokbulak.github.io/SceneLingo/demo/"><b>▶ Kurmadan, tarayıcıda dene</b></a></p>
+
 <p align="center"><a href="README.md">English</a> (teknik ayrıntılar orada)</p>
 
 <p align="center"><img src="docs/demo.webp" width="800" alt="Altyazıdaki bir kelimenin üzerine gelince film durur ve kelimenin çevirisi açılır. Yazma alıştırmasında cümle, yazılana kadar gizli kalır; yanlış yazılan kelime işaretlenir."></p>
