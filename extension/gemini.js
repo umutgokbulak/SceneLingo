@@ -311,8 +311,12 @@ function writingParts(json) {
     better: String(json.better || '').trim(),
     phrases: list(json.phrases).slice(0, 6).map((p) => ({ text: String(p.text || '').trim(), meaning: String(p.meaning || '').trim() })).filter((p) => p.text),
     used: list(json.used).map((u) => ({ word: String(u.word || '').trim(), ok: !!u.ok, sentence: String(u.sentence || '').trim() })).filter((u) => u.word),
+    rewrite: list(json.rewrite).slice(0, 3).map((r) => ({ sentence: String(r.sentence || '').trim(), aim: String(r.aim || '').trim(), model: String(r.model || '').trim() })).filter((r) => r.sentence && r.aim && r.model),
   };
 }
+// The sentences of a text worth writing again: what is asked of each, and a model.
+const rewriteAsk = (tl, level) =>
+  `"rewrite": the 2 or 3 sentences of the text that would gain most from being written again (not the ones already in "corrections" for a small mistake), each {"sentence": exactly as written, "aim": in a few words in ${langName(tl)}, what to do to it (for example: join them with a relative clause, use a more precise word, make the opinion clearer), "model": the sentence written that way${level ? ', at ' + level : ', at band 8'}}`;
 const usedAsk = (words) =>
   (words || []).length
     ? `;\n"used": for each of these words the writer was asked to try to use (${words.slice(0, 5).map((w) => '"' + w + '"').join(', ')}), {"word": the word, "ok": true if it was used, correctly, "sentence": the writer's sentence with it, put right, or ""}.`
@@ -322,8 +326,9 @@ const usedAsk = (words) =>
 // scored as an examiner would on the four criteria, with its mistakes and a better version.
 async function ieltsWriting({ task, prompt, points, table, text, words, tl }) {
   const apiKey = await savedKey();
-  const what = { task1g: 'General Training Task 1 (a letter, at least 150 words)', task1a: 'Academic Task 1 (a report on the table, at least 150 words)', task2: 'Task 2 (an essay, at least 250 words)' }[task] || 'Task 2';
-  const figures = table ? `\nThe table: ${table.title}\n${[table.columns, ...table.rows].map((r) => r.join(' | ')).join('\n')}` : '';
+  const figure = { line: 'line graph', bar: 'bar chart', pie: 'pie charts' }[table && table.kind] || 'table';
+  const what = { task1g: 'General Training Task 1 (a letter, at least 150 words)', task1a: `Academic Task 1 (a report on the ${figure}, at least 150 words)`, task2: 'Task 2 (an essay, at least 250 words)' }[task] || 'Task 2';
+  const figures = table ? `\nThe ${figure}: ${table.title}${table.unit ? ' (' + table.unit + ')' : ''}\n${[table.columns, ...table.rows].map((r) => r.join(' | ')).join('\n')}` : '';
   const json = await geminiJSON(
     apiKey,
     `You are an experienced IELTS Writing examiner. The candidate's own language is ${langName(tl)}.\n` +
@@ -337,6 +342,7 @@ async function ieltsWriting({ task, prompt, points, table, text, words, tl }) {
       `"corrections": up to 8 of the most important mistakes, in the order they come, each {"said": the words as written, "better": the same put right, "note": the reason in a few words in ${langName(tl)}};\n` +
       `"better": the candidate's text rewritten as a band 8 answer, keeping their ideas and their order where they are good, in paragraphs separated by a blank line;\n` +
       `"phrases": up to 6 useful phrases or collocations from your version, each {"text": as in it, "meaning": in ${langName(tl)}}` +
+      ';\n' + rewriteAsk(tl) +
       usedAsk(words),
     16384,
     true
@@ -368,6 +374,7 @@ async function everydayWriting({ task, points, level, text, words, sl, tl }) {
       `"corrections": up to 8 of the most important mistakes, in the order they come, each {"said": the words as written, "better": the same put right, "note": the reason in a few words in ${langName(tl)}};\n` +
       `"better": the text put right and made natural, at level ${level || 'B1'}, keeping the writer's ideas, in ${langName(sl)};\n` +
       `"phrases": up to 6 useful phrases from your version for this kind of text, each {"text": in ${langName(sl)}, "meaning": in ${langName(tl)}}` +
+      ';\n' + rewriteAsk(tl, level || 'B1') +
       usedAsk(words),
     8192,
     true
@@ -421,6 +428,61 @@ async function readingTest({ kind, topic, level, sl, tl, avoid }, shuffle = Math
     true // a test with a wrong answer in it teaches the wrong thing: worth the wait
   );
   return { ...slReadingParts(json, k, shuffle), lang: ielts ? 'en' : sl, level: ielts ? '' : lv, topic: String(topic || '') };
+}
+
+// A new IELTS Writing task, so that the few kept with the extension are not all there is: a Task 2
+// question, a General Training letter, or an Academic Task 1 figure of the `kind` asked for (a
+// line graph, a bar chart, pie charts or a table), with its data as a table. Not about the subjects
+// in `avoid`. Answered quickly: a task is not a correction.
+async function ieltsTask({ task, kind, avoid }) {
+  const apiKey = await savedKey();
+  const not = (avoid || []).length ? `\nNot about the same subjects as these earlier tasks: ${avoid.slice(0, 12).map((t) => '"' + String(t).slice(0, 90) + '"').join(', ')}.` : '';
+  if (task === 'task2') {
+    const types = ['an opinion essay ("To what extent do you agree or disagree?")', 'a discussion essay ("Discuss both views and give your own opinion.")', 'a problem and solution essay', 'an advantages and disadvantages essay', 'a two-part question'];
+    const type = types[Math.floor(Math.random() * types.length)];
+    const json = await geminiJSON(apiKey, `Write one IELTS Writing Task 2 question, ${type}, on a subject of the kind the real test uses (society, education, work, technology, environment, health, cities...), as hard as the real test.${not}\nAnswer in JSON: {"prompt": the question as the candidate reads it, without "Write at least 250 words"}.`, 2048);
+    const prompt = String(json.prompt || '').trim();
+    if (prompt.length < 40) throw new Error('Gemini: no task in the answer');
+    return { prompt };
+  }
+  if (task === 'task1g') {
+    const json = await geminiJSON(apiKey, `Write one IELTS General Training Writing Task 1: a situation of everyday life or work that calls for a letter (formal, semi-formal or informal), as in the real test.${not}\nAnswer in JSON: {"situation": the situation in one or two sentences, addressed to the candidate ("You recently..."), "points": the three things the letter must do, each a short phrase as on the test ("explain what happened")}.`, 2048);
+    const points = (Array.isArray(json.points) ? json.points : []).map((p) => String(p).trim()).filter(Boolean).slice(0, 3);
+    const situation = String(json.situation || '').trim();
+    if (!situation || points.length < 3) throw new Error('Gemini: no task in the answer');
+    return { situation, points };
+  }
+  const shape = {
+    line: 'a line graph: the columns are 5 to 7 points in time (years), the rows are 2 to 4 things that change over them',
+    bar: 'a bar chart: the rows are 4 to 6 categories, the columns 2 or 3 years or groups to compare',
+    pie: 'two pie charts: the columns are the two years (or groups) of the two pies, the rows are 4 to 6 parts, and each column adds up to exactly 100 (per cent)',
+    table: 'a table: the rows are 4 to 6 items, the columns 2 to 4 years or groups',
+  }[kind] || 'a table';
+  const json = await geminiJSON(
+    apiKey,
+    `Write one IELTS Academic Writing Task 1 figure: ${shape}, on a subject of the kind the real test uses, with realistic numbers that show clear trends, a few exceptions and something to compare.${not}\n` +
+      `Answer in JSON: {"intro": the sentence the task begins with ("The line graph below shows..."), "title": the figure's title, "unit": what the numbers are in (for example "% of households" or "millions of tonnes"), "columns": the header row, the first cell naming the rows, "rows": the rows, each its name and then one number for each column, as numbers}.`,
+    4096
+  );
+  const rows = (Array.isArray(json.rows) ? json.rows : []).map((r) => (Array.isArray(r) ? r.map((v, i) => (i ? String(v).replace(/[^0-9.\-]/g, '') : String(v).trim())) : []));
+  const fig = { kind: kind || 'table', title: String(json.title || '').trim(), unit: String(json.unit || '').trim(), columns: (Array.isArray(json.columns) ? json.columns : []).map((c) => String(c).trim()), rows };
+  if (!fig.title || fig.columns.length < 2 || rows.length < 2 || rows.some((r) => r.length !== fig.columns.length || r.slice(1).some((v) => v === '' || isNaN(+v)))) throw new Error('Gemini: no figure in the answer');
+  const intro = String(json.intro || '').trim() || 'The ' + (kind === 'line' ? 'graph' : kind === 'pie' ? 'charts' : kind === 'bar' ? 'chart' : 'table') + ' below gives information about ' + fig.title.charAt(0).toLowerCase() + fig.title.slice(1) + '.';
+  return { prompt: intro + ' Summarise the information by selecting and reporting the main features, and make comparisons where relevant.', table: fig };
+}
+
+// A sentence of the learner's written again, as it was asked ("join them with a relative clause"):
+// whether it does that and is right, and if not, what is still wrong.
+async function rewriteCheck({ original, aim, attempt, sl, tl }) {
+  const apiKey = await savedKey();
+  const json = await geminiJSON(
+    apiKey,
+    `A learner of ${langName(sl || 'en')} whose own language is ${langName(tl)} wrote this sentence:\n"${String(original).slice(0, 500)}"\nand was asked to write it again: ${String(aim).slice(0, 200)}.\nTheir new version:\n"${String(attempt).slice(0, 600)}"\n\n` +
+      `Answer in JSON: {"ok": true if the new version does what was asked and is correct and natural, "note": one or two short sentences in ${langName(tl)}: what is good, and what is still wrong if anything, "better": the new version put right with as few changes as possible ("" if it needs none)}.`,
+    4096,
+    true
+  );
+  return { ok: !!json.ok, note: String(json.note || '').trim(), better: String(json.better || '').trim() };
 }
 
 // An episode's lines for Gemini: numbered, so that it can say where something is, and no longer
@@ -505,5 +567,5 @@ async function checkSentence({ word, sentence, sl, tl }) {
 }
 
 if (typeof module !== 'undefined') {
-  module.exports = { countGemini, slGeminiResting, geminiKeyShown, langName, geminiJSON, savedKey, askGemini, explain, enrich, gloss, speakingFeedback, roleplay, ieltsWriting, everydayWriting, readingTest, episodeGloss, episodeQuiz, checkSentence };
+  module.exports = { countGemini, slGeminiResting, geminiKeyShown, langName, geminiJSON, savedKey, askGemini, explain, enrich, gloss, speakingFeedback, roleplay, ieltsWriting, everydayWriting, readingTest, ieltsTask, rewriteCheck, episodeGloss, episodeQuiz, checkSentence };
 }

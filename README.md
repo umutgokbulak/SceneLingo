@@ -45,7 +45,7 @@
   flashcards that come back on a schedule.
 - **Where:** Amazon Prime Video, Netflix, YouTube, and any site whose subtitles can be found from outside the page
   (TED, Vimeo's player and Wikimedia Commons were checked) — or any video at all, with a subtitle file of your own.
-- **How it is built:** Manifest V3, plain JavaScript, no dependencies and no build step; 122 unit tests, a
+- **How it is built:** Manifest V3, plain JavaScript, no dependencies and no build step; 128 unit tests, a
   stand-in player for everything that can be tested without a site, and a script that loads the real extension
   into a real browser for what cannot.
 
@@ -122,8 +122,12 @@ them), plyr.io, Vimeo's player, Wikimedia Commons and a YouTube player embedded 
 - **Writing practice.** Everyday messages and letters (to a landlord, a teacher, a shop...) in the language
   being learnt, at your level: Gemini says what level the text shows and whether it did what was asked, puts
   its mistakes right and gives it back natural. In English, the IELTS Writing tasks against the clock (Task 1
-  as a letter or a report on a table, Task 2 an essay): an estimated band on the four criteria, the mistakes, and
-  the text rewritten at band 8. What is being written is kept as it is typed.
+  as a letter or a report on a figure, Task 2 an essay): an estimated band on the four criteria, the mistakes, and
+  the text rewritten at band 8. Each task is new, written by Gemini on a subject not met lately, and an
+  Academic Task 1 figure comes in turn as a line graph, a bar chart, pie charts or a table, drawn on the page
+  (SVG, from its numbers). After the feedback, the two or three sentences that would gain most are to be
+  written again as asked ("join them with a relative clause"), checked, and then compared with a model:
+  writing them is what is learnt from. What is being written is kept as it is typed.
 - **Reading practice.** Every day, a text of the kind you choose (a story, the news, travel, work, science...) in
   the language being learnt, at your level, with questions on it. In English, one passage of the IELTS Reading
   test, Academic or General Training, against the clock: matching headings, TRUE / FALSE / NOT GIVEN, multiple
@@ -190,6 +194,10 @@ them), plyr.io, Vimeo's player, Wikimedia Commons and a YouTube player embedded 
 | Progress | IELTS Writing |
 | --- | --- |
 | ![Today's plan with the cards, listening, speaking and the week's writing; beside it the last seven days day by day, the week's numbers, and the IELTS bands as bars](docs/screenshots/progress.jpg) | ![An IELTS Task 2 essay being written, with the words counted against 250 and the time left; under it, its estimated band and the four criteria](docs/screenshots/ielts-writing.jpg) |
+
+| IELTS Writing Task 1 | |
+| --- | --- |
+| ![A new Academic Task 1: a line graph of people cycling to work in three cities from 2000 to 2020, drawn on the page, with its numbers to open as a table](docs/screenshots/ielts-task1.jpg) | |
 
 | IELTS Reading | Level test |
 | --- | --- |
@@ -388,6 +396,7 @@ npm run pictures:pages  # the pictures of the review page and the list of words
 | `extension/nouns.js`, `freq/de-nouns.txt` | German nouns: gender and plural, of a word in any of its forms or of a compound (`test/nouns.py` makes the list) |
 | `extension/overlay-*.js`, `content.js` | The overlay, one content script in eight files loaded in order: its state (`overlay-base`), the tracks and their translation (`-tracks`), the lines kept in step with the picture and playback (`-lines`), the word card (`-words`), writing and speaking practice (`-practice`), the bar, its menu and the list of lines (`-ui`), the list's tabs of the episode's words and questions (`-episode`); `content.js` listens and starts it |
 | `extension/read.*`, `reading.js` | Reading practice: the page, and the test Gemini writes put in order, marked and turned into a band |
+| `extension/charts.js` | The figures of IELTS Academic Task 1 drawn as SVG from a table's numbers: line graphs, bar charts, pie charts |
 | `extension/core.js` | Pure logic: subtitle and playlist formats, cue search and alignment, word matching, time-stretch |
 | `extension/background.js` | Service worker: translation, lookup and speech requests; access to other sites |
 | `extension/review.*`, `words.*`, `popup.*` | Review page, list of all words, toolbar popup |

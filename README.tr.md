@@ -71,8 +71,12 @@ yazdım, çalışırken ihtiyaç duyduklarımı ekledim, sonra onu izlediğim di
   cümle kartına örnek olarak eklenir.
 - **Yazma alıştırması.** Günlük mesaj ve mektuplar (ev sahibine, öğretmene, mağazaya...) öğrendiğin dilde, senin
   seviyende: Gemini yazının hangi seviyede olduğunu ve isteneni yapıp yapmadığını söyler, hataları düzeltir ve
-  doğal hâlini verir. İngilizcede süreli IELTS Writing görevleri (Task 1 mektup ya da tablo raporu, Task 2
-  deneme): dört ölçüte göre tahmini band, hatalar ve yazının band 8 hâli. Yazdıkların yazarken saklanır.
+  doğal hâlini verir. İngilizcede süreli IELTS Writing görevleri (Task 1 mektup ya da grafik raporu, Task 2
+  deneme): dört ölçüte göre tahmini band, hatalar ve yazının band 8 hâli. Her görev yeni: Gemini son
+  zamanlarda çıkmamış bir konuda yazar; Academic Task 1 sırayla çizgi grafik, sütun grafik, pasta grafik ya da
+  tablo olarak gelir ve sayfada çizilir. Değerlendirmeden sonra en çok kazandıracak 2-3 cümleni istendiği gibi
+  ("ilgi zamiriyle birleştir") yeniden yazarsın; Gemini kontrol eder, sonra örnekle karşılaştırırsın.
+  Yazdıkların yazarken saklanır.
 - **Okuma alıştırması.** Her gün, seçtiğin türde (hikâye, haber, seyahat, iş, bilim...) öğrendiğin dilde ve senin
   seviyende bir metin ve soruları. İngilizcede IELTS Reading'den süreli bir parça, Academic ya da General
   Training: başlık eşleştirme, TRUE / FALSE / NOT GIVEN, çoktan seçmeli ve cümle tamamlama; testin üçte biri gibi
@@ -133,6 +137,10 @@ yazdım, çalışırken ihtiyaç duyduklarımı ekledim, sonra onu izlediğim di
 | İlerleme | IELTS Writing |
 | --- | --- |
 | ![Bugünün planı ve son yedi gün](docs/screenshots/progress.jpg) | ![IELTS Task 2 denemesi: kelime sayısı, kalan süre ve tahmini band](docs/screenshots/ielts-writing.jpg) |
+
+| IELTS Writing Task 1 | |
+| --- | --- |
+| ![Yeni bir Academic Task 1: üç şehirde işe bisikletle gidenlerin çizgi grafiği](docs/screenshots/ielts-task1.jpg) | |
 
 | IELTS Reading | Seviye testi |
 | --- | --- |
@@ -198,7 +206,7 @@ saat okuyup yazmasına yeter. Kurulum adımları [İngilizce README](README.md#s
 
 ## Nasıl yapıldı
 
-Manifest V3, yalın JavaScript; bağımlılık ve derleme adımı yok. 122 birim testi, site olmadan denenebilen her şey
+Manifest V3, yalın JavaScript; bağımlılık ve derleme adımı yok. 128 birim testi, site olmadan denenebilen her şey
 için oynatıcıyı taklit eden bir test sayfası ve gerisi için eklentiyi gerçek bir tarayıcıya yükleyip yöneten bir
 betik var. Altyazıların sitelerde nasıl bulunduğu, iki altyazı izinin nasıl eşleştirildiği ve yolda çıkan
 sorunlar [İngilizce README](README.md#engineering-notes)'de anlatılıyor.

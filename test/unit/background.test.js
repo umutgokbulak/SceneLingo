@@ -407,6 +407,25 @@ test('reading: Gemini writes an IELTS passage and its questions on the subject g
   site.geminiKey = '';
 });
 
+test('writing: Gemini writes a new task, a figure with its numbers, and checks a sentence written again', async () => {
+  site.geminiKey = 'test-key';
+  const answer = (o) => ({ json: { candidates: [{ content: { parts: [{ text: JSON.stringify(o) }] } }] } });
+  reset(() => answer({ intro: 'The line graph below shows the number of cyclists.', title: 'Cyclists in three cities', unit: 'thousands', columns: ['City', '2000', '2010', '2020'], rows: [['Lyon', 12, '18', 25], ['Porto', '8', '9', '15']] }));
+  const t = (await ask({ type: 'ielts-task', task: 'task1a', kind: 'line', avoid: ['Visitors to museums'] })).result;
+  assert.equal(t.table.kind, 'line');
+  assert.deepEqual(t.table.rows[0], ['Lyon', '12', '18', '25']);
+  assert.match(t.prompt, /^The line graph below shows the number of cyclists\. Summarise the information/);
+  assert.match(JSON.parse(calls[0].init.body).contents[0].parts[0].text, /Visitors to museums/, 'not the subjects of earlier tasks');
+  reset(() => answer({ intro: 'x', title: 'Broken', columns: ['A', 'B'], rows: [['a', 'many']] }));
+  assert.match((await ask({ type: 'ielts-task', task: 'task1a', kind: 'bar' })).error, /no figure/);
+  reset(() => answer({ situation: 'Your flight was cancelled.', points: ['what happened', 'how it affected you', 'what you want'] }));
+  assert.deepEqual((await ask({ type: 'ielts-task', task: 'task1g' })).result.points.length, 3);
+  reset(() => answer({ ok: false, note: 'İlgi zamiri doğru ama virgül eksik.', better: 'My brother, who lives in Izmir, is a doctor.' }));
+  const v = (await ask({ type: 'rewrite-check', original: 'My brother lives in Izmir. He is a doctor.', aim: 'tek cümlede ilgi zamiriyle birleştir', attempt: 'My brother who lives in Izmir is a doctor.', sl: 'en', tl: 'tr' })).result;
+  assert.deepEqual(v, { ok: false, note: 'İlgi zamiri doğru ama virgül eksik.', better: 'My brother, who lives in Izmir, is a doctor.' });
+  site.geminiKey = '';
+});
+
 test("an episode's words come from the list of its language, and Gemini gives their meaning there and asks about it", async () => {
   Object.assign(globalThis, require('../../extension/study.js'));
   const lines = ['The umbrella is in the car.', "Don't forget your umbrella.", 'They swoop in at night.'];

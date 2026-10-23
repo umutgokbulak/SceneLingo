@@ -99,7 +99,37 @@ function startDaily(w) {
   );
 }
 
-function startIelts(task) {
+// A new task written by Gemini, on a subject not met lately (and for Academic Task 1, a figure of
+// a kind in turn: a line graph, a bar chart, pie charts or a table); one of those kept here if
+// Gemini does not answer.
+let figureTurn = Math.floor(Math.random() * SL_CHART_KINDS.length);
+async function startIelts(task) {
+  if (!geminiKey) return startKept(task);
+  screen('desk');
+  $('deskHead').textContent = '';
+  $('task').textContent = '';
+  $('task').append(el('div', 'muted making', slT('writeMaking')));
+  $('deskTry').hidden = true;
+  $('text').disabled = true;
+  $('go').disabled = true;
+  const kind = SL_CHART_KINDS[figureTurn++ % SL_CHART_KINDS.length];
+  const { writeTopics } = await chrome.storage.local.get({ writeTopics: [] });
+  const res = await ask({ type: 'ielts-task', task, kind, avoid: writeTopics || [] });
+  if ($('desk').hidden) return; // left while it was being written
+  if (!res.ok) return startKept(task);
+  const r = res.result;
+  const t = { kind: 'ielts', task, lang: 'en', started: Date.now(), tries: task === 'task1a' ? [] : slWordsToTry(saved, 'en', 3), fresh: true };
+  if (task === 'task1g') {
+    t.prompt = r.situation + ' Write a letter about it.';
+    t.points = r.points;
+  } else t.prompt = r.prompt;
+  if (r.table) t.table = r.table;
+  const topic = r.table ? r.table.title : r.situation || r.prompt;
+  chrome.storage.local.set({ writeTopics: [topic, ...(writeTopics || [])].slice(0, 15) });
+  openDesk(t, '');
+}
+
+function startKept(task) {
   const t = { kind: 'ielts', task, lang: 'en', started: Date.now(), tries: task === 'task1a' ? [] : slWordsToTry(saved, 'en', 3) };
   if (task === 'task2') t.prompt = pick(SL_WRITING.task2);
   if (task === 'task1g') {
@@ -126,6 +156,7 @@ function openDesk(task, text) {
   box.textContent = '';
   if (task.kind === 'ielts') {
     head.append(el('span', 'label', 'IELTS · ' + IELTS[task.task].name));
+    if (task.fresh) head.append(el('span', null, '· ' + slT('writeFresh')));
     box.append(el('div', 'task' + (task.task === 'task2' ? ' essay' : ''), task.prompt));
     if (task.points) {
       const ul = el('ul', 'points');
@@ -163,7 +194,22 @@ function openDesk(task, text) {
   $('text').focus();
 }
 
-function figures(table) {
+// The figure: drawn as a graph or chart when it is one, with its numbers to open as a table; or
+// the table itself.
+function figures(fig) {
+  const svg = typeof slChartSvg === 'function' ? slChartSvg(fig) : null;
+  if (!svg) return tableOf(fig);
+  const box = el('div', 'figure');
+  box.append(el('div', 'figtitle', fig.title + (fig.unit ? ' (' + fig.unit + ')' : '')));
+  const drawing = el('div', 'drawing');
+  drawing.innerHTML = svg; // drawn from numbers and escaped text only (charts.js)
+  const numbers = el('details', 'numbers');
+  numbers.append(el('summary', null, slT('writeNumbers')), tableOf(fig));
+  box.append(drawing, numbers);
+  return box;
+}
+
+function tableOf(table) {
   const wrap = el('div', 'figures');
   const t = el('table');
   const caption = el('caption', null, table.title);
@@ -293,6 +339,7 @@ function paintFeedback(fb, r, w) {
     add(block(slT(ielts ? 'writeBetterIelts' : 'writeBetter'), model));
   }
   const title = ielts ? 'IELTS Writing · ' + IELTS[current.task].name : slT('writeTitle') + ' · ' + inUi(w.title);
+  add(rewriteBlock(r.rewrite || []));
   add(
     phrasesBlock(r.phrases, (p) => ({ word: p.text, kind: /\s/.test(p.text) ? 'phrase' : 'word', translation: p.meaning, context: sentenceWith(r.better, p.text), contextMeaning: p.meaning, senseEngine: 'gemini', sensed: true, lang: current.lang, title })),
     usedBlock(r.used)
@@ -301,6 +348,58 @@ function paintFeedback(fb, r, w) {
   const again = { ...current, started: Date.now() };
   after.append(btn(slT('writeAgain'), () => openDesk(again, ''), 'btn'), btn(slT('writeNew'), paintHome, 'btn primary'));
   add(after);
+}
+
+// A few sentences of the text to write again, each as asked ("join them with a relative clause"):
+// written, checked by Gemini, and then the model shown. Writing it oneself is what is learnt from;
+// reading the better version alone is not.
+function rewriteBlock(list) {
+  if (!list.length) return null;
+  const lang = current.lang;
+  return block(
+    slT('writeRewrite'),
+    el('p', 'muted rwhow', slT('writeRewriteHow')),
+    ...list.map((r) => {
+      const box = el('div', 'rw');
+      box.append(el('div', 'rwfrom', '“' + r.sentence + '”'), el('div', 'rwaim', r.aim));
+      const input = el('textarea');
+      input.rows = 2;
+      input.spellcheck = false;
+      input.placeholder = slT('writeRewritePh');
+      const out = el('div', 'rwout');
+      const go = btn(slT('writeRewriteCheck'), async () => {
+        const attempt = input.value.trim();
+        if (!attempt) return;
+        go.disabled = true;
+        input.disabled = true;
+        out.textContent = slT('writeChecking');
+        const res = await ask({ type: 'rewrite-check', original: r.sentence, aim: r.aim, attempt, sl: lang, tl: settings.nativeLang });
+        out.textContent = '';
+        if (!res.ok) {
+          go.disabled = false;
+          input.disabled = false;
+          out.append(el('div', 'notice', failed(res.error)));
+          return;
+        }
+        const v = res.result;
+        out.append(el('div', v.ok ? 'yes' : 'no', (v.ok ? '✓ ' : '≈ ') + v.note));
+        if (v.better && !v.ok) out.append(el('div', 'rwbetter', v.better));
+        const model = el('div', 'rwmodel');
+        model.append(el('small', null, slT('writeRewriteModel')), el('span', null, r.model));
+        out.append(model);
+      }, 'btn small');
+      const show = btn(slT('writeRewriteShow'), () => {
+        show.remove();
+        const model = el('div', 'rwmodel');
+        model.append(el('small', null, slT('writeRewriteModel')), el('span', null, r.model));
+        out.append(model);
+      }, 'btn small ghost');
+      const row = el('div', 'rwbtns');
+      row.append(go, show);
+      box.append(input, row, out);
+      return box;
+    })
+  );
 }
 
 $('go').addEventListener('click', () => (checked ? paintHome() : check()));

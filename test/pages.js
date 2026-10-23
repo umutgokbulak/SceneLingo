@@ -46,7 +46,12 @@ const GEMINI_STUB = `(() => {
         better: 'Some people believe that films are the best teachers.\\n\\nOn the other hand, classrooms give structure.',
         phrases: [{ text: 'on the other hand', meaning: 'öte yandan' }],
         used: [],
+        rewrite: [{ sentence: 'Some peoples thinks that films are the best teachers of a language.', aim: 'Görüşü kime ait olduğunu belirterek daha kesin yaz', model: 'Many language learners believe that films are the most effective teachers.' }],
       });
+    if (prompt.includes('IELTS Writing Task 2 question')) return answer({ prompt: 'Some people say that films teach a language better than classrooms. To what extent do you agree or disagree?' });
+    if (prompt.includes('Academic Writing Task 1 figure'))
+      return answer({ intro: 'The line graph below shows how many people cycled to work in three cities.', title: 'People cycling to work in three cities, 2000 to 2020', unit: 'thousands', columns: ['City', '2000', '2005', '2010', '2015', '2020'], rows: [['Lyon', 12, 15, 19, 24, 31], ['Porto', 8, 8, 10, 13, 18], ['Leeds', 15, 14, 13, 15, 16]] });
+    if (prompt.includes('was asked to write it again')) return answer({ ok: false, note: 'Daha kesin ama "peoples" hâlâ yanlış.', better: 'Many people think that films are the best teachers of a language.' });
     if (prompt.includes('wrote this for the task'))
       return answer({ level: 'A2', points: [true, true, false], summary: 'Anlaşılır.', corrections: [{ said: 'is broken since three days', better: 'has been broken for three days', note: 'süregelen durum' }], better: 'Dear Mr Brown, the heating has been broken for three days.', phrases: [{ text: 'as soon as possible', meaning: 'en kısa sürede' }], used: [] });
     if (prompt.includes('role-playing')) {
@@ -158,8 +163,12 @@ function days() {
       await b.worker(GEMINI_STUB);
       await b.open(b.extensionPage('write.html'));
       await wait(1000);
+      await page(`(figureTurn = 0, document.querySelectorAll('#parts .tile')[0].click(), true)`);
+      await wait(900);
+      fs.writeFileSync(path.join(dir, 'ielts-task1.jpg'), await b.picture(88));
+      await page(`($('#leave').click(), true)`);
       await page(`(document.querySelectorAll('#parts .tile')[2].click(), true)`);
-      await wait(300);
+      await wait(900);
       await page(`(() => { const t = $('#text'); t.value = 'Some peoples thinks that watching films is the best way to learn a language, because you hear how people really speak. Others believe classrooms are better.'; t.dispatchEvent(new Event('input')); $('#go').click(); return true; })()`);
       await wait(1000);
       await page(`(scrollTo(0, 0), true)`);
@@ -384,9 +393,17 @@ function days() {
     await wait(1000);
     assert.equal(await page(`document.querySelectorAll('#tasks .tile:not([disabled])').length`), 10);
     assert.equal(await page(`document.querySelectorAll('#parts .tile').length`), 3);
-    // IELTS Task 2: against the clock, the words counted, the draft kept
+    // Academic Task 1: a new figure, drawn as a line graph, its numbers in a table to open
+    await page(`(figureTurn = 0, document.querySelectorAll('#parts .tile')[0].click(), true)`);
+    await wait(800);
+    assert.match(await page(`$('#task .task').textContent`), /^The line graph below shows how many people cycled/);
+    assert.equal(await page(`document.querySelectorAll('#task svg.chart polyline').length`), 3, 'a line for each city');
+    assert.equal(await page(`document.querySelectorAll('#task .numbers tr').length`), 4);
+    await page(`($('#leave').click(), true)`);
+    // IELTS Task 2: a new question, against the clock, the words counted, the draft kept
     await page(`(document.querySelectorAll('#parts .tile')[2].click(), true)`);
-    await wait(300);
+    await wait(800);
+    assert.match(await page(`$('#task .task').textContent`), /films teach a language better/, 'a new question, from Gemini');
     assert.match(await page(`$('#timer').textContent`), /^(39|40):/);
     await page(`(() => { const t = $('#text'); t.value = 'Some peoples thinks that films are the best teachers of a language.'; t.dispatchEvent(new Event('input')); return true; })()`);
     assert.match(await page(`$('#count').textContent`), /^12 \/ 250/);
@@ -404,6 +421,12 @@ function days() {
     const written = JSON.parse(await b.worker(`chrome.storage.local.get(['writeLog', 'writeDraft']).then((d) => JSON.stringify(d))`));
     assert.equal(written.writeLog.length, 1);
     assert.equal(written.writeDraft, null, 'sent: the draft is not kept');
+    // a sentence to write again: written, checked, and the model shown
+    assert.equal(await page(`document.querySelectorAll('#fb .rw').length`), 1);
+    await page(`(() => { const t = document.querySelector('#fb .rw textarea'); t.value = 'Many peoples think films are the best teachers.'; document.querySelector('#fb .rw .btn').click(); return true; })()`);
+    await wait(800);
+    assert.match(await page(`$('#fb .rwout .no').textContent`), /peoples/);
+    assert.match(await page(`$('#fb .rwmodel').textContent`), /most effective teachers/);
     // everyday: a letter to the landlord, its level and what it said of what was asked
     await page(`($('#toHome').click(), true)`);
     await page(`(document.querySelector('#tasks .tile').click(), true)`);
