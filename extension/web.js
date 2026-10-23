@@ -157,6 +157,8 @@
         return speakingFeedback(msg).then((result) => ({ ok: true, result }), (e) => ({ ok: false, error: e.message }));
       case 'ielts-writing':
         return ieltsWriting(msg).then((result) => ({ ok: true, result }), (e) => ({ ok: false, error: e.message }));
+      case 'listening-test':
+        return listeningTest(msg).then((result) => ({ ok: true, result }), (e) => ({ ok: false, error: e.message }));
       case 'ielts-task':
         return ieltsTask(msg).then((result) => ({ ok: true, result }), (e) => ({ ok: false, error: e.message }));
       case 'rewrite-check':

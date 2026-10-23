@@ -375,9 +375,9 @@ function slBackup(words, log, now, version, deleted, records) {
 // The practice kept beside the cards: the scores of spoken answers, written texts and reading
 // tests (lists of { at, ... }, the latest hundred), and until when each sentence of the listening
 // practice rests. They go into backups and to the cloud with the cards.
-const SL_RECORDS = ['speakLog', 'writeLog', 'readLog', 'levelLog', 'listenRest'];
+const SL_RECORDS = ['speakLog', 'writeLog', 'readLog', 'levelLog', 'listenTestLog', 'listenRest'];
 const SL_LOG_KEPT = 100;
-const slNoRecords = () => ({ speakLog: [], writeLog: [], readLog: [], levelLog: [], listenRest: {} });
+const slNoRecords = () => ({ speakLog: [], writeLog: [], readLog: [], levelLog: [], listenTestLog: [], listenRest: {} });
 function slMergeRecords(here, there, now) {
   const logOf = (a, b) => {
     const byTime = new Map();
@@ -387,7 +387,7 @@ function slMergeRecords(here, there, now) {
   const rest = { ...(here.listenRest || {}) };
   for (const [k, until] of Object.entries(there.listenRest || {})) rest[k] = Math.max(rest[k] || 0, until);
   for (const k of Object.keys(rest)) if (now && rest[k] < now) delete rest[k];
-  return { speakLog: logOf(here.speakLog, there.speakLog), writeLog: logOf(here.writeLog, there.writeLog), readLog: logOf(here.readLog, there.readLog), levelLog: logOf(here.levelLog, there.levelLog), listenRest: rest };
+  return { speakLog: logOf(here.speakLog, there.speakLog), writeLog: logOf(here.writeLog, there.writeLog), readLog: logOf(here.readLog, there.readLog), levelLog: logOf(here.levelLog, there.levelLog), listenTestLog: logOf(here.listenTestLog, there.listenTestLog), listenRest: rest };
 }
 
 // When a card last changed: saved, studied or edited.

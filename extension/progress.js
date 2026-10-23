@@ -1,5 +1,5 @@
 // Progress: today's plan, the last seven days of study day by day, what they added up to, and the
-// IELTS bands the speaking, writing and reading practice estimated, as they went.
+// IELTS bands the listening, speaking, reading and writing practice estimated, as they went.
 // [kind, its count in the record of days, its name, what fills a day's cell]
 const kinds = (goals) => [
   ['review', 'reviews', 'planReview', 10],
@@ -18,7 +18,7 @@ const GOALS = [
 const SHOWN = 10; // the latest scores shown as bars
 
 let settings = { ...SL_DEFAULTS };
-const load = () => chrome.storage.local.get({ words: [], reviewLog: {}, speakLog: [], writeLog: [], readLog: [], levelLog: [], geminiKey: '', geminiUsage: null }, paint);
+const load = () => chrome.storage.local.get({ words: [], reviewLog: {}, speakLog: [], writeLog: [], readLog: [], levelLog: [], listenTestLog: [], geminiKey: '', geminiUsage: null }, paint);
 
 function paint(data) {
   const now = Date.now();
@@ -115,11 +115,13 @@ function paint(data) {
   const speaking = data.speakLog || [];
   const writing = data.writeLog || [];
   const reading = (data.readLog || []).filter((r) => r.band != null);
-  $('ielts').hidden = settings.learnLang !== 'en' && !speaking.length && !writing.length && !reading.length;
+  const listening = data.listenTestLog || [];
+  $('ielts').hidden = settings.learnLang !== 'en' && !speaking.length && !writing.length && !reading.length && !listening.length;
   $('bands').textContent = '';
   $('bands').append(
     shownBands(speaking, (r) => slIeltsOverall(r.bands, SL_SPEAKING_KEYS), 'Speaking'),
     shownBands(writing, (r) => slIeltsOverall(r.bands, SL_WRITING_KEYS), 'Writing'),
+    shownBands(listening, (r) => r.band, 'Listening'),
     shownBands(reading, (r) => r.band, 'Reading')
   );
 

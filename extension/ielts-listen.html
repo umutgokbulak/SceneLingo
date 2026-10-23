@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SceneLingo</title>
+<link rel="icon" href="icons/32.png">
+<link rel="stylesheet" href="ui.css?v=0.34.0">
+<link rel="stylesheet" href="practice.css?v=0.34.0">
+<link rel="manifest" href="app.webmanifest">
+<link rel="apple-touch-icon" href="icons/180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SceneLingo">
+<meta name="theme-color" content="#0d1117">
+<style>
+  .lead { margin: 0 0 16px; color: var(--text-2); font-size: 14.5px; line-height: 1.55; }
+  .making { display: flex; align-items: center; gap: 16px; }
+  .making p { flex: 1; margin: 0; color: var(--text-2); }
+  .spin { width: 26px; height: 26px; border-radius: 50%; border: 3px solid var(--accent-soft); border-top-color: var(--accent); animation: spin 0.9s linear infinite; flex: none; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* the recording */
+  .context { font-size: 16px; font-weight: 600; line-height: 1.5; margin: 6px 0 14px; }
+  .player { display: flex; align-items: center; gap: 14px; padding: 14px 16px; border-radius: 14px; background: var(--surface-2); border: 1px solid var(--border); }
+  .player .play { width: 52px; height: 52px; border-radius: 50%; border: 0; background: var(--accent); color: #fff; cursor: pointer; display: grid; place-items: center; font-size: 22px; flex: none; }
+  .player .play:disabled { opacity: 0.4; cursor: default; }
+  .player .track { flex: 1; min-width: 0; }
+  .player .bar { height: 6px; border-radius: 6px; background: var(--raised); overflow: hidden; }
+  .player .bar > div { height: 100%; width: 0; background: var(--accent); transition: width 0.3s; }
+  .player .now { margin-top: 6px; font-size: 13px; color: var(--muted); min-height: 18px; }
+  .once { margin-top: 8px; font-size: 12.5px; color: var(--muted); }
+
+  /* the questions */
+  .qgroup { margin-top: 24px; }
+  .qgroup > h3 { margin: 0 0 4px; font-size: 13px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--accent-text); }
+  .qgroup > .how { margin: 0 0 10px; font-size: 13.5px; color: var(--text-2); }
+  .notes { padding: 4px 16px 8px; border-radius: 12px; background: var(--surface-2); border: 1px solid var(--border); }
+  .notes .ntitle { padding-top: 10px; font-weight: 650; }
+  .q { padding: 10px 0; border-top: 1px solid var(--border); }
+  .notes .q:first-of-type { border-top: 0; }
+  .q .stem { display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 4px; font-size: 15.5px; line-height: 1.6; }
+  .q .no { display: inline-grid; place-items: center; width: 24px; height: 24px; border-radius: 7px; background: var(--raised); font-size: 12.5px; font-weight: 700; color: var(--text-2); font-variant-numeric: tabular-nums; }
+  .q.right .no { background: var(--green-soft); color: var(--green); }
+  .q.wrong .no { background: var(--red-soft); color: var(--red); }
+  .q .body { margin: 8px 0 0 34px; }
+  .opts { display: grid; gap: 6px; }
+  .opts button { display: grid; grid-template-columns: 24px minmax(0, 1fr); gap: 6px; padding: 8px 12px; text-align: left; line-height: 1.4; border: 1px solid var(--border-strong); background: var(--surface); color: var(--text); border-radius: 10px; cursor: pointer; font-size: 14.5px; }
+  .opts button b { color: var(--muted); }
+  .opts button.on { border-color: var(--accent); background: var(--accent-soft); color: var(--accent-text); }
+  .opts button.is { border-color: var(--green); background: var(--green-soft); color: var(--green); }
+  .opts button.on.not { border-color: var(--red); background: var(--red-soft); color: var(--red); }
+  .opts button:disabled { cursor: default; }
+  .gap { display: inline-block; width: 150px; max-width: 60%; margin: 0 4px; padding: 3px 8px; font: inherit; font-size: 15px; border-radius: 8px; border: 1.5px solid var(--border-strong); background: var(--surface); color: var(--text); outline: none; }
+  .gap:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .q.right .gap { border-color: var(--green); color: var(--green); }
+  .q.wrong .gap { border-color: var(--red); color: var(--red); text-decoration: line-through; }
+  .why { margin: 8px 0 0 34px; padding: 10px 12px; border-radius: 10px; background: var(--surface); border: 1px solid var(--border); font-size: 14px; color: var(--text-2); line-height: 1.5; }
+  .why .ans { display: block; margin-bottom: 4px; color: var(--green); font-weight: 650; }
+  .why .heard { display: block; margin-top: 6px; font-style: italic; color: var(--text); }
+
+  .result { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; margin: 18px 0 4px; padding: 14px 16px; border-radius: 14px; background: var(--accent-soft); }
+  .result .big { font-size: 34px; font-weight: 700; color: var(--accent-text); font-variant-numeric: tabular-nums; }
+  .result .big small { font-size: 16px; color: var(--text-2); font-weight: 600; }
+  .result .band { padding: 0; border: 0; background: none; }
+  .result .note { flex-basis: 100%; margin: 0; font-size: 12.5px; color: var(--muted); }
+  .script { margin-top: 18px; }
+  .script summary { cursor: pointer; font-weight: 650; }
+  .script .ln { display: grid; grid-template-columns: 110px minmax(0, 1fr) auto; gap: 10px; align-items: start; padding: 6px 8px; border-radius: 8px; font-size: 14.5px; line-height: 1.5; }
+  .script .ln b { color: var(--muted); font-weight: 600; font-size: 13px; }
+  .script .ln.key { background: var(--accent-soft); }
+  .after { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px; }
+  @media (max-width: 640px) {
+    .script .ln { grid-template-columns: minmax(0, 1fr) auto; }
+    .script .ln b { grid-column: 1 / -1; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brand"><h1>IELTS Listening</h1></div>
+    <a id="toDictation" class="btn small ghost" href="listen.html"></a>
+  </header>
+
+  <!-- which part -->
+  <section id="home" class="card" hidden><div class="inner">
+    <h2>IELTS Listening</h2>
+    <p class="lead" data-t="ilsLead"></p>
+    <div id="noKey" class="notice" hidden></div>
+    <div class="tiles parts" id="parts"></div>
+    <div class="last" id="last"></div>
+    <div id="usage" class="muted" style="margin-top: 14px;"></div>
+  </div></section>
+
+  <!-- the recording being made -->
+  <section id="making" class="card" hidden>
+    <div class="inner making"><span class="spin"></span><p id="makingText"></p></div>
+    <div class="actions"><span class="spacer"></span><button id="stopMaking" class="btn ghost" data-t="writeLeave"></button></div>
+  </section>
+
+  <!-- the test -->
+  <section id="test" class="card" hidden>
+    <div class="inner">
+      <div class="head" id="testHead"></div>
+      <div class="context" id="context"></div>
+      <div class="player">
+        <button class="play" id="play"></button>
+        <div class="track"><div class="bar"><div id="progress"></div></div><div class="now" id="now"></div></div>
+      </div>
+      <div class="once" data-t="ilsOnce"></div>
+      <div id="result" hidden></div>
+      <div id="qs"></div>
+      <div id="script"></div>
+    </div>
+    <div class="actions">
+      <button id="leave" class="btn ghost" data-t="writeLeave"></button>
+      <span class="spacer"></span>
+      <button id="go" class="btn primary"></button>
+    </div>
+  </section>
+</div>
+
+<!-- On the phone, where there is no extension, this stands in for it. -->
+<script src="web.js?v=0.34.0"></script>
+<script src="messages.js?v=0.34.0"></script>
+<script src="shared.js?v=0.34.0"></script>
+<script src="study.js?v=0.34.0"></script>
+<script src="nouns.js?v=0.34.0"></script>
+<script src="cloud.js?v=0.34.0"></script>
+<script src="reading.js?v=0.34.0"></script>
+<script src="listentest.js?v=0.34.0"></script>
+<script src="gemini.js?v=0.34.0"></script>
+<script src="translate.js?v=0.34.0"></script>
+<script src="ui.js?v=0.34.0"></script>
+<script src="practice-data.js?v=0.34.0"></script>
+<script src="practice.js?v=0.34.0"></script>
+<script src="ielts-listen.js?v=0.34.0"></script>
+<script src="select.js?v=0.34.0"></script>
+</body>
+</html>

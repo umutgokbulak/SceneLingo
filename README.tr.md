@@ -61,7 +61,10 @@ yazdım, çalışırken ihtiyaç duyduklarımı ekledim, sonra onu izlediğim di
   neyi doğru duyduğun, neyi yanlış yazdığın, neyi kaçırdığın ve cümlede olmayan neyi yazdığın gösterilir, cümlenin
   anlamıyla birlikte. Gemini varsa cümledeki kelime ve kalıplar o cümledeki anlamlarıyla listelenir, her biri tek
   dokunuşla kaydedilir; cümlenin herhangi bir kelimesine dokununca kartı açılır. Doğru duyulan cümle bir hafta dinlenir, kaçırılan ertesi gün yeniden gelir. Telefonda da
-  çalışır.
+  çalışır. İngilizcede **IELTS Listening** de var: sınavın bir bölümü (Part 1 konuşma ve form, Part 3 öğrenci
+  tartışması, Part 4 ders anlatımı ve notlar); Gemini her seferinde gerçek sınavdaki tuzaklarla (düzeltilen cevap,
+  vazgeçilen seçenek) yeniden yazar, İngiliz, Amerikan ve Avustralya sesleriyle okunur, bir kez çalınır. Sonra
+  puan, sınav tablosuna göre tahmini band, her cevabın nedeni ve söylendiği satır (yeniden dinlenir) ve kaydın metni.
 - **Konuşma alıştırması.** Günlük durumlar (kafe, doktor randevusu, yeni iş arkadaşı, iş görüşmesi...) öğrendiğin
   dilde, senin seviyende Gemini ile canlandırılır: sen konuşursun, o rolüne uygun cevap verir; söylediğin her
   şey düzeltilir ve ☆ ile kaydedilebilir. İngilizcede IELTS Speaking'in üç bölümü de var (Part 2'de 1 dakika
@@ -140,9 +143,9 @@ yazdım, çalışırken ihtiyaç duyduklarımı ekledim, sonra onu izlediğim di
 | --- | --- |
 | ![Bugünün planı ve son yedi gün](docs/screenshots/progress.jpg) | ![IELTS Task 2 denemesi: kelime sayısı, kalan süre ve tahmini band](docs/screenshots/ielts-writing.jpg) |
 
-| IELTS Writing Task 1 | |
+| IELTS Writing Task 1 | IELTS Listening |
 | --- | --- |
-| ![Yeni bir Academic Task 1: üç şehirde işe bisikletle gidenlerin çizgi grafiği](docs/screenshots/ielts-task1.jpg) | |
+| ![Yeni bir Academic Task 1: üç şehirde işe bisikletle gidenlerin çizgi grafiği](docs/screenshots/ielts-task1.jpg) | ![Kontrol edilmiş bir IELTS Listening Part 1: 5'te 4, tahmini band 7.5, bir sorunun nedeni ve söylendiği satır](docs/screenshots/ielts-listening.jpg) |
 
 | IELTS Reading | Seviye testi |
 | --- | --- |
@@ -208,7 +211,7 @@ saat okuyup yazmasına yeter. Kurulum adımları [İngilizce README](README.md#s
 
 ## Nasıl yapıldı
 
-Manifest V3, yalın JavaScript; bağımlılık ve derleme adımı yok. 129 birim testi, site olmadan denenebilen her şey
+Manifest V3, yalın JavaScript; bağımlılık ve derleme adımı yok. 132 birim testi, site olmadan denenebilen her şey
 için oynatıcıyı taklit eden bir test sayfası ve gerisi için eklentiyi gerçek bir tarayıcıya yükleyip yöneten bir
 betik var. Altyazıların sitelerde nasıl bulunduğu, iki altyazı izinin nasıl eşleştirildiği ve yolda çıkan
 sorunlar [İngilizce README](README.md#engineering-notes)'de anlatılıyor.

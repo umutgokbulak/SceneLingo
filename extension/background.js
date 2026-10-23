@@ -16,8 +16,8 @@ else Object.assign(globalThis, require('./translate.js'));
 // translation is the word's meaning there.
 const senses = new Map();
 // Gemini's part is shared with the pages when they run on the phone.
-if (typeof importScripts === 'function') importScripts('reading.js', 'gemini.js');
-else for (const file of ['./reading.js', './gemini.js']) Object.assign(globalThis, require(file));
+if (typeof importScripts === 'function') importScripts('reading.js', 'listentest.js', 'gemini.js');
+else for (const file of ['./reading.js', './listentest.js', './gemini.js']) Object.assign(globalThis, require(file));
 
 async function sense(word, sentence, sl, tl, always) {
   word = String(word || '').trim();
@@ -305,6 +305,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   else if (msg && msg.type === 'everyday-writing') job = everydayWriting(msg);
   else if (msg && msg.type === 'reading-test') job = readingTest(msg);
   else if (msg && msg.type === 'ielts-task') job = ieltsTask(msg);
+  else if (msg && msg.type === 'listening-test') job = listeningTest(msg);
   else if (msg && msg.type === 'rewrite-check') job = rewriteCheck(msg);
   else if (msg && msg.type === 'explain') job = explain(msg.text, msg.sentence, msg.sl, msg.tl, msg.always);
   else if (msg && msg.type === 'check-sentence') job = checkSentence(msg);

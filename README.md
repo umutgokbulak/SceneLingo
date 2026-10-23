@@ -45,7 +45,7 @@
   flashcards that come back on a schedule.
 - **Where:** Amazon Prime Video, Netflix, YouTube, and any site whose subtitles can be found from outside the page
   (TED, Vimeo's player and Wikimedia Commons were checked) — or any video at all, with a subtitle file of your own.
-- **How it is built:** Manifest V3, plain JavaScript, no dependencies and no build step; 129 unit tests, a
+- **How it is built:** Manifest V3, plain JavaScript, no dependencies and no build step; 132 unit tests, a
   stand-in player for everything that can be tested without a site, and a script that loads the real extension
   into a real browser for what cannot.
 
@@ -111,7 +111,11 @@ them), plyr.io, Vimeo's player, Wikimedia Commons and a YouTube player embedded 
   word by word, what you heard right, what nearly (spelt differently), what you missed and what is not in the
   sentence, with its meaning and, with Gemini, the words and phrases in it and what they mean there, each one a
   tap away from being saved. Any word of it opens its card. A sentence heard right rests for a week, a missed one comes back the next day.
-  It works on the phone too.
+  It works on the phone too. In English, **IELTS Listening** too: one part of the test at a time (Part 1, a
+  conversation and a form to fill in; Part 3, students discussing their studies; Part 4, a lecture and notes),
+  written new by Gemini with the traps of the real test (an answer corrected, an option turned down), read
+  aloud in British, American and Australian voices and played once. Then the score, an estimated band by the
+  test's table, why each answer is right with the line that says it to hear again, and the recording written out.
 - **Speaking practice.** Everyday situations (a café, a doctor's appointment, a new colleague, a job interview...)
   played out with Gemini in the language being learnt, at your level: you speak, it answers in character, and
   each thing you said is put right, to be saved with a star. In English, the IELTS Speaking test's three parts
@@ -197,9 +201,9 @@ them), plyr.io, Vimeo's player, Wikimedia Commons and a YouTube player embedded 
 | --- | --- |
 | ![Today's plan with the cards, listening, speaking and the week's writing; beside it the last seven days day by day, the week's numbers, and the IELTS bands as bars](docs/screenshots/progress.jpg) | ![An IELTS Task 2 essay being written, with the words counted against 250 and the time left; under it, its estimated band and the four criteria](docs/screenshots/ielts-writing.jpg) |
 
-| IELTS Writing Task 1 | |
+| IELTS Writing Task 1 | IELTS Listening |
 | --- | --- |
-| ![A new Academic Task 1: a line graph of people cycling to work in three cities from 2000 to 2020, drawn on the page, with its numbers to open as a table](docs/screenshots/ielts-task1.jpg) | |
+| ![A new Academic Task 1: a line graph of people cycling to work in three cities from 2000 to 2020, drawn on the page, with its numbers to open as a table](docs/screenshots/ielts-task1.jpg) | ![An IELTS Listening Part 1 checked: 4 of 5, an estimated band of 7.5, and a question with why its answer is right, the line that says it and a button to hear it](docs/screenshots/ielts-listening.jpg) |
 
 | IELTS Reading | Level test |
 | --- | --- |
@@ -398,6 +402,7 @@ npm run pictures:pages  # the pictures of the review page and the list of words
 | `extension/nouns.js`, `freq/de-nouns.txt` | German nouns: gender and plural, of a word in any of its forms or of a compound (`test/nouns.py` makes the list) |
 | `extension/overlay-*.js`, `content.js` | The overlay, one content script in eight files loaded in order: its state (`overlay-base`), the tracks and their translation (`-tracks`), the lines kept in step with the picture and playback (`-lines`), the word card (`-words`), writing and speaking practice (`-practice`), the bar, its menu and the list of lines (`-ui`), the list's tabs of the episode's words and questions (`-episode`); `content.js` listens and starts it |
 | `extension/read.*`, `reading.js` | Reading practice: the page, and the test Gemini writes put in order, marked and turned into a band |
+| `extension/ielts-listen.*`, `listentest.js` | IELTS Listening: a part of the test, its recording in several voices, its questions marked and its band |
 | `extension/charts.js` | The figures of IELTS Academic Task 1 drawn as SVG from a table's numbers: line graphs, bar charts, pie charts |
 | `extension/core.js` | Pure logic: subtitle and playlist formats, cue search and alignment, word matching, time-stretch |
 | `extension/background.js` | Service worker: translation, lookup and speech requests; access to other sites |

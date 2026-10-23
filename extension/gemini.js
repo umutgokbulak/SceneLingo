@@ -436,6 +436,40 @@ async function readingTest({ kind, topic, level, sl, tl, avoid }, shuffle = Math
   return { ...slReadingParts(json, k, shuffle), lang: ielts ? 'en' : sl, level: ielts ? '' : lv, topic: String(topic || '') };
 }
 
+// IELTS Listening practice: one part of the test, its recording written to be read aloud, with the
+// traps the real one sets (a speaker who corrects themselves, a choice mentioned and then turned
+// down, numbers and names spelt out), and its questions in the order the answers come. Put in order
+// by slListenParts (listentest.js).
+async function listeningTest({ part, avoid, tl }, shuffle = Math.random) {
+  const apiKey = await savedKey();
+  const p = SL_LISTEN_PARTS[part] ? +part : 1;
+  const shape = SL_LISTEN_PARTS[p];
+  const what = {
+    1: 'Part 1: a conversation between two people in an everyday situation (booking, enquiring, arranging, joining something), about 550 words; one of them gives details the other writes down: names (one spelt out letter by letter), numbers, dates, times, prices, addresses',
+    3: 'Part 3: a conversation between two or three students (and perhaps their tutor) about an assignment, a project or a course, about 650 words; they plan, compare views, agree and disagree',
+    4: 'Part 4: a lecture by one speaker on an academic subject, about 700 words, with a clear structure (an introduction, two or three points with examples, a conclusion)',
+  }[p];
+  const json = await geminiJSON(
+    apiKey,
+    `Write one part of an IELTS Listening test, as hard as the real one: ${what}.\n` +
+      `It will be read aloud by a speech engine, so write only what is said: no stage directions, no sound effects, no speaker names inside the lines. Make it sound like real speech (some "well", "actually", "let me see"), and set the traps of the real test: a speaker who gives one answer and then corrects it, an option that is mentioned and then turned down, the answer said in other words than the question.` +
+      ((avoid || []).length ? `\nNot about the same subjects as these earlier ones: ${avoid.slice(0, 10).map((t) => '"' + String(t).slice(0, 80) + '"').join(', ')}.` : '') +
+      `\n\nAnswer in JSON with these keys:\n` +
+      `"title": a short title of the subject;\n` +
+      `"context": the sentence the test begins with ("You will hear a woman phoning a sports centre about...");\n` +
+      `"speakers": the ${shape.speakers === 1 ? 'one speaker' : shape.speakers === 2 ? 'two speakers' : 'two or three speakers'}, each a name or a role ("Receptionist");\n` +
+      `"lines": the recording, in order, each {"speaker": the index of the speaker in "speakers", "text": what they say, one to three sentences}, numbered from 0 in the order given;\n` +
+      (shape.choice
+        ? `"choice": ${shape.choice} multiple-choice questions, in the order their answers come, each {"q": the question, "options": three options, all mentioned or suggested in the recording, "answer": the index (0 to 2) of the right one, "line": the index of the line that gives it, "why": one sentence in ${langName(tl)} that says how the recording gives it};\n`
+        : '') +
+      `"notesTitle": the heading of the ${p === 1 ? 'form' : 'notes'} the gaps are in;\n` +
+      `"gaps": ${shape.gaps} gaps in ${p === 1 ? 'a form' : 'notes'} the candidate completes with NO MORE THAN TWO WORDS AND/OR A NUMBER heard in the recording, in the order their answers come, each {"before": the words of the form or notes before the gap ("Name of course:"), "after": any words after it, "answers": the answer exactly as it is said, and any other way of writing it that would be marked right ("7.30", "half past seven"), "line": the index of the line that says it, "why": one sentence in ${langName(tl)}}.`,
+    16384,
+    true
+  );
+  return slListenParts(json, p, shuffle);
+}
+
 // A new IELTS Writing task, so that the few kept with the extension are not all there is: a Task 2
 // question, a General Training letter, or an Academic Task 1 figure of the `kind` asked for (a
 // line graph, a bar chart, pie charts or a table), with its data as a table. Not about the subjects
@@ -573,5 +607,5 @@ async function checkSentence({ word, sentence, sl, tl }) {
 }
 
 if (typeof module !== 'undefined') {
-  module.exports = { countGemini, slGeminiResting, geminiKeyShown, langName, geminiJSON, savedKey, askGemini, explain, enrich, gloss, speakingFeedback, roleplay, ieltsWriting, everydayWriting, readingTest, ieltsTask, rewriteCheck, episodeGloss, episodeQuiz, checkSentence };
+  module.exports = { countGemini, slGeminiResting, geminiKeyShown, langName, geminiJSON, savedKey, askGemini, explain, enrich, gloss, speakingFeedback, roleplay, ieltsWriting, everydayWriting, readingTest, listeningTest, ieltsTask, rewriteCheck, episodeGloss, episodeQuiz, checkSentence };
 }

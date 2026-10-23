@@ -20,6 +20,8 @@ const GEMINI_STUB = `(() => {
   const answer = (o) => new Response(JSON.stringify({ candidates: [{ content: { parts: [{ text: JSON.stringify(o) }] } }] }), { headers: { 'Content-Type': 'application/json' } });
   self.fetch = async (url, init) => {
     // Google Translate: the word, and the sentence it was heard in.
+    // A voice: sound enough to be taken for one (it does not play).
+    if (String(url).includes('translate_tts')) return new Response(new Uint8Array(400), { headers: { 'Content-Type': 'audio/mpeg' } });
     if (String(url).includes('translate.googleapis.com')) {
       const q = new URL(String(url)).searchParams.get('q');
       const tr = { 'swoop in': 'baskın yapmak', 'They swoop in at night.': 'Geceleyin baskın yapıyorlar.' }[q] || q;
@@ -47,6 +49,29 @@ const GEMINI_STUB = `(() => {
         phrases: [{ text: 'on the other hand', meaning: 'öte yandan' }],
         used: [],
         rewrite: [{ sentence: 'Some peoples thinks that films are the best teachers of a language.', aim: 'Görüşü kime ait olduğunu belirterek daha kesin yaz', model: 'Many language learners believe that films are the most effective teachers.' }],
+      });
+    if (prompt.includes('part of an IELTS Listening test'))
+      return answer({
+        title: 'Joining a sports centre',
+        context: 'You will hear a man phoning a sports centre about joining it.',
+        speakers: ['Receptionist', 'Tom'],
+        lines: [
+          { speaker: 0, text: 'Good morning, Riverside Sports Centre, how can I help?' },
+          { speaker: 1, text: "Hi, I'd like to join. My name is Tom Ellis, that's E-L-L-I-S." },
+          { speaker: 0, text: 'Lovely. And what is your address, Tom?' },
+          { speaker: 1, text: "It's 42 Mill Road. Sorry, I mean 24 Mill Road, I've just moved." },
+          { speaker: 0, text: 'Which membership would you like? The gold one is 60 pounds a month and includes the pool.' },
+          { speaker: 1, text: "That's a bit much. I'll take the silver one at 35 pounds." },
+          { speaker: 0, text: 'Great. The beginners swimming class starts at half past seven on Tuesdays.' },
+        ],
+        choice: [{ q: 'Why does Tom choose the silver membership?', options: ['It is cheaper', 'It includes the pool', 'It has more classes'], answer: 0, line: 5, why: 'Altın üyeliği pahalı buluyor.' }],
+        notesTitle: 'Membership form',
+        gaps: [
+          { before: 'Surname:', answers: ['Ellis'], line: 1, why: 'Harf harf söylüyor.' },
+          { before: 'Address:', after: 'Mill Road', answers: ['24'], line: 3, why: 'Önce 42 diyor, sonra düzeltiyor.' },
+          { before: 'Monthly fee: £', answers: ['35'], line: 5, why: 'Gümüş üyelik 35 pound.' },
+          { before: 'Swimming class starts at', answers: ['7.30', 'half past seven'], line: 6, why: 'Yedi buçuk.' },
+        ],
       });
     if (prompt.includes('IELTS Writing Task 2 question')) return answer({ prompt: 'Some people say that films teach a language better than classrooms. To what extent do you agree or disagree?' });
     if (prompt.includes('Academic Writing Task 1 figure'))
@@ -193,6 +218,19 @@ function days() {
       await wait(900);
       await page(`(scrollTo(0, 0), $('#qScroll').scrollTop = 0, true)`);
       fs.writeFileSync(path.join(dir, 'ielts-reading.jpg'), await b.picture(88));
+      await b.open(b.extensionPage('ielts-listen.html'));
+      await wait(1000);
+      await page(`(document.querySelector('#parts .tile').click(), true)`);
+      for (let i = 0; i < 40 && (await page(`$('#test').hidden`)); i++) await wait(300);
+      await page(`(() => {
+        answers = { q1: test.groups[0].items[0].answer, q2: 'Ellis', q3: '42', q4: '35', q5: '7.30' };
+        check();
+        document.querySelector('#script details') && (document.querySelector('#script details').open = false);
+        return true;
+      })()`);
+      await wait(600);
+      await page(`(scrollTo(0, document.querySelector('#result').getBoundingClientRect().top + scrollY - 160), true)`);
+      fs.writeFileSync(path.join(dir, 'ielts-listening.jpg'), await b.picture(88));
       const week = days();
       const dk = (t) => { const d = new Date(t); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
       week[dk(NOW)] = { reviews: 9, correct: 8, newSeen: 2, listen: 5, listenScore: 410 };
@@ -495,6 +533,37 @@ function days() {
     await page(`(document.querySelector('#text [data-w]').click(), true)`);
     await wait(300);
     assert.ok(await page(`!!document.querySelector('scenelingo-select')`));
+
+    // ---- IELTS Listening ----
+    await b.worker(GEMINI_STUB);
+    await b.open(b.extensionPage('ielts-listen.html'));
+    await wait(1000);
+    assert.equal(await page(`document.querySelectorAll('#parts .tile:not([disabled])').length`), 3);
+    await page(`(document.querySelector('#parts .tile').click(), true)`);
+    for (let i = 0; i < 40 && (await page(`$('#test').hidden`)); i++) await wait(300);
+    assert.match(await page(`$('#context').textContent`), /phoning a sports centre/, await page(`$('#makingText').textContent`));
+    assert.equal(await page(`document.querySelectorAll('#qs .q').length`), 5);
+    assert.match(await page(`$('.notes .ntitle').textContent`), /Membership form/);
+    assert.equal(await page(`test.audio.length`), 7, 'a voice for each line, fetched before it plays');
+    assert.deepEqual(JSON.parse(await page(`JSON.stringify([...new Set(test.audio.map((a) => a.voice))])`)), ['en-GB', 'en-US'], 'a voice of its own for each speaker');
+    // played once: then the button rests until the answers are checked
+    await page(`($('#play').click(), true)`);
+    for (let i = 0; i < 40 && !(await page(`finished`)); i++) await wait(250);
+    assert.ok(await page(`$('#play').disabled`), 'played once, as in the test');
+    await page(`(() => {
+      document.querySelectorAll('.opts button')[test.groups[0].items[0].answer].click();
+      const gaps = document.querySelectorAll('.gap');
+      ['ellis', '42', '35', '7:30'].forEach((v, i) => { gaps[i].value = v; gaps[i].dispatchEvent(new Event('input')); });
+      return true;
+    })()`);
+    await b.named('Enter', 13, 2); // with Ctrl
+    await wait(500);
+    assert.equal(await page(`$('#result .big').textContent`), '4 / 5');
+    assert.equal(await page(`$('#result .band b').textContent`), '≈ 7.5', '32 of 40');
+    assert.match(await page(`document.querySelectorAll('#qs .q.wrong .why')[0].textContent`), /24.*sonra düzeltiyor.*Sorry, I mean 24/s, 'why, and the line that says it');
+    assert.equal(await page(`document.querySelectorAll('#script .ln.key').length`), 4, 'the lines that answer a question (two questions are answered by one line)');
+    const heard = JSON.parse(await b.worker(`chrome.storage.local.get('listenTestLog').then((d) => JSON.stringify(d.listenTestLog))`));
+    assert.deepEqual([heard.length, heard[0].band, heard[0].task], [1, 7.5, 'part1']);
 
     // ---- the level test ----
     // (the translation stood in for: each word's meaning its letters backwards, which come back as the word)

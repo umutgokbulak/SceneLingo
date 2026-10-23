@@ -374,6 +374,9 @@ chrome.storage.sync.get(SL_DEFAULTS, (stored) => {
   document.documentElement.lang = slSetUiLang(settings.uiLang);
   slApply(document);
   slNav('listen');
+  // IELTS Listening, for English: a part of the test at a time.
+  $('toIelts').hidden = settings.learnLang !== 'en';
+  $('toIelts').append(slIcon('headphones'), el('span', 't', 'IELTS Listening'));
   document.title = slT('listenTitle') + ' — SceneLingo';
   $('hint').textContent = '';
   $('hint').append(slIcon('bulb'), slT('listenHint'));
